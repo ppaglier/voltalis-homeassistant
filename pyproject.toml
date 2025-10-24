@@ -1,0 +1,70 @@
+[tool.poetry]
+name = "voltalis"
+version = "0.1.0"
+description = "Voltalis integration in Home Assistant"
+authors = ["Pierre-Louis Pagliero"]
+readme = "README.md"
+
+
+[tool.taskipy.tasks]
+"lint" = { cmd = "ruff check", help = "Check linting accross the project" }
+"lint:fix" = { cmd = "ruff check --fix", help = "Check linting accross the project & autofix errors" }
+"format" = { cmd = "ruff format --check", help = "Check formatter accross the project" }
+"format:fix" = { cmd = "ruff format", help = "Check formatter accross the project & autofix errors" }
+"typecheck" = { cmd = "mypy custom_components", help = "Check typing accross the project" }
+
+
+[tool.ruff]
+line-length = 120
+cache-dir = ".venv/.ruff_cache"
+include = [
+    "custom_components/*",
+]
+extend-exclude = [
+    ".venv",
+    "*.md",
+    "*.json"
+]
+
+# Assume Python 3.13.
+target-version = "py313"
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "D101", "D104", "D105", "D106", "W291", "W292", "I001"]
+
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 120
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+
+[tool.mypy]
+cache_dir = ".venv/.mypy_cache"
+show_column_numbers = true
+implicit_optional = false
+disallow_untyped_defs = true
+disallow_untyped_calls = true
+follow_imports = "silent"
+ignore_missing_imports = true
+plugins = "pydantic.mypy"
+explicit_package_bases = true
+
+
+[tool.poetry.dependencies]
+python = ">=3.13.2,<4.0"
+taskipy = "^1.12.2"
+homeassistant = "^2025.10.3"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.2"
+mypy = "^1.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

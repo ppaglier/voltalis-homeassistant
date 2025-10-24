@@ -1,0 +1,30 @@
+# Python stuff
+/**/.venv
+/**/.mypy_cache
+/**/__pycache__
+/**/.pytest_cache
+/**/pytest_report.html
+/**/.ruff_cache
+/**/.vscode
+/**/.benchmarks
+
+# VSCode stuff
+/.vscode
+/.vscrof
+
+
+# Logs stuff
+/**/logs
+/**/*.log
+
+# Other stuff
+/**/.DS_Store
+
+# Local stuff
+/**/*.local
+
+# Test results
+/**/reports
+
+# Temporary files
+/**/tmp
