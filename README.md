@@ -7,6 +7,7 @@ You can learn more about their solutions on their official website: [https://www
 
 - [ha-voltalis from jdelahayes](https://github.com/jdelahayes/ha-voltalis)
 - [ha-addons from zaosoula](https://github.com/zaosoula/ha-addons)
+- [flashbird-homeassistant from gorfo66](https://github.com/gorfo66/flashbird-homeassistant)
 
 ## Contributions
 
