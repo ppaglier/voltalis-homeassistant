@@ -3,6 +3,11 @@
 Voltalis is a French company that provides smart energy management solutions to help households and businesses reduce electricity consumption and support grid stability.
 You can learn more about their solutions on their official website: [https://www.voltalis.com](https://www.voltalis.com).
 
+## Inspirations
+
+- [ha-voltalis from jdelahayes](https://github.com/jdelahayes/ha-voltalis)
+- [ha-addons from zaosoula](https://github.com/zaosoula/ha-addons)
+
 ## Contributions
 
 Please make sure to follow the [Contribution guidelines](CONTRIBUTING.md) to open an issue. Issues not conforming to the guidelines may be closed immediately.
