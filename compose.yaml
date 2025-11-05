@@ -1,0 +1,21 @@
+networks:
+  default:
+    name: voltalis-homeassistant_default
+    driver: bridge
+
+services:
+  voltalis-homeassistant:
+    container_name: voltalis-homeassistant
+    build:
+      context: .
+      target: dev
+    restart: on-failure
+    networks:
+      default:
+    ports:
+      - 9123:8123
+    volumes:
+      - .:/app
+      - /app/.venv
+      - /config
+      - ./custom_components/voltalis:/config/custom_components/voltalis:ro

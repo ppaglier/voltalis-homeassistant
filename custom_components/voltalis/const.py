@@ -2,23 +2,40 @@
 
 from homeassistant.components.climate import PRESET_AWAY, PRESET_COMFORT, PRESET_ECO, PRESET_HOME, PRESET_NONE
 
-DEFAULT_NAME = "Voltalis"
+from custom_components.voltalis.lib.domain.device import VoltalisDeviceModeEnum
+
 DOMAIN = "voltalis"
+
+# Configuration
+
+CONF_USERNAME = "username"
+CONF_PASSWORD = "password"
 
 # Temps
 
 DEFAULT_MIN_TEMP = 7
 DEFAULT_MAX_TEMP = 24
 
-
-# Presets
-
-VOLTALIS_PRESET_MODES = {
-    PRESET_ECO: "ECO",
-    PRESET_COMFORT: "CONFORT",
-    PRESET_HOME: "TEMPERATURE",
-    PRESET_AWAY: "HORS_GEL",
-    PRESET_NONE: "NORMAL",
+TEMP_UNITS = {
+    "CELSIUS": "°C",
+    "FAHRENHEIT": "°F",
 }
 
-HA_PRESET_MODES = {v: k for k, v in VOLTALIS_PRESET_MODES.items()}
+
+# Presets
+VOLTALIS_TO_HA_MODES = {
+    VoltalisDeviceModeEnum.ECO: PRESET_ECO,
+    VoltalisDeviceModeEnum.ECOV: PRESET_ECO,
+    VoltalisDeviceModeEnum.CONFORT: PRESET_COMFORT,
+    VoltalisDeviceModeEnum.TEMPERATURE: PRESET_HOME,
+    VoltalisDeviceModeEnum.HORS_GEL: PRESET_AWAY,
+    VoltalisDeviceModeEnum.NORMAL: PRESET_NONE,
+}
+
+HA_TO_VOLTALIS_MODES = {
+    PRESET_ECO: VoltalisDeviceModeEnum.ECO,
+    PRESET_COMFORT: VoltalisDeviceModeEnum.CONFORT,
+    PRESET_HOME: VoltalisDeviceModeEnum.TEMPERATURE,
+    PRESET_AWAY: VoltalisDeviceModeEnum.HORS_GEL,
+    PRESET_NONE: VoltalisDeviceModeEnum.NORMAL,
+}

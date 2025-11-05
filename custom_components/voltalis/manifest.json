@@ -1,13 +1,10 @@
 {
   "domain": "voltalis",
   "name": "Voltalis",
-  "codeowners": [
-    "@ppaglier"
-  ],
-  "config_flow": true,
-  "integration_type": "device",
-  "iot_class": "cloud_polling",
+  "version": "0.1.0",
+  "codeowners": ["@ppaglier"],
   "documentation": "https://github.com/ppaglier/voltalis-homeassistant",
   "issue_tracker": "https://github.com/ppaglier/voltalis-homeassistant/issues",
-  "version": "0.1.0"
+  "iot_class": "cloud_polling",
+  "config_flow": true
 }

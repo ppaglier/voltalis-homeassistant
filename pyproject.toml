@@ -1,9 +1,11 @@
 [tool.poetry]
-name = "voltalis"
+name = "voltalis-homeassistant"
 version = "0.1.0"
 description = "Voltalis integration in Home Assistant"
 authors = ["Pierre-Louis Pagliero"]
+license = "MIT"
 readme = "README.md"
+packages = [{ include = "custom_components" }]
 
 
 [tool.taskipy.tasks]
@@ -12,6 +14,23 @@ readme = "README.md"
 "format" = { cmd = "ruff format --check", help = "Check formatter accross the project" }
 "format:fix" = { cmd = "ruff format", help = "Check formatter accross the project & autofix errors" }
 "typecheck" = { cmd = "mypy custom_components", help = "Check typing accross the project" }
+"test:all" = { cmd = "pytest", help = "Runs all tests" }
+"test:cov" = { cmd = "pytest --cov=custom_components", help = "Runs all tests for coverage" }
+
+
+[tool.pytest.ini_options]
+cache_dir = ".venv/.pytest_cache"
+addopts = "--strict-markers --ignore=.venv"
+markers = []
+asyncio_mode = "auto"
+
+[tool.pytest_env]
+ENVIRONMENT = "test"
+
+[tool.coverage.run]
+omit = [
+    "**/tests/*",
+]
 
 
 [tool.ruff]
@@ -59,11 +78,20 @@ explicit_package_bases = true
 python = ">=3.13.2,<4.0"
 taskipy = "^1.12.2"
 homeassistant = "^2025.10.3"
+pydantic = "2.12.2"
 
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.11.2"
 mypy = "^1.8.0"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.2"
+pytest-cov = "^7.0.0"
+pytest-env = "^1.2.0"
+pytest-homeassistant-custom-component = "^0.13.292"
+
 
 [build-system]
 requires = ["poetry-core"]
