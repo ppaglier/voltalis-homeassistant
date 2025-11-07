@@ -6,11 +6,6 @@ from custom_components.voltalis.lib.domain.device import VoltalisDeviceModeEnum
 
 DOMAIN = "voltalis"
 
-# Configuration
-
-CONF_USERNAME = "username"
-CONF_PASSWORD = "password"
-
 # Temps
 
 DEFAULT_MIN_TEMP = 7

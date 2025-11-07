@@ -4,7 +4,7 @@ FROM python:${PYTHON_VERSION}-slim AS python-base
 
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install --no-install-recommends -y \
-        build-essential && \
+        build-essential ffmpeg && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip
@@ -20,6 +20,8 @@ ENV POETRY_REQUESTS_TIMEOUT=100
 # Creating a virtual environment just for poetry and install it with pip
 RUN python -m venv $POETRY_VENV \
     && $POETRY_VENV/bin/pip install -U pip setuptools \
+    # Install zlib_ng & isal for home assistant
+    && $POETRY_VENV/bin/pip install -U pip zlib_ng isal \
     && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
 
 # Add Poetry to PATH
@@ -44,12 +46,6 @@ FROM builder-base AS builder-dev
 # Install all Dependencies
 RUN . $POETRY_VENV/bin/activate \
     && poetry install --no-root --no-interaction
-
-# # Create config dir if not present
-# RUN if [[ ! -d "/config" ]]; then \
-#     mkdir -p "/config" \
-#     hass --config "/config" --script ensure_config \
-# fi
 
 
 ## ------------------------------- Dev Stage ------------------------------ ##

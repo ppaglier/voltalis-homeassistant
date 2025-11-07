@@ -47,7 +47,7 @@ class VoltalisDevice(CustomModel):
 
     id: int
     name: str
-    status: bool
+    status: bool | None = None
     type: VoltalisDeviceTypeEnum
     modulator_type: VoltalisDeviceModulatorTypeEnum
     available_modes: list[VoltalisDeviceModeEnum]

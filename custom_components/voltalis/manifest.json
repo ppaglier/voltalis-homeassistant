@@ -6,5 +6,6 @@
   "documentation": "https://github.com/ppaglier/voltalis-homeassistant",
   "issue_tracker": "https://github.com/ppaglier/voltalis-homeassistant/issues",
   "iot_class": "cloud_polling",
+  "quality_scale": "silver",
   "config_flow": true
 }

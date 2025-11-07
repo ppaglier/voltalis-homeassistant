@@ -1,9 +1,11 @@
 import logging
+from datetime import datetime
 from typing import Any, TypedDict
 
 from aiohttp import ClientConnectorError, ClientError, ClientResponseError, ClientSession, ClientTimeout
 
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
+from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
 
@@ -18,20 +20,19 @@ class VoltalisClientAiohttp(VoltalisClient):
     class Storage(TypedDict):
         """Dict that represent the storage of the client"""
 
+        username: str | None
+        password: str | None
         auth_token: str | None
         default_site_id: str | None
 
     def __init__(
         self,
         *,
-        username: str,
-        password: str,
+        username: str | None = None,
+        password: str | None = None,
         base_url: str = BASE_URL,
         session: ClientSession | None = None,
     ) -> None:
-        self.__username = username
-        self.__password = password
-
         # Setup session if not provided & set the close_session var for later
         _session = session
         if _session is None:
@@ -44,6 +45,8 @@ class VoltalisClientAiohttp(VoltalisClient):
 
         # Setup storage
         self.__storage = VoltalisClientAiohttp.Storage(
+            username=username,
+            password=password,
             auth_token=None,
             default_site_id=None,
         )
@@ -60,18 +63,23 @@ class VoltalisClientAiohttp(VoltalisClient):
 
     async def __aexit__(self, *exc_info: Any) -> None:
         """Logout and close the session if the session wasn't provided at init."""
-        await self.logout()
+        await super().__aexit__()
 
         if self.__close_session:
             await self.__session.close()
 
-    async def login(self) -> None:
-        """Execute Voltalis login."""
+    async def get_access_token(
+        self,
+        *,
+        username: str,
+        password: str,
+    ) -> str:
+        """Get Voltalis access token."""
 
         self.__logger.debug("Login start")
         payload = {
-            "login": self.__username,
-            "password": self.__password,
+            "login": username,
+            "password": password,
         }
         response = await self.__send_request(
             url=VoltalisClientAiohttp.LOGIN_ROUTE,
@@ -80,10 +88,30 @@ class VoltalisClientAiohttp(VoltalisClient):
             json=payload,
         )
         self.__logger.debug("Login Response: %s", response)
-        self.__storage["auth_token"] = response["token"]
+        return response["token"]
+
+    def set_credentials(self, username: str, password: str) -> None:
+        self.__storage["username"] = username
+        self.__storage["password"] = password
+
+    async def login(self) -> None:
+        """Execute Voltalis login."""
+
+        if self.__storage["username"] is None or self.__storage["password"] is None:
+            raise VoltalisException("You must provide username & password")
+
+        self.__logger.debug("Login start")
+        token = await self.get_access_token(
+            username=self.__storage["username"],
+            password=self.__storage["password"],
+        )
+        self.__storage["auth_token"] = token
         self.__logger.info("Login successful")
 
     async def logout(self) -> None:
+        if self.__storage["auth_token"] is None:
+            return
+
         await self.__send_request(url="/auth/logout", retry=False, method="DELETE")
         self.__logger.info("Logout successful")
         self.__storage["auth_token"] = None
@@ -120,36 +148,77 @@ class VoltalisClientAiohttp(VoltalisClient):
             for device_health_document in devices_health_response
         }
 
+        devices_documents: dict[int, dict] = {
+            device_document["id"]: {**device_document, "status": devices_health.get(device_document["id"], None)}
+            for device_document in devices_response
+        }
+
         devices = {
-            device_document["id"]: VoltalisDevice(
-                id=device_document["id"],
-                status=devices_health.get(device_document["id"], False),
+            id: VoltalisDevice(
+                id=id,
+                status=device_document["status"],
                 name=device_document["name"],
                 type=device_document["applianceType"],
                 modulator_type=device_document["modulatorType"],
                 available_modes=device_document["availableModes"],
                 prog_type=device_document.get("programming", {})["progType"],
             )
-            for device_document in devices_response
+            for id, device_document in devices_documents.items()
         }
 
         return devices
 
-    async def get_consumption(self) -> list[dict]:
+    async def get_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         """Get all Voltalis devices consumption."""
 
+        class RawDeviceConsumption(CustomModel):
+            date: datetime
+            consumption: float
+
+        def __get_consumption_for_hour(
+            devices_consumptions: dict[int, list[RawDeviceConsumption]],
+            target_datetime: datetime,
+        ) -> dict[int, RawDeviceConsumption]:
+            target_hour = target_datetime.replace(minute=0, second=0, microsecond=0)
+            result: dict[int, RawDeviceConsumption] = {}
+
+            for device_id, consumptions in devices_consumptions.items():
+                match = next(
+                    (c for c in consumptions if c.date.replace(minute=0, second=0, microsecond=0) == target_hour), None
+                )
+                if match:
+                    result[device_id] = match
+
+            return result
+
         self.__logger.debug("Get all Voltalis devices consumption")
-        response: list[dict] = await self.__send_request(
-            url="/api/site/{site_id}/consumption/realtime",
-            params={
-                "mode": "TEN_SECONDS",
-                "numPoints": 1,
-            },
+
+        # Fetch the data from the voltalis API
+        target_date_str = target_datetime.isoformat("T").split("T")[0]
+        response: dict[str, dict[int, list[dict]]] = await self.__send_request(
+            url="/api/site/{site_id}/consumption/day/" + target_date_str + "/full-data",
             method="GET",
             retry=False,
         )
 
-        return response
+        filtered_consumptions = __get_consumption_for_hour(
+            devices_consumptions={
+                device_id: [
+                    RawDeviceConsumption(
+                        date=device_consumption["stepTimestampOnSite"],
+                        consumption=device_consumption["totalConsumptionInWh"],
+                    )
+                    for device_consumption in device_consumptions
+                ]
+                for device_id, device_consumptions in response["perAppliance"].items()
+            },
+            target_datetime=target_datetime,
+        )
+
+        return {
+            device_id: filtered_consumption.consumption
+            for device_id, filtered_consumption in filtered_consumptions.items()
+        }
 
     async def __send_request(
         self,
