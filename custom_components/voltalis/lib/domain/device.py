@@ -35,22 +35,12 @@ class VoltalisDeviceProgTypeEnum(StrEnum):
     DEFAULT = "DEFAULT"
 
 
-class VoltalisDeviceConsumption(CustomModel):
-    """Class to represent Voltalis devices consumption"""
-
-    realtime: float
-    daily: float
-
-
 class VoltalisDevice(CustomModel):
     """Class to represent Voltalis devices"""
 
     id: int
     name: str
-    status: bool | None = None
     type: VoltalisDeviceTypeEnum
     modulator_type: VoltalisDeviceModulatorTypeEnum
     available_modes: list[VoltalisDeviceModeEnum]
     prog_type: VoltalisDeviceProgTypeEnum
-
-    # consumption: VoltalisDeviceConsumption

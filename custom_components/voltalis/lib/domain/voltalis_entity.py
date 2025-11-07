@@ -1,7 +1,8 @@
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.voltalis.const import DOMAIN
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.domain.device import (
     VoltalisDevice,
     VoltalisDeviceModulatorTypeEnum,
@@ -9,12 +10,12 @@ from custom_components.voltalis.lib.domain.device import (
 )
 
 
-class VoltalisEntity(CoordinatorEntity):
+class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
     """Base class for Voltalis entities."""
 
     def __init__(
         self,
-        coordinator: DataUpdateCoordinator,
+        coordinator: VoltalisCoordinator,
         device: VoltalisDevice,
     ) -> None:
         """Initialize the device."""

@@ -136,6 +136,23 @@ class VoltalisClientAiohttp(VoltalisClient):
             retry=False,
         )
 
+        devices = {
+            device_document["id"]: VoltalisDevice(
+                id=device_document["id"],
+                name=device_document["name"],
+                type=device_document["applianceType"],
+                modulator_type=device_document["modulatorType"],
+                available_modes=device_document["availableModes"],
+                prog_type=device_document.get("programming", {})["progType"],
+            )
+            for device_document in devices_response
+        }
+
+        return devices
+
+    async def get_device_health(self) -> dict[int, bool]:
+        """Get devices health"""
+
         self.__logger.debug("Get all Voltalis status")
         devices_health_response: list[dict] = await self.__send_request(
             url="/api/site/{site_id}/autodiag",
@@ -148,25 +165,7 @@ class VoltalisClientAiohttp(VoltalisClient):
             for device_health_document in devices_health_response
         }
 
-        devices_documents: dict[int, dict] = {
-            device_document["id"]: {**device_document, "status": devices_health.get(device_document["id"], None)}
-            for device_document in devices_response
-        }
-
-        devices = {
-            id: VoltalisDevice(
-                id=id,
-                status=device_document["status"],
-                name=device_document["name"],
-                type=device_document["applianceType"],
-                modulator_type=device_document["modulatorType"],
-                available_modes=device_document["availableModes"],
-                prog_type=device_document.get("programming", {})["progType"],
-            )
-            for id, device_document in devices_documents.items()
-        }
-
-        return devices
+        return devices_health
 
     async def get_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         """Get all Voltalis devices consumption."""
