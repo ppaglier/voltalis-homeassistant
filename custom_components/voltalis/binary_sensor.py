@@ -5,7 +5,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.device import VoltalisDevice
-from custom_components.voltalis.lib.domain.sensors.voltalis_consumption_sensor import VoltalisConsumptionSensor
+from custom_components.voltalis.lib.domain.sensors.voltalis_connected_sensor import VoltalisConnectedSensor
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,13 +27,16 @@ async def async_setup_entry(
     sensors: list[VoltalisEntity] = []
 
     for data in coordinator.data.values():
+        # Ignore devices data that didn't have status
+        if data.status is None:
+            continue
         device: VoltalisDevice = data.device
 
-        # Create the consumption sensor for each device
-        consumption_sensor = VoltalisConsumptionSensor(coordinator, device)
-        sensors.append(consumption_sensor)
+        # Create the connected sensor for each device
+        connected_sensor = VoltalisConnectedSensor(coordinator, device)
+        sensors.append(connected_sensor)
 
-        _LOGGER.debug("Created consumption sensor for device %s", device.name)
+        _LOGGER.debug("Created connected sensor for device %s", device.name)
 
     async_add_entities(sensors, update_before_add=True)
-    _LOGGER.info("Added %d Voltalis consumption sensors", len(sensors))
+    _LOGGER.info("Added %d Voltalis connected sensors", len(sensors))

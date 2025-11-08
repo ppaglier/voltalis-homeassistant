@@ -30,7 +30,8 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
             hass,
             _LOGGER,
             name="Voltalis",
-            update_interval=timedelta(hours=1),  # Refresh every hour
+            # update_interval=timedelta(hours=1),  # Refresh every hour
+            update_interval=timedelta(seconds=30),  # Refresh every hour
         )
         self.__client = client
         self.__date_provider = date_provider
@@ -40,11 +41,13 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
         try:
             _LOGGER.debug("Fetching Voltalis data...")
 
-            now = self.__date_provider.get_now()
-
             # Fetch devices and consumptions
             devices = await self.__client.get_devices()
-            consumptions = await self.__client.get_consumptions(now)
+            devices_health = await self.__client.get_devices_health()
+
+            # We remove 1 hour because we can't fetch data from the current our
+            target_datetime = self.__date_provider.get_now() - timedelta(hours=1)
+            consumptions = await self.__client.get_consumptions(target_datetime)
 
             result: dict[int, VoltalisCoordinatorData] = {}
 
@@ -52,7 +55,7 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
                 result[device_id] = VoltalisCoordinatorData(
                     device=device,
                     consumption=consumptions.get(device_id, None),
-                    status=None,
+                    status=devices_health.get(device_id, None),
                 )
 
             _LOGGER.debug("Fetched %d devices from Voltalis", len(result))

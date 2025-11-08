@@ -31,7 +31,7 @@ class VoltalisConsumptionSensor(VoltalisEntity, SensorEntity):
 
     @property
     def native_unit_of_measurement(self) -> str:
-        return UnitOfEnergy.KILO_WATT_HOUR
+        return UnitOfEnergy.WATT_HOUR
 
     @callback
     def _handle_coordinator_update(self) -> None:

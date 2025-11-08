@@ -48,6 +48,11 @@ class VoltalisClient(ABC):
         ...
 
     @abstractmethod
+    async def get_devices_health(self) -> dict[int, bool]:
+        """Get devices health from the Voltalis servers"""
+        ...
+
+    @abstractmethod
     async def get_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         """Get devices consumptions from the Voltalis servers"""
         ...

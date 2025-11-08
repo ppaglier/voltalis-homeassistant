@@ -3,9 +3,12 @@
 import logging
 
 from homeassistant import config_entries
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.voltalis.const import DOMAIN
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry, VoltalisConfigEntryData
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.infrastructure.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.voltalis_client_aiohttp import VoltalisClientAiohttp
@@ -13,8 +16,13 @@ from custom_components.voltalis.lib.infrastructure.voltalis_client_aiohttp impor
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
 
+PLATFORMS = [
+    Platform.SENSOR,
+    Platform.BINARY_SENSOR,
+]
 
-async def async_setup_entry(hass: HomeAssistant, entry: config_entries.ConfigEntry) -> bool:
+
+async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Setup via Config Flow UI."""
 
     username = entry.data["username"]
@@ -24,21 +32,29 @@ async def async_setup_entry(hass: HomeAssistant, entry: config_entries.ConfigEnt
 
     date_provider = DateProviderReal()
 
-    async with VoltalisClientAiohttp(
+    client = VoltalisClientAiohttp(
         username=username,
         password=password,
-    ) as client:
-        await client.login()
-        await client.get_me()
+        session=async_get_clientsession(hass),
+    )
 
-        coordinator = VoltalisCoordinator(hass, client, date_provider)
+    await client.login()
+    await client.get_me()
 
-        await coordinator.async_config_entry_first_refresh()
+    coordinator = VoltalisCoordinator(hass, client, date_provider)
 
-        # ✅ store coordinator for other platforms
-        hass.data[DOMAIN]["coordinator"] = coordinator
+    await coordinator.async_config_entry_first_refresh()
 
-        # forward setup to sensor platform
-        await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
+    # ✅ store coordinator for other platforms
+    entry.runtime_data = VoltalisConfigEntryData(coordinator=coordinator)
+
+    # forward setup to sensor platform
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: config_entries.ConfigEntry) -> bool:
+    """Unload a config entry."""
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    return unload_ok

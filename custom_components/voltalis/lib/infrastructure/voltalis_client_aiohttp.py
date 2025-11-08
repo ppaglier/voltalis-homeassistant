@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from typing import Any, TypedDict
+from urllib.parse import urljoin
 
 from aiohttp import ClientConnectorError, ClientError, ClientResponseError, ClientSession, ClientTimeout
 
@@ -15,7 +16,6 @@ class VoltalisClientAiohttp(VoltalisClient):
 
     BASE_URL = "https://api.myvoltalis.com"
     LOGIN_ROUTE = "/auth/login"
-    TIMEOUT = 30  # Seconds
 
     class Storage(TypedDict):
         """Dict that represent the storage of the client"""
@@ -33,13 +33,15 @@ class VoltalisClientAiohttp(VoltalisClient):
         base_url: str = BASE_URL,
         session: ClientSession | None = None,
     ) -> None:
+        self.__base_url = base_url
+
         # Setup session if not provided & set the close_session var for later
         _session = session
         if _session is None:
             _session = ClientSession(
-                base_url=base_url,
-                timeout=ClientTimeout(VoltalisClientAiohttp.TIMEOUT),
+                timeout=ClientTimeout(30),
             )
+
         self.__session = _session
         self.__close_session = session is None
 
@@ -150,7 +152,7 @@ class VoltalisClientAiohttp(VoltalisClient):
 
         return devices
 
-    async def get_device_health(self) -> dict[int, bool]:
+    async def get_devices_health(self) -> dict[int, bool]:
         """Get devices health"""
 
         self.__logger.debug("Get all Voltalis status")
@@ -194,7 +196,7 @@ class VoltalisClientAiohttp(VoltalisClient):
 
         # Fetch the data from the voltalis API
         target_date_str = target_datetime.isoformat("T").split("T")[0]
-        response: dict[str, dict[int, list[dict]]] = await self.__send_request(
+        response: dict[str, dict[str, list[dict]]] = await self.__send_request(
             url="/api/site/{site_id}/consumption/day/" + target_date_str + "/full-data",
             method="GET",
             retry=False,
@@ -202,7 +204,7 @@ class VoltalisClientAiohttp(VoltalisClient):
 
         filtered_consumptions = __get_consumption_for_hour(
             devices_consumptions={
-                device_id: [
+                int(device_id): [
                     RawDeviceConsumption(
                         date=device_consumption["stepTimestampOnSite"],
                         consumption=device_consumption["totalConsumptionInWh"],
@@ -243,10 +245,12 @@ class VoltalisClientAiohttp(VoltalisClient):
         if self.__storage["default_site_id"] is not None:
             _url = url.format(site_id=self.__storage["default_site_id"])
 
-        self.__logger.debug(f"Call Voltalis API to {url} using {method}")
+        self.__logger.debug(f"Call Voltalis API to {_url} using {method}")
+
+        full_url = urljoin(self.__base_url, _url)
 
         try:
-            response = await self.__session.request(url=_url, method=method, headers=headers, **kwargs)
+            response = await self.__session.request(url=full_url, method=method, headers=headers, **kwargs)
             if response.status == 401:
                 raise VoltalisAuthenticationException(await response.text())
             if response.status == 404:
