@@ -27,7 +27,7 @@ class VoltalisConsumptionSensor(VoltalisEntity, SensorEntity):
 
     @property
     def state_class(self) -> SensorStateClass:
-        return SensorStateClass.MEASUREMENT
+        return SensorStateClass.TOTAL_INCREASING
 
     @property
     def native_unit_of_measurement(self) -> str:
