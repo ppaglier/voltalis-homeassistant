@@ -22,15 +22,16 @@
       "reconfigure_successful": "La configuration a été mise à jour avec succès"
     }
   },
-  "device_model": {
-    "unknown": "Appareil inconnu",
-    "heater": {
-      "wire": "Radiateur",
-      "relay": "Radiateur avec relais"
+  "entity": {
+    "sensor": {
+      "consumption": {
+        "name": "Consommation"
+      }
     },
-    "water_heater": {
-      "wire": "Chauffe-eau",
-      "relay": "Chauffe-eau avec relais"
+    "binary_sensor": {
+      "connected": {
+        "name": "Statut de la connexion"
+      }
     }
   }
 }

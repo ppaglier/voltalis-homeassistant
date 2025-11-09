@@ -18,6 +18,10 @@ class VoltalisConsumptionSensor(VoltalisEntity, SensorEntity):
     """References the consumption of a device."""
 
     @property
+    def translation_key(self) -> str:
+        return "consumption"
+
+    @property
     def icon(self) -> str:
         return "mdi:lightning-bolt"
 

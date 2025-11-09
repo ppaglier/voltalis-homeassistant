@@ -22,15 +22,16 @@
       "reconfigure_successful": "Configuration updated successfully"
     }
   },
-  "device_model": {
-    "unknown": "Unknown device",
-    "heater": {
-      "wire": "Heater",
-      "relay": "Heater with relay"
+  "entity": {
+    "sensor": {
+      "consumption": {
+        "name": "Consumption"
+      }
     },
-    "water_heater": {
-      "wire": "Water heater",
-      "relay": "Water heater with relay"
+    "binary_sensor": {
+      "connected": {
+        "name": "Connection status"
+      }
     }
   }
 }

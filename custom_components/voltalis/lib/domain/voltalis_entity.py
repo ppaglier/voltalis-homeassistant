@@ -22,16 +22,19 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
         super().__init__(coordinator)
 
         self._device = device
+
         unique_id = str(device.id)
+        device_name = self.__get_device_name()
 
         # Unique id for Home Assistant
         self._attr_unique_id = unique_id
         self._attr_has_entity_name = True
+
         self._attr_device_info: DeviceInfo = DeviceInfo(
             identifiers={(DOMAIN, unique_id)},
-            name=self.__get_device_name(),
+            name=device_name,
             manufacturer="Voltalis",
-            model=self.__get_device_model_key(),  # key for translation
+            model=self.__get_device_model(),
         )
 
     @property
@@ -41,7 +44,7 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
     def __get_device_name(self) -> str:
         return self._device.name.capitalize()
 
-    def __get_device_model_key(self) -> str:
+    def __get_device_model(self) -> str:
         """Return the translation key for the device model."""
 
         model_keys = {
@@ -56,4 +59,4 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
         model = model_keys.get(self._device.type, "unknown")
         model_type = type_keys.get(self._device.modulator_type, "unknown")
 
-        return f"device_model.{model}.{model_type}"
+        return f"{model}.{model_type}"

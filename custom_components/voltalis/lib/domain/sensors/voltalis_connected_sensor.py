@@ -16,6 +16,10 @@ class VoltalisConnectedSensor(VoltalisEntity, BinarySensorEntity):
     """References the connected of a device."""
 
     @property
+    def translation_key(self) -> str:
+        return "connected"
+
+    @property
     def icon(self) -> str:
         return "mdi:wifi"
 
