@@ -25,6 +25,7 @@
 
 # Test results
 /**/reports
+/**/*.coverage
 
 # Temporary files
 /**/tmp

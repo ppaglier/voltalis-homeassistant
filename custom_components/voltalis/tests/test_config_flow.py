@@ -4,10 +4,12 @@ from homeassistant.core import HomeAssistant
 from custom_components.voltalis.config_flow import VoltalisConfigFlow
 
 
+@pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_config_flow_creates_entry(hass: HomeAssistant) -> None:
     """Teste que le config flow crée bien une entry."""
 
+    # TODO: use fake client http
     flow = VoltalisConfigFlow()
     flow.hass = hass
 

@@ -14,14 +14,20 @@ packages = [{ include = "custom_components" }]
 "format" = { cmd = "ruff format --check", help = "Check formatter accross the project" }
 "format:fix" = { cmd = "ruff format", help = "Check formatter accross the project & autofix errors" }
 "typecheck" = { cmd = "mypy custom_components", help = "Check typing accross the project" }
+"test:integration" = { cmd = "pytest -m integration", help = "Runs all integration tests" }
+"test:e2e" = { cmd = "pytest -m e2e", help = "Runs all e2e tests" }
 "test:all" = { cmd = "pytest", help = "Runs all tests" }
 "test:cov" = { cmd = "pytest --cov=custom_components", help = "Runs all tests for coverage" }
+"test:miss" = { cmd = "! pytest --collect-only -m 'not integration' -q", help = "Find tests that are not marked at all" }
 
 
 [tool.pytest.ini_options]
 cache_dir = ".venv/.pytest_cache"
-addopts = "--strict-markers --ignore=.venv"
-markers = []
+addopts = "--strict-markers --ignore=.venv --import-mode=importlib"
+markers = [
+    "integration: integration tests",
+    "e2e: end to end tests",
+]
 asyncio_mode = "auto"
 
 [tool.pytest_env]
