@@ -20,8 +20,6 @@ class VoltalisClientAiohttp(VoltalisClient):
     class Storage(TypedDict):
         """Dict that represent the storage of the client"""
 
-        username: str | None
-        password: str | None
         auth_token: str | None
         default_site_id: str | None
 
@@ -33,6 +31,8 @@ class VoltalisClientAiohttp(VoltalisClient):
         base_url: str = BASE_URL,
         session: ClientSession | None = None,
     ) -> None:
+        self.__username = username
+        self.__password = password
         self.__base_url = base_url
 
         # Setup session if not provided & set the close_session var for later
@@ -47,8 +47,6 @@ class VoltalisClientAiohttp(VoltalisClient):
 
         # Setup storage
         self.__storage = VoltalisClientAiohttp.Storage(
-            username=username,
-            password=password,
             auth_token=None,
             default_site_id=None,
         )
@@ -92,20 +90,16 @@ class VoltalisClientAiohttp(VoltalisClient):
         self.__logger.debug("Login Response: %s", response)
         return response["token"]
 
-    def set_credentials(self, username: str, password: str) -> None:
-        self.__storage["username"] = username
-        self.__storage["password"] = password
-
     async def login(self) -> None:
         """Execute Voltalis login."""
 
-        if self.__storage["username"] is None or self.__storage["password"] is None:
+        if self.__username is None or self.__password is None:
             raise VoltalisException("You must provide username & password")
 
         self.__logger.debug("Login start")
         token = await self.get_access_token(
-            username=self.__storage["username"],
-            password=self.__storage["password"],
+            username=self.__username,
+            password=self.__password,
         )
         self.__storage["auth_token"] = token
         self.__logger.info("Login successful")
