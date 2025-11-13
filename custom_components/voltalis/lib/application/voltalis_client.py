@@ -33,11 +33,6 @@ class VoltalisClient(ABC):
         ...
 
     @abstractmethod
-    async def get_me(self) -> None:
-        """Get the account of the current user"""
-        ...
-
-    @abstractmethod
     async def logout(self) -> None:
         """Logout from the Voltalis servers"""
         ...
@@ -53,6 +48,6 @@ class VoltalisClient(ABC):
         ...
 
     @abstractmethod
-    async def get_consumptions(self, target_datetime: datetime) -> dict[int, float]:
+    async def get_devices_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         """Get devices consumptions from the Voltalis servers"""
         ...

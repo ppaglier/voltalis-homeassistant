@@ -90,6 +90,16 @@ class VoltalisClientAiohttp(VoltalisClient):
         self.__logger.debug("Login Response: %s", response)
         return response["token"]
 
+    async def __get_me(self) -> str:
+        self.__logger.debug("Get me start")
+        response = await self.__send_request(
+            url="/api/account/me",
+            retry=False,
+            method="GET",
+        )
+        self.__logger.debug("Get me Response: %s", response)
+        return response["defaultSite"]["id"]
+
     async def login(self) -> None:
         """Execute Voltalis login."""
 
@@ -102,6 +112,8 @@ class VoltalisClientAiohttp(VoltalisClient):
             password=self.__password,
         )
         self.__storage["auth_token"] = token
+
+        self.__storage["default_site_id"] = await self.__get_me()
         self.__logger.info("Login successful")
 
     async def logout(self) -> None:
@@ -111,16 +123,6 @@ class VoltalisClientAiohttp(VoltalisClient):
         await self.__send_request(url="/auth/logout", retry=False, method="DELETE")
         self.__logger.info("Logout successful")
         self.__storage["auth_token"] = None
-
-    async def get_me(self) -> None:
-        self.__logger.debug("Get me start")
-        response = await self.__send_request(
-            url="/api/account/me",
-            retry=False,
-            method="GET",
-        )
-        self.__storage["default_site_id"] = response["defaultSite"]["id"]
-        self.__logger.info(f"Default site id set = {self.__storage['default_site_id']}")
 
     async def get_devices(self) -> dict[int, VoltalisDevice]:
         """Get all Voltalis devices."""
@@ -163,7 +165,7 @@ class VoltalisClientAiohttp(VoltalisClient):
 
         return devices_health
 
-    async def get_consumptions(self, target_datetime: datetime) -> dict[int, float]:
+    async def get_devices_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         """Get all Voltalis devices consumption."""
 
         class RawDeviceConsumption(CustomModel):

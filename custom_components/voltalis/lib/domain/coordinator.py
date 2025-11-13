@@ -47,7 +47,7 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
 
             # We remove 1 hour because we can't fetch data from the current our
             target_datetime = self.__date_provider.get_now() - timedelta(hours=1)
-            consumptions = await self.__client.get_consumptions(target_datetime)
+            consumptions = await self.__client.get_devices_consumptions(target_datetime)
 
             result: dict[int, VoltalisCoordinatorData] = {}
 
