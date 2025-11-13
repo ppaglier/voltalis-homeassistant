@@ -1,0 +1,29 @@
+name: 'Validate'
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'main'
+  schedule:
+    # Every day at midnight
+    - cron:  '0 0 * * *'
+
+jobs:
+    # https://hacs.xyz/docs/publish/action
+  validate-hacs:
+    name: HACS Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: integration
+
+  # https://developers.home-assistant.io/blog/2020/04/16/hassfest
+  validate-hassfest:
+    name: Hassfest Validation
+    runs-on: ubuntu-latest
+    steps:
+        - name: Run hassfest validation
+          uses: home-assistant/actions/hassfest@master
