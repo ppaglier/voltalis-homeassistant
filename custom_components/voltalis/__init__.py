@@ -45,7 +45,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 
     await client.login()
 
-    coordinator = VoltalisCoordinator(hass, client, date_provider)
+    coordinator = VoltalisCoordinator(hass, client, date_provider, entry=entry)
 
     await coordinator.async_config_entry_first_refresh()
 

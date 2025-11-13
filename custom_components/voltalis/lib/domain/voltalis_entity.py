@@ -63,3 +63,22 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
         model_type = type_keys.get(self._device.modulator_type, "unknown")
 
         return f"{model}.{model_type}"
+
+    # ------------------------------------------------------------------
+    # Availability handling
+    # ------------------------------------------------------------------
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available.
+
+        We consider an entity available only if:
+        - The last coordinator update succeeded AND
+        - Device data exists for this entity AND
+        - Subclass-specific data (consumption/status) is present.
+        """
+        data = self.coordinator.data.get(self._device.id)
+        return self.coordinator.last_update_success and self._is_available_from_data(data)
+
+    def _is_available_from_data(self, data: object) -> bool:
+        """Base availability check, overridden by subclasses."""
+        return data is not None

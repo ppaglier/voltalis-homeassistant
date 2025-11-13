@@ -49,3 +49,11 @@ class VoltalisConnectedSensor(VoltalisEntity, BinarySensorEntity):
 
         self._attr_is_on = new_value
         self.async_write_ha_state()
+
+    # ------------------------------------------------------------------
+    # Availability handling override
+    # ------------------------------------------------------------------
+    def _is_available_from_data(self, data: object) -> bool:  # type: ignore[override]
+        if data is None:
+            return False
+        return getattr(data, "status", None) is not None

@@ -10,6 +10,9 @@ from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
 
+# Limit parallel updates (the DataUpdateCoordinator already centralizes calls)
+PARALLEL_UPDATES = 1
+
 
 async def async_setup_entry(
     hass: HomeAssistant,

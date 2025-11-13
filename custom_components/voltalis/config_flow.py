@@ -153,3 +153,49 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=data_schema,
             errors=errors,
         )
+
+    async def async_step_reauth(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:  # noqa: D401
+        """Handle a reauthentication flow.
+
+        Triggered automatically when the existing credentials become invalid.
+        If successful, update the existing entry and abort with a success reason.
+        """
+        errors: dict[str, str] = {}
+
+        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])  # type: ignore[index]
+        assert entry is not None
+
+        if user_input is not None:
+            try:
+                await self._validate_input(user_input)
+            except self.AuthError:
+                errors["base"] = "invalid_auth"
+            except self.ConnectionError:
+                errors["base"] = "cannot_connect"
+            except self.ConfigFlowError as err:  # pragma: no cover - defensive
+                errors["base"] = str(err)
+            except Exception:  # noqa: BLE001
+                errors["base"] = "unknown"
+
+            if not errors:
+                # Update existing entry with new credentials
+                self.hass.config_entries.async_update_entry(
+                    entry,
+                    title=user_input["username"],
+                    data=user_input,
+                )
+                await self.hass.config_entries.async_reload(entry.entry_id)
+                return self.async_abort(reason="reauth_successful")
+
+        data_schema = vol.Schema(
+            {
+                vol.Required("username", default=entry.data.get("username", "")): str,
+                vol.Required("password"): str,
+            }
+        )
+
+        return self.async_show_form(
+            step_id="reauth",
+            data_schema=data_schema,
+            errors=errors,
+        )

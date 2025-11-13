@@ -59,3 +59,12 @@ class VoltalisConsumptionSensor(VoltalisEntity, SensorEntity):
 
         self._attr_native_value = new_value
         self.async_write_ha_state()
+
+    # ------------------------------------------------------------------
+    # Availability handling override
+    # ------------------------------------------------------------------
+    def _is_available_from_data(self, data: object) -> bool:  # type: ignore[override]
+        if data is None:
+            return False
+        # Safe attribute access with getattr (coordinator data model has .consumption)
+        return getattr(data, "consumption", None) is not None
