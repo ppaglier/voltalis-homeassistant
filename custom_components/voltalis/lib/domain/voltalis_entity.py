@@ -28,7 +28,6 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
 
         # Unique id for Home Assistant
         self._attr_unique_id = unique_id
-        self._attr_has_entity_name = True
 
         self._attr_device_info: DeviceInfo = DeviceInfo(
             identifiers={(DOMAIN, unique_id)},
@@ -36,6 +35,10 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
             manufacturer="Voltalis",
             model=self.__get_device_model(),
         )
+
+    @property
+    def has_entity_name(self) -> bool:
+        return True
 
     @property
     def device_info(self) -> DeviceInfo:

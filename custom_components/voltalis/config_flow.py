@@ -1,6 +1,7 @@
 from typing import Any
 
 import voluptuous as vol
+from aiohttp import ClientSession
 from homeassistant import config_entries
 from homeassistant.exceptions import HomeAssistantError
 
@@ -25,8 +26,35 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     class ConnectionError(ConfigFlowError):
         """Raised when unable to connect to the Voltalis API."""
 
-    def __init__(self, client_class: type[VoltalisClient] = VoltalisClientAiohttp) -> None:
-        self.__client_class = client_class
+    def __init__(
+        self,
+        *,
+        client: VoltalisClient | None = None,
+    ) -> None:
+        self.__session: ClientSession | None = None
+
+        _client = client
+        if _client is None:
+            self.__session = ClientSession()
+            _client = VoltalisClientAiohttp(session=self.__session)
+        self.__client = _client
+
+    def __del__(self) -> None:
+        """Destructor to close session if created."""
+
+        if self.__session is None:
+            return
+
+        import asyncio
+
+        try:
+            loop = asyncio.get_event_loop()
+            # Avoid closing the session via run_until_complete if the loop is already running
+            if not loop.is_running():
+                loop.run_until_complete(self.__session.close())
+        except Exception:
+            # Best-effort cleanup only; ignore errors during GC
+            pass
 
     async def _validate_input(self, user_input: dict[str, Any]) -> None:
         """Validate provided user input."""
@@ -40,11 +68,10 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             raise self.ConfigFlowError("missing_fields")
 
         try:
-            async with self.__client_class() as client:
-                await client.get_access_token(
-                    username=username,
-                    password=password,
-                )
+            await self.__client.get_access_token(
+                username=username,
+                password=password,
+            )
         except VoltalisAuthenticationException as err:
             raise self.AuthError("invalid_auth") from err
         except VoltalisException as err:

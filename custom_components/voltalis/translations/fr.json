@@ -7,6 +7,10 @@
         "data": {
           "username": "Adresse e-mail",
           "password": "Mot de passe"
+        },
+        "data_description": {
+          "username": "L'adresse e-mail associée à votre compte Voltalis.",
+          "password": "Le mot de passe de votre compte Voltalis."
         }
       }
     },

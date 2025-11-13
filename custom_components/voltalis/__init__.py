@@ -2,7 +2,6 @@
 
 import logging
 
-from homeassistant import config_entries
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -22,8 +21,14 @@ PLATFORMS = [
 ]
 
 
+async def async_setup(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
+    """Set up the Voltalis component."""
+
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
-    """Setup via Config Flow UI."""
+    """Set up Voltalis from a config entry."""
 
     username = entry.data["username"]
     password = entry.data["password"]
@@ -53,7 +58,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: config_entries.ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Unload a config entry."""
+
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     return unload_ok

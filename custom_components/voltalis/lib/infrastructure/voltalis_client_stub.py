@@ -2,6 +2,7 @@ from datetime import datetime
 
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
 from custom_components.voltalis.lib.domain.device import VoltalisDevice
+from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
 
 
 class VoltalisClientStub(VoltalisClient):
@@ -16,6 +17,21 @@ class VoltalisClientStub(VoltalisClient):
 
     def __init__(self) -> None:
         self.__storage = self.Storage()
+        self.__should_fail_auth = False
+        self.__should_fail_connection = False
+        self.__should_fail_unexpected = False
+
+    def set_auth_failure(self, should_fail: bool = True) -> None:
+        """Configure the client to fail authentication."""
+        self.__should_fail_auth = should_fail
+
+    def set_connection_failure(self, should_fail: bool = True) -> None:
+        """Configure the client to fail connection."""
+        self.__should_fail_connection = should_fail
+
+    def set_unexpected_failure(self, should_fail: bool = True) -> None:
+        """Configure the client to fail with unexpected error."""
+        self.__should_fail_unexpected = should_fail
 
     async def get_access_token(
         self,
@@ -23,6 +39,12 @@ class VoltalisClientStub(VoltalisClient):
         username: str,
         password: str,
     ) -> str:
+        if self.__should_fail_auth:
+            raise VoltalisAuthenticationException("Invalid credentials")
+        if self.__should_fail_connection:
+            raise VoltalisException("Connection failed")
+        if self.__should_fail_unexpected:
+            raise RuntimeError("Unexpected error")
         return ""
 
     async def login(self) -> None:
