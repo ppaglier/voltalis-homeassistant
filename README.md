@@ -88,7 +88,7 @@ For each Voltalis device, the integration creates the following entities:
 - **Device Class**: Energy
 - **State Class**: Total Increasing
 - **Description**: Shows the cumulative energy consumption of the device
-- **Update Frequency**: Every 30 seconds
+- **Update Frequency**: Every 1 minutes
 
 ### Connectivity Binary Sensor
 
@@ -98,7 +98,7 @@ For each Voltalis device, the integration creates the following entities:
 - **States**:
   - `on`: Device is connected and online
   - `off`: Device is disconnected or offline
-- **Update Frequency**: Every 30 seconds
+- **Update Frequency**: Every 1 minutes
 
 ## Troubleshooting
 

@@ -43,7 +43,7 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
             hass,
             _LOGGER,
             name="Voltalis",
-            update_interval=timedelta(seconds=30),  # TODO: consider hour interval in production
+            update_interval=timedelta(minutes=1),
         )
         self.__client = client
         self.__date_provider = date_provider
