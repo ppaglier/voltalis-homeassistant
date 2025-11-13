@@ -1,6 +1,7 @@
 # Voltalis Home Assistant Integration
 
-[![Quality Scale](https://img.shields.io/badge/quality-silver-c0c0c0)](https://developers.home-assistant.io/docs/integration_quality_scale_index/) [![Install with HACS](https://my.home-assistant.io/badges/hacs.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ppaglier&repository=voltalis-homeassistant&category=integration) [![Add Integration](https://my.home-assistant.io/badges/config_flow.svg)](https://my.home-assistant.io/redirect/config_flow/?domain=voltalis)
+[![Quality Scale](https://img.shields.io/badge/quality-silver-c0c0c0)](https://developers.home-assistant.io/docs/core/integration-quality-scale/#-silver)
+
 
 ## About Voltalis
 
@@ -34,47 +35,63 @@ Before installing this integration, you need:
 
 ### Installation via HACS (Recommended)
 
-1. Make sure you have [HACS](https://hacs.xyz/) installed in your Home Assistant instance
-2. In Home Assistant, go to **HACS** > **Integrations**
-3. Click on the **⋮** menu in the top-right corner and select **Custom repositories**
-4. Add this repository URL: `https://github.com/ppaglier/voltalis-homeassistant`
-5. Set category to **Integration**
-6. Click **Add**
-7. Search for "Voltalis" in HACS and click **Download**
-8. Restart Home Assistant
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ppaglier&voltalis-homeassistant&category=integration)
+
+<details>
+  <summary>Click to show installation instructions</summary>
+
+  1. Make sure you have [HACS](https://hacs.xyz/) installed in your Home Assistant instance
+  2. In Home Assistant, go to **HACS** > **Integrations**
+  3. Click on the **⋮** menu in the top-right corner and select **Custom repositories**
+  4. Add this repository URL: `https://github.com/ppaglier/voltalis-homeassistant`
+  5. Set category to **Integration**
+  6. Click **Add**
+  7. Search for "Voltalis" in HACS and click **Download**
+  8. Restart Home Assistant
+</details>
 
 ### Manual Installation
 
-1. Download the latest release from the [releases page](https://github.com/ppaglier/voltalis-homeassistant/releases)
-2. Extract the `custom_components/voltalis` folder from the archive
-3. Copy the `voltalis` folder to your Home Assistant `custom_components` directory:
-   - If the `custom_components` directory doesn't exist, create it in your Home Assistant configuration directory (where `configuration.yaml` is located)
-   - The final path should be: `<config_dir>/custom_components/voltalis/`
-4. Restart Home Assistant
+<details>
+  <summary>Click to show manual installation instructions</summary>
+
+  1. Download the latest release from the [releases page](https://github.com/ppaglier/voltalis-homeassistant/releases)
+  2. Extract the `custom_components/voltalis` folder from the archive
+  3. Copy the `voltalis` folder to your Home Assistant `custom_components` directory:
+    - If the `custom_components` directory doesn't exist, create it in your Home Assistant configuration directory (where `configuration.yaml` is located)
+    - The final path should be: `<config_dir>/custom_components/voltalis/`
+  4. Restart Home Assistant
+</details>
 
 ## Configuration
 
 ### Adding the Integration
 
-1. In Home Assistant, go to **Settings** > **Devices & Services**
-2. Click on the **+ Add Integration** button
-3. Search for "Voltalis" and select it
-4. Enter your Voltalis credentials:
-   - **Email address**: The email address associated with your Voltalis account
-   - **Password**: Your Voltalis account password
-5. Click **Submit**
+<details>
+  <summary>Click to configuration instructions</summary>
 
-The integration will validate your credentials and automatically discover all your Voltalis devices.
+  1. In Home Assistant, go to **Settings** > **Devices & Services**
+  2. Click on the **+ Add Integration** button
+  3. Search for "Voltalis" and select it
+  4. Enter your Voltalis credentials:
+    - **Email address**: The email address associated with your Voltalis account
+    - **Password**: Your Voltalis account password
+  5. Click **Submit**
+
+  The integration will validate your credentials and automatically discover all your Voltalis devices.
+</details>
 
 ### Reconfiguration
 
-If you need to update your credentials:
+<details>
+  <summary>Click to reconfiguration instructions in case you need to update your credentials</summary>
 
-1. Go to **Settings** > **Devices & Services**
-2. Find the Voltalis integration
-3. Click on the **⋮** menu and select **Reconfigure**
-4. Enter your new credentials
-5. Click **Submit**
+  1. Go to **Settings** > **Devices & Services**
+  2. Find the Voltalis integration
+  3. Click on the **⋮** menu and select **Reconfigure**
+  4. Enter your new credentials
+  5. Click **Submit**
+</details>
 
 ## Entities
 
