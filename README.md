@@ -1,6 +1,6 @@
 # Voltalis Home Assistant Integration
 
-[![Quality Scale](https://img.shields.io/badge/quality-bronze-cd7f32)](https://developers.home-assistant.io/docs/integration_quality_scale_index/)
+[![Quality Scale](https://img.shields.io/badge/quality-silver-c0c0c0)](https://developers.home-assistant.io/docs/integration_quality_scale_index/) [![Install with HACS](https://my.home-assistant.io/badges/hacs.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ppaglier&repository=voltalis-homeassistant&category=integration) [![Add Integration](https://my.home-assistant.io/badges/config_flow.svg)](https://my.home-assistant.io/redirect/config_flow/?domain=voltalis)
 
 ## About Voltalis
 
