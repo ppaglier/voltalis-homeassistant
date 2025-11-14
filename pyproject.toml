@@ -18,7 +18,7 @@ packages = [{ include = "custom_components" }]
 "test:e2e" = { cmd = "pytest -m e2e", help = "Runs all e2e tests" }
 "test:all" = { cmd = "pytest", help = "Runs all tests" }
 "test:cov" = { cmd = "pytest --cov=custom_components", help = "Runs all tests for coverage" }
-"test:miss" = { cmd = "! pytest --collect-only -m 'not integration' -q", help = "Find tests that are not marked at all" }
+"test:miss" = { cmd = "! pytest --collect-only -m 'not integration and not e2e' -q", help = "Find tests that are not marked at all" }
 
 
 [tool.pytest.ini_options]
