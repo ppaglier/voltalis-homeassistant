@@ -1,4 +1,4 @@
-name: 'HACS Validation'
+name: 'Hassfest Validation'
 
 on:
   workflow_dispatch:
@@ -10,11 +10,9 @@ on:
     - cron:  '0 0 * * *'
 
 jobs:
-    # https://hacs.xyz/docs/publish/action
+  # https://developers.home-assistant.io/blog/2020/04/16/hassfest
   validate:
     runs-on: ubuntu-latest
     steps:
-      - name: HACS validation
-        uses: hacs/action@main
-        with:
-          category: integration
+        - name: Run hassfest validation
+          uses: home-assistant/actions/hassfest@master
