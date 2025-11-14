@@ -1,10 +1,12 @@
 """Constants for the Voltalis integration."""
 
 from homeassistant.components.climate import PRESET_AWAY, PRESET_COMFORT, PRESET_ECO, PRESET_HOME, PRESET_NONE
+from homeassistant.helpers import config_validation as cv
 
 from custom_components.voltalis.lib.domain.device import VoltalisDeviceModeEnum
 
 DOMAIN = "voltalis"
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 # Temps
 
