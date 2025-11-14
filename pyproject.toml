@@ -29,7 +29,6 @@ markers = [
     "e2e: end to end tests",
 ]
 asyncio_mode = "auto"
-pytest_plugins = ["pytest_homeassistant_custom_component"]
 
 [tool.pytest_env]
 ENVIRONMENT = "test"
