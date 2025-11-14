@@ -1,12 +1,12 @@
 {
   "domain": "voltalis",
   "name": "Voltalis",
-  "version": "0.1.0",
   "codeowners": ["@ppaglier"],
-  "documentation": "https://github.com/ppaglier/voltalis-homeassistant",
-  "issue_tracker": "https://github.com/ppaglier/voltalis-homeassistant/issues",
-  "iot_class": "cloud_polling",
-  "quality_scale": "silver",
   "config_flow": true,
-  "requirements": ["aiohttp>=3.3.0,<4.0.0"]
+  "documentation": "https://github.com/ppaglier/voltalis-homeassistant",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/ppaglier/voltalis-homeassistant/issues",
+  "quality_scale": "silver",
+  "requirements": ["aiohttp>=3.3.0,<4.0.0"],
+  "version": "0.1.0"
 }
