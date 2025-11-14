@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Voltalis",
+        "description": "Enter your Voltalis credentials to connect your account.",
+        "data": {
+          "username": "Email address",
+          "password": "Password"
+        },
+        "data_description": {
+          "username": "The email address associated with your Voltalis account.",
+          "password": "The password for your Voltalis account."
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid username or password",
+      "cannot_connect": "Failed to connect to Voltalis",
+      "unknown": "Unexpected error occurred",
+      "missing_fields": "All fields are required",
+      "invalid_input": "Invalid input data"
+    },
+    "abort": {
+      "already_configured": "This account is already configured",
+      "reconfigure_successful": "Configuration updated successfully"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "consumption": {
+        "name": "Consumption"
+      }
+    },
+    "binary_sensor": {
+      "connected": {
+        "name": "Connection status"
+      }
+    }
+  }
+}

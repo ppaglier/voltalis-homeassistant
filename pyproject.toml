@@ -1,0 +1,105 @@
+[tool.poetry]
+name = "voltalis-homeassistant"
+version = "0.1.0"
+description = "Voltalis integration in Home Assistant"
+authors = ["Pierre-Louis Pagliero"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "custom_components" }]
+
+
+[tool.taskipy.tasks]
+"lint" = { cmd = "ruff check", help = "Check linting accross the project" }
+"lint:fix" = { cmd = "ruff check --fix", help = "Check linting accross the project & autofix errors" }
+"format" = { cmd = "ruff format --check", help = "Check formatter accross the project" }
+"format:fix" = { cmd = "ruff format", help = "Check formatter accross the project & autofix errors" }
+"typecheck" = { cmd = "mypy custom_components", help = "Check typing accross the project" }
+"test:integration" = { cmd = "pytest -m integration", help = "Runs all integration tests" }
+"test:e2e" = { cmd = "pytest -m e2e", help = "Runs all e2e tests" }
+"test:all" = { cmd = "pytest", help = "Runs all tests" }
+"test:cov" = { cmd = "pytest --cov=custom_components", help = "Runs all tests for coverage" }
+"test:miss" = { cmd = "! pytest --collect-only -m 'not integration and not e2e' -q", help = "Find tests that are not marked at all" }
+
+
+[tool.pytest.ini_options]
+cache_dir = ".venv/.pytest_cache"
+addopts = "--strict-markers --ignore=.venv --import-mode=importlib"
+markers = [
+    "integration: integration tests",
+    "e2e: end to end tests",
+]
+asyncio_mode = "auto"
+
+[tool.pytest_env]
+ENVIRONMENT = "test"
+
+[tool.coverage.run]
+omit = [
+    "**/tests/*",
+]
+
+
+[tool.ruff]
+line-length = 120
+cache-dir = ".venv/.ruff_cache"
+include = [
+    "custom_components/*",
+]
+extend-exclude = [
+    ".venv",
+    "*.md",
+    "*.json",
+    "*.png"
+]
+
+# Assume Python 3.13.
+target-version = "py313"
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "D101", "D104", "D105", "D106", "W291", "W292", "I001"]
+
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 120
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+
+[tool.mypy]
+cache_dir = ".venv/.mypy_cache"
+show_column_numbers = true
+implicit_optional = false
+disallow_untyped_defs = true
+disallow_untyped_calls = true
+follow_imports = "silent"
+ignore_missing_imports = true
+plugins = "pydantic.mypy"
+explicit_package_bases = true
+
+
+[tool.poetry.dependencies]
+python = ">=3.13.2,<4.0"
+taskipy = "^1.12.2"
+homeassistant = "^2025.10.3"
+pydantic = "2.12.2"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.2"
+mypy = "^1.8.0"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.2"
+pytest-cov = "^7.0.0"
+pytest-env = "^1.2.0"
+pytest-homeassistant-custom-component = "^0.13.292"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

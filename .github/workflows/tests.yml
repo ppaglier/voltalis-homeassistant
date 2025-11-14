@@ -1,0 +1,86 @@
+name: 'Tests and Linting'
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - ".github/workflows/tests.yml"
+      - "custom_components/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      id-token: write
+      contents: read
+      checks: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+          cache: 'poetry'
+      - name: Install dependencies
+        run: poetry install
+      # Check tests without marks
+      - name: Check tests without marks
+        run: poetry run task test:miss
+      # Integration tests
+      - name: Run integration tests
+        run: poetry run task test:integration
+      # E2E tests
+      - name: Run e2e tests
+        run: poetry run task test:e2e
+
+
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+          cache: 'poetry'
+      - name: Install dependencies
+        run: poetry install
+      - name: Initialize reviewdog
+        uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
+      - name: Check linting
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          poetry run task lint \
+            | reviewdog -name=lint -reporter=local -reporter=github-pr-review -efm='%f:%l:%c: %m' -filter-mode=added -fail-level=error
+      - name: Check formatting
+        if: success() || failure() # run this step even if previous step failed
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          poetry run task format \
+            | reviewdog -name=format -reporter=local -reporter=github-pr-review -efm='%f:%l:%c: %m' -filter-mode=added -fail-level=error
+      - name: Check typing
+        if: success() || failure() # run this step even if previous step failed
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          poetry run task typecheck \
+            | reviewdog -name=typecheck -reporter=local -reporter=github-pr-review -efm='%f:%l:%c: %m' -filter-mode=added -fail-level=error
+
