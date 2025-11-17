@@ -286,11 +286,11 @@ class VoltalisClientAiohttp(VoltalisClient):
                 id=program["id"],
                 name=program["name"],
                 enabled=program["enabled"],
-                program_type=program["programType"],
-                program_name=program["programName"],
-                until_further_notice=program["untilFurtherNotice"],
+                program_type=program.get("programType"),
+                program_name=program.get("programName"),
+                until_further_notice=program.get("untilFurtherNotice", False),
                 end_date=program.get("endDate"),
-                geoloc_currently_on=program["geolocCurrentlyOn"],
+                geoloc_currently_on=program.get("geolocCurrentlyOn", False),
             )
             for program in response
         ]

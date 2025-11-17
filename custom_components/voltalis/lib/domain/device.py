@@ -68,8 +68,8 @@ class VoltalisProgram(CustomModel):
     id: int
     name: str
     enabled: bool
-    program_type: VoltalisDeviceProgTypeEnum
-    program_name: str
+    program_type: VoltalisDeviceProgTypeEnum | None
+    program_name: str | None
     until_further_notice: bool
     end_date: str | None
     geoloc_currently_on: bool
