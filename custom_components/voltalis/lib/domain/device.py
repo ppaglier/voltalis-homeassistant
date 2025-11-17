@@ -33,6 +33,7 @@ class VoltalisDeviceProgTypeEnum(StrEnum):
 
     MANUAL = "MANUAL"
     DEFAULT = "DEFAULT"
+    USER = "USER"
 
 
 class VoltalisDevice(CustomModel):
