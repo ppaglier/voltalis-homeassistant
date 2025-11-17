@@ -7,7 +7,18 @@ from aiohttp import ClientConnectorError, ClientError, ClientResponseError, Clie
 
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.device import VoltalisDevice
+from custom_components.voltalis.lib.domain.device import (
+    VoltalisApplianceDiagnostic,
+    VoltalisApplianceProgramming,
+    VoltalisConsumptionObjective,
+    VoltalisContract,
+    VoltalisContractPeakHours,
+    VoltalisDevice,
+    VoltalisManagedAppliance,
+    VoltalisProgram,
+    VoltalisRealTimeConsumption,
+    VoltalisSiteInfo,
+)
 from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
 
 
@@ -216,6 +227,201 @@ class VoltalisClientAiohttp(VoltalisClient):
             device_id: filtered_consumption.consumption
             for device_id, filtered_consumption in filtered_consumptions.items()
         }
+
+    async def get_consumption_objective(self) -> VoltalisConsumptionObjective | None:
+        """Get consumption objective."""
+
+        self.__logger.debug("Get consumption objective")
+        response: dict | None = await self.__send_request(
+            url="/api/site/{site_id}/objective",
+            method="GET",
+            retry=False,
+        )
+
+        if response is None:
+            return None
+
+        return VoltalisConsumptionObjective(
+            yearly_objective_in_wh=response["yearlyObjectiveInWh"],
+            yearly_objective_in_currency=response["yearlyObjectiveInCurrency"],
+        )
+
+    async def get_realtime_consumption(self, num_points: int = 10) -> list[VoltalisRealTimeConsumption]:
+        """Get real-time consumption."""
+
+        self.__logger.debug("Get real-time consumption")
+        response: dict | None = await self.__send_request(
+            url=f"/api/site/{{site_id}}/consumption/realtime?mode=TEN_MINUTES&numPoints={num_points}",
+            method="GET",
+            retry=False,
+        )
+
+        if response is None:
+            return []
+
+        return [
+            VoltalisRealTimeConsumption(
+                timestamp=consumption["stepTimestampInUtc"],
+                total_consumption_in_wh=consumption["totalConsumptionInWh"],
+                total_consumption_in_currency=consumption["totalConsumptionInCurrency"],
+            )
+            for consumption in response.get("consumptions", [])
+        ]
+
+    async def get_programs(self) -> list[VoltalisProgram]:
+        """Get programs."""
+
+        self.__logger.debug("Get programs")
+        response: list[dict] | None = await self.__send_request(
+            url="/api/site/{site_id}/programming/program",
+            method="GET",
+            retry=False,
+        )
+
+        if response is None:
+            return []
+
+        return [
+            VoltalisProgram(
+                id=program["id"],
+                name=program["name"],
+                enabled=program["enabled"],
+                program_type=program["programType"],
+                program_name=program["programName"],
+                until_further_notice=program["untilFurtherNotice"],
+                end_date=program.get("endDate"),
+                geoloc_currently_on=program["geolocCurrentlyOn"],
+            )
+            for program in response
+        ]
+
+    async def get_site_info(self) -> VoltalisSiteInfo | None:
+        """Get site information."""
+
+        self.__logger.debug("Get site information")
+        response: dict | None = await self.__send_request(
+            url="/api/account/me",
+            method="GET",
+            retry=False,
+        )
+
+        if response is None or "defaultSite" not in response:
+            return None
+
+        site = response["defaultSite"]
+        return VoltalisSiteInfo(
+            id=site["id"],
+            address=site["address"],
+            name=site["name"],
+            postal_code=site["postalCode"],
+            city=site["city"],
+            country=site["country"],
+            timezone=site["timezone"],
+            voltalis_version=site["voltalisVersion"],
+            installation_date=site["installationDate"],
+            has_global_consumption_measure=site["hasGlobalConsumptionMeasure"],
+            has_dso_measure=site["hasDsoMeasure"],
+        )
+
+    async def get_subscriber_contracts(self) -> list[VoltalisContract]:
+        """Get subscriber contracts."""
+
+        self.__logger.debug("Get subscriber contracts")
+        response: list[dict] | None = await self.__send_request(
+            url="/api/site/{site_id}/subscriber-contract",
+            method="GET",
+            retry=False,
+        )
+
+        if response is None:
+            return []
+
+        return [
+            VoltalisContract(
+                id=contract["id"],
+                name=contract["name"],
+                is_default=contract["isDefault"],
+                subscribed_power=contract["subscribedPower"],
+                is_peak_off_peak_contract=contract["isPeakOffPeakContract"],
+                subscription_base_price=contract.get("subscriptionBasePrice"),
+                subscription_peak_and_off_peak_hour_base_price=contract["subscriptionPeakAndOffPeakHourBasePrice"],
+                kwh_base_price=contract.get("kwhBasePrice"),
+                kwh_peak_hour_price=contract["kwhPeakHourPrice"],
+                kwh_offpeak_hour_price=contract["kwhOffpeakHourPrice"],
+                company_name=contract["companyName"],
+                peak_hours=[
+                    VoltalisContractPeakHours(from_time=ph["from"], to_time=ph["to"]) for ph in contract["peakHours"]
+                ],
+                offpeak_hours=[
+                    VoltalisContractPeakHours(from_time=ph["from"], to_time=ph["to"])
+                    for ph in contract["offpeakHours"]
+                ],
+            )
+            for contract in response
+        ]
+
+    async def get_managed_appliances(self) -> dict[int, VoltalisManagedAppliance]:
+        """Get managed appliances with full details."""
+
+        self.__logger.debug("Get managed appliances")
+        appliances_response: list[dict] = await self.__send_request(
+            url="/api/site/{site_id}/managed-appliance",
+            method="GET",
+            retry=False,
+        )
+
+        appliances = {
+            appliance_doc["id"]: VoltalisManagedAppliance(
+                id=appliance_doc["id"],
+                name=appliance_doc["name"],
+                type=appliance_doc["applianceType"],
+                modulator_type=appliance_doc["modulatorType"],
+                available_modes=appliance_doc["availableModes"],
+                voltalis_version=appliance_doc["voltalisVersion"],
+                programming=VoltalisApplianceProgramming(
+                    prog_type=appliance_doc["programming"]["progType"],
+                    prog_name=appliance_doc["programming"].get("progName"),
+                    id_manual_setting=appliance_doc["programming"].get("idManualSetting"),
+                    is_on=appliance_doc["programming"]["isOn"],
+                    until_further_notice=appliance_doc["programming"].get("untilFurtherNotice"),
+                    mode=appliance_doc["programming"]["mode"],
+                    id_planning=appliance_doc["programming"].get("idPlanning"),
+                    end_date=appliance_doc["programming"].get("endDate"),
+                    temperature_target=appliance_doc["programming"]["temperatureTarget"],
+                    default_temperature=appliance_doc["programming"]["defaultTemperature"],
+                ),
+                heating_level=appliance_doc["heatingLevel"],
+            )
+            for appliance_doc in appliances_response
+        }
+
+        return appliances
+
+    async def get_appliance_diagnostics(self) -> dict[int, VoltalisApplianceDiagnostic]:
+        """Get appliance diagnostics."""
+
+        self.__logger.debug("Get appliance diagnostics")
+        diagnostics_response: list[dict] | None = await self.__send_request(
+            url="/api/site/{site_id}/autodiag",
+            method="GET",
+            retry=False,
+        )
+
+        if diagnostics_response is None:
+            return {}
+
+        diagnostics: dict[int, VoltalisApplianceDiagnostic] = {
+            diag_doc["csApplianceId"]: VoltalisApplianceDiagnostic(
+                name=diag_doc["name"],
+                cs_modulator_id=diag_doc["csModulatorId"],
+                cs_appliance_id=diag_doc["csApplianceId"],
+                status=diag_doc["status"],
+                diag_test_enabled=diag_doc["diagTestEnabled"],
+            )
+            for diag_doc in diagnostics_response
+        }
+
+        return diagnostics
 
     async def __send_request(
         self,
