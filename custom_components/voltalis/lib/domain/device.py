@@ -127,7 +127,7 @@ class VoltalisApplianceProgramming(CustomModel):
     mode: VoltalisDeviceModeEnum
     id_planning: int | None
     end_date: str | None
-    temperature_target: float
+    temperature_target: float | None
     default_temperature: float
 
 
