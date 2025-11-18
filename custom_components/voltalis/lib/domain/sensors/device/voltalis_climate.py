@@ -13,18 +13,19 @@ from homeassistant.const import UnitOfTemperature
 from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.voltalis.const import (
-    VOLTALIS_TO_HA_MODES,
-    HA_TO_VOLTALIS_MODES,
-    CLIMATE_MIN_TEMP,
-    CLIMATE_MAX_TEMP,
-    DEFAULT_TARGET_TEMP_STEP,
-    CLIMATE_DEFAULT_TEMP,
-    CLIMATE_COMFORT_TEMP,
     CLIMATE_BOOST_TEMP_INCREASE,
-    DEFAULT_MANUAL_MODE_DURATION,
+    CLIMATE_COMFORT_TEMP,
+    CLIMATE_DEFAULT_TEMP,
+    CLIMATE_MAX_TEMP,
+    CLIMATE_MIN_TEMP,
+    CLIMATE_TEMP_STEP,
     DEFAULT_BOOST_DURATION,
+    DEFAULT_MANUAL_MODE_DURATION,
+    HA_TO_VOLTALIS_MODES,
     UNTIL_FURTHER_NOTICE_DURATION_DAYS,
+    VOLTALIS_TO_HA_MODES,
 )
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.domain.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
@@ -40,7 +41,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO]
     _attr_min_temp = CLIMATE_MIN_TEMP
     _attr_max_temp = CLIMATE_MAX_TEMP
-    _attr_target_temperature_step = DEFAULT_TARGET_TEMP_STEP
+    _attr_target_temperature_step = CLIMATE_TEMP_STEP
 
     def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
         """Initialize the climate entity."""
@@ -49,9 +50,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
         # Build preset modes from available modes
         self._attr_preset_modes = [
-            VOLTALIS_TO_HA_MODES[mode]
-            for mode in device.available_modes
-            if mode in VOLTALIS_TO_HA_MODES
+            VOLTALIS_TO_HA_MODES[mode] for mode in device.available_modes if mode in VOLTALIS_TO_HA_MODES
         ]
 
         # Determine supported features
@@ -171,7 +170,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         voltalis_mode = HA_TO_VOLTALIS_MODES.get(preset_mode)
         if voltalis_mode is None:
             raise HomeAssistantError(f"Invalid preset mode: {preset_mode}")
-        
+
         await self.__set_manual_mode(is_on=True, mode=voltalis_mode)
 
     async def __set_manual_mode(
@@ -205,10 +204,10 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             target_temp = device.programming.default_temperature
         else:
             target_temp = CLIMATE_DEFAULT_TEMP  # Default fallback
-        
+
         # Set end date to default duration from now
         end_date = (datetime.now() + timedelta(hours=DEFAULT_MANUAL_MODE_DURATION)).isoformat()
-        
+
         # Create manual setting update
         setting = VoltalisManualSettingUpdate(
             enabled=True,  # Enable manual mode
@@ -240,7 +239,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         # Get current manual setting or create default
         target_mode = VoltalisDeviceModeEnum.ECO
         target_temp = CLIMATE_DEFAULT_TEMP
-        
+
         if device.programming:
             if device.programming.mode:
                 target_mode = device.programming.mode
@@ -328,14 +327,10 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
                 target_temp = device.programming.default_temperature
             else:
                 target_temp = CLIMATE_DEFAULT_TEMP
-        
+
         # Calculate end date
-        if until_further_notice:
-            # Set far future date (1 year from now)
-            end_date = (datetime.now() + timedelta(days=UNTIL_FURTHER_NOTICE_DURATION_DAYS)).isoformat()
-        else:
-            end_date = (datetime.now() + timedelta(hours=duration_hours)).isoformat()
-        
+        end_date = None if until_further_notice else (datetime.now() + timedelta(hours=duration_hours)).isoformat()
+
         # Create manual setting update
         setting = VoltalisManualSettingUpdate(
             enabled=True,
@@ -381,10 +376,12 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             target_mode = VoltalisDeviceModeEnum.CONFORT
             # Get temperature from device or use default comfort temperature
             if device.programming and device.programming.default_temperature:
-                target_temp = device.programming.default_temperature + CLIMATE_BOOST_TEMP_INCREASE  # Boost by configured amount
+                target_temp = (
+                    device.programming.default_temperature + CLIMATE_BOOST_TEMP_INCREASE
+                )  # Boost by configured amount
             else:
                 target_temp = CLIMATE_COMFORT_TEMP  # Default comfort temperature
-        
+
         # Calculate end date
         end_date = (datetime.now() + timedelta(hours=duration_hours)).isoformat()
 
