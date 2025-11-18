@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity
 
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.domain.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 
 
 class VoltalisProgrammingNameSensor(VoltalisEntity, SensorEntity):

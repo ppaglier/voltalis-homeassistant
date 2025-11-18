@@ -22,7 +22,6 @@ from custom_components.voltalis.const import (
     DEFAULT_BOOST_DURATION,
     DEFAULT_MANUAL_MODE_DURATION,
     HA_TO_VOLTALIS_MODES,
-    UNTIL_FURTHER_NOTICE_DURATION_DAYS,
     VOLTALIS_TO_HA_MODES,
 )
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
