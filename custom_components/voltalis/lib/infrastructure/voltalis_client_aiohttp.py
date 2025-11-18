@@ -318,6 +318,10 @@ class VoltalisClientAiohttp(VoltalisClient):
         try:
             response = await self.__session.request(url=full_url, method=method, headers=headers, **kwargs)
             if response.status == 401:
+                if retry:
+                    self.__logger.warning("Authentication failed (401), retrying with new login...")
+                    await self.login()
+                    return await self.__send_request(url=_url, method=method, retry=False, **kwargs)
                 raise VoltalisAuthenticationException(await response.text())
             if response.status == 404:
                 self.__logger.exception(await response.text())
@@ -325,6 +329,7 @@ class VoltalisClientAiohttp(VoltalisClient):
             response.raise_for_status()
         except (ClientConnectorError, ClientError, ClientResponseError) as ex:
             if retry:
+                self.__logger.warning("Connection error, retrying with new login...")
                 await self.login()
                 return await self.__send_request(url=_url, method=method, retry=False, **kwargs)
             raise VoltalisException from ex
