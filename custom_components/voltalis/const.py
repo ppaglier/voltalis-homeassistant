@@ -8,7 +8,7 @@ from custom_components.voltalis.lib.domain.device import VoltalisDeviceModeEnum
 DOMAIN = "voltalis"
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-VOLTALIS_API_BASE_URL = "https://api.voltalis.com"
+VOLTALIS_API_BASE_URL = "https://api.myvoltalis.com"
 VOLTALIS_API_LOGIN_ROUTE = "/auth/login"
 
 # Temperature defaults for climate control

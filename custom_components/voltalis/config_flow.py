@@ -1,9 +1,9 @@
 from typing import Any
 
 import voluptuous as vol
-from aiohttp import ClientSession
 from homeassistant import config_entries
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
@@ -31,32 +31,17 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         *,
         client: VoltalisClient | None = None,
     ) -> None:
-        self.__session: ClientSession | None = None
+        self.__client = client
 
-        _client = client
-        if _client is None:
-            self.__session = ClientSession()
-            _client = VoltalisClientAiohttp(session=self.__session)
-        self.__client = _client
+    async def __get_client(self) -> VoltalisClient:
+        """Get or create the Voltalis client."""
 
-    def __del__(self) -> None:
-        """Destructor to close session if created."""
+        if self.__client is not None:
+            return self.__client
+        # Client can't be provided if the config flow is instantiated by Home Assistant so we create a new one here
+        return VoltalisClientAiohttp(session=async_get_clientsession(self.hass))
 
-        if self.__session is None:
-            return
-
-        import asyncio
-
-        try:
-            loop = asyncio.get_event_loop()
-            # Avoid closing the session via run_until_complete if the loop is already running
-            if not loop.is_running():
-                loop.run_until_complete(self.__session.close())
-        except Exception:
-            # Best-effort cleanup only; ignore errors during GC
-            pass
-
-    async def _validate_input(self, user_input: dict[str, Any]) -> None:
+    async def __validate_input(self, user_input: dict[str, Any]) -> None:
         """Validate provided user input."""
         if not isinstance(user_input, dict):
             raise self.ConfigFlowError("invalid_input")
@@ -67,8 +52,10 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if not username or not password:
             raise self.ConfigFlowError("missing_fields")
 
+        client = await self.__get_client()
+
         try:
-            await self.__client.get_access_token(
+            await client.get_access_token(
                 username=username,
                 password=password,
             )
@@ -85,7 +72,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                await self._validate_input(user_input)
+                await self.__validate_input(user_input)
             except self.AuthError:
                 errors["base"] = "invalid_auth"
             except self.ConnectionError:
@@ -122,7 +109,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                await self._validate_input(user_input)
+                await self.__validate_input(user_input)
             except self.AuthError:
                 errors["base"] = "invalid_auth"
             except self.ConnectionError:
@@ -167,7 +154,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                await self._validate_input(user_input)
+                await self.__validate_input(user_input)
             except self.AuthError:
                 errors["base"] = "invalid_auth"
             except self.ConnectionError:
