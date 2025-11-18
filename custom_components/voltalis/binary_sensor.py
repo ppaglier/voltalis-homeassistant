@@ -6,7 +6,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.device import VoltalisDevice, VoltalisDeviceTypeEnum
 from custom_components.voltalis.lib.domain.sensors.voltalis_connected_sensor import VoltalisConnectedSensor
-from custom_components.voltalis.lib.domain.sensors.voltalis_device_sensors import VoltalisManualModeSensor
+from custom_components.voltalis.lib.domain.sensors.voltalis_device_sensor import VoltalisManualModeSensor
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)

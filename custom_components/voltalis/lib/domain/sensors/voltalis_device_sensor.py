@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.components.climate import ClimateEntity
@@ -9,11 +10,12 @@ from homeassistant.components.climate.const import (
     HVACMode,
 )
 from homeassistant.const import UnitOfTemperature
+from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.voltalis.lib.domain.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
-    VoltalisDeviceTypeEnum,
+    VoltalisManualSettingUpdate,
 )
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
@@ -137,41 +139,132 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new HVAC mode."""
-        # TODO: Implement via API when available
         if hvac_mode == HVACMode.OFF:
             await self.async_turn_off()
-        elif hvac_mode in (HVACMode.HEAT, HVACMode.AUTO):
-            await self.async_turn_on()
+        elif hvac_mode == HVACMode.HEAT:
+            # HEAT mode means manual mode with current preset
+            await self._set_manual_mode(is_on=True, use_current_mode=True)
+        elif hvac_mode == HVACMode.AUTO:
+            # AUTO mode means disable manual mode (use planning)
+            await self._disable_manual_mode()
         else:
-            raise NotImplementedError(f"HVAC mode {hvac_mode} not supported")
+            raise HomeAssistantError(f"HVAC mode {hvac_mode} not supported")
 
     async def async_turn_on(self) -> None:
         """Turn the entity on."""
-        # TODO: Implement via API when available
-        raise NotImplementedError("Turn on not yet implemented - API support required")
+        await self._set_manual_mode(is_on=True, use_current_mode=True)
 
     async def async_turn_off(self) -> None:
         """Turn the entity off."""
-        # TODO: Implement via API when available
-        raise NotImplementedError("Turn off not yet implemented - API support required")
+        await self._set_manual_mode(is_on=False, use_current_mode=True)
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
-        # TODO: Implement via API when available
         temperature = kwargs.get("temperature")
         if temperature is None:
             return
         
-        raise NotImplementedError("Set temperature not yet implemented - API support required")
+        # When setting temperature, use TEMPERATURE mode
+        await self._set_manual_mode(
+            is_on=True,
+            mode=VoltalisDeviceModeEnum.TEMPERATURE,
+            temperature=temperature,
+        )
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
-        # TODO: Implement via API when available
         voltalis_mode = HA_TO_VOLTALIS_PRESET.get(preset_mode)
         if voltalis_mode is None:
-            raise ValueError(f"Invalid preset mode: {preset_mode}")
+            raise HomeAssistantError(f"Invalid preset mode: {preset_mode}")
         
-        raise NotImplementedError("Set preset mode not yet implemented - API support required")
+        await self._set_manual_mode(is_on=True, mode=voltalis_mode)
+
+    async def _set_manual_mode(
+        self,
+        is_on: bool,
+        use_current_mode: bool = False,
+        mode: VoltalisDeviceModeEnum | None = None,
+        temperature: float | None = None,
+    ) -> None:
+        """Set manual mode for the device."""
+        device = self._current_device
+        
+        # Determine the mode to use
+        if use_current_mode:
+            # Keep current mode or default to ECO
+            if device.programming and device.programming.mode:
+                target_mode = device.programming.mode
+            else:
+                target_mode = VoltalisDeviceModeEnum.ECO
+        elif mode is not None:
+            target_mode = mode
+        else:
+            target_mode = VoltalisDeviceModeEnum.ECO
+        
+        # Determine target temperature
+        if temperature is not None:
+            target_temp = temperature
+        elif device.programming and device.programming.temperature_target:
+            target_temp = device.programming.temperature_target
+        elif device.programming and device.programming.default_temperature:
+            target_temp = device.programming.default_temperature
+        else:
+            target_temp = 18.0  # Default fallback
+        
+        # Set end date to 24 hours from now
+        end_date = (datetime.now() + timedelta(hours=24)).isoformat()
+        
+        # Create manual setting update
+        setting = VoltalisManualSettingUpdate(
+            enabled=True,  # Enable manual mode
+            id_appliance=device.id,
+            until_further_notice=False,
+            is_on=is_on,
+            mode=target_mode,
+            end_date=end_date,
+            temperature_target=target_temp,
+        )
+        
+        # Call API to set manual setting
+        await self.coordinator.client.set_manual_setting(device.id, setting)
+        
+        # Refresh coordinator data
+        await self.coordinator.async_request_refresh()
+
+    async def _disable_manual_mode(self) -> None:
+        """Disable manual mode to return to automatic planning."""
+        device = self._current_device
+        
+        # Get current manual setting or create default
+        target_mode = VoltalisDeviceModeEnum.ECO
+        target_temp = 18.0
+        
+        if device.programming:
+            if device.programming.mode:
+                target_mode = device.programming.mode
+            if device.programming.temperature_target:
+                target_temp = device.programming.temperature_target
+            elif device.programming.default_temperature:
+                target_temp = device.programming.default_temperature
+        
+        end_date = datetime.now().isoformat()
+        
+        # Create manual setting update with enabled=False
+        setting = VoltalisManualSettingUpdate(
+            enabled=False,  # Disable manual mode
+            id_appliance=device.id,
+            until_further_notice=False,
+            is_on=True,
+            mode=target_mode,
+            end_date=end_date,
+            temperature_target=target_temp,
+        )
+        
+        # Call API to disable manual setting
+        await self.coordinator.client.set_manual_setting(device.id, setting)
+        
+        # Refresh coordinator data
+        await self.coordinator.async_request_refresh()
 
     def _is_available_from_data(self, data: object) -> bool:
         """Check if entity is available based on device data."""
@@ -272,4 +365,29 @@ class VoltalisProgrammingNameSensor(VoltalisEntity, SensorEntity):
         data = self.coordinator.data.get(self._device.id)
         if data and data.device and data.device.programming:
             return data.device.programming.prog_name
+        return None
+
+
+# Import BinarySensorEntity for manual mode sensor
+from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
+
+
+class VoltalisManualModeSensor(VoltalisEntity, BinarySensorEntity):
+    """Binary sensor for manual mode status."""
+
+    _attr_device_class = BinarySensorDeviceClass.RUNNING
+    _attr_translation_key = "manual_mode"
+
+    def __init__(self, coordinator, device: VoltalisDevice) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, device)
+        self._attr_unique_id = f"{device.id}_manual_mode"
+        self._attr_name = "Manual mode"
+
+    @property
+    def is_on(self) -> bool | None:
+        """Return true if manual mode is enabled."""
+        data = self.coordinator.data.get(self._device.id)
+        if data and data.manual_setting:
+            return data.manual_setting.enabled
         return None
