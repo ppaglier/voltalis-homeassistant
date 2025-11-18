@@ -6,7 +6,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.device import VoltalisDevice, VoltalisDeviceTypeEnum
 from custom_components.voltalis.lib.domain.sensors.voltalis_consumption_sensor import VoltalisConsumptionSensor
-from custom_components.voltalis.lib.domain.sensors.voltalis_device_sensor import (
+from custom_components.voltalis.lib.domain.sensors.voltalis_device_sensors import (
     VoltalisHeatingLevelSensor,
     VoltalisDefaultTemperatureSensor,
     VoltalisProgrammingTypeSensor,

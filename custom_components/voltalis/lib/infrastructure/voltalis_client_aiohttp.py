@@ -7,7 +7,12 @@ from aiohttp import ClientConnectorError, ClientError, ClientResponseError, Clie
 
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.device import VoltalisDevice, VoltalisDeviceProgrammingStatus
+from custom_components.voltalis.lib.domain.device import (
+    VoltalisDevice,
+    VoltalisDeviceProgrammingStatus,
+    VoltalisManualSetting,
+    VoltalisManualSettingUpdate,
+)
 from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
 
 
@@ -228,6 +233,59 @@ class VoltalisClientAiohttp(VoltalisClient):
             device_id: filtered_consumption.consumption
             for device_id, filtered_consumption in filtered_consumptions.items()
         }
+
+    async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
+        """Get manual settings for all devices."""
+
+        self.__logger.debug("Get all Voltalis manual settings")
+        manual_settings_response: list[dict] = await self.__send_request(
+            url="/api/site/{site_id}/manualsetting",
+            method="GET",
+            retry=False,
+        )
+
+        manual_settings: dict[int, VoltalisManualSetting] = {
+            setting_document["idAppliance"]: VoltalisManualSetting(
+                id=setting_document["id"],
+                enabled=setting_document["enabled"],
+                id_appliance=setting_document["idAppliance"],
+                appliance_name=setting_document["applianceName"],
+                appliance_type=setting_document["applianceType"],
+                until_further_notice=setting_document["untilFurtherNotice"],
+                is_on=setting_document["isOn"],
+                mode=setting_document["mode"],
+                heating_level=setting_document["heatingLevel"],
+                end_date=setting_document["endDate"],
+                temperature_target=setting_document["temperatureTarget"],
+            )
+            for setting_document in manual_settings_response
+        }
+
+        return manual_settings
+
+    async def set_manual_setting(self, appliance_id: int, setting: VoltalisManualSettingUpdate) -> None:
+        """Set manual setting for a device."""
+
+        self.__logger.debug("Set manual setting for appliance %s", appliance_id)
+        
+        payload = {
+            "enabled": setting.enabled,
+            "idAppliance": setting.id_appliance,
+            "untilFurtherNotice": setting.until_further_notice,
+            "isOn": setting.is_on,
+            "mode": setting.mode,
+            "endDate": setting.end_date,
+            "temperatureTarget": setting.temperature_target,
+        }
+
+        await self.__send_request(
+            url=f"/api/site/{{site_id}}/manualsetting/{appliance_id}",
+            method="PUT",
+            retry=False,
+            json=payload,
+        )
+        
+        self.__logger.info("Manual setting updated for appliance %s", appliance_id)
 
     async def __send_request(
         self,

@@ -1,7 +1,11 @@
 from datetime import datetime
 
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
-from custom_components.voltalis.lib.domain.device import VoltalisDevice
+from custom_components.voltalis.lib.domain.device import (
+    VoltalisDevice,
+    VoltalisManualSetting,
+    VoltalisManualSettingUpdate,
+)
 from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
 
 
@@ -14,6 +18,7 @@ class VoltalisClientStub(VoltalisClient):
         devices: dict[int, VoltalisDevice] = {}
         devices_health: dict[int, bool] = {}
         devices_consumptions: dict[int, list[tuple[datetime, float]]] = {}
+        manual_settings: dict[int, VoltalisManualSetting] = {}
 
     def __init__(self) -> None:
         self.__storage = self.Storage()
@@ -66,3 +71,26 @@ class VoltalisClientStub(VoltalisClient):
             for consumption_datetime, consumption_value in consumptions_list
             if consumption_datetime == target_datetime
         }
+
+    async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
+        """Get manual settings for all devices."""
+        return self.__storage.manual_settings
+
+    async def set_manual_setting(self, appliance_id: int, setting: VoltalisManualSettingUpdate) -> None:
+        """Set manual setting for a device."""
+        if appliance_id in self.__storage.manual_settings:
+            # Update existing manual setting
+            existing = self.__storage.manual_settings[appliance_id]
+            self.__storage.manual_settings[appliance_id] = VoltalisManualSetting(
+                id=existing.id,
+                enabled=setting.enabled,
+                id_appliance=setting.id_appliance,
+                appliance_name=existing.appliance_name,
+                appliance_type=existing.appliance_type,
+                until_further_notice=setting.until_further_notice,
+                is_on=setting.is_on,
+                mode=setting.mode,
+                heating_level=existing.heating_level,
+                end_date=setting.end_date,
+                temperature_target=setting.temperature_target,
+            )

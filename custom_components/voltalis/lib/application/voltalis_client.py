@@ -2,7 +2,11 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any
 
-from custom_components.voltalis.lib.domain.device import VoltalisDevice
+from custom_components.voltalis.lib.domain.device import (
+    VoltalisDevice,
+    VoltalisManualSetting,
+    VoltalisManualSettingUpdate,
+)
 
 
 class VoltalisClient(ABC):
@@ -50,4 +54,14 @@ class VoltalisClient(ABC):
     @abstractmethod
     async def get_devices_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         """Get devices consumptions from the Voltalis servers"""
+        ...
+
+    @abstractmethod
+    async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
+        """Get manual settings for all devices from the Voltalis servers"""
+        ...
+
+    @abstractmethod
+    async def set_manual_setting(self, appliance_id: int, setting: VoltalisManualSettingUpdate) -> None:
+        """Set manual setting for a device on the Voltalis servers"""
         ...

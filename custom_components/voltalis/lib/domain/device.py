@@ -35,6 +35,7 @@ class VoltalisDeviceProgTypeEnum(StrEnum):
     DEFAULT = "DEFAULT"
     USER = "USER"
 
+
 class VoltalisDeviceProgrammingStatus:
     """Class to represent the status of a Voltalis device"""
 
@@ -48,6 +49,35 @@ class VoltalisDeviceProgrammingStatus:
     end_date: str | None = None
     temperature_target: float | None = None
     default_temperature: float | None = None
+
+
+class VoltalisManualSetting(CustomModel):
+    """Class to represent manual setting of a Voltalis device"""
+
+    id: int
+    enabled: bool
+    id_appliance: int
+    appliance_name: str
+    appliance_type: VoltalisDeviceTypeEnum
+    until_further_notice: bool
+    is_on: bool
+    mode: VoltalisDeviceModeEnum
+    heating_level: int
+    end_date: str
+    temperature_target: float
+
+
+class VoltalisManualSettingUpdate(CustomModel):
+    """Class to represent manual setting update request"""
+
+    enabled: bool
+    id_appliance: int
+    until_further_notice: bool
+    is_on: bool
+    mode: VoltalisDeviceModeEnum
+    end_date: str
+    temperature_target: float
+
 
 class VoltalisDevice(CustomModel):
     """Class to represent Voltalis devices"""

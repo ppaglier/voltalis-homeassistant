@@ -52,6 +52,9 @@
     "binary_sensor": {
       "connected": {
         "name": "Connection status"
+      },
+      "manual_mode": {
+        "name": "Manual mode"
       }
     }
   }
