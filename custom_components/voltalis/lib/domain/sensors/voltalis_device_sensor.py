@@ -18,6 +18,7 @@ from custom_components.voltalis.lib.domain.device import (
     VoltalisManualSettingUpdate,
 )
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 
 
 # Mapping from Voltalis modes to Home Assistant preset modes
@@ -47,7 +48,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     _attr_max_temp = 30.0
     _attr_target_temperature_step = 0.5
 
-    def __init__(self, coordinator, device: VoltalisDevice) -> None:
+    def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
         """Initialize the climate entity."""
         super().__init__(coordinator, device)
         self._attr_name = None  # Will use device name from device_info
@@ -431,7 +432,7 @@ class VoltalisHeatingLevelSensor(VoltalisEntity, SensorEntity):
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_translation_key = "heating_level"
 
-    def __init__(self, coordinator, device: VoltalisDevice) -> None:
+    def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, device)
         self._attr_unique_id = f"{device.id}_heating_level"
@@ -454,7 +455,7 @@ class VoltalisDefaultTemperatureSensor(VoltalisEntity, SensorEntity):
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_translation_key = "default_temperature"
 
-    def __init__(self, coordinator, device: VoltalisDevice) -> None:
+    def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, device)
         self._attr_unique_id = f"{device.id}_default_temperature"
@@ -475,7 +476,7 @@ class VoltalisProgrammingTypeSensor(VoltalisEntity, SensorEntity):
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_translation_key = "programming_type"
 
-    def __init__(self, coordinator, device: VoltalisDevice) -> None:
+    def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, device)
         self._attr_unique_id = f"{device.id}_programming_type"
@@ -496,7 +497,7 @@ class VoltalisProgrammingNameSensor(VoltalisEntity, SensorEntity):
 
     _attr_translation_key = "programming_name"
 
-    def __init__(self, coordinator, device: VoltalisDevice) -> None:
+    def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, device)
         self._attr_unique_id = f"{device.id}_programming_name"
@@ -521,7 +522,7 @@ class VoltalisManualModeSensor(VoltalisEntity, BinarySensorEntity):
     _attr_device_class = BinarySensorDeviceClass.RUNNING
     _attr_translation_key = "manual_mode"
 
-    def __init__(self, coordinator, device: VoltalisDevice) -> None:
+    def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, device)
         self._attr_unique_id = f"{device.id}_manual_mode"
