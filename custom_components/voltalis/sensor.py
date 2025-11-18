@@ -6,12 +6,10 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.device import VoltalisDevice, VoltalisDeviceTypeEnum
 from custom_components.voltalis.lib.domain.sensors.voltalis_consumption_sensor import VoltalisConsumptionSensor
-from custom_components.voltalis.lib.domain.sensors.voltalis_device_sensor import (
-    VoltalisHeatingLevelSensor,
-    VoltalisDefaultTemperatureSensor,
-    VoltalisProgrammingTypeSensor,
-    VoltalisProgrammingNameSensor,
-)
+from custom_components.voltalis.lib.domain.sensors.device.voltalis_heating_level_sensor import VoltalisHeatingLevelSensor
+from custom_components.voltalis.lib.domain.sensors.device.voltalis_default_temperature_sensor import VoltalisDefaultTemperatureSensor
+from custom_components.voltalis.lib.domain.sensors.device.voltalis_programming_type_sensor import VoltalisProgrammingTypeSensor
+from custom_components.voltalis.lib.domain.sensors.device.voltalis_programming_name_sensor import VoltalisProgrammingNameSensor
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
