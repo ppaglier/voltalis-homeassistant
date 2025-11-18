@@ -40,7 +40,7 @@ class VoltalisDeviceProgrammingStatus(CustomModel):
     """Class to represent the status of a Voltalis device"""
 
     prog_type: VoltalisDeviceProgTypeEnum
-    prog_name: str
+    prog_name: str | None = None
     id_manual_setting: int | None = None
     is_on: bool | None = None
     until_further_notice: bool | None = None
