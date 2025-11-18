@@ -8,6 +8,7 @@ class VoltalisDeviceTypeEnum(StrEnum):
 
     HEATER = "HEATER"
     WATER_HEATER = "WATER_HEATER"
+    OTHER = "OTHER"
 
 
 class VoltalisDeviceModulatorTypeEnum(StrEnum):
