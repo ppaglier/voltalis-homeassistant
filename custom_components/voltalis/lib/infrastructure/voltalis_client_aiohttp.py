@@ -4,6 +4,7 @@ from typing import Any, TypedDict
 from urllib.parse import urljoin
 
 from aiohttp import ClientConnectorError, ClientError, ClientResponseError, ClientSession, ClientTimeout
+from pydantic import ValidationError
 
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
@@ -13,7 +14,11 @@ from custom_components.voltalis.lib.domain.device import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
+from custom_components.voltalis.lib.domain.exceptions import (
+    VoltalisAuthenticationException,
+    VoltalisException,
+    VoltalisValidationException,
+)
 
 
 class VoltalisClientAiohttp(VoltalisClient):
@@ -139,29 +144,34 @@ class VoltalisClientAiohttp(VoltalisClient):
             retry=False,
         )
 
-        devices = {
-            device_document["id"]: VoltalisDevice(
-                id=device_document["id"],
-                name=device_document["name"],
-                type=device_document["applianceType"],
-                modulator_type=device_document["modulatorType"],
-                available_modes=device_document["availableModes"],
-                programming=VoltalisDeviceProgrammingStatus(
-                    prog_type=device_document.get("programming", {}).get("progType"),
-                    prog_name=device_document.get("programming", {}).get("progName"),
-                    id_manual_setting=device_document.get("programming", {}).get("idManualSetting"),
-                    is_on=device_document.get("programming", {}).get("isOn"),
-                    until_further_notice=device_document.get("programming", {}).get("untilFurtherNotice"),
-                    mode=device_document.get("programming", {}).get("mode"),
-                    id_planning=device_document.get("programming", {}).get("idPlanning"),
-                    end_date=device_document.get("programming", {}).get("endDate"),
-                    temperature_target=device_document.get("programming", {}).get("temperatureTarget"),
-                    default_temperature=device_document.get("programming", {}).get("defaultTemperature"),
-                ),
-                heating_level=device_document.get("heatingLevel")
-            )
-            for device_document in devices_response
-        }
+        devices: dict[int, VoltalisDevice] = {}
+
+        try:
+            for device_document in devices_response:
+                device = VoltalisDevice(
+                    id=device_document["id"],
+                    name=device_document["name"],
+                    type=device_document["applianceType"],
+                    modulator_type=device_document["modulatorType"],
+                    available_modes=device_document["availableModes"],
+                    programming=VoltalisDeviceProgrammingStatus(
+                        prog_type=device_document.get("programming", {}).get("progType"),
+                        prog_name=device_document.get("programming", {}).get("progName"),
+                        id_manual_setting=device_document.get("programming", {}).get("idManualSetting"),
+                        is_on=device_document.get("programming", {}).get("isOn"),
+                        until_further_notice=device_document.get("programming", {}).get("untilFurtherNotice"),
+                        mode=device_document.get("programming", {}).get("mode"),
+                        id_planning=device_document.get("programming", {}).get("idPlanning"),
+                        end_date=device_document.get("programming", {}).get("endDate"),
+                        temperature_target=device_document.get("programming", {}).get("temperatureTarget"),
+                        default_temperature=device_document.get("programming", {}).get("defaultTemperature"),
+                    ),
+                    heating_level=device_document.get("heatingLevel"),
+                )
+                devices[device_document["id"]] = device
+        except ValidationError as err:
+            self.__logger.error("Error parsing devices: %s", err)
+            raise VoltalisValidationException(*err.args) from err
 
         return devices
 
@@ -175,10 +185,9 @@ class VoltalisClientAiohttp(VoltalisClient):
             retry=False,
         )
 
-        devices_health: dict[int, bool] = {
-            device_health_document["csApplianceId"]: device_health_document["status"] == "OK"
-            for device_health_document in devices_health_response
-        }
+        devices_health: dict[int, bool] = {}
+        for device_health_document in devices_health_response:
+            devices_health[device_health_document["csApplianceId"]] = device_health_document["status"] == "OK"
 
         return devices_health
 
@@ -210,22 +219,28 @@ class VoltalisClientAiohttp(VoltalisClient):
         # Fetch the data from the voltalis API
         target_date_str = target_datetime.isoformat("T").split("T")[0]
         response: dict[str, dict[str, list[dict]]] = await self.__send_request(
-            url="/api/site/{site_id}/consumption/day/" + target_date_str + "/full-data",
+            url=f"/api/site/{{site_id}}/consumption/day/{target_date_str}/full-data",
             method="GET",
             retry=False,
         )
 
-        filtered_consumptions = __get_consumption_for_hour(
-            devices_consumptions={
-                int(device_id): [
+        devices_consumptions: dict[int, list[RawDeviceConsumption]] = {}
+
+        try:
+            for device_id, device_consumptions in response["perAppliance"].items():
+                devices_consumptions[int(device_id)] = [
                     RawDeviceConsumption(
                         date=device_consumption["stepTimestampOnSite"],
                         consumption=device_consumption["totalConsumptionInWh"],
                     )
                     for device_consumption in device_consumptions
                 ]
-                for device_id, device_consumptions in response["perAppliance"].items()
-            },
+        except ValidationError as err:
+            self.__logger.error("Error parsing consumptions: %s", err)
+            raise VoltalisValidationException(*err.args) from err
+
+        filtered_consumptions = __get_consumption_for_hour(
+            devices_consumptions=devices_consumptions,
             target_datetime=target_datetime,
         )
 
@@ -244,22 +259,26 @@ class VoltalisClientAiohttp(VoltalisClient):
             retry=True,
         )
 
-        manual_settings: dict[int, VoltalisManualSetting] = {
-            setting_document["idAppliance"]: VoltalisManualSetting(
-                id=setting_document["id"],
-                enabled=setting_document["enabled"],
-                id_appliance=setting_document["idAppliance"],
-                appliance_name=setting_document["applianceName"],
-                appliance_type=setting_document["applianceType"],
-                until_further_notice=setting_document["untilFurtherNotice"],
-                is_on=setting_document["isOn"],
-                mode=setting_document["mode"],
-                heating_level=setting_document["heatingLevel"],
-                end_date=setting_document["endDate"],
-                temperature_target=setting_document["temperatureTarget"],
-            )
-            for setting_document in manual_settings_response
-        }
+        manual_settings: dict[int, VoltalisManualSetting] = {}
+        try:
+            for setting_document in manual_settings_response:
+                new_settings = VoltalisManualSetting(
+                    id=setting_document["id"],
+                    enabled=setting_document["enabled"],
+                    id_appliance=setting_document["idAppliance"],
+                    appliance_name=setting_document["applianceName"],
+                    appliance_type=setting_document["applianceType"],
+                    until_further_notice=setting_document["untilFurtherNotice"],
+                    is_on=setting_document["isOn"],
+                    mode=setting_document["mode"],
+                    heating_level=setting_document["heatingLevel"],
+                    end_date=setting_document["endDate"],
+                    temperature_target=setting_document["temperatureTarget"],
+                )
+                manual_settings[setting_document["idAppliance"]] = new_settings
+        except ValidationError as err:
+            self.__logger.error("Error parsing manual settings: %s", err)
+            raise VoltalisValidationException(*err.args) from err
 
         return manual_settings
 
@@ -267,7 +286,7 @@ class VoltalisClientAiohttp(VoltalisClient):
         """Set manual setting for a device."""
 
         self.__logger.debug("Set manual setting %s for appliance %s", manual_setting_id, setting.id_appliance)
-        
+
         payload = {
             "enabled": setting.enabled,
             "idAppliance": setting.id_appliance,
@@ -284,7 +303,7 @@ class VoltalisClientAiohttp(VoltalisClient):
             retry=False,
             json=payload,
         )
-        
+
         self.__logger.info("Manual setting %s updated for appliance %s", manual_setting_id, setting.id_appliance)
 
     async def __send_request(

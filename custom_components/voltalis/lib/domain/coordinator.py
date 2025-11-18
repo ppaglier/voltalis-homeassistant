@@ -10,7 +10,11 @@ from custom_components.voltalis.lib.application.date_provider import DateProvide
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.device import VoltalisDevice, VoltalisManualSetting
-from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
+from custom_components.voltalis.lib.domain.exceptions import (
+    VoltalisAuthenticationException,
+    VoltalisException,
+    VoltalisValidationException,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -105,6 +109,12 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
                     )
                 )
             raise UpdateFailed("Authentication failed") from err
+
+        except VoltalisValidationException as err:
+            if not self._was_unavailable:
+                _LOGGER.error("Voltalis data validation error: %s", err)
+                self._was_unavailable = True
+            raise UpdateFailed("Voltalis data validation error") from err
 
         except VoltalisException as err:
             if not self._was_unavailable:
