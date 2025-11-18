@@ -63,7 +63,7 @@ class VoltalisManualSetting(CustomModel):
     is_on: bool
     mode: VoltalisDeviceModeEnum
     heating_level: int
-    end_date: str
+    end_date: str | None = None
     temperature_target: float
 
 
@@ -75,7 +75,7 @@ class VoltalisManualSettingUpdate(CustomModel):
     until_further_notice: bool
     is_on: bool
     mode: VoltalisDeviceModeEnum
-    end_date: str
+    end_date: str | None = None
     temperature_target: float
 
 
