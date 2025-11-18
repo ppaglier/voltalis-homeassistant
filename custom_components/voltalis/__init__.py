@@ -18,6 +18,7 @@ _LOGGER.setLevel(logging.DEBUG)
 PLATFORMS = [
     Platform.SENSOR,
     Platform.BINARY_SENSOR,
+    Platform.CLIMATE,
 ]
 
 

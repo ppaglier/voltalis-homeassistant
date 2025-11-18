@@ -30,6 +30,23 @@
     "sensor": {
       "consumption": {
         "name": "Consumption"
+      },
+      "heating_level": {
+        "name": "Heating level"
+      },
+      "default_temperature": {
+        "name": "Default temperature"
+      },
+      "programming_type": {
+        "name": "Programming type",
+        "state": {
+          "manual": "Manual",
+          "default": "Default",
+          "user": "User"
+        }
+      },
+      "programming_name": {
+        "name": "Programming name"
       }
     },
     "binary_sensor": {
