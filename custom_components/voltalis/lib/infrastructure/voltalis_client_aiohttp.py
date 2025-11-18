@@ -7,7 +7,7 @@ from aiohttp import ClientConnectorError, ClientError, ClientResponseError, Clie
 
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.device import VoltalisDevice
+from custom_components.voltalis.lib.domain.device import VoltalisDevice, VoltalisDeviceProgrammingStatus
 from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
 
 
@@ -141,7 +141,19 @@ class VoltalisClientAiohttp(VoltalisClient):
                 type=device_document["applianceType"],
                 modulator_type=device_document["modulatorType"],
                 available_modes=device_document["availableModes"],
-                prog_type=device_document.get("programming", {})["progType"],
+                programming=VoltalisDeviceProgrammingStatus(
+                    prog_type=device_document.get("programming", {}).get("progType"),
+                    prog_name=device_document.get("programming", {}).get("progName"),
+                    id_manual_setting=device_document.get("programming", {}).get("idManualSetting"),
+                    is_on=device_document.get("programming", {}).get("isOn"),
+                    until_further_notice=device_document.get("programming", {}).get("untilFurtherNotice"),
+                    mode=device_document.get("programming", {}).get("mode"),
+                    id_planning=device_document.get("programming", {}).get("idPlanning"),
+                    end_date=device_document.get("programming", {}).get("endDate"),
+                    temperature_target=device_document.get("programming", {}).get("temperatureTarget"),
+                    default_temperature=device_document.get("programming", {}).get("defaultTemperature"),
+                ),
+                heating_level=device_document.get("heatingLevel")
             )
             for device_document in devices_response
         }
