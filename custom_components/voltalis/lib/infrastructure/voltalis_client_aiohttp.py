@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 from aiohttp import ClientConnectorError, ClientError, ClientResponseError, ClientSession, ClientTimeout
 from pydantic import ValidationError
 
+from custom_components.voltalis.const import VOLTALIS_API_BASE_URL, VOLTALIS_API_LOGIN_ROUTE
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.device import (
@@ -24,8 +25,8 @@ from custom_components.voltalis.lib.domain.exceptions import (
 class VoltalisClientAiohttp(VoltalisClient):
     """Voltalis client integration using the Aiohttp lib"""
 
-    BASE_URL = "https://api.myvoltalis.com"
-    LOGIN_ROUTE = "/auth/login"
+    BASE_URL = VOLTALIS_API_BASE_URL
+    LOGIN_ROUTE = VOLTALIS_API_LOGIN_ROUTE
 
     class Storage(TypedDict):
         """Dict that represent the storage of the client"""
