@@ -1,8 +1,10 @@
 """Platform for Voltalis climate integration."""
 import logging
+import voluptuous as vol
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers import config_validation as cv, entity_platform
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.device import VoltalisDevice, VoltalisDeviceTypeEnum
@@ -13,6 +15,24 @@ _LOGGER = logging.getLogger(__name__)
 
 # Limit parallel updates (the DataUpdateCoordinator already centralizes calls)
 PARALLEL_UPDATES = 1
+
+# Service action names
+SERVICE_SET_MANUAL_MODE = "set_manual_mode"
+SERVICE_DISABLE_MANUAL_MODE = "disable_manual_mode"
+SERVICE_SET_QUICK_BOOST = "set_quick_boost"
+
+# Service action schemas
+SET_MANUAL_MODE_SCHEMA = {
+    vol.Optional("preset_mode"): cv.string,
+    vol.Optional("temperature"): vol.Coerce(float),
+    vol.Optional("duration_hours", default=24): vol.Coerce(int),
+    vol.Optional("until_further_notice", default=False): cv.boolean,
+}
+
+SET_QUICK_BOOST_SCHEMA = {
+    vol.Optional("duration_hours", default=2): vol.Coerce(float),
+    vol.Optional("temperature"): vol.Coerce(float),
+}
 
 
 async def async_setup_entry(
@@ -41,3 +61,24 @@ async def async_setup_entry(
 
     async_add_entities(climate_entities, update_before_add=True)
     _LOGGER.info("Added %d Voltalis climate entities", len(climate_entities))
+    
+    # Register service actions
+    platform = entity_platform.async_get_current_platform()
+    
+    platform.async_register_entity_service(
+        SERVICE_SET_MANUAL_MODE,
+        SET_MANUAL_MODE_SCHEMA,
+        "async_service_set_manual_mode",
+    )
+    
+    platform.async_register_entity_service(
+        SERVICE_DISABLE_MANUAL_MODE,
+        {},
+        "async_service_disable_manual_mode",
+    )
+    
+    platform.async_register_entity_service(
+        SERVICE_SET_QUICK_BOOST,
+        SET_QUICK_BOOST_SCHEMA,
+        "async_service_set_quick_boost",
+    )

@@ -288,6 +288,135 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         # Climate entity requires device data to be present
         return hasattr(data, "device") and data.device is not None
 
+    # ------------------------------------------------------------------
+    # Service action methods
+    # ------------------------------------------------------------------
+    async def async_service_set_manual_mode(
+        self,
+        preset_mode: str | None = None,
+        temperature: float | None = None,
+        duration_hours: int = 24,
+        until_further_notice: bool = False,
+    ) -> None:
+        """Service action to set manual mode with preset or temperature."""
+        device = self._current_device
+        
+        # Determine the mode to use
+        if temperature is not None:
+            # Use TEMPERATURE mode if temperature is specified
+            target_mode = VoltalisDeviceModeEnum.TEMPERATURE
+            target_temp = temperature
+        elif preset_mode is not None:
+            # Use the specified preset mode
+            voltalis_mode = HA_TO_VOLTALIS_PRESET.get(preset_mode)
+            if voltalis_mode is None:
+                raise HomeAssistantError(f"Invalid preset mode: {preset_mode}")
+            target_mode = voltalis_mode
+            # Use current or default temperature
+            if device.programming and device.programming.temperature_target:
+                target_temp = device.programming.temperature_target
+            elif device.programming and device.programming.default_temperature:
+                target_temp = device.programming.default_temperature
+            else:
+                target_temp = 18.0
+        else:
+            # No mode or temperature specified, use current mode or ECO
+            if device.programming and device.programming.mode:
+                target_mode = device.programming.mode
+            else:
+                target_mode = VoltalisDeviceModeEnum.ECO
+            
+            # Use current or default temperature
+            if device.programming and device.programming.temperature_target:
+                target_temp = device.programming.temperature_target
+            elif device.programming and device.programming.default_temperature:
+                target_temp = device.programming.default_temperature
+            else:
+                target_temp = 18.0
+        
+        # Calculate end date
+        if until_further_notice:
+            # Set far future date (1 year from now)
+            end_date = (datetime.now() + timedelta(days=365)).isoformat()
+        else:
+            end_date = (datetime.now() + timedelta(hours=duration_hours)).isoformat()
+        
+        # Create manual setting update
+        setting = VoltalisManualSettingUpdate(
+            enabled=True,
+            id_appliance=device.id,
+            until_further_notice=until_further_notice,
+            is_on=True,
+            mode=target_mode,
+            end_date=end_date,
+            temperature_target=target_temp,
+        )
+        
+        # Get manual setting ID
+        data = self.coordinator.data.get(device.id)
+        if not data or not data.manual_setting:
+            raise HomeAssistantError(f"No manual setting found for device {device.id}")
+        
+        manual_setting_id = data.manual_setting.id
+        
+        # Call API
+        await self.coordinator.client.set_manual_setting(manual_setting_id, setting)
+        
+        # Refresh coordinator data
+        await self.coordinator.async_request_refresh()
+
+    async def async_service_disable_manual_mode(self) -> None:
+        """Service action to disable manual mode and return to automatic planning."""
+        await self._disable_manual_mode()
+
+    async def async_service_set_quick_boost(
+        self,
+        duration_hours: float = 2,
+        temperature: float | None = None,
+    ) -> None:
+        """Service action to quickly boost heating for a short period."""
+        device = self._current_device
+        
+        # Determine target temperature and mode
+        if temperature is not None:
+            target_temp = temperature
+            target_mode = VoltalisDeviceModeEnum.TEMPERATURE
+        else:
+            # Use COMFORT mode for boost
+            target_mode = VoltalisDeviceModeEnum.CONFORT
+            # Get temperature from device or use default comfort temperature
+            if device.programming and device.programming.default_temperature:
+                target_temp = device.programming.default_temperature + 2  # Boost by 2°C
+            else:
+                target_temp = 21.0  # Default comfort temperature
+        
+        # Calculate end date
+        end_date = (datetime.now() + timedelta(hours=duration_hours)).isoformat()
+        
+        # Create manual setting update
+        setting = VoltalisManualSettingUpdate(
+            enabled=True,
+            id_appliance=device.id,
+            until_further_notice=False,
+            is_on=True,
+            mode=target_mode,
+            end_date=end_date,
+            temperature_target=target_temp,
+        )
+        
+        # Get manual setting ID
+        data = self.coordinator.data.get(device.id)
+        if not data or not data.manual_setting:
+            raise HomeAssistantError(f"No manual setting found for device {device.id}")
+        
+        manual_setting_id = data.manual_setting.id
+        
+        # Call API
+        await self.coordinator.client.set_manual_setting(manual_setting_id, setting)
+        
+        # Refresh coordinator data
+        await self.coordinator.async_request_refresh()
+
 
 # Additional sensor entities to avoid frequent state changes in climate entity
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass

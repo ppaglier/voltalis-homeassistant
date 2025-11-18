@@ -57,5 +57,47 @@
         "name": "Mode manuel"
       }
     }
+  },
+  "services": {
+    "set_manual_mode": {
+      "name": "Définir le mode manuel",
+      "description": "Définir l'appareil en mode manuel avec un préréglage ou une température spécifique.",
+      "fields": {
+        "preset_mode": {
+          "name": "Mode préréglé",
+          "description": "Le mode préréglé à appliquer (eco, comfort, hors gel, normal, ecov)."
+        },
+        "temperature": {
+          "name": "Température",
+          "description": "La température cible en Celsius. Si définie, l'appareil utilisera le mode température."
+        },
+        "duration_hours": {
+          "name": "Durée (heures)",
+          "description": "Combien de temps rester en mode manuel (en heures). La valeur par défaut est 24 heures."
+        },
+        "until_further_notice": {
+          "name": "Jusqu'à nouvel ordre",
+          "description": "Maintenir le mode manuel actif indéfiniment jusqu'à modification manuelle."
+        }
+      }
+    },
+    "disable_manual_mode": {
+      "name": "Désactiver le mode manuel",
+      "description": "Retourner l'appareil au mode de planification automatique."
+    },
+    "set_quick_boost": {
+      "name": "Activer le boost rapide",
+      "description": "Booster rapidement le chauffage pour une courte période.",
+      "fields": {
+        "duration_hours": {
+          "name": "Durée (heures)",
+          "description": "Combien de temps booster le chauffage (en heures). La valeur par défaut est 2 heures."
+        },
+        "temperature": {
+          "name": "Température",
+          "description": "La température cible pour le mode boost. Si non spécifiée, utilise le mode confort."
+        }
+      }
+    }
   }
 }

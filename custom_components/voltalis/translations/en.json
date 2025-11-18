@@ -57,5 +57,47 @@
         "name": "Manual mode"
       }
     }
+  },
+  "services": {
+    "set_manual_mode": {
+      "name": "Set manual mode",
+      "description": "Set the device to manual mode with a specific preset or temperature.",
+      "fields": {
+        "preset_mode": {
+          "name": "Preset mode",
+          "description": "The preset mode to apply (eco, comfort, hors gel, normal, ecov)."
+        },
+        "temperature": {
+          "name": "Temperature",
+          "description": "The target temperature in Celsius. If set, the device will use temperature mode."
+        },
+        "duration_hours": {
+          "name": "Duration (hours)",
+          "description": "How long to stay in manual mode (in hours). Default is 24 hours."
+        },
+        "until_further_notice": {
+          "name": "Until further notice",
+          "description": "Keep manual mode active indefinitely until manually changed."
+        }
+      }
+    },
+    "disable_manual_mode": {
+      "name": "Disable manual mode",
+      "description": "Return the device to automatic planning mode."
+    },
+    "set_quick_boost": {
+      "name": "Set quick boost",
+      "description": "Quickly boost heating for a short period.",
+      "fields": {
+        "duration_hours": {
+          "name": "Duration (hours)",
+          "description": "How long to boost heating (in hours). Default is 2 hours."
+        },
+        "temperature": {
+          "name": "Temperature",
+          "description": "The target temperature for boost mode. If not specified, uses comfort mode."
+        }
+      }
+    }
   }
 }
