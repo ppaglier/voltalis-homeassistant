@@ -263,10 +263,10 @@ class VoltalisClientAiohttp(VoltalisClient):
 
         return manual_settings
 
-    async def set_manual_setting(self, appliance_id: int, setting: VoltalisManualSettingUpdate) -> None:
+    async def set_manual_setting(self, manual_setting_id: int, setting: VoltalisManualSettingUpdate) -> None:
         """Set manual setting for a device."""
 
-        self.__logger.debug("Set manual setting for appliance %s", appliance_id)
+        self.__logger.debug("Set manual setting %s for appliance %s", manual_setting_id, setting.id_appliance)
         
         payload = {
             "enabled": setting.enabled,
@@ -279,13 +279,13 @@ class VoltalisClientAiohttp(VoltalisClient):
         }
 
         await self.__send_request(
-            url=f"/api/site/{{site_id}}/manualsetting/{appliance_id}",
+            url=f"/api/site/{{site_id}}/manualsetting/{manual_setting_id}",
             method="PUT",
-            retry=True,
+            retry=False,
             json=payload,
         )
         
-        self.__logger.info("Manual setting updated for appliance %s", appliance_id)
+        self.__logger.info("Manual setting %s updated for appliance %s", manual_setting_id, setting.id_appliance)
 
     async def __send_request(
         self,

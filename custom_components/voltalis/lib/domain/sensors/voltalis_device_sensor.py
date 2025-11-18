@@ -225,8 +225,15 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             temperature_target=target_temp,
         )
         
+        # Get manual setting ID from coordinator data
+        data = self.coordinator.data.get(device.id)
+        if not data or not data.manual_setting:
+            raise HomeAssistantError(f"No manual setting found for device {device.id}")
+        
+        manual_setting_id = data.manual_setting.id
+        
         # Call API to set manual setting
-        await self.coordinator.client.set_manual_setting(device.id, setting)
+        await self.coordinator.client.set_manual_setting(manual_setting_id, setting)
         
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()
@@ -260,8 +267,15 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             temperature_target=target_temp,
         )
         
+        # Get manual setting ID from coordinator data
+        data = self.coordinator.data.get(device.id)
+        if not data or not data.manual_setting:
+            raise HomeAssistantError(f"No manual setting found for device {device.id}")
+        
+        manual_setting_id = data.manual_setting.id
+        
         # Call API to disable manual setting
-        await self.coordinator.client.set_manual_setting(device.id, setting)
+        await self.coordinator.client.set_manual_setting(manual_setting_id, setting)
         
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()

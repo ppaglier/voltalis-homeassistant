@@ -76,21 +76,23 @@ class VoltalisClientStub(VoltalisClient):
         """Get manual settings for all devices."""
         return self.__storage.manual_settings
 
-    async def set_manual_setting(self, appliance_id: int, setting: VoltalisManualSettingUpdate) -> None:
+    async def set_manual_setting(self, manual_setting_id: int, setting: VoltalisManualSettingUpdate) -> None:
         """Set manual setting for a device."""
-        if appliance_id in self.__storage.manual_settings:
-            # Update existing manual setting
-            existing = self.__storage.manual_settings[appliance_id]
-            self.__storage.manual_settings[appliance_id] = VoltalisManualSetting(
-                id=existing.id,
-                enabled=setting.enabled,
-                id_appliance=setting.id_appliance,
-                appliance_name=existing.appliance_name,
-                appliance_type=existing.appliance_type,
-                until_further_notice=setting.until_further_notice,
-                is_on=setting.is_on,
-                mode=setting.mode,
-                heating_level=existing.heating_level,
-                end_date=setting.end_date,
-                temperature_target=setting.temperature_target,
-            )
+        # Find the manual setting by its ID (not appliance ID)
+        for appliance_id, manual_setting in self.__storage.manual_settings.items():
+            if manual_setting.id == manual_setting_id:
+                # Update existing manual setting
+                self.__storage.manual_settings[appliance_id] = VoltalisManualSetting(
+                    id=manual_setting.id,
+                    enabled=setting.enabled,
+                    id_appliance=setting.id_appliance,
+                    appliance_name=manual_setting.appliance_name,
+                    appliance_type=manual_setting.appliance_type,
+                    until_further_notice=setting.until_further_notice,
+                    is_on=setting.is_on,
+                    mode=setting.mode,
+                    heating_level=manual_setting.heating_level,
+                    end_date=setting.end_date,
+                    temperature_target=setting.temperature_target,
+                )
+                break
