@@ -241,7 +241,7 @@ class VoltalisClientAiohttp(VoltalisClient):
         manual_settings_response: list[dict] = await self.__send_request(
             url="/api/site/{site_id}/manualsetting",
             method="GET",
-            retry=False,
+            retry=True,
         )
 
         manual_settings: dict[int, VoltalisManualSetting] = {
@@ -281,7 +281,7 @@ class VoltalisClientAiohttp(VoltalisClient):
         await self.__send_request(
             url=f"/api/site/{{site_id}}/manualsetting/{appliance_id}",
             method="PUT",
-            retry=False,
+            retry=True,
             json=payload,
         )
         
