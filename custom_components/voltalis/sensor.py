@@ -47,17 +47,17 @@ async def async_setup_entry(
             if device.heating_level is not None:
                 sensors.append(VoltalisHeatingLevelSensor(coordinator, device))
                 _LOGGER.debug("Created heating level sensor for device %s", device.name)
-            
+
             # Default temperature sensor
             if device.programming and device.programming.default_temperature is not None:
                 sensors.append(VoltalisDefaultTemperatureSensor(coordinator, device))
                 _LOGGER.debug("Created default temperature sensor for device %s", device.name)
-            
+
             # Programming type sensor
             if device.programming and device.programming.prog_type:
                 sensors.append(VoltalisProgrammingTypeSensor(coordinator, device))
                 _LOGGER.debug("Created programming type sensor for device %s", device.name)
-            
+
             # Programming name sensor
             if device.programming and device.programming.prog_name:
                 sensors.append(VoltalisProgrammingNameSensor(coordinator, device))

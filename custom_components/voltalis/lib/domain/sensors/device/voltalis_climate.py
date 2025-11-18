@@ -31,7 +31,6 @@ from custom_components.voltalis.lib.domain.device import (
     VoltalisManualSettingUpdate,
 )
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 
 
 class VoltalisClimate(VoltalisEntity, ClimateEntity):

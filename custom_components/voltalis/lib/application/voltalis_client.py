@@ -64,7 +64,7 @@ class VoltalisClient(ABC):
     @abstractmethod
     async def set_manual_setting(self, manual_setting_id: int, setting: VoltalisManualSettingUpdate) -> None:
         """Set manual setting for a device on the Voltalis servers
-        
+
         Args:
             manual_setting_id: The ID of the manual setting (not the appliance ID)
             setting: The manual setting update to apply
