@@ -4,22 +4,18 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate.const import (
-    ClimateEntityFeature,
-    HVACAction,
-    HVACMode,
-)
-from homeassistant.const import UnitOfTemperature
+from homeassistant.components.climate.const import ClimateEntityFeature, HVACAction, HVACMode
 from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.voltalis.const import (
+    CLIMATE_BOOST_DURATION,
     CLIMATE_BOOST_TEMP_INCREASE,
     CLIMATE_COMFORT_TEMP,
     CLIMATE_DEFAULT_TEMP,
     CLIMATE_MAX_TEMP,
     CLIMATE_MIN_TEMP,
     CLIMATE_TEMP_STEP,
-    DEFAULT_BOOST_DURATION,
+    CLIMATE_UNIT,
     HA_TO_VOLTALIS_MODES,
     VOLTALIS_TO_HA_MODES,
 )
@@ -35,7 +31,7 @@ from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 class VoltalisClimate(VoltalisEntity, ClimateEntity):
     """Climate entity for Voltalis heating devices."""
 
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_temperature_unit = CLIMATE_UNIT
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO]
     _attr_min_temp = CLIMATE_MIN_TEMP
     _attr_max_temp = CLIMATE_MAX_TEMP
@@ -346,7 +342,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
     async def async_service_set_quick_boost(
         self,
-        duration_hours: float = DEFAULT_BOOST_DURATION,
+        duration_hours: float = CLIMATE_BOOST_DURATION,
         temperature: float | None = None,
     ) -> None:
         """Service action to quickly boost heating for a short period."""

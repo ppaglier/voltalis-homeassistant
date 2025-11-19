@@ -65,7 +65,7 @@
       "fields": {
         "preset_mode": {
           "name": "Preset mode",
-          "description": "The preset mode to apply (eco, comfort, hors gel, normal, ecov)."
+          "description": "The preset mode to apply."
         },
         "temperature": {
           "name": "Temperature",
@@ -73,11 +73,7 @@
         },
         "duration_hours": {
           "name": "Duration (hours)",
-          "description": "How long to stay in manual mode (in hours). Default is 24 hours."
-        },
-        "until_further_notice": {
-          "name": "Until further notice",
-          "description": "Keep manual mode active indefinitely until manually changed."
+          "description": "How long to stay in manual mode (in hours). Default is unlimited (until further notice)."
         }
       }
     },

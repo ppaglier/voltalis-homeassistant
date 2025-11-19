@@ -10,7 +10,7 @@ set_manual_mode:
   fields:
     preset_mode:
       name: Preset mode
-      description: The preset mode to apply (eco, comfort, frost_protection, normal, ecov).
+      description: The preset mode to apply.
       required: false
       example: "comfort"
       selector:

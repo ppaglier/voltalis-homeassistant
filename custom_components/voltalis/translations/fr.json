@@ -65,7 +65,7 @@
       "fields": {
         "preset_mode": {
           "name": "Mode préréglé",
-          "description": "Le mode préréglé à appliquer (eco, comfort, hors gel, normal, ecov)."
+          "description": "Le mode préréglé à appliquer."
         },
         "temperature": {
           "name": "Température",
