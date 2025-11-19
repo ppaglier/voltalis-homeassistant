@@ -6,9 +6,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.entities.voltalis_connected_sensor import VoltalisConnectedSensor
 from custom_components.voltalis.lib.domain.entities.voltalis_consumption_sensor import VoltalisConsumptionSensor
-from custom_components.voltalis.lib.domain.entities.voltalis_programming_name_sensor import (
-    VoltalisProgrammingNameSensor,
-)
 from custom_components.voltalis.lib.domain.entities.voltalis_programming_type_sensor import (
     VoltalisProgrammingTypeSensor,
 )
@@ -55,12 +52,7 @@ async def async_setup_entry(
                 # Programming type sensor
                 if device.programming.prog_type:
                     programming_type_sensor = VoltalisProgrammingTypeSensor(entry, device)
-                    sensors[VoltalisProgrammingTypeSensor(entry, device).unique_internal_name] = programming_type_sensor
-
-                # Programming name sensor
-                if device.programming.prog_name:
-                    programming_name_sensor = VoltalisProgrammingNameSensor(entry, device)
-                    sensors[programming_name_sensor.unique_internal_name] = programming_name_sensor
+                    sensors[programming_type_sensor.unique_internal_name] = programming_type_sensor
 
     async_add_entities(sensors.values(), update_before_add=True)
     _LOGGER.info(f"Added {len(sensors)} Voltalis sensor entities: {list(sensors.keys())}")

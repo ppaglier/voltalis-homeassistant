@@ -39,12 +39,6 @@
       "consumption": {
         "name": "Consumption"
       },
-      "heating_level": {
-        "name": "Heating level"
-      },
-      "default_temperature": {
-        "name": "Default temperature"
-      },
       "programming_type": {
         "name": "Programming type",
         "state": {
@@ -53,9 +47,6 @@
           "USER": "User",
           "QUICK": "Quick"
         }
-      },
-      "programming_name": {
-        "name": "Programming name"
       }
     },
     "select": {

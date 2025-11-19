@@ -39,12 +39,6 @@
       "consumption": {
         "name": "Consommation"
       },
-      "heating_level": {
-        "name": "Niveau de chauffage"
-      },
-      "default_temperature": {
-        "name": "Température par défaut"
-      },
       "programming_type": {
         "name": "Type de programmation",
         "state": {
@@ -53,9 +47,6 @@
           "USER": "Utilisateur",
           "QUICK": "Rapide"
         }
-      },
-      "programming_name": {
-        "name": "Nom de la programmation"
       }
     },
     "select": {
