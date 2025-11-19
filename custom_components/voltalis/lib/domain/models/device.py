@@ -28,6 +28,7 @@ class VoltalisDeviceModeEnum(StrEnum):
     NORMAL = "NORMAL"
     ECOV = "ECOV"
     OFF = "OFF"
+    AUTO = "AUTO"
 
 
 class VoltalisDeviceProgTypeEnum(StrEnum):

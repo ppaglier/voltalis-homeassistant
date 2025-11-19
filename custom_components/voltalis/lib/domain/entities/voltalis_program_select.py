@@ -36,6 +36,7 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
 
         # Build options list based on available modes
         options: list[str] = []
+        options.append(VoltalisDeviceModeEnum.AUTO)
         for voltalis_mode in device.available_modes:
             program_mode = VOLTALIS_TO_HA_MODES.get(voltalis_mode)
             if program_mode:
@@ -43,6 +44,7 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
 
         # Always add OFF option
         options.append(VoltalisDeviceModeEnum.OFF)
+
 
         self._attr_options = options
 
@@ -59,9 +61,16 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
         """Return the currently selected program mode."""
         device = self._current_device
 
+        if device.programming is None:
+            return HomeAssistantPresetModeEnum.ECO
+
         # Check if device is off
-        if device.programming and device.programming.is_on is False:
+        if device.programming.is_on is False:
             return VoltalisDeviceModeEnum.OFF
+
+        # Check if device is off
+        if  device.programming.id_manual_setting is None:
+            return VoltalisDeviceModeEnum.AUTO
 
         # Get current mode
         if device.programming and device.programming.mode:
@@ -88,6 +97,8 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
             return "mdi:thermometer"
         if current == VoltalisDeviceModeEnum.OFF:
             return "mdi:power"
+        if current == VoltalisDeviceModeEnum.AUTO:
+            return "mdi:autorenew"
         return "mdi:playlist-edit"
 
     @callback
@@ -106,7 +117,22 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
 
         # Handle OFF mode
         if option == VoltalisDeviceModeEnum.OFF:
-            await self._set_manual_mode(is_on=False)
+            await self.__set_manual_mode(is_on=False)
+            return
+        
+        if option == VoltalisDeviceModeEnum.AUTO:
+            # Disable manual mode
+            await self.__update_manual_settings(
+                VoltalisManualSettingUpdate(
+                    enabled=False,
+                    id_appliance=device.id,
+                    until_further_notice=True,
+                    is_on=True,
+                    mode=None,
+                    end_date=None,
+                    temperature_target=None,
+                )
+            )
             return
 
         # Get Voltalis mode for the selected option
@@ -119,13 +145,13 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
             raise HomeAssistantError(f"Mode {option} is not available for this device")
 
         # Set the mode
-        await self._set_manual_mode(is_on=True, mode=voltalis_mode)
+        await self.__set_manual_mode(is_on=True, mode=voltalis_mode)
 
     # ------------------------------------------------------------------
     # Internal helper methods
     # ------------------------------------------------------------------
 
-    async def _update_manual_settings(self, settings: VoltalisManualSettingUpdate) -> None:
+    async def __update_manual_settings(self, settings: VoltalisManualSettingUpdate) -> None:
         """Update manual settings for the device."""
         device = self._current_device
 
@@ -142,7 +168,7 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()
 
-    def _get_appropriate_temperature(
+    def __get_appropriate_temperature(
         self,
         mode: VoltalisDeviceModeEnum,
         specified_temperature: float | None = None,
@@ -164,7 +190,7 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
         # Fallback to constant
         return CLIMATE_DEFAULT_TEMP
 
-    async def _set_manual_mode(
+    async def __set_manual_mode(
         self,
         is_on: bool,
         mode: VoltalisDeviceModeEnum | None = None,
@@ -180,9 +206,9 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
             target_mode = device.programming.mode
 
         # Determine target temperature
-        target_temp = self._get_appropriate_temperature(target_mode)
+        target_temp = self.__get_appropriate_temperature(target_mode)
 
-        await self._update_manual_settings(
+        await self.__update_manual_settings(
             VoltalisManualSettingUpdate(
                 enabled=True,
                 id_appliance=device.id,
