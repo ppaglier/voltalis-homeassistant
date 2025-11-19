@@ -24,6 +24,7 @@ from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConf
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
+    VoltalisDeviceProgTypeEnum,
     VoltalisManualSettingUpdate,
 )
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
@@ -97,7 +98,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
         # Check programming type to determine mode
         prog_type = device.programming.prog_type
-        if prog_type == "MANUAL":
+        if prog_type == VoltalisDeviceProgTypeEnum.MANUAL:
             return HVACMode.HEAT
 
         # DEFAULT or USER planning means AUTO mode

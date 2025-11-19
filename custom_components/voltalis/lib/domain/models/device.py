@@ -35,6 +35,7 @@ class VoltalisDeviceProgTypeEnum(StrEnum):
     MANUAL = "MANUAL"
     DEFAULT = "DEFAULT"
     USER = "USER"
+    QUICK = "QUICK"
 
 
 class VoltalisDeviceProgrammingStatus(CustomModel):

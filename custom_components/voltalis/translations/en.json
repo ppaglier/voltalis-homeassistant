@@ -50,7 +50,8 @@
         "state": {
           "MANUAL": "Manual",
           "DEFAULT": "Default",
-          "USER": "User"
+          "USER": "User",
+          "QUICK": "Quick"
         }
       },
       "programming_name": {

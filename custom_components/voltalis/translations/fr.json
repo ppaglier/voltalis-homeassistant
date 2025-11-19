@@ -48,9 +48,10 @@
       "programming_type": {
         "name": "Type de programmation",
         "state": {
-          "MANUAL": "Manuel",
+          "MANUAL": "Manuelle",
           "DEFAULT": "Par défaut",
-          "USER": "Utilisateur"
+          "USER": "Utilisateur",
+          "QUICK": "Rapide"
         }
       },
       "programming_name": {

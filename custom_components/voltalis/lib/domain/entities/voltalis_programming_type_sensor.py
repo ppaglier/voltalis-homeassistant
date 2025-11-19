@@ -29,6 +29,8 @@ class VoltalisProgrammingTypeSensor(VoltalisEntity, SensorEntity):
             return "mdi:calendar-account-outline"
         if self.native_value == VoltalisDeviceProgTypeEnum.MANUAL:
             return "mdi:calendar-edit-outline"
+        if self.native_value == VoltalisDeviceProgTypeEnum.QUICK:
+            return "mdi:calendar-clock-outline"
         return "mdi:calendar-blank-outline"
 
     @callback
