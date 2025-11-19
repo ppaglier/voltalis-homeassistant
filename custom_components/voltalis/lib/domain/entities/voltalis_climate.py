@@ -235,12 +235,11 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
         # Determine the mode to use
         target_mode = VoltalisDeviceModeEnum.ECO
-        if mode is None:
-            # Keep current mode or default to ECO
-            if device.programming.mode:
-                target_mode = device.programming.mode
-        else:
+        if mode is not None:
             target_mode = mode
+        elif device.programming.mode:
+            # Keep current mode
+            target_mode = device.programming.mode
 
         # Determine target temperature
         target_temp = self.__get_appropriate_temperature(target_mode, temperature)

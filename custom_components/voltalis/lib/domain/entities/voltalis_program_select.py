@@ -192,6 +192,7 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
         if mode is not None:
             target_mode = mode
         elif device.programming.mode:
+            # Keep current mode
             target_mode = device.programming.mode
 
         # Determine target temperature
