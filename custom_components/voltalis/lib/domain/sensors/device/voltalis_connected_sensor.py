@@ -30,7 +30,6 @@ class VoltalisConnectedSensor(VoltalisEntity, BinarySensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        _LOGGER.debug("refresh VoltalisConnectedSensor")
 
         data = self.coordinator.data.get(self._device.id)
         if data is None:
@@ -38,12 +37,6 @@ class VoltalisConnectedSensor(VoltalisEntity, BinarySensorEntity):
             return
 
         new_value = data.status
-        _LOGGER.debug(
-            "Updating VoltalisConnectedSensor (%s): old=%s new=%s",
-            self._device.name,
-            self.is_on,
-            new_value,
-        )
         if new_value is None or self.is_on == new_value:
             return
 

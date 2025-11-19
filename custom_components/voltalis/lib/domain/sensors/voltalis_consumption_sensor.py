@@ -40,7 +40,6 @@ class VoltalisConsumptionSensor(VoltalisEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        _LOGGER.debug("refresh VoltalisConsumptionSensor")
 
         data = self.coordinator.data.get(self._device.id)
         if data is None:
@@ -48,12 +47,6 @@ class VoltalisConsumptionSensor(VoltalisEntity, SensorEntity):
             return
 
         new_value = data.consumption
-        _LOGGER.debug(
-            "Updating VoltalisConsumptionSensor (%s): old=%s new=%s",
-            self._device.name,
-            self.native_value,
-            new_value,
-        )
         if new_value is None or self.native_value == new_value:
             return
 

@@ -87,7 +87,6 @@ class VoltalisClientAiohttp(VoltalisClient):
     ) -> str:
         """Get Voltalis access token."""
 
-        self.__logger.debug("Login start")
         payload = {
             "login": username,
             "password": password,
@@ -98,17 +97,14 @@ class VoltalisClientAiohttp(VoltalisClient):
             retry=False,
             json=payload,
         )
-        self.__logger.debug("Login Response: %s", response)
         return response["token"]
 
     async def __get_me(self) -> str:
-        self.__logger.debug("Get me start")
         response = await self.__send_request(
             url="/api/account/me",
             retry=False,
             method="GET",
         )
-        self.__logger.debug("Get me Response: %s", response)
         return response["defaultSite"]["id"]
 
     async def login(self) -> None:
@@ -117,7 +113,7 @@ class VoltalisClientAiohttp(VoltalisClient):
         if self.__username is None or self.__password is None:
             raise VoltalisException("You must provide username & password")
 
-        self.__logger.debug("Login start")
+        self.__logger.info("Voltalis login in progress...")
         token = await self.get_access_token(
             username=self.__username,
             password=self.__password,
@@ -125,12 +121,13 @@ class VoltalisClientAiohttp(VoltalisClient):
         self.__storage["auth_token"] = token
 
         self.__storage["default_site_id"] = await self.__get_me()
-        self.__logger.info("Login successful")
+        self.__logger.info("Voltalis login successful")
 
     async def logout(self) -> None:
         if self.__storage["auth_token"] is None:
             return
 
+        self.__logger.info("Voltalis logout in progress...")
         await self.__send_request(url="/auth/logout", retry=False, method="DELETE")
         self.__logger.info("Logout successful")
         self.__storage["auth_token"] = None
@@ -138,7 +135,6 @@ class VoltalisClientAiohttp(VoltalisClient):
     async def get_devices(self) -> dict[int, VoltalisDevice]:
         """Get all Voltalis devices."""
 
-        self.__logger.debug("Get all Voltalis devices")
         devices_response: list[dict] = await self.__send_request(
             url="/api/site/{site_id}/managed-appliance",
             method="GET",
@@ -179,7 +175,6 @@ class VoltalisClientAiohttp(VoltalisClient):
     async def get_devices_health(self) -> dict[int, bool]:
         """Get devices health"""
 
-        self.__logger.debug("Get all Voltalis status")
         devices_health_response: list[dict] = await self.__send_request(
             url="/api/site/{site_id}/autodiag",
             method="GET",
@@ -214,8 +209,6 @@ class VoltalisClientAiohttp(VoltalisClient):
                     result[device_id] = match
 
             return result
-
-        self.__logger.debug("Get all Voltalis devices consumption")
 
         # Fetch the data from the voltalis API
         target_date_str = target_datetime.isoformat("T").split("T")[0]
@@ -253,7 +246,6 @@ class VoltalisClientAiohttp(VoltalisClient):
     async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
         """Get manual settings for all devices."""
 
-        self.__logger.debug("Get all Voltalis manual settings")
         manual_settings_response: list[dict] = await self.__send_request(
             url="/api/site/{site_id}/manualsetting",
             method="GET",
@@ -285,8 +277,6 @@ class VoltalisClientAiohttp(VoltalisClient):
 
     async def set_manual_setting(self, manual_setting_id: int, setting: VoltalisManualSettingUpdate) -> None:
         """Set manual setting for a device."""
-
-        self.__logger.debug("Set manual setting %s for appliance %s", manual_setting_id, setting.id_appliance)
 
         payload = {
             "enabled": setting.enabled,
@@ -331,8 +321,6 @@ class VoltalisClientAiohttp(VoltalisClient):
         if self.__storage["default_site_id"] is not None:
             _url = url.format(site_id=self.__storage["default_site_id"])
 
-        self.__logger.debug(f"Call Voltalis API to {_url} using {method}")
-
         full_url = urljoin(self.__base_url, _url)
 
         try:
@@ -353,8 +341,6 @@ class VoltalisClientAiohttp(VoltalisClient):
                 await self.login()
                 return await self.__send_request(url=_url, method=method, retry=False, **kwargs)
             raise VoltalisException from ex
-
-        self.__logger.debug("End call to Voltalis API")
 
         # Return response depends on the content type
         if response.content_type == "application/json":
