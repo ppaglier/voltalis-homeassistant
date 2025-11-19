@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import cast
 
 from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
@@ -45,7 +46,6 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
         # Always add OFF option
         options.append(VoltalisDeviceModeEnum.OFF)
 
-
         self._attr_options = options
 
     @property
@@ -69,7 +69,7 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
             return VoltalisDeviceModeEnum.OFF
 
         # Check if device is off
-        if  device.programming.id_manual_setting is None:
+        if device.programming.id_manual_setting is None:
             return VoltalisDeviceModeEnum.AUTO
 
         # Get current mode
@@ -119,14 +119,14 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
         if option == VoltalisDeviceModeEnum.OFF:
             await self.__set_manual_mode(is_on=False)
             return
-        
+
         if option == VoltalisDeviceModeEnum.AUTO:
             # Disable manual mode
             await self.__set_manual_mode(is_on=True, mode=None)
             return
 
         # Get Voltalis mode for the selected option
-        voltalis_mode = HA_TO_VOLTALIS_MODES.get(option)
+        voltalis_mode = HA_TO_VOLTALIS_MODES.get(cast(HomeAssistantPresetModeEnum, option))
         if voltalis_mode is None:
             raise HomeAssistantError(f"Invalid program mode: {option}")
 

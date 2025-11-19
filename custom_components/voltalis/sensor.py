@@ -52,7 +52,6 @@ async def async_setup_entry(
         if device.type in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]:
             # Default temperature sensor
             if device.programming:
-
                 # Programming type sensor
                 if device.programming.prog_type:
                     programming_type_sensor = VoltalisProgrammingTypeSensor(entry, device)
