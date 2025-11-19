@@ -48,9 +48,9 @@
       "programming_type": {
         "name": "Type de programmation",
         "state": {
-          "manual": "Manuel",
-          "default": "Par défaut",
-          "user": "Utilisateur"
+          "MANUAL": "Manuel",
+          "DEFAULT": "Par défaut",
+          "USER": "Utilisateur"
         }
       },
       "programming_name": {
