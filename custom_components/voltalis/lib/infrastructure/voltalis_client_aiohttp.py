@@ -78,7 +78,7 @@ class VoltalisClientAiohttp(VoltalisClient):
         if self.__close_session:
             await self.__session.close()
 
-    async def __get_access_token(
+    async def get_access_token(
         self,
         *,
         username: str,
@@ -113,7 +113,7 @@ class VoltalisClientAiohttp(VoltalisClient):
             raise VoltalisException("You must provide username & password")
 
         self.__logger.info("Voltalis login in progress...")
-        token = await self.__get_access_token(
+        token = await self.get_access_token(
             username=self.__username,
             password=self.__password,
         )
@@ -328,7 +328,7 @@ class VoltalisClientAiohttp(VoltalisClient):
                 if retry:
                     self.__logger.warning("Authentication failed (401), retrying with new login...")
                     await self.login()
-                    return await self.__send_request(url=_url, method=method, retry=False, **kwargs)
+                    return await self.__send_request(url=url, method=method, retry=False, **kwargs)
                 raise VoltalisAuthenticationException(await response.text())
             if response.status == 404:
                 self.__logger.exception(await response.text())
@@ -338,7 +338,7 @@ class VoltalisClientAiohttp(VoltalisClient):
             if retry:
                 self.__logger.warning("Connection error, retrying with new login...")
                 await self.login()
-                return await self.__send_request(url=_url, method=method, retry=False, **kwargs)
+                return await self.__send_request(url=url, method=method, retry=False, **kwargs)
             raise VoltalisException from ex
 
         # Return response depends on the content type

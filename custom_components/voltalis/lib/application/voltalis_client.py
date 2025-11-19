@@ -22,6 +22,16 @@ class VoltalisClient(ABC):
         await self.logout()
 
     @abstractmethod
+    async def get_access_token(
+        self,
+        *,
+        username: str,
+        password: str,
+    ) -> str:
+        """Get access token of the Voltalis servers"""
+        ...
+
+    @abstractmethod
     async def login(self) -> None:
         """Login to the Voltalis servers"""
         ...

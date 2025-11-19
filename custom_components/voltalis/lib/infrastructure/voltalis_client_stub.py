@@ -38,13 +38,22 @@ class VoltalisClientStub(VoltalisClient):
         """Configure the client to fail with unexpected error."""
         self.__should_fail_unexpected = should_fail
 
-    async def login(self) -> None:
+    async def get_access_token(
+        self,
+        *,
+        username: str,
+        password: str,
+    ) -> str:
         if self.__should_fail_auth:
             raise VoltalisAuthenticationException("Invalid credentials")
         if self.__should_fail_connection:
             raise VoltalisException("Connection failed")
         if self.__should_fail_unexpected:
             raise RuntimeError("Unexpected error")
+        return ""
+
+    async def login(self) -> None:
+        pass
 
     async def logout(self) -> None:
         pass
