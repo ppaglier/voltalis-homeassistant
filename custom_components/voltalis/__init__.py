@@ -1,6 +1,4 @@
-""""""
-
-import logging
+"""Initialization of the Voltalis integration."""
 
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -11,9 +9,6 @@ from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConf
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.infrastructure.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.voltalis_client_aiohttp import VoltalisClientAiohttp
-
-_LOGGER = logging.getLogger(__name__)
-_LOGGER.setLevel(logging.DEBUG)
 
 PLATFORMS = [
     Platform.SENSOR,
