@@ -3,8 +3,6 @@ from __future__ import annotations
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.const import PERCENTAGE
 
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
-from custom_components.voltalis.lib.domain.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 
@@ -15,12 +13,7 @@ class VoltalisHeatingLevelSensor(VoltalisEntity, SensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_translation_key = "heating_level"
-
-    def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
-        """Initialize the sensor."""
-        super().__init__(coordinator, device)
-        self._attr_unique_id = f"{device.id}_heating_level"
-        self._attr_name = "Heating level"
+    _unique_id_suffix = "heating_level"
 
     @property
     def native_value(self) -> int | None:

@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass, BinarySensorEntity
 
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
-from custom_components.voltalis.lib.domain.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 
@@ -12,12 +10,7 @@ class VoltalisManualModeSensor(VoltalisEntity, BinarySensorEntity):
 
     _attr_device_class = BinarySensorDeviceClass.RUNNING
     _attr_translation_key = "manual_mode"
-
-    def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
-        """Initialize the sensor."""
-        super().__init__(coordinator, device)
-        self._attr_unique_id = f"{device.id}_manual_mode"
-        self._attr_name = "Manual mode"
+    _unique_id_suffix = "manual_mode"
 
     @property
     def is_on(self) -> bool | None:

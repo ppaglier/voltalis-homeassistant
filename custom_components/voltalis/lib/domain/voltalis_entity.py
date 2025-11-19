@@ -13,6 +13,8 @@ from custom_components.voltalis.lib.domain.device import (
 class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
     """Base class for Voltalis entities."""
 
+    _unique_id_suffix: str = ""
+
     def __init__(
         self,
         coordinator: VoltalisCoordinator,
@@ -21,13 +23,16 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
         """Initialize the device."""
         super().__init__(coordinator)
 
+        if len(self._unique_id_suffix) == 0:
+            raise ValueError("Unique ID suffix must be defined in subclass.")
+
         self._device = device
 
         unique_id = str(device.id)
         device_name = self.__get_device_name()
 
         # Unique id for Home Assistant
-        self._attr_unique_id = unique_id
+        self._attr_unique_id = f"{unique_id}_{self._unique_id_suffix}"
 
         self._attr_device_info: DeviceInfo = DeviceInfo(
             identifiers={(DOMAIN, unique_id)},

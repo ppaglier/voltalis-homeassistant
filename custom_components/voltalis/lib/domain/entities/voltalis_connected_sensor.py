@@ -9,23 +9,14 @@ from homeassistant.core import callback
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
-_LOGGER.setLevel(logging.DEBUG)
 
 
 class VoltalisConnectedSensor(VoltalisEntity, BinarySensorEntity):
     """References the connected of a device."""
 
-    @property
-    def translation_key(self) -> str:
-        return "connected"
-
-    @property
-    def icon(self) -> str:
-        return "mdi:wifi"
-
-    @property
-    def device_class(self) -> BinarySensorDeviceClass:
-        return BinarySensorDeviceClass.CONNECTIVITY
+    _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
+    _attr_translation_key = "connected"
+    _unique_id_suffix = "connected"
 
     @callback
     def _handle_coordinator_update(self) -> None:

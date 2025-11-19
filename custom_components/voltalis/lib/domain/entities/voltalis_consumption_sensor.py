@@ -11,31 +11,16 @@ from homeassistant.core import callback
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
-_LOGGER.setLevel(logging.DEBUG)
 
 
 class VoltalisConsumptionSensor(VoltalisEntity, SensorEntity):
     """References the consumption of a device."""
 
-    @property
-    def translation_key(self) -> str:
-        return "consumption"
-
-    @property
-    def icon(self) -> str:
-        return "mdi:lightning-bolt"
-
-    @property
-    def device_class(self) -> SensorDeviceClass:
-        return SensorDeviceClass.ENERGY
-
-    @property
-    def state_class(self) -> SensorStateClass:
-        return SensorStateClass.TOTAL_INCREASING
-
-    @property
-    def native_unit_of_measurement(self) -> str:
-        return UnitOfEnergy.WATT_HOUR
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
+    _attr_translation_key = "consumption"
+    _unique_id_suffix = "consumption"
 
     @callback
     def _handle_coordinator_update(self) -> None:

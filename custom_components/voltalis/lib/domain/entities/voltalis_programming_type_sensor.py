@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
-from custom_components.voltalis.lib.domain.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 
@@ -12,13 +10,8 @@ class VoltalisProgrammingTypeSensor(VoltalisEntity, SensorEntity):
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_translation_key = "programming_type"
-
-    def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
-        """Initialize the sensor."""
-        super().__init__(coordinator, device)
-        self._attr_unique_id = f"{device.id}_programming_type"
-        self._attr_name = "Programming type"
-        self._attr_options = ["MANUAL", "DEFAULT", "USER"]
+    _attr_options = ["MANUAL", "DEFAULT", "USER"]
+    _unique_id_suffix = "programming_type"
 
     @property
     def native_value(self) -> str | None:

@@ -40,6 +40,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     _attr_min_temp = CLIMATE_MIN_TEMP
     _attr_max_temp = CLIMATE_MAX_TEMP
     _attr_target_temperature_step = CLIMATE_TEMP_STEP
+    _unique_id_suffix = "climate"
 
     def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
         """Initialize the climate entity."""

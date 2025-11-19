@@ -64,7 +64,6 @@ class VoltalisClientAiohttp(VoltalisClient):
 
         # Configure logger
         logger = logging.getLogger(__name__)
-        logger.setLevel(logging.DEBUG)
         self.__logger = logger
 
     async def __aenter__(self) -> "VoltalisClientAiohttp":
