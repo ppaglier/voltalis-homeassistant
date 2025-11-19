@@ -122,17 +122,7 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
         
         if option == VoltalisDeviceModeEnum.AUTO:
             # Disable manual mode
-            await self.__update_manual_settings(
-                VoltalisManualSettingUpdate(
-                    enabled=False,
-                    id_appliance=device.id,
-                    until_further_notice=True,
-                    is_on=True,
-                    mode=None,
-                    end_date=None,
-                    temperature_target=None,
-                )
-            )
+            await self.__set_manual_mode(is_on=True, mode=None)
             return
 
         # Get Voltalis mode for the selected option
@@ -210,7 +200,7 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
 
         await self.__update_manual_settings(
             VoltalisManualSettingUpdate(
-                enabled=True,
+                enabled=mode is not None,
                 id_appliance=device.id,
                 until_further_notice=True,
                 is_on=is_on,
