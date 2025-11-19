@@ -5,6 +5,7 @@ import logging
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.core import callback
 
+from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceProgTypeEnum
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -15,9 +16,20 @@ class VoltalisProgrammingTypeSensor(VoltalisEntity, SensorEntity):
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_translation_key = "programming_type"
-    _attr_options = ["MANUAL", "DEFAULT", "USER"]
+    _attr_options = [option for option in VoltalisDeviceProgTypeEnum]
     _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "programming_type"
+
+    @property
+    def icon(self) -> str:
+        """Return the icon to use for this entity."""
+        if self.native_value is None:
+            return "mdi:calendar-minus"
+        if self.native_value == VoltalisDeviceProgTypeEnum.USER:
+            return "mdi:calendar-account-outline"
+        if self.native_value == VoltalisDeviceProgTypeEnum.MANUAL:
+            return "mdi:calendar-edit-outline"
+        return "mdi:calendar-blank-outline"
 
     @callback
     def _handle_coordinator_update(self) -> None:

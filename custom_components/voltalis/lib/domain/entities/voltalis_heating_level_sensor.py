@@ -17,6 +17,7 @@ class VoltalisHeatingLevelSensor(VoltalisEntity, SensorEntity):
     _attr_device_class = SensorDeviceClass.POWER_FACTOR
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_icon = "mdi:percent-box-outline"
     _attr_translation_key = "heating_level"
     _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "heating_level"
