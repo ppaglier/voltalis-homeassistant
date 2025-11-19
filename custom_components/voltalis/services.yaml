@@ -17,11 +17,16 @@ set_manual_mode:
         select:
           # HACS preset modes
           options:
-            - "away"
-            - "eco"
-            - "none"
-            - "comfort"
-            - "home"
+            - value: "away"
+              label: "Away"
+            - value: "eco"
+              label: "Eco"
+            - value: "none"
+              label: "None"
+            - value: "comfort"
+              label: "Comfort"
+            - value: "home"
+              label: "Home"
     temperature:
       name: Temperature
       description: The target temperature in Celsius. If set, the device will use temperature mode.
