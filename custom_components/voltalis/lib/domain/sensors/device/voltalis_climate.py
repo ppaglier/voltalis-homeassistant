@@ -20,7 +20,6 @@ from custom_components.voltalis.const import (
     CLIMATE_MIN_TEMP,
     CLIMATE_TEMP_STEP,
     DEFAULT_BOOST_DURATION,
-    DEFAULT_MANUAL_MODE_DURATION,
     HA_TO_VOLTALIS_MODES,
     VOLTALIS_TO_HA_MODES,
 )
@@ -204,17 +203,14 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         else:
             target_temp = CLIMATE_DEFAULT_TEMP  # Default fallback
 
-        # Set end date to default duration from now
-        end_date = (datetime.now() + timedelta(hours=DEFAULT_MANUAL_MODE_DURATION)).isoformat()
-
         # Create manual setting update
         setting = VoltalisManualSettingUpdate(
             enabled=True,  # Enable manual mode
             id_appliance=device.id,
-            until_further_notice=False,
+            until_further_notice=True,
             is_on=is_on,
             mode=target_mode,
-            end_date=end_date,
+            end_date=None,
             temperature_target=target_temp,
         )
 
@@ -288,8 +284,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         self,
         preset_mode: str | None = None,
         temperature: float | None = None,
-        duration_hours: int = DEFAULT_MANUAL_MODE_DURATION,
-        until_further_notice: bool = False,
+        duration_hours: int | None = None,
     ) -> None:
         """Service action to set manual mode with preset or temperature."""
         device = self._current_device
@@ -328,13 +323,13 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
                 target_temp = CLIMATE_DEFAULT_TEMP
 
         # Calculate end date
-        end_date = None if until_further_notice else (datetime.now() + timedelta(hours=duration_hours)).isoformat()
+        end_date = None if duration_hours is None else (datetime.now() + timedelta(hours=duration_hours)).isoformat()
 
         # Create manual setting update
         setting = VoltalisManualSettingUpdate(
             enabled=True,
             id_appliance=device.id,
-            until_further_notice=until_further_notice,
+            until_further_notice=duration_hours is None,
             is_on=True,
             mode=target_mode,
             end_date=end_date,

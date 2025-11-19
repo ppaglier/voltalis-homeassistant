@@ -73,11 +73,7 @@
         },
         "duration_hours": {
           "name": "Duration (hours)",
-          "description": "How long to stay in manual mode (in hours). Default is 24 hours."
-        },
-        "until_further_notice": {
-          "name": "Until further notice",
-          "description": "Keep manual mode active indefinitely until manually changed."
+          "description": "How long to stay in manual mode (in hours). Default is unlimited (until further notice)."
         }
       }
     },
@@ -89,13 +85,14 @@
       "name": "Set quick boost",
       "description": "Quickly boost heating for a short period.",
       "fields": {
-        "duration_hours": {
-          "name": "Duration (hours)",
-          "description": "How long to boost heating (in hours). Default is 2 hours."
-        },
+
         "temperature": {
           "name": "Temperature",
           "description": "The target temperature for boost mode. If not specified, uses comfort mode."
+        },
+        "duration_hours": {
+          "name": "Duration (hours)",
+          "description": "How long to boost heating (in hours). Default is 2 hours."
         }
       }
     }

@@ -51,14 +51,11 @@ async def async_setup_entry(
 
     platform.async_register_entity_service(
         "set_manual_mode",
-        vol.Schema(
-            {
-                vol.Optional("preset_mode"): cv.string,
-                vol.Optional("temperature"): vol.Coerce(float),
-                vol.Optional("duration_hours", default=24): vol.Coerce(int),
-                vol.Optional("until_further_notice", default=False): cv.boolean,
-            }
-        ),
+        {
+            vol.Optional("preset_mode"): cv.string,
+            vol.Optional("temperature"): vol.Coerce(float),
+            vol.Optional("duration_hours"): lambda v: None if v is None else cv.positive_int(v),
+        },
         "async_service_set_manual_mode",
     )
 
@@ -70,11 +67,9 @@ async def async_setup_entry(
 
     platform.async_register_entity_service(
         "set_quick_boost",
-        vol.Schema(
-            {
-                vol.Optional("duration_hours", default=2): vol.Coerce(float),
-                vol.Optional("temperature"): vol.Coerce(float),
-            }
-        ),
+        {
+            vol.Optional("duration_hours", default=2): vol.Coerce(float),
+            vol.Optional("temperature"): vol.Coerce(float),
+        },
         "async_service_set_quick_boost",
     )
