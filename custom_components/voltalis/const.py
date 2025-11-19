@@ -6,7 +6,7 @@ from homeassistant.components.climate import PRESET_AWAY, PRESET_COMFORT, PRESET
 from homeassistant.const import UnitOfTemperature
 from homeassistant.helpers import config_validation as cv
 
-from custom_components.voltalis.lib.domain.device import VoltalisDeviceModeEnum
+from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceModeEnum
 
 DOMAIN = "voltalis"
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)

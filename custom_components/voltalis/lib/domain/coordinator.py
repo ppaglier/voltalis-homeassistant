@@ -9,12 +9,13 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from custom_components.voltalis.lib.application.date_provider import DateProvider
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.device import VoltalisDevice, VoltalisManualSetting
 from custom_components.voltalis.lib.domain.exceptions import (
     VoltalisAuthenticationException,
     VoltalisException,
     VoltalisValidationException,
 )
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisManualSetting
+from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class VoltalisCoordinatorData(CustomModel):
 
     device: VoltalisDevice
     consumption: float | None = None
-    status: bool | None = None
+    health: VoltalisDeviceHealth | None = None
     manual_setting: VoltalisManualSetting | None = None
 
 
@@ -80,7 +81,7 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
                 result[device_id] = VoltalisCoordinatorData(
                     device=device,
                     consumption=consumptions.get(device_id, None),
-                    status=devices_health.get(device_id, None),
+                    health=devices_health.get(device_id, None),
                     manual_setting=manual_settings.get(device_id, None),
                 )
 

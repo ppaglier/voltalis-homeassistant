@@ -4,7 +4,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.device import VoltalisDevice, VoltalisDeviceTypeEnum
+from custom_components.voltalis.lib.domain.entities.voltalis_connected_sensor import VoltalisConnectedSensor
 from custom_components.voltalis.lib.domain.entities.voltalis_consumption_sensor import VoltalisConsumptionSensor
 from custom_components.voltalis.lib.domain.entities.voltalis_default_temperature_sensor import (
     VoltalisDefaultTemperatureSensor,
@@ -16,6 +16,7 @@ from custom_components.voltalis.lib.domain.entities.voltalis_programming_name_se
 from custom_components.voltalis.lib.domain.entities.voltalis_programming_type_sensor import (
     VoltalisProgrammingTypeSensor,
 )
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceTypeEnum
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,38 +38,42 @@ async def async_setup_entry(
         _LOGGER.warning("No Voltalis data available during setup, waiting for first refresh")
         await coordinator.async_config_entry_first_refresh()
 
-    sensors: list[VoltalisEntity] = []
+    sensors: dict[str, VoltalisEntity] = {}
 
     for data in coordinator.data.values():
         device: VoltalisDevice = data.device
 
         # Create the consumption sensor for each device
         consumption_sensor = VoltalisConsumptionSensor(entry, device)
-        sensors.append(consumption_sensor)
-        _LOGGER.debug("Created consumption sensor for device %s", device.name)
+        sensors[consumption_sensor.unique_internal_name] = consumption_sensor
+
+        # Create the connected sensor for each device (if status is available)
+        if data.health is not None:
+            connected_sensor = VoltalisConnectedSensor(entry, device)
+            sensors[connected_sensor.unique_internal_name] = connected_sensor
 
         # Create additional sensors for heater devices
         if device.type in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]:
             # Heating level sensor (only for heaters with heating_level data)
             if device.heating_level is not None:
-                sensors.append(VoltalisHeatingLevelSensor(entry, device))
-                _LOGGER.debug("Created heating level sensor for device %s", device.name)
+                heating_level_sensor = VoltalisHeatingLevelSensor(entry, device)
+                sensors[heating_level_sensor.unique_internal_name] = heating_level_sensor
 
             # Default temperature sensor
             if device.programming:
                 if device.programming.default_temperature is not None:
-                    sensors.append(VoltalisDefaultTemperatureSensor(entry, device))
-                    _LOGGER.debug("Created default temperature sensor for device %s", device.name)
+                    default_temp_sensor = VoltalisDefaultTemperatureSensor(entry, device)
+                    sensors[default_temp_sensor.unique_internal_name] = default_temp_sensor
 
                 # Programming type sensor
                 if device.programming.prog_type:
-                    sensors.append(VoltalisProgrammingTypeSensor(entry, device))
-                    _LOGGER.debug("Created programming type sensor for device %s", device.name)
+                    programming_type_sensor = VoltalisProgrammingTypeSensor(entry, device)
+                    sensors[VoltalisProgrammingTypeSensor(entry, device).unique_internal_name] = programming_type_sensor
 
                 # Programming name sensor
                 if device.programming.prog_name:
-                    sensors.append(VoltalisProgrammingNameSensor(entry, device))
-                    _LOGGER.debug("Created programming name sensor for device %s", device.name)
+                    programming_name_sensor = VoltalisProgrammingNameSensor(entry, device)
+                    sensors[programming_name_sensor.unique_internal_name] = programming_name_sensor
 
-    async_add_entities(sensors, update_before_add=True)
-    _LOGGER.info("Added %d Voltalis sensors", len(sensors))
+    async_add_entities(sensors.values(), update_before_add=True)
+    _LOGGER.info(f"Added {len(sensors)} Voltalis sensor entities: {list(sensors.keys())}")

@@ -2,11 +2,12 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any
 
-from custom_components.voltalis.lib.domain.device import (
+from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 
 
 class VoltalisClient(ABC):
@@ -47,7 +48,7 @@ class VoltalisClient(ABC):
         ...
 
     @abstractmethod
-    async def get_devices_health(self) -> dict[int, bool]:
+    async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
         """Get devices health from the Voltalis servers"""
         ...
 

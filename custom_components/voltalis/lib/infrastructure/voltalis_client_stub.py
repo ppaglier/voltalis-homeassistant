@@ -1,12 +1,13 @@
 from datetime import datetime
 
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
-from custom_components.voltalis.lib.domain.device import (
+from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
+from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
+from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 
 
 class VoltalisClientStub(VoltalisClient):
@@ -16,7 +17,7 @@ class VoltalisClientStub(VoltalisClient):
         """Class that represent the storage of the client"""
 
         devices: dict[int, VoltalisDevice] = {}
-        devices_health: dict[int, bool] = {}
+        devices_health: dict[int, VoltalisDeviceHealth] = {}
         devices_consumptions: dict[int, list[tuple[datetime, float]]] = {}
         manual_settings: dict[int, VoltalisManualSetting] = {}
 
@@ -61,7 +62,7 @@ class VoltalisClientStub(VoltalisClient):
     async def get_devices(self) -> dict[int, VoltalisDevice]:
         return self.__storage.devices
 
-    async def get_devices_health(self) -> dict[int, bool]:
+    async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
         return self.__storage.devices_health
 
     async def get_devices_consumptions(self, target_datetime: datetime) -> dict[int, float]:

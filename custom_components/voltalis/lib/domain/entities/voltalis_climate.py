@@ -21,7 +21,7 @@ from custom_components.voltalis.const import (
     HomeAssistantPresetModeEnum,
 )
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.device import (
+from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
     VoltalisManualSettingUpdate,

@@ -28,6 +28,14 @@
   },
   "entity": {
     "sensor": {
+      "connected": {
+        "name": "Statut de la connexion",
+        "state": {
+          "OK": "Connecté",
+          "NOT_OK": "Déconnecté",
+          "TEST_IN_PROGRESS": "Test en cours"
+        }
+      },
       "consumption": {
         "name": "Consommation"
       },
@@ -50,9 +58,6 @@
       }
     },
     "binary_sensor": {
-      "connected": {
-        "name": "Statut de la connexion"
-      },
       "manual_mode": {
         "name": "Mode manuel"
       }

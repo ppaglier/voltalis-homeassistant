@@ -41,7 +41,7 @@ class VoltalisManualModeSensor(VoltalisEntity, BinarySensorEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: object) -> bool:  # type: ignore[override]
+    def _is_available_from_data(self, data: object) -> bool:
         if data is None:
             return False
         # Safe attribute access with getattr (coordinator data model has .manual_setting.enabled)

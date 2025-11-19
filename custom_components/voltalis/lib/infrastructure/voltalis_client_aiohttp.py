@@ -9,17 +9,18 @@ from pydantic import ValidationError
 from custom_components.voltalis.const import VOLTALIS_API_BASE_URL, VOLTALIS_API_LOGIN_ROUTE
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.device import (
-    VoltalisDevice,
-    VoltalisDeviceProgrammingStatus,
-    VoltalisManualSetting,
-    VoltalisManualSettingUpdate,
-)
 from custom_components.voltalis.lib.domain.exceptions import (
     VoltalisAuthenticationException,
     VoltalisException,
     VoltalisValidationException,
 )
+from custom_components.voltalis.lib.domain.models.device import (
+    VoltalisDevice,
+    VoltalisDeviceProgrammingStatus,
+    VoltalisManualSetting,
+    VoltalisManualSettingUpdate,
+)
+from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 
 
 class VoltalisClientAiohttp(VoltalisClient):
@@ -171,7 +172,7 @@ class VoltalisClientAiohttp(VoltalisClient):
 
         return devices
 
-    async def get_devices_health(self) -> dict[int, bool]:
+    async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
         """Get devices health"""
 
         devices_health_response: list[dict] = await self.__send_request(
@@ -180,9 +181,15 @@ class VoltalisClientAiohttp(VoltalisClient):
             retry=False,
         )
 
-        devices_health: dict[int, bool] = {}
-        for device_health_document in devices_health_response:
-            devices_health[device_health_document["csApplianceId"]] = device_health_document["status"] == "OK"
+        devices_health: dict[int, VoltalisDeviceHealth] = {}
+        try:
+            for device_health_document in devices_health_response:
+                devices_health[device_health_document["csApplianceId"]] = VoltalisDeviceHealth(
+                    status=device_health_document["status"],
+                )
+        except ValidationError as err:
+            self.__logger.error("Error parsing health: %s", err)
+            raise VoltalisValidationException(*err.args) from err
 
         return devices_health
 

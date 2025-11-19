@@ -4,7 +4,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
-from custom_components.voltalis.lib.domain.device import (
+from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModulatorTypeEnum,
     VoltalisDeviceTypeEnum,
@@ -42,6 +42,11 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
             manufacturer="Voltalis",
             model=self.__get_device_model(),
         )
+
+    @property
+    def unique_internal_name(self) -> str:
+        """Return a unique internal name for the entity."""
+        return f"{self._device.name.lower()}_{self._attr_unique_id}"
 
     @property
     def has_entity_name(self) -> bool:
