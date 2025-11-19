@@ -237,7 +237,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         target_mode = VoltalisDeviceModeEnum.ECO
         if mode is None:
             # Keep current mode or default to ECO
-            if device.programming and device.programming.mode:
+            if device.programming.mode:
                 target_mode = device.programming.mode
         else:
             target_mode = mode
@@ -322,7 +322,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             target_temp = self.__get_appropriate_temperature(target_mode)
         else:
             # No mode or temperature specified, use current mode or ECO
-            if device.programming and device.programming.mode:
+            if device.programming.mode:
                 target_mode = device.programming.mode
             else:
                 target_mode = VoltalisDeviceModeEnum.ECO
@@ -365,7 +365,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             target_mode = VoltalisDeviceModeEnum.CONFORT
             target_temp = CLIMATE_COMFORT_TEMP
             # Get temperature from device or use default comfort temperature
-            if device.programming and device.programming.default_temperature:
+            if device.programming.default_temperature:
                 target_temp = (
                     device.programming.default_temperature + CLIMATE_BOOST_TEMP_INCREASE
                 )  # Boost by configured amount

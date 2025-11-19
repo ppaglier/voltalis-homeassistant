@@ -57,6 +57,7 @@
           "eco": "Eco",
           "frost_protection": "Frost protection",
           "temperature": "Temperature",
+          "auto": "Auto",
           "off": "Off"
         }
       }
