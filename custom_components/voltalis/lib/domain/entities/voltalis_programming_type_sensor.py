@@ -11,6 +11,7 @@ class VoltalisProgrammingTypeSensor(VoltalisEntity, SensorEntity):
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_translation_key = "programming_type"
     _attr_options = ["MANUAL", "DEFAULT", "USER"]
+    _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "programming_type"
 
     @property

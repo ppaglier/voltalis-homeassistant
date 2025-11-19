@@ -39,7 +39,7 @@ async def async_setup_entry(
 
         # Only create climate entities for heater devices
         if device.type == VoltalisDeviceTypeEnum.HEATER:
-            climate_entity = VoltalisClimate(coordinator, device)
+            climate_entity = VoltalisClimate(entry, device)
             climate_entities.append(climate_entity)
             _LOGGER.debug("Created climate entity for device %s", device.name)
 

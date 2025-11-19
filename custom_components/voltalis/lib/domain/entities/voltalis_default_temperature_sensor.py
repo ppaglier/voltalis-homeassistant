@@ -13,6 +13,7 @@ class VoltalisDefaultTemperatureSensor(VoltalisEntity, SensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_translation_key = "default_temperature"
+    _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "default_temperature"
 
     @property

@@ -5,19 +5,17 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.device import VoltalisDevice, VoltalisDeviceTypeEnum
+from custom_components.voltalis.lib.domain.entities.voltalis_consumption_sensor import VoltalisConsumptionSensor
 from custom_components.voltalis.lib.domain.entities.voltalis_default_temperature_sensor import (
     VoltalisDefaultTemperatureSensor,
 )
-from custom_components.voltalis.lib.domain.entities.voltalis_heating_level_sensor import (
-    VoltalisHeatingLevelSensor,
-)
+from custom_components.voltalis.lib.domain.entities.voltalis_heating_level_sensor import VoltalisHeatingLevelSensor
 from custom_components.voltalis.lib.domain.entities.voltalis_programming_name_sensor import (
     VoltalisProgrammingNameSensor,
 )
 from custom_components.voltalis.lib.domain.entities.voltalis_programming_type_sensor import (
     VoltalisProgrammingTypeSensor,
 )
-from custom_components.voltalis.lib.domain.entities.voltalis_consumption_sensor import VoltalisConsumptionSensor
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -45,7 +43,7 @@ async def async_setup_entry(
         device: VoltalisDevice = data.device
 
         # Create the consumption sensor for each device
-        consumption_sensor = VoltalisConsumptionSensor(coordinator, device)
+        consumption_sensor = VoltalisConsumptionSensor(entry, device)
         sensors.append(consumption_sensor)
         _LOGGER.debug("Created consumption sensor for device %s", device.name)
 
@@ -53,23 +51,23 @@ async def async_setup_entry(
         if device.type in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]:
             # Heating level sensor (only for heaters with heating_level data)
             if device.heating_level is not None:
-                sensors.append(VoltalisHeatingLevelSensor(coordinator, device))
+                sensors.append(VoltalisHeatingLevelSensor(entry, device))
                 _LOGGER.debug("Created heating level sensor for device %s", device.name)
 
             # Default temperature sensor
             if device.programming:
                 if device.programming.default_temperature is not None:
-                    sensors.append(VoltalisDefaultTemperatureSensor(coordinator, device))
+                    sensors.append(VoltalisDefaultTemperatureSensor(entry, device))
                     _LOGGER.debug("Created default temperature sensor for device %s", device.name)
 
                 # Programming type sensor
                 if device.programming.prog_type:
-                    sensors.append(VoltalisProgrammingTypeSensor(coordinator, device))
+                    sensors.append(VoltalisProgrammingTypeSensor(entry, device))
                     _LOGGER.debug("Created programming type sensor for device %s", device.name)
 
                 # Programming name sensor
                 if device.programming.prog_name:
-                    sensors.append(VoltalisProgrammingNameSensor(coordinator, device))
+                    sensors.append(VoltalisProgrammingNameSensor(entry, device))
                     _LOGGER.debug("Created programming name sensor for device %s", device.name)
 
     async_add_entities(sensors, update_before_add=True)

@@ -1,5 +1,7 @@
 """Initialization of the Voltalis integration."""
 
+import logging
+
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -39,6 +41,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
         session=async_get_clientsession(hass),
     )
 
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
     await client.login()
 
     coordinator = VoltalisCoordinator(hass, client, date_provider, entry=entry)
@@ -56,6 +61,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 
 async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Unload a config entry."""
+
+    await entry.runtime_data.coordinator.client.logout()
 
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     return unload_ok

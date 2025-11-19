@@ -2,6 +2,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.voltalis.const import DOMAIN
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.domain.device import (
     VoltalisDevice,
@@ -17,11 +18,12 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
 
     def __init__(
         self,
-        coordinator: VoltalisCoordinator,
+        entry: VoltalisConfigEntry,
         device: VoltalisDevice,
     ) -> None:
         """Initialize the device."""
-        super().__init__(coordinator)
+        super().__init__(entry.runtime_data.coordinator)
+        self._entry = entry
 
         if len(self._unique_id_suffix) == 0:
             raise ValueError("Unique ID suffix must be defined in subclass.")

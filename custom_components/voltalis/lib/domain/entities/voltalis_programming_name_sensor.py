@@ -9,6 +9,7 @@ class VoltalisProgrammingNameSensor(VoltalisEntity, SensorEntity):
     """Sensor for programming name."""
 
     _attr_translation_key = "programming_name"
+    _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "programming_name"
 
     @property

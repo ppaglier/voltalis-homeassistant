@@ -23,7 +23,7 @@ from custom_components.voltalis.const import (
     HA_TO_VOLTALIS_MODES,
     VOLTALIS_TO_HA_MODES,
 )
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
@@ -42,9 +42,9 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     _attr_target_temperature_step = CLIMATE_TEMP_STEP
     _unique_id_suffix = "climate"
 
-    def __init__(self, coordinator: VoltalisCoordinator, device: VoltalisDevice) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDevice) -> None:
         """Initialize the climate entity."""
-        super().__init__(coordinator, device)
+        super().__init__(entry, device)
         self._attr_name = None  # Will use device name from device_info
 
         # Build preset modes from available modes

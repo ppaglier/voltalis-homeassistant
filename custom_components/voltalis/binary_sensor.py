@@ -35,7 +35,7 @@ async def async_setup_entry(
 
         # Create the connected sensor for each device (if status is available)
         if data.status is not None:
-            connected_sensor = VoltalisConnectedSensor(coordinator, device)
+            connected_sensor = VoltalisConnectedSensor(entry, device)
             sensors.append(connected_sensor)
             _LOGGER.debug("Created connected sensor for device %s", device.name)
 
@@ -44,7 +44,7 @@ async def async_setup_entry(
             device.type in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]
             and data.manual_setting is not None
         ):
-            manual_mode_sensor = VoltalisManualModeSensor(coordinator, device)
+            manual_mode_sensor = VoltalisManualModeSensor(entry, device)
             sensors.append(manual_mode_sensor)
             _LOGGER.debug("Created manual mode sensor for device %s", device.name)
 

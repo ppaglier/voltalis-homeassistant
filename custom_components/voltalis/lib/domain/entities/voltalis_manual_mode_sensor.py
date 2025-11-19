@@ -10,6 +10,7 @@ class VoltalisManualModeSensor(VoltalisEntity, BinarySensorEntity):
 
     _attr_device_class = BinarySensorDeviceClass.RUNNING
     _attr_translation_key = "manual_mode"
+    _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "manual_mode"
 
     @property
