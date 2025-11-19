@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import logging
+
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.const import PERCENTAGE
+from homeassistant.core import callback
 
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class VoltalisHeatingLevelSensor(VoltalisEntity, SensorEntity):
@@ -16,10 +21,28 @@ class VoltalisHeatingLevelSensor(VoltalisEntity, SensorEntity):
     _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "heating_level"
 
-    @property
-    def native_value(self) -> int | None:
-        """Return the heating level."""
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+
         data = self.coordinator.data.get(self._device.id)
-        if data and data.device:
-            return data.device.heating_level
-        return None
+        if data is None:
+            _LOGGER.warning("Device %s not found in coordinator data", self._device.id)
+            return
+
+        new_value = data.device.heating_level
+        if new_value is None or self.native_value == new_value:
+            return
+
+        self._attr_native_value = new_value
+        self.async_write_ha_state()
+
+    # ------------------------------------------------------------------
+    # Availability handling override
+    # ------------------------------------------------------------------
+    def _is_available_from_data(self, data: object) -> bool:  # type: ignore[override]
+        if data is None:
+            return False
+        # Safe attribute access with getattr (coordinator data model has .device.programming.heating_level)
+        device = getattr(data, "device", {})
+        return getattr(device, "heating_level", None) is not None
