@@ -7,12 +7,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.voltalis.const import (
-    CLIMATE_DEFAULT_TEMP,
-    VOLTALIS_MODES_TO_VOLTALIS_PROGRAM_SELECT_OPTIONS,
-    VOLTALIS_PROGRAM_SELECT_OPTIONS_TO_VOLTALIS_MODES,
-    VoltalisProgramSelectOptionsEnum,
-)
+from custom_components.voltalis.const import CLIMATE_DEFAULT_TEMP, VoltalisProgramSelectOptionsEnum
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
@@ -35,18 +30,37 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
         super().__init__(entry, device)
         self._attr_name = None  # Will use device name from device_info
 
+        self.__has_ecov_mode = VoltalisDeviceModeEnum.ECOV in device.available_modes
+        self.__has_on_mode = VoltalisDeviceModeEnum.NORMAL in device.available_modes
+
         # Build options modes from available modes
         options: list[str] = []
-        for voltalis_mode in VOLTALIS_MODES_TO_VOLTALIS_PROGRAM_SELECT_OPTIONS:
-            ha_mode = VOLTALIS_MODES_TO_VOLTALIS_PROGRAM_SELECT_OPTIONS[voltalis_mode]
-            # Skip AUTO & NONE mode here, will add it after the loop
-            if ha_mode in [VoltalisProgramSelectOptionsEnum.AUTO, VoltalisProgramSelectOptionsEnum.OFF]:
+        for voltalis_mode in VoltalisProgramSelectOptionsEnum:
+            # Skip AUTO | ON | NONE mode here, will add it after the loop
+            if voltalis_mode in [
+                VoltalisProgramSelectOptionsEnum.AUTO,
+                VoltalisProgramSelectOptionsEnum.ON,
+                VoltalisProgramSelectOptionsEnum.OFF,
+            ]:
                 continue
-            if voltalis_mode in device.available_modes and ha_mode not in options:
-                options.append(ha_mode)
 
-        self._attr_options = [VoltalisProgramSelectOptionsEnum.AUTO] + options + [VoltalisProgramSelectOptionsEnum.OFF]
-        self.__is_ecov_mode = VoltalisDeviceModeEnum.ECOV in device.available_modes
+            if voltalis_mode not in device.available_modes:
+                # Special handling for ECOV mode
+                if (
+                    self.__has_ecov_mode and voltalis_mode != VoltalisProgramSelectOptionsEnum.ECO
+                ) or not self.__has_ecov_mode:
+                    continue
+                voltalis_mode = VoltalisProgramSelectOptionsEnum.ECO
+
+            if voltalis_mode not in options:
+                options.append(voltalis_mode)
+
+        self._attr_options = (
+            [VoltalisProgramSelectOptionsEnum.AUTO]
+            + ([VoltalisProgramSelectOptionsEnum.ON] if self.__has_on_mode else [])
+            + options
+            + [VoltalisProgramSelectOptionsEnum.OFF]
+        )
 
     @property
     def _current_device(self) -> VoltalisDevice:
@@ -67,6 +81,8 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
                 return "mdi:snowflake-alert"
             if current == VoltalisProgramSelectOptionsEnum.TEMPERATURE:
                 return "mdi:thermometer"
+            if current == VoltalisProgramSelectOptionsEnum.ON:
+                return "mdi:flash-outline"
             if current == VoltalisProgramSelectOptionsEnum.OFF:
                 return "mdi:power"
             if current == VoltalisProgramSelectOptionsEnum.AUTO:
@@ -92,18 +108,17 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
                 return VoltalisProgramSelectOptionsEnum.AUTO
 
             # Get current mode
-            if device.programming.mode:
-                program_mode = VOLTALIS_MODES_TO_VOLTALIS_PROGRAM_SELECT_OPTIONS.get(device.programming.mode)
-                return program_mode
-
-            return None
+            current_mode = device.programming.mode
+            # Handle ECOV mode
+            if current_mode == VoltalisDeviceModeEnum.ECOV:
+                return VoltalisProgramSelectOptionsEnum.ECO
+            return current_mode
 
         self._attr_current_option = get_current_option()
         self.async_write_ha_state()
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected program mode."""
-        device = self._current_device
 
         # Handle OFF mode
         if option == VoltalisProgramSelectOptionsEnum.OFF:
@@ -115,23 +130,12 @@ class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
             await self.__set_manual_mode(is_on=True, mode=None)
             return
 
-        # Get Voltalis mode for the selected option
-        voltalis_mode = VOLTALIS_PROGRAM_SELECT_OPTIONS_TO_VOLTALIS_MODES.get(
-            cast(VoltalisProgramSelectOptionsEnum, option)
-        )
-        if voltalis_mode is None:
-            raise HomeAssistantError(f"Invalid program mode: {option}")
-
-        # Check if mode is available
-        if voltalis_mode not in device.available_modes:
-            raise HomeAssistantError(f"Mode {option} is not available for this device")
-
         # Handle ECOV mode
-        if voltalis_mode == VoltalisDeviceModeEnum.ECO and self.__is_ecov_mode:
-            voltalis_mode = VoltalisDeviceModeEnum.ECOV
+        if option == VoltalisDeviceModeEnum.ECO and self.__has_ecov_mode:
+            option = VoltalisDeviceModeEnum.ECOV
 
         # Set the mode
-        await self.__set_manual_mode(is_on=True, mode=voltalis_mode)
+        await self.__set_manual_mode(is_on=True, mode=cast(VoltalisDeviceModeEnum, option))
 
     # ------------------------------------------------------------------
     # Internal helper methods

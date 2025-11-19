@@ -53,12 +53,13 @@
       "program_mode": {
         "name": "Program mode",
         "state": {
-          "comfort": "Comfort",
-          "eco": "Eco",
-          "frost_protection": "Frost protection",
-          "temperature": "Temperature",
-          "auto": "Auto",
-          "off": "Off"
+          "CONFORT": "Comfort",
+          "ECO": "Eco",
+          "HORS_GEL": "Frost protection",
+          "TEMPERATURE": "Temperature",
+          "AUTO": "Auto",
+          "NORMAL": "ON",
+          "OFF": "Off"
         }
       }
     }

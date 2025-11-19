@@ -39,12 +39,13 @@ class HomeAssistantPresetModeEnum(StrEnum):
 class VoltalisProgramSelectOptionsEnum(StrEnum):
     """Enum for Voltalis program select options."""
 
-    COMFORT = "comfort"
-    ECO = "eco"
-    FROST_PROTECTION = "frost_protection"
-    TEMPERATURE = "temperature"
-    OFF = "off"
-    AUTO = "auto"
+    COMFORT = VoltalisDeviceModeEnum.CONFORT.value
+    ECO = VoltalisDeviceModeEnum.ECO.value
+    FROST_PROTECTION = VoltalisDeviceModeEnum.HORS_GEL.value
+    TEMPERATURE = VoltalisDeviceModeEnum.TEMPERATURE.value
+    ON = VoltalisDeviceModeEnum.NORMAL.value
+    OFF = "OFF"
+    AUTO = "AUTO"
 
 
 # Presets (Ordered to match typical user expectations)
@@ -62,20 +63,4 @@ HA_TO_VOLTALIS_MODES = {
     HomeAssistantPresetModeEnum.ECO: VoltalisDeviceModeEnum.ECO,
     HomeAssistantPresetModeEnum.AWAY: VoltalisDeviceModeEnum.HORS_GEL,
     HomeAssistantPresetModeEnum.NONE: VoltalisDeviceModeEnum.NORMAL,
-}
-
-# Mappings between Voltalis device modes and program select options
-VOLTALIS_MODES_TO_VOLTALIS_PROGRAM_SELECT_OPTIONS = {
-    VoltalisDeviceModeEnum.CONFORT: VoltalisProgramSelectOptionsEnum.COMFORT,
-    VoltalisDeviceModeEnum.ECO: VoltalisProgramSelectOptionsEnum.ECO,
-    VoltalisDeviceModeEnum.ECOV: VoltalisProgramSelectOptionsEnum.ECO,
-    VoltalisDeviceModeEnum.HORS_GEL: VoltalisProgramSelectOptionsEnum.FROST_PROTECTION,
-    VoltalisDeviceModeEnum.TEMPERATURE: VoltalisProgramSelectOptionsEnum.TEMPERATURE,
-}
-
-VOLTALIS_PROGRAM_SELECT_OPTIONS_TO_VOLTALIS_MODES = {
-    VoltalisProgramSelectOptionsEnum.COMFORT: VoltalisDeviceModeEnum.CONFORT,
-    VoltalisProgramSelectOptionsEnum.ECO: VoltalisDeviceModeEnum.ECO,
-    VoltalisProgramSelectOptionsEnum.FROST_PROTECTION: VoltalisDeviceModeEnum.HORS_GEL,
-    VoltalisProgramSelectOptionsEnum.TEMPERATURE: VoltalisDeviceModeEnum.TEMPERATURE,
 }

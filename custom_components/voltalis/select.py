@@ -32,10 +32,9 @@ async def async_setup_entry(
     for data in coordinator.data.values():
         device: VoltalisDevice = data.device
 
-        # Create the program select entity only for heaters
-        if device.type == VoltalisDeviceTypeEnum.HEATER:
-            program_select = VoltalisProgramSelect(entry, device)
-            selects[program_select.unique_internal_name] = program_select
+        # Create the program select entity
+        program_select = VoltalisProgramSelect(entry, device)
+        selects[program_select.unique_internal_name] = program_select
 
     async_add_entities(selects.values(), update_before_add=True)
     _LOGGER.info(f"Added {len(selects)} Voltalis select entities: {list(selects.keys())}")
