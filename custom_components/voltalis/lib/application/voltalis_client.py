@@ -21,7 +21,6 @@ class VoltalisClient(ABC):
         """Logout after async exit."""
         await self.logout()
 
-
     @abstractmethod
     async def login(self) -> None:
         """Login to the Voltalis servers"""

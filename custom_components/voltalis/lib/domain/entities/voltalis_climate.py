@@ -133,13 +133,12 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new HVAC mode."""
 
-        
         if hvac_mode == HVACMode.OFF:
-            await self.async_turn_off() # Turn off device
+            await self.async_turn_off()  # Turn off device
         elif hvac_mode == HVACMode.HEAT:
-            await self.__set_manual_mode(is_on=True) # Use current mode 
+            await self.__set_manual_mode(is_on=True)  # Use current mode
         elif hvac_mode == HVACMode.AUTO:
-            await self.__disable_manual_mode() # Return to automatic programming 
+            await self.__disable_manual_mode()  # Return to automatic programming
         else:
             raise HomeAssistantError(f"HVAC mode {hvac_mode} not supported")
 
@@ -206,7 +205,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             return specified_temperature
 
         # Use device programming or defaults
-        # TODO : Test de l'importance de la température envoyée dans les modes autres que TEMPERATURE 
+        # TODO : Test de l'importance de la température envoyée dans les modes autres que TEMPERATURE
         # TODO : Sinon établir un tableau de températures par défaut / voir demandé à l'utilisateur pendant la config
         if device.programming:
             if device.programming.temperature_target is not None:
@@ -235,7 +234,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             # Keep current mode or default to ECO
             if device.programming and device.programming.mode:
                 target_mode = device.programming.mode
-        else :
+        else:
             target_mode = mode
 
         # Determine target temperature

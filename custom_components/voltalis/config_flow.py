@@ -41,7 +41,6 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except Exception as ex:
             raise self.ConnectionError from ex
 
-
     async def __validate_input(self, user_input: dict[str, Any]) -> None:
         """Validate provided user input."""
         if not isinstance(user_input, dict):
@@ -52,7 +51,6 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if not username or not password:
             raise self.ConfigFlowError("missing_fields")
-
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
         """Handle the initial step of the config flow."""
