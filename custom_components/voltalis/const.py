@@ -34,6 +34,7 @@ class HomeAssistantPresetModeEnum(StrEnum):
     HOME = PRESET_HOME
     AWAY = PRESET_AWAY
     NONE = PRESET_NONE
+    OFF = PRESET_NONE
 
 
 # Presets (Ordered to match typical user expectations)

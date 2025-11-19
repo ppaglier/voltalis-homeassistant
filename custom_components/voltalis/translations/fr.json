@@ -58,9 +58,16 @@
         "name": "Nom de la programmation"
       }
     },
-    "binary_sensor": {
-      "manual_mode": {
-        "name": "Mode manuel"
+    "select": {
+      "program_mode": {
+        "name": "Mode de programme",
+        "state": {
+          "comfort": "Confort",
+          "eco": "Éco",
+          "frost_protection": "Hors-gel",
+          "temperature": "Température",
+          "off": "Arrêt"
+        }
       }
     }
   },

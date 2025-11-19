@@ -14,8 +14,8 @@ from custom_components.voltalis.lib.infrastructure.voltalis_client_aiohttp impor
 
 PLATFORMS = [
     Platform.SENSOR,
-    Platform.BINARY_SENSOR,
     Platform.CLIMATE,
+    Platform.SELECT,
 ]
 
 

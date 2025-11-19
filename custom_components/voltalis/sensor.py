@@ -6,10 +6,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.entities.voltalis_connected_sensor import VoltalisConnectedSensor
 from custom_components.voltalis.lib.domain.entities.voltalis_consumption_sensor import VoltalisConsumptionSensor
-from custom_components.voltalis.lib.domain.entities.voltalis_default_temperature_sensor import (
-    VoltalisDefaultTemperatureSensor,
-)
-from custom_components.voltalis.lib.domain.entities.voltalis_heating_level_sensor import VoltalisHeatingLevelSensor
 from custom_components.voltalis.lib.domain.entities.voltalis_programming_name_sensor import (
     VoltalisProgrammingNameSensor,
 )
@@ -54,16 +50,8 @@ async def async_setup_entry(
 
         # Create additional sensors for heater devices
         if device.type in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]:
-            # Heating level sensor (only for heaters with heating_level data)
-            if device.heating_level is not None:
-                heating_level_sensor = VoltalisHeatingLevelSensor(entry, device)
-                sensors[heating_level_sensor.unique_internal_name] = heating_level_sensor
-
             # Default temperature sensor
             if device.programming:
-                if device.programming.default_temperature is not None:
-                    default_temp_sensor = VoltalisDefaultTemperatureSensor(entry, device)
-                    sensors[default_temp_sensor.unique_internal_name] = default_temp_sensor
 
                 # Programming type sensor
                 if device.programming.prog_type:

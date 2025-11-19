@@ -27,6 +27,7 @@ class VoltalisDeviceModeEnum(StrEnum):
     HORS_GEL = "HORS_GEL"
     NORMAL = "NORMAL"
     ECOV = "ECOV"
+    OFF = "OFF"
 
 
 class VoltalisDeviceProgTypeEnum(StrEnum):
