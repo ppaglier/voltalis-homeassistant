@@ -50,26 +50,27 @@ async def async_setup_entry(
         _LOGGER.debug("Created consumption sensor for device %s", device.name)
 
         # Create additional sensors for heater devices
-        if device.type == VoltalisDeviceTypeEnum.HEATER:
+        if device.type in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]:
             # Heating level sensor (only for heaters with heating_level data)
             if device.heating_level is not None:
                 sensors.append(VoltalisHeatingLevelSensor(coordinator, device))
                 _LOGGER.debug("Created heating level sensor for device %s", device.name)
 
             # Default temperature sensor
-            if device.programming and device.programming.default_temperature is not None:
-                sensors.append(VoltalisDefaultTemperatureSensor(coordinator, device))
-                _LOGGER.debug("Created default temperature sensor for device %s", device.name)
+            if device.programming:
+                if device.programming.default_temperature is not None:
+                    sensors.append(VoltalisDefaultTemperatureSensor(coordinator, device))
+                    _LOGGER.debug("Created default temperature sensor for device %s", device.name)
 
-            # Programming type sensor
-            if device.programming and device.programming.prog_type:
-                sensors.append(VoltalisProgrammingTypeSensor(coordinator, device))
-                _LOGGER.debug("Created programming type sensor for device %s", device.name)
+                # Programming type sensor
+                if device.programming.prog_type:
+                    sensors.append(VoltalisProgrammingTypeSensor(coordinator, device))
+                    _LOGGER.debug("Created programming type sensor for device %s", device.name)
 
-            # Programming name sensor
-            if device.programming and device.programming.prog_name:
-                sensors.append(VoltalisProgrammingNameSensor(coordinator, device))
-                _LOGGER.debug("Created programming name sensor for device %s", device.name)
+                # Programming name sensor
+                if device.programming.prog_name:
+                    sensors.append(VoltalisProgrammingNameSensor(coordinator, device))
+                    _LOGGER.debug("Created programming name sensor for device %s", device.name)
 
     async_add_entities(sensors, update_before_add=True)
     _LOGGER.info("Added %d Voltalis sensors", len(sensors))
