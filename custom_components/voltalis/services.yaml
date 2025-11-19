@@ -15,12 +15,13 @@ set_manual_mode:
       example: "comfort"
       selector:
         select:
+          # HACS preset modes
           options:
+            - "away"
             - "eco"
+            - "none"
             - "comfort"
-            - "frost_protection"
-            - "normal"
-            - "ecov"
+            - "home"
     temperature:
       name: Temperature
       description: The target temperature in Celsius. If set, the device will use temperature mode.
