@@ -64,9 +64,9 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         if len(self._attr_preset_modes) > 1:
             features |= ClimateEntityFeature.PRESET_MODE
 
-            # Only add temperature control if device supports TEMPERATURE mode
-            if VoltalisDeviceModeEnum.TEMPERATURE in self._attr_preset_modes:
-                features |= ClimateEntityFeature.TARGET_TEMPERATURE
+        # Only add temperature control if device supports TEMPERATURE mode
+        if VoltalisDeviceModeEnum.TEMPERATURE in self._device.available_modes:
+            features |= ClimateEntityFeature.TARGET_TEMPERATURE
 
         self._attr_supported_features = features
 
