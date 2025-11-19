@@ -9,7 +9,7 @@ from custom_components.voltalis.lib.domain.entities.voltalis_consumption_sensor 
 from custom_components.voltalis.lib.domain.entities.voltalis_programming_type_sensor import (
     VoltalisProgrammingTypeSensor,
 )
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceTypeEnum
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -45,14 +45,10 @@ async def async_setup_entry(
             connected_sensor = VoltalisConnectedSensor(entry, device)
             sensors[connected_sensor.unique_internal_name] = connected_sensor
 
-        # Create additional sensors for heater devices
-        if device.type in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]:
-            # Default temperature sensor
-            if device.programming:
-                # Programming type sensor
-                if device.programming.prog_type:
-                    programming_type_sensor = VoltalisProgrammingTypeSensor(entry, device)
-                    sensors[programming_type_sensor.unique_internal_name] = programming_type_sensor
+        # Create the programming type sensor for each device (if applicable)
+        if device.programming.prog_type is not None:
+            programming_type_sensor = VoltalisProgrammingTypeSensor(entry, device)
+            sensors[programming_type_sensor.unique_internal_name] = programming_type_sensor
 
     async_add_entities(sensors.values(), update_before_add=True)
     _LOGGER.info(f"Added {len(sensors)} Voltalis sensor entities: {list(sensors.keys())}")

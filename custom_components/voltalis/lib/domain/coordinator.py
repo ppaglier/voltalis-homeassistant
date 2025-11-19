@@ -14,7 +14,11 @@ from custom_components.voltalis.lib.domain.exceptions import (
     VoltalisException,
     VoltalisValidationException,
 )
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisManualSetting
+from custom_components.voltalis.lib.domain.models.device import (
+    VoltalisDevice,
+    VoltalisDeviceTypeEnum,
+    VoltalisManualSetting,
+)
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 
 _LOGGER = logging.getLogger(__name__)
@@ -78,6 +82,10 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
             result: dict[int, VoltalisCoordinatorData] = {}
 
             for device_id, device in devices.items():
+                if device.type not in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]:
+                    _LOGGER.debug(f"Skipping unsupported device type: {device.type}")
+                    continue
+
                 result[device_id] = VoltalisCoordinatorData(
                     device=device,
                     consumption=consumptions.get(device_id, None),
