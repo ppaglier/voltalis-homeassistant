@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, cast
 
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import ClimateEntityFeature, HVACAction, HVACMode
@@ -18,6 +18,7 @@ from custom_components.voltalis.const import (
     CLIMATE_UNIT,
     HA_TO_VOLTALIS_MODES,
     VOLTALIS_TO_HA_MODES,
+    HomeAssistantPresetModeEnum,
 )
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.device import (
@@ -161,7 +162,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
-        voltalis_mode = HA_TO_VOLTALIS_MODES.get(preset_mode)
+        voltalis_mode = HA_TO_VOLTALIS_MODES.get(cast(HomeAssistantPresetModeEnum, preset_mode))
         if voltalis_mode is None:
             raise HomeAssistantError(f"Invalid preset mode: {preset_mode}")
 
@@ -305,7 +306,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             target_temp = temperature
         elif preset_mode is not None:
             # Use the specified preset mode
-            voltalis_mode = HA_TO_VOLTALIS_MODES.get(preset_mode)
+            voltalis_mode = HA_TO_VOLTALIS_MODES.get(cast(HomeAssistantPresetModeEnum, preset_mode))
             if voltalis_mode is None:
                 raise HomeAssistantError(f"Invalid preset mode: {preset_mode}")
             target_mode = voltalis_mode

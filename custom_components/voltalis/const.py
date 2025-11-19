@@ -26,7 +26,7 @@ CLIMATE_BOOST_TEMP_INCREASE = 2.0
 CLIMATE_BOOST_DURATION = 2.0  # in hours
 
 
-class HomeAssistantPresetModes(StrEnum):
+class HomeAssistantPresetModeEnum(StrEnum):
     """Home Assistant presets that will be used for Voltalis devices."""
 
     ECO = PRESET_ECO
@@ -38,18 +38,18 @@ class HomeAssistantPresetModes(StrEnum):
 
 # Presets
 VOLTALIS_TO_HA_MODES = {
-    VoltalisDeviceModeEnum.ECO: HomeAssistantPresetModes.ECO,
-    VoltalisDeviceModeEnum.ECOV: HomeAssistantPresetModes.ECO,
-    VoltalisDeviceModeEnum.CONFORT: HomeAssistantPresetModes.COMFORT,
-    VoltalisDeviceModeEnum.TEMPERATURE: HomeAssistantPresetModes.NONE,
-    VoltalisDeviceModeEnum.HORS_GEL: HomeAssistantPresetModes.AWAY,
-    VoltalisDeviceModeEnum.NORMAL: HomeAssistantPresetModes.NONE,
+    VoltalisDeviceModeEnum.ECO: HomeAssistantPresetModeEnum.ECO,
+    VoltalisDeviceModeEnum.ECOV: HomeAssistantPresetModeEnum.ECO,
+    VoltalisDeviceModeEnum.CONFORT: HomeAssistantPresetModeEnum.COMFORT,
+    VoltalisDeviceModeEnum.TEMPERATURE: HomeAssistantPresetModeEnum.NONE,
+    VoltalisDeviceModeEnum.HORS_GEL: HomeAssistantPresetModeEnum.AWAY,
+    VoltalisDeviceModeEnum.NORMAL: HomeAssistantPresetModeEnum.NONE,
 }
 
 HA_TO_VOLTALIS_MODES = {
-    HomeAssistantPresetModes.ECO: VoltalisDeviceModeEnum.ECO,
-    HomeAssistantPresetModes.COMFORT: VoltalisDeviceModeEnum.CONFORT,
-    HomeAssistantPresetModes.NONE: VoltalisDeviceModeEnum.TEMPERATURE,
-    HomeAssistantPresetModes.AWAY: VoltalisDeviceModeEnum.HORS_GEL,
-    HomeAssistantPresetModes.NONE: VoltalisDeviceModeEnum.NORMAL,
+    HomeAssistantPresetModeEnum.ECO: VoltalisDeviceModeEnum.ECO,
+    HomeAssistantPresetModeEnum.COMFORT: VoltalisDeviceModeEnum.CONFORT,
+    HomeAssistantPresetModeEnum.NONE: VoltalisDeviceModeEnum.TEMPERATURE,
+    HomeAssistantPresetModeEnum.AWAY: VoltalisDeviceModeEnum.HORS_GEL,
+    HomeAssistantPresetModeEnum.NONE: VoltalisDeviceModeEnum.NORMAL,
 }
