@@ -10,12 +10,6 @@ from custom_components.voltalis.lib.application.voltalis_client import VoltalisC
 from custom_components.voltalis.lib.infrastructure.voltalis_client_stub import VoltalisClientStub
 
 
-# Avoid creating a real aiohttp ClientSession in the flow (prevents unclosed session warnings)
-class _DummySession:
-    async def close(self) -> None:  # pragma: no cover
-        return None
-
-
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_form_user_input_none(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -46,18 +40,9 @@ async def test_config_flow_creates_entry(hass: HomeAssistant, monkeypatch: pytes
     """Test that the config flow creates an entry successfully using the flow manager."""
 
     # Ensure the config flow uses the stub client instead of performing real I/O
-    def get_client() -> VoltalisClient:
-        client = VoltalisClientStub()
-        return client
-
     monkeypatch.setattr(
         "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
-        lambda session: get_client(),
-    )
-
-    monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.ClientSession",
-        lambda: _DummySession(),
+        lambda session: VoltalisClientStub(),
     )
 
     # Start the flow via Home Assistant to ensure proper context handling
@@ -99,11 +84,6 @@ async def test_form_errors(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch,
         lambda session: get_client(),
     )
 
-    monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.ClientSession",
-        lambda: _DummySession(),
-    )
-
     # Start the flow via Home Assistant to ensure proper context handling
     init_result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     assert init_result["type"] == FlowResultType.FORM
@@ -128,18 +108,8 @@ async def test_already_configured(hass: HomeAssistant, monkeypatch: pytest.Monke
     """Test that we abort if already configured."""
 
     # Ensure the config flow uses the stub client instead of performing real I/O
-    def get_client() -> VoltalisClient:
-        client = VoltalisClientStub()
-        return client
-
     monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
-        lambda session: get_client(),
-    )
-
-    monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.ClientSession",
-        lambda: _DummySession(),
+        "custom_components.voltalis.config_flow.VoltalisClientAiohttp", lambda session: VoltalisClientStub()
     )
 
     credentials = {
@@ -183,18 +153,8 @@ async def test_step_reconfigure_success(
     """Test reconfigure flow updates existing entry."""
 
     # Ensure the config flow uses the stub client instead of performing real I/O
-    def get_client() -> VoltalisClient:
-        client = VoltalisClientStub()
-        return client
-
     monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
-        lambda session: get_client(),
-    )
-
-    monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.ClientSession",
-        lambda: _DummySession(),
+        "custom_components.voltalis.config_flow.VoltalisClientAiohttp", lambda session: VoltalisClientStub()
     )
 
     credentials = {
@@ -248,18 +208,8 @@ async def test_step_reconfigure_shows_form(
     """Test reconfigure flow updates existing entry."""
 
     # Ensure the config flow uses the stub client instead of performing real I/O
-    def get_client() -> VoltalisClient:
-        client = VoltalisClientStub()
-        return client
-
     monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
-        lambda session: get_client(),
-    )
-
-    monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.ClientSession",
-        lambda: _DummySession(),
+        "custom_components.voltalis.config_flow.VoltalisClientAiohttp", lambda session: VoltalisClientStub()
     )
 
     credentials = {
@@ -323,11 +273,6 @@ async def test_step_reconfigure_invalid_auth(
     monkeypatch.setattr(
         "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
         lambda session: get_client(),
-    )
-
-    monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.ClientSession",
-        lambda: _DummySession(),
     )
 
     credentials = {
