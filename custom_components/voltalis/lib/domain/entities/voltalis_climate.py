@@ -49,15 +49,19 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         presets: list[str] = []
         for voltalis_mode in VOLTALIS_TO_HA_MODES:
             ha_mode = VOLTALIS_TO_HA_MODES[voltalis_mode]
+            # Skip NONE mode here, will add it at the end
+            if ha_mode is HomeAssistantPresetModeEnum.NONE:
+                continue
             if voltalis_mode in device.available_modes and ha_mode not in presets:
                 presets.append(ha_mode)
-        self._attr_preset_modes = presets
+
+        self._attr_preset_modes = presets + [HomeAssistantPresetModeEnum.NONE]
 
         # Determine supported features
         features = ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TURN_OFF
 
-        # Add preset mode support if device has available modes
-        if self._attr_preset_modes:
+        # Add preset mode support if device has available modes other than HomeAssistantPresetModeEnum.NONE
+        if len(self._attr_preset_modes) > 1:
             features |= ClimateEntityFeature.PRESET_MODE
 
             # Only add temperature control if device supports TEMPERATURE mode

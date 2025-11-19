@@ -42,14 +42,14 @@ VOLTALIS_TO_HA_MODES = {
     VoltalisDeviceModeEnum.ECO: HomeAssistantPresetModeEnum.ECO,
     VoltalisDeviceModeEnum.ECOV: HomeAssistantPresetModeEnum.ECO,
     VoltalisDeviceModeEnum.HORS_GEL: HomeAssistantPresetModeEnum.AWAY,
-    VoltalisDeviceModeEnum.TEMPERATURE: HomeAssistantPresetModeEnum.NONE,
     VoltalisDeviceModeEnum.NORMAL: HomeAssistantPresetModeEnum.NONE,
+    VoltalisDeviceModeEnum.TEMPERATURE: HomeAssistantPresetModeEnum.NONE,
 }
 
 HA_TO_VOLTALIS_MODES = {
     HomeAssistantPresetModeEnum.COMFORT: VoltalisDeviceModeEnum.CONFORT,
     HomeAssistantPresetModeEnum.ECO: VoltalisDeviceModeEnum.ECO,
     HomeAssistantPresetModeEnum.AWAY: VoltalisDeviceModeEnum.HORS_GEL,
-    HomeAssistantPresetModeEnum.NONE: VoltalisDeviceModeEnum.TEMPERATURE,
     HomeAssistantPresetModeEnum.NONE: VoltalisDeviceModeEnum.NORMAL,
+    HomeAssistantPresetModeEnum.NONE: VoltalisDeviceModeEnum.TEMPERATURE,
 }
