@@ -36,7 +36,6 @@ set_manual_mode:
       name: Duration (hours)
       description: How long to stay in manual mode (in hours). Default is to stay until further notice.
       required: false
-      default: null
       example: 12
       selector:
         number:
