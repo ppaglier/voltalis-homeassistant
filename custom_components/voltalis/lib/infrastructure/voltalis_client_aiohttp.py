@@ -78,7 +78,7 @@ class VoltalisClientAiohttp(VoltalisClient):
         if self.__close_session:
             await self.__session.close()
 
-    async def get_access_token(
+    async def __get_access_token(
         self,
         *,
         username: str,
@@ -113,7 +113,7 @@ class VoltalisClientAiohttp(VoltalisClient):
             raise VoltalisException("You must provide username & password")
 
         self.__logger.info("Voltalis login in progress...")
-        token = await self.get_access_token(
+        token = await self.__get_access_token(
             username=self.__username,
             password=self.__password,
         )
