@@ -36,20 +36,20 @@ class HomeAssistantPresetModeEnum(StrEnum):
     NONE = PRESET_NONE
 
 
-# Presets
+# Presets (Ordered to match typical user expectations)
 VOLTALIS_TO_HA_MODES = {
+    VoltalisDeviceModeEnum.CONFORT: HomeAssistantPresetModeEnum.COMFORT,
     VoltalisDeviceModeEnum.ECO: HomeAssistantPresetModeEnum.ECO,
     VoltalisDeviceModeEnum.ECOV: HomeAssistantPresetModeEnum.ECO,
-    VoltalisDeviceModeEnum.CONFORT: HomeAssistantPresetModeEnum.COMFORT,
-    VoltalisDeviceModeEnum.TEMPERATURE: HomeAssistantPresetModeEnum.NONE,
     VoltalisDeviceModeEnum.HORS_GEL: HomeAssistantPresetModeEnum.AWAY,
+    VoltalisDeviceModeEnum.TEMPERATURE: HomeAssistantPresetModeEnum.NONE,
     VoltalisDeviceModeEnum.NORMAL: HomeAssistantPresetModeEnum.NONE,
 }
 
 HA_TO_VOLTALIS_MODES = {
-    HomeAssistantPresetModeEnum.ECO: VoltalisDeviceModeEnum.ECO,
     HomeAssistantPresetModeEnum.COMFORT: VoltalisDeviceModeEnum.CONFORT,
-    HomeAssistantPresetModeEnum.NONE: VoltalisDeviceModeEnum.TEMPERATURE,
+    HomeAssistantPresetModeEnum.ECO: VoltalisDeviceModeEnum.ECO,
     HomeAssistantPresetModeEnum.AWAY: VoltalisDeviceModeEnum.HORS_GEL,
+    HomeAssistantPresetModeEnum.NONE: VoltalisDeviceModeEnum.TEMPERATURE,
     HomeAssistantPresetModeEnum.NONE: VoltalisDeviceModeEnum.NORMAL,
 }
