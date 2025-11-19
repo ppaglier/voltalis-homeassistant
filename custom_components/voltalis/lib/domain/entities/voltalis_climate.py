@@ -132,24 +132,24 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new HVAC mode."""
+
+        
         if hvac_mode == HVACMode.OFF:
-            await self.async_turn_off()
+            await self.async_turn_off() # Turn off device
         elif hvac_mode == HVACMode.HEAT:
-            # HEAT mode means manual mode with current preset
-            await self.__set_manual_mode(is_on=True, use_current_mode=True)
+            await self.__set_manual_mode(is_on=True) # Use current mode 
         elif hvac_mode == HVACMode.AUTO:
-            # AUTO mode means disable manual mode (use planning)
-            await self.__disable_manual_mode()
+            await self.__disable_manual_mode() # Return to automatic programming 
         else:
             raise HomeAssistantError(f"HVAC mode {hvac_mode} not supported")
 
     async def async_turn_on(self) -> None:
         """Turn the entity on."""
-        await self.__set_manual_mode(is_on=True, use_current_mode=True)
+        await self.__set_manual_mode(is_on=True)
 
     async def async_turn_off(self) -> None:
         """Turn the entity off."""
-        await self.__set_manual_mode(is_on=False, use_current_mode=True)
+        await self.__set_manual_mode(is_on=False)
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
@@ -194,13 +194,35 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()
 
+    def __get_appropriate_temperature(
+        self,
+        mode: VoltalisDeviceModeEnum,
+        specified_temperature: float | None = None,
+    ) -> float:
+        """Determine the appropriate temperature based on mode and specified temperature."""
+        device = self._current_device
+
+        if specified_temperature is not None:
+            return specified_temperature
+
+        # Use device programming or defaults
+        # TODO : Test de l'importance de la température envoyée dans les modes autres que TEMPERATURE 
+        # TODO : Sinon établir un tableau de températures par défaut / voir demandé à l'utilisateur pendant la config
+        if device.programming:
+            if device.programming.temperature_target is not None:
+                return device.programming.temperature_target
+            if device.programming.default_temperature is not None:
+                return device.programming.default_temperature
+
+        # Fallbacks based on mode
+        if mode == VoltalisDeviceModeEnum.CONFORT:
+            return CLIMATE_COMFORT_TEMP
+
+        return CLIMATE_DEFAULT_TEMP
+
     async def __set_manual_mode(
         self,
         is_on: bool,
-        # TODO: maybe refactor to use either mode or temperature, not both
-        # TODO: maybe refactor to use use_current_mode or mode, not both to simplify logic
-        # (could be mode=None meaning use current)
-        use_current_mode: bool = False,
         mode: VoltalisDeviceModeEnum | None = None,
         temperature: float | None = None,
     ) -> None:
@@ -209,21 +231,15 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
 
         # Determine the mode to use
         target_mode = VoltalisDeviceModeEnum.ECO
-        if use_current_mode:
+        if mode is None:
             # Keep current mode or default to ECO
             if device.programming and device.programming.mode:
                 target_mode = device.programming.mode
-        elif mode is not None:
+        else :
             target_mode = mode
 
         # Determine target temperature
-        target_temp = CLIMATE_DEFAULT_TEMP
-        if temperature is not None:
-            target_temp = temperature
-        elif device.programming and device.programming.temperature_target:
-            target_temp = device.programming.temperature_target
-        elif device.programming and device.programming.default_temperature:
-            target_temp = device.programming.default_temperature
+        target_temp = self.__get_appropriate_temperature(target_mode, temperature)
 
         await self.__update_manual_settings(
             VoltalisManualSettingUpdate(
@@ -299,12 +315,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
                 raise HomeAssistantError(f"Invalid preset mode: {preset_mode}")
             target_mode = voltalis_mode
             # Use current or default temperature
-            if device.programming and device.programming.temperature_target:
-                target_temp = device.programming.temperature_target
-            elif device.programming and device.programming.default_temperature:
-                target_temp = device.programming.default_temperature
-            else:
-                target_temp = CLIMATE_DEFAULT_TEMP
+            target_temp = self.__get_appropriate_temperature(target_mode)
         else:
             # No mode or temperature specified, use current mode or ECO
             if device.programming and device.programming.mode:
@@ -313,12 +324,7 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
                 target_mode = VoltalisDeviceModeEnum.ECO
 
             # Use current or default temperature
-            if device.programming and device.programming.temperature_target:
-                target_temp = device.programming.temperature_target
-            elif device.programming and device.programming.default_temperature:
-                target_temp = device.programming.default_temperature
-            else:
-                target_temp = CLIMATE_DEFAULT_TEMP
+            target_temp = self.__get_appropriate_temperature(target_mode)
 
         # Calculate end date
         end_date = None if duration_hours is None else (datetime.now() + timedelta(hours=duration_hours)).isoformat()
