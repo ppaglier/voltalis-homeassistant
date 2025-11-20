@@ -39,8 +39,8 @@
       "consumption": {
         "name": "Consommation"
       },
-      "programming_type": {
-        "name": "Type de programmation",
+      "device_programming": {
+        "name": "Programmation",
         "state": {
           "manual": "Manuelle",
           "default": "Par défaut",

@@ -11,14 +11,14 @@ from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisProgrammingTypeSensor(VoltalisEntity, SensorEntity):
-    """Sensor for programming type (manual, default, user, quick)."""
+class VoltalisDeviceProgrammingSensor(VoltalisEntity, SensorEntity):
+    """Sensor for programming of devices (manual, default, user, quick)."""
 
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_translation_key = "programming_type"
+    _attr_translation_key = "device_programming"
     _attr_options = [option for option in VoltalisDeviceProgTypeEnum]
     _attr_entity_registry_enabled_default = False
-    _unique_id_suffix = "programming_type"
+    _unique_id_suffix = "device_programming"
 
     @property
     def icon(self) -> str:
