@@ -36,18 +36,6 @@ class HomeAssistantPresetModeEnum(StrEnum):
     NONE = PRESET_NONE
 
 
-class VoltalisDevicePresetSelectOptionsEnum(StrEnum):
-    """Voltalis device preset select options."""
-
-    COMFORT = VoltalisDeviceModeEnum.CONFORT.value
-    ECO = VoltalisDeviceModeEnum.ECO.value
-    FROST_PROTECTION = VoltalisDeviceModeEnum.HORS_GEL.value
-    TEMPERATURE = VoltalisDeviceModeEnum.TEMPERATURE.value
-    ON = VoltalisDeviceModeEnum.NORMAL.value
-    OFF = "off"
-    AUTO = "auto"
-
-
 # Presets (Ordered to match typical user expectations)
 VOLTALIS_TO_HA_MODES = {
     VoltalisDeviceModeEnum.CONFORT: HomeAssistantPresetModeEnum.COMFORT,

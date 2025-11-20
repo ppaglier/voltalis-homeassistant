@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import logging
+from enum import StrEnum
 from typing import cast
 
 from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.voltalis.const import CLIMATE_DEFAULT_TEMP, VoltalisDevicePresetSelectOptionsEnum
+from custom_components.voltalis.const import CLIMATE_DEFAULT_TEMP
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
@@ -17,6 +18,18 @@ from custom_components.voltalis.lib.domain.models.device import (
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class VoltalisDevicePresetSelectOptionsEnum(StrEnum):
+    """Voltalis device preset select options."""
+
+    COMFORT = VoltalisDeviceModeEnum.CONFORT.value
+    ECO = VoltalisDeviceModeEnum.ECO.value
+    FROST_PROTECTION = VoltalisDeviceModeEnum.HORS_GEL.value
+    TEMPERATURE = VoltalisDeviceModeEnum.TEMPERATURE.value
+    ON = VoltalisDeviceModeEnum.NORMAL.value
+    OFF = "off"
+    AUTO = "auto"
 
 
 class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
