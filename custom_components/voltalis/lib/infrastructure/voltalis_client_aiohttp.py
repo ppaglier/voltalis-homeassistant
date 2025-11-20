@@ -14,13 +14,12 @@ from custom_components.voltalis.lib.domain.exceptions import (
     VoltalisException,
     VoltalisValidationException,
 )
-from custom_components.voltalis.lib.domain.models.device import (
-    VoltalisDevice,
-    VoltalisDeviceProgrammingStatus,
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgrammingStatus
+from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
+from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 
 
 class VoltalisClientAiohttp(VoltalisClient):

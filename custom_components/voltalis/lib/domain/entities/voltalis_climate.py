@@ -26,8 +26,8 @@ from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
     VoltalisDeviceProgTypeEnum,
-    VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.models.manual_setting import VoltalisManualSettingUpdate
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 
@@ -76,6 +76,10 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         data = self.coordinator.data.get(self._device.id)
         return data.device if data else self._device
 
+    # ------------------------------------------------------------------
+    # Temperature handling
+    # ------------------------------------------------------------------
+
     @property
     def current_temperature(self) -> float | None:
         """Return the current temperature."""
@@ -96,6 +100,23 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         # Fallback to default temperature if available
         return device.programming.default_temperature
 
+    async def async_set_temperature(self, **kwargs: Any) -> None:
+        """Set new target temperature."""
+        temperature = kwargs.get("temperature")
+        if temperature is None:
+            return
+
+        # When setting temperature, use TEMPERATURE mode
+        await self.__set_manual_mode(
+            is_on=True,
+            mode=VoltalisDeviceModeEnum.TEMPERATURE,
+            temperature=temperature,
+        )
+
+    # ------------------------------------------------------------------
+    # HVAC mode handling
+    # ------------------------------------------------------------------
+
     @property
     def hvac_mode(self) -> HVACMode:
         """Return current HVAC mode."""
@@ -115,25 +136,14 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     def hvac_action(self) -> HVACAction | None:
         """Return current HVAC action."""
         device = self._current_device
-        if not device.programming or not device.programming.is_on:
-            return HVACAction.OFF
 
-        # If heating_level is present and > 0, device is actively heating
-        if device.heating_level is not None and device.heating_level > 0:
+        # Determine action based on programming status
+        if device.programming.is_on:
+            # Device is on but not actively heating
+            if device.programming.mode == VoltalisDeviceModeEnum.HORS_GEL:
+                return HVACAction.IDLE
             return HVACAction.HEATING
-
-        # Device is on but not actively heating
-        return HVACAction.IDLE
-
-    @property
-    def preset_mode(self) -> str | None:
-        """Return current preset mode."""
-        device = self._current_device
-        if not device.programming or not device.programming.mode:
-            return None
-
-        voltalis_mode = device.programming.mode
-        return VOLTALIS_TO_HA_MODES.get(voltalis_mode)
+        return HVACAction.OFF
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new HVAC mode."""
@@ -155,18 +165,19 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         """Turn the entity off."""
         await self.__set_manual_mode(is_on=False)
 
-    async def async_set_temperature(self, **kwargs: Any) -> None:
-        """Set new target temperature."""
-        temperature = kwargs.get("temperature")
-        if temperature is None:
-            return
+    # ------------------------------------------------------------------
+    # Preset mode handling
+    # ------------------------------------------------------------------
 
-        # When setting temperature, use TEMPERATURE mode
-        await self.__set_manual_mode(
-            is_on=True,
-            mode=VoltalisDeviceModeEnum.TEMPERATURE,
-            temperature=temperature,
-        )
+    @property
+    def preset_mode(self) -> str | None:
+        """Return current preset mode."""
+        device = self._current_device
+        if not device.programming or not device.programming.mode:
+            return None
+
+        voltalis_mode = device.programming.mode
+        return VOLTALIS_TO_HA_MODES.get(voltalis_mode)
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
