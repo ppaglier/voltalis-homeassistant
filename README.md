@@ -106,6 +106,40 @@ Before installing this integration, you need:
   5. Click **Submit**
 </details>
 
+## Important: Temperature Control Configuration
+
+<details>
+  <summary>⚠️ Required Configuration for Temperature Control (Click to expand)</summary>
+
+  ### Prerequisites for Temperature Mode
+
+  Before using the **Temperature preset** or the **climate entity's temperature control**, you must properly configure your heater's physical thermostat in MyVoltalis.
+
+  **Important:** The Voltalis device cannot generate a heating temperature higher than the one set on your heater. For temperature control to work correctly, make sure that your device's thermostat is set to a temperature higher than the one defined in the application.
+
+  ### Configuration Steps
+
+  1. Access your heater's physical thermostat (on the radiator itself)
+  2. Set it to the maximum temperature you want to allow (e.g., 25°C or 30°C)
+  3. Then use the Voltalis integration or MyVoltalis app to control the target temperature within this range
+
+  ### Visual Guide
+
+  Watch this video guide from MyVoltalis for proper configuration:
+
+  <video controls src="https://myvoltalis.com/assets/A5-CAQOXgYD.mp4" title="guide"></video>
+
+  *Video source: [MyVoltalis](https://myvoltalis.com/assets/A5-CAQOXgYD.mp4)*
+
+  ### What Happens If Not Configured
+
+  If your heater's physical thermostat is set lower than your desired temperature in Home Assistant:
+  - The temperature control will not work as expected
+  - Your heater will cap at its physical thermostat setting
+  - You won't achieve the target temperature set in the app
+
+</details>
+
 ## Entities
 
 The integration creates different entities depending on the device type and capabilities:
@@ -123,6 +157,7 @@ The integration creates different entities depending on the device type and capa
     - `Auto`: Automatic programming mode (follows user or default schedule)
   - **Preset Modes**: Comfort, Eco, Frost Protection, Temperature (depending on device capabilities)
   - **Temperature Control**: Set target temperature (7-30°C, 0.5°C steps)
+    - ⚠️ **Important**: Before using temperature control, ensure your heater's physical thermostat is set higher than your desired target temperature. See the [Temperature Control Configuration](#important-temperature-control-configuration) section above.
   - **Features**:
     - Turn on/off
     - Change HVAC mode
@@ -196,6 +231,7 @@ The integration creates different entities depending on the device type and capa
     - **On**: Turns device on in normal mode (if supported)
     - **Comfort/Eco/Frost Protection**: Activates the selected preset mode indefinitely
     - **Temperature**: Uses the current target temperature setting
+      - ⚠️ **Important**: Before using this preset, ensure your heater's physical thermostat is properly configured. See the [Temperature Control Configuration](#important-temperature-control-configuration) section above.
     - **Off**: Turns the device off
   - **Update Frequency**: Every 1 minute
 </details>
