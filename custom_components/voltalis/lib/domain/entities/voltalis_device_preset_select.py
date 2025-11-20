@@ -19,11 +19,11 @@ from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisProgramSelect(VoltalisEntity, SelectEntity):
-    """Select entity for Voltalis heating device program mode."""
+class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
+    """Select entity for Voltalis heating device mode."""
 
-    _attr_translation_key = "program_mode"
-    _unique_id_suffix = "program_mode"
+    _attr_translation_key = "device_preset"
+    _unique_id_suffix = "device_preset"
 
     def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDevice) -> None:
         """Initialize the program select entity."""

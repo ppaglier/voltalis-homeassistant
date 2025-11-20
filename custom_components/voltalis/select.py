@@ -4,7 +4,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.entities.voltalis_program_select import VoltalisProgramSelect
+from custom_components.voltalis.lib.domain.entities.voltalis_device_preset_select import VoltalisDevicePresetSelect
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
@@ -33,8 +33,8 @@ async def async_setup_entry(
         device: VoltalisDevice = data.device
 
         # Create the program select entity
-        program_select = VoltalisProgramSelect(entry, device)
-        selects[program_select.unique_internal_name] = program_select
+        device_preset_select = VoltalisDevicePresetSelect(entry, device)
+        selects[device_preset_select.unique_internal_name] = device_preset_select
 
     async_add_entities(selects.values(), update_before_add=True)
     _LOGGER.info(f"Added {len(selects)} Voltalis select entities: {list(selects.keys())}")

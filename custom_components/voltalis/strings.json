@@ -50,15 +50,15 @@
       }
     },
     "select": {
-      "program_mode": {
-        "name": "Program mode",
+      "device_preset": {
+        "name": "Preset",
         "state": {
           "confort": "Comfort",
           "eco": "Eco",
           "hors_gel": "Frost protection",
           "temperature": "Temperature",
           "auto": "Auto",
-          "normal": "ON",
+          "normal": "On",
           "off": "Off"
         }
       }

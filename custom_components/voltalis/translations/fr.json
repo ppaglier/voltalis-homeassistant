@@ -50,8 +50,8 @@
       }
     },
     "select": {
-      "program_mode": {
-        "name": "Mode de programme",
+      "device_preset": {
+        "name": "Preset",
         "state": {
           "confort": "Confort",
           "eco": "Éco",
