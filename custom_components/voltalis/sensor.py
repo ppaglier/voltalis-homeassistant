@@ -4,8 +4,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.entities.voltalis_connected_sensor import VoltalisConnectedSensor
-from custom_components.voltalis.lib.domain.entities.voltalis_consumption_sensor import VoltalisConsumptionSensor
+from custom_components.voltalis.lib.domain.entities.voltalis_device_connected_sensor import (
+    VoltalisDeviceConnectedSensor,
+)
+from custom_components.voltalis.lib.domain.entities.voltalis_device_consumption_sensor import (
+    VoltalisDeviceConsumptionSensor,
+)
 from custom_components.voltalis.lib.domain.entities.voltalis_device_current_mode_sensor import (
     VoltalisDeviceCurrentModeSensor,
 )
@@ -40,13 +44,13 @@ async def async_setup_entry(
         device: VoltalisDevice = data.device
 
         # Create the consumption sensor for each device
-        consumption_sensor = VoltalisConsumptionSensor(entry, device)
-        sensors[consumption_sensor.unique_internal_name] = consumption_sensor
+        device_consumption_sensor = VoltalisDeviceConsumptionSensor(entry, device)
+        sensors[device_consumption_sensor.unique_internal_name] = device_consumption_sensor
 
         # Create the connected sensor for each device (if status is available)
         if data.health is not None:
-            connected_sensor = VoltalisConnectedSensor(entry, device)
-            sensors[connected_sensor.unique_internal_name] = connected_sensor
+            device_connected_sensor = VoltalisDeviceConnectedSensor(entry, device)
+            sensors[device_connected_sensor.unique_internal_name] = device_connected_sensor
 
         if device.programming.mode is None:
             device_current_mode_sensor = VoltalisDeviceCurrentModeSensor(entry, device)

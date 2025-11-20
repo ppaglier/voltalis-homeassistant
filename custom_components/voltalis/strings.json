@@ -28,7 +28,7 @@
   },
   "entity": {
     "sensor": {
-      "connected": {
+      "device_connected": {
         "name": "Connection status",
         "state": {
           "ok": "Connected",
@@ -36,7 +36,7 @@
           "test_in_progress": "Test in progress"
         }
       },
-      "consumption": {
+      "device_consumption": {
         "name": "Consumption"
       },
       "device_programming": {

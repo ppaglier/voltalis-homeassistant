@@ -13,13 +13,13 @@ from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisConnectedSensor(VoltalisEntity, SensorEntity):
+class VoltalisDeviceConnectedSensor(VoltalisEntity, SensorEntity):
     """References the connected of a device."""
 
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_translation_key = "connected"
+    _attr_translation_key = "device_connected"
     _attr_options = [option for option in VoltalisHealthStatusEnum]
-    _unique_id_suffix = "connected"
+    _unique_id_suffix = "device_connected"
 
     @property
     def icon(self) -> str:

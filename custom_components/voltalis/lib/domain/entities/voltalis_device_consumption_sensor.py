@@ -14,14 +14,14 @@ from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisConsumptionSensor(VoltalisEntity, SensorEntity):
+class VoltalisDeviceConsumptionSensor(VoltalisEntity, SensorEntity):
     """References the consumption of a device."""
 
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
-    _attr_translation_key = "consumption"
-    _unique_id_suffix = "consumption"
+    _attr_translation_key = "device_consumption"
+    _unique_id_suffix = "device_consumption"
 
     @callback
     def _handle_coordinator_update(self) -> None:
