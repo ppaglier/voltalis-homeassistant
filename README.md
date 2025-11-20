@@ -18,10 +18,23 @@ This integration allows you to connect your Voltalis devices to Home Assistant, 
 
 ## Features
 
-This integration provides the following entities for each Voltalis device:
+This integration provides comprehensive control and monitoring of your Voltalis devices through multiple entity types:
 
-- **Energy Consumption Sensor**: Monitor the hourly energy consumption of your devices (in Wh)
-- **Connectivity Binary Sensor**: Check if your devices are online and connected to the Voltalis network
+### Climate Control (for heating devices)
+- Full thermostat control with HVAC modes (Off, Heat, Auto)
+- Preset modes (Comfort, Eco, Frost Protection, Temperature)
+- Target temperature control
+- Automatic and manual programming modes
+- Advanced service actions for quick boost and timed manual mode
+
+### Sensors
+- **Energy Consumption**: Monitor cumulative energy consumption (in Wh)
+- **Connection Status**: Check if devices are online and connected
+- **Current Mode**: View the active operating mode (Comfort, Eco, Frost Protection, etc.)
+- **Programming Type**: See which programming is active (Manual, Default, User, Quick)
+
+### Controls
+- **Preset Selector**: Quickly change device mode (Auto, Comfort, Eco, Frost Protection, Temperature, On, Off)
 
 ## Installation
 
@@ -95,27 +108,97 @@ Before installing this integration, you need:
 
 ## Entities
 
-For each Voltalis device, the integration creates the following entities:
+The integration creates different entities depending on the device type and capabilities:
 
-### Energy Sensor
+### Climate Entity
 
-- **Entity ID**: `sensor.<device_name>_consumption`
-- **Type**: Energy sensor
-- **Unit**: Wh (Watt-hours)
-- **Device Class**: Energy
-- **State Class**: Total Increasing
-- **Description**: Shows the cumulative energy consumption of the device
-- **Update Frequency**: Every 1 minutes
+<details>
+  <summary>Climate Entity (Heating Devices Only)</summary>
 
-### Connectivity Binary Sensor
+  - **Entity ID**: `climate.<device_name>_climate`
+  - **Type**: Climate (Thermostat)
+  - **HVAC Modes**:
+    - `Off`: Turn off the device
+    - `Heat`: Manual heating mode
+    - `Auto`: Automatic programming mode (follows user or default schedule)
+  - **Preset Modes**: Comfort, Eco, Frost Protection, Temperature (depending on device capabilities)
+  - **Temperature Control**: Set target temperature (7-30°C, 0.5°C steps)
+  - **Features**:
+    - Turn on/off
+    - Change HVAC mode
+    - Set preset mode
+    - Adjust target temperature (if supported)
+  - **Update Frequency**: Every 1 minute
+</details>
 
-- **Entity ID**: `binary_sensor.<device_name>_connection_status`
-- **Type**: Connectivity binary sensor
-- **Device Class**: Connectivity
-- **States**:
-  - `on`: Device is connected and online
-  - `off`: Device is disconnected or offline
-- **Update Frequency**: Every 1 minutes
+### Sensors
+
+<details>
+  <summary>Energy Consumption Sensor</summary>
+
+  - **Entity ID**: `sensor.<device_name>_device_consumption`
+  - **Type**: Energy sensor
+  - **Unit**: Wh (Watt-hours)
+  - **Device Class**: Energy
+  - **State Class**: Total Increasing
+  - **Description**: Shows the cumulative energy consumption of the device
+  - **Update Frequency**: Every 1 minute
+</details>
+
+<details>
+  <summary>Connection Status Sensor</summary>Sensor</summary>
+
+  - **Entity ID**: `sensor.<device_name>_device_connected`
+  - **Type**: Enum sensor
+  - **Device Class**: Enum
+  - **States**: `Connected`, `Disconnected`, `Test in progress`
+  - **Description**: Indicates the connection status of the device
+  - **Update Frequency**: Every 1 minute
+</details>
+
+<details>
+  <summary>Current Mode Sensor</summary>Sensor</summary>
+
+  - **Entity ID**: `sensor.<device_name>_device_current_mode`
+  - **Type**: Enum sensor
+  - **Device Class**: Enum
+  - **States**: `Comfort`, `Eco`, `Frost Protection`, `Temperature`, `On`, `Off`
+  - **Description**: Shows the current operating mode of the device
+  - **Icon**: Changes dynamically based on the current mode
+  - **Update Frequency**: Every 1 minute
+</details>
+
+<details>
+  <summary>Programming Sensor (Disabled by Default)</summary>fault)</summary>
+
+  - **Entity ID**: `sensor.<device_name>_device_programming`
+  - **Type**: Enum sensor
+  - **Device Class**: Enum
+  - **States**: `Manual`, `Default`, `User`, `Quick`
+  - **Description**: Indicates which type of programming is currently active
+  - **Icon**: Changes dynamically based on the programming type
+  - **Update Frequency**: Every 1 minute
+  - **Note**: This sensor is disabled by default. Enable it in the entity settings if needed.
+</details>
+
+### Select Entity
+
+<details>
+  <summary>Preset Selector</summary>lector</summary>
+
+  - **Entity ID**: `select.<device_name>_device_preset`
+  - **Type**: Select
+  - **Options**: Auto, On (if available), Comfort, Eco, Frost Protection, Temperature, Off
+  - **Description**: Allows quick switching between different operating modes
+  - **Icon**: Changes dynamically based on the selected preset
+  - **Features**:
+    - **Auto**: Returns device to automatic programming (managed by Voltalis)
+    - **On**: Turns device on in normal mode (if supported)
+    - **Comfort/Eco/Frost Protection**: Activates the selected preset mode indefinitely
+    - **Temperature**: Uses the current target temperature setting
+    - **Off**: Turns the device off
+  - **Update Frequency**: Every 1 minute
+</details>
 
 ## Troubleshooting
 
@@ -185,12 +268,143 @@ This integration communicates directly with the Voltalis API using your credenti
 This integration supports all devices that are compatible with the Voltalis ecosystem, including:
 
 - **Voltalis Modulator (Wire)**: Connected heating modulators for wire-controlled heaters
+  - Provides: Climate entity, all sensors, preset selector
 - **Voltalis Modulator (Relay)**: Connected heating modulators for relay-controlled heaters
+  - Provides: Climate entity, all sensors, preset selector
 - **Water Heaters**: Water heating devices with Voltalis modulators
+  - Provides: Consumption sensor, connection status sensor, preset selector
+
+All devices provide energy consumption and connection status monitoring. Heating devices additionally provide full climate control with thermostat functionality.
 
 ## Service Actions
 
-This integration does not currently provide any service actions. All functionality is exposed through sensors and binary sensors that can be used in automations and dashboards.
+The integration provides advanced service actions for climate entities to enable sophisticated automations:
+
+### Set Manual Mode
+
+Service: `voltalis.set_manual_mode`
+
+Set the device to manual mode with a specific preset or temperature for a defined duration or indefinitely.
+
+**Parameters:**
+- `preset_mode` (optional): The preset mode to apply (comfort, eco, frost_protection, none)
+- `temperature` (optional): Target temperature in Celsius. If set, the device will use temperature mode
+- `duration_hours` (optional): How long to stay in manual mode (in hours). If not specified, stays in manual mode until further notice
+
+**Examples:**
+
+```yaml
+# Set to Comfort mode for 3 hours
+service: voltalis.set_manual_mode
+target:
+  entity_id: climate.living_room_heater
+data:
+  preset_mode: comfort
+  duration_hours: 3
+
+# Set to 21°C indefinitely
+service: voltalis.set_manual_mode
+target:
+  entity_id: climate.bedroom_heater
+data:
+  temperature: 21
+
+# Set to Eco mode with custom temperature for 5 hours
+service: voltalis.set_manual_mode
+target:
+  entity_id: climate.kitchen_heater
+data:
+  preset_mode: eco
+  temperature: 19.5
+  duration_hours: 5
+```
+
+### Disable Manual Mode
+
+Service: `voltalis.disable_manual_mode`
+
+Return the device to automatic planning mode (user or default schedule).
+
+**Example:**
+
+```yaml
+service: voltalis.disable_manual_mode
+target:
+  entity_id: climate.living_room_heater
+```
+
+### Set Quick Boost
+
+Service: `voltalis.set_quick_boost`
+
+Quickly boost heating for a short period. Useful for rapid heating before arriving home.
+
+**Parameters:**
+- `temperature` (optional): Target temperature for boost mode. If not specified, uses comfort mode with increased temperature
+- `duration_hours` (optional): How long to boost heating (in hours). Default is 2 hours
+
+**Examples:**
+
+```yaml
+# Quick 2-hour boost at comfort temperature
+service: voltalis.set_quick_boost
+target:
+  entity_id: climate.living_room_heater
+
+# Boost to 23°C for 1 hour
+service: voltalis.set_quick_boost
+target:
+  entity_id: climate.bathroom_heater
+data:
+  temperature: 23
+  duration_hours: 1
+```
+
+### Usage in Automations
+
+These service actions are particularly useful for creating automations:
+
+```yaml
+# Boost heating when arriving home
+automation:
+  - alias: "Boost heating on arrival"
+    trigger:
+      - platform: zone
+        entity_id: person.john
+        zone: zone.home
+        event: enter
+    action:
+      - service: voltalis.set_quick_boost
+        target:
+          entity_id: climate.living_room_heater
+        data:
+          duration_hours: 2
+
+# Set eco mode at night
+automation:
+  - alias: "Night eco mode"
+    trigger:
+      - platform: time
+        at: "22:00:00"
+    action:
+      - service: voltalis.set_manual_mode
+        target:
+          entity_id: climate.bedroom_heater
+        data:
+          preset_mode: eco
+          duration_hours: 8
+
+# Return to auto mode in the morning
+automation:
+  - alias: "Morning auto mode"
+    trigger:
+      - platform: time
+        at: "06:00:00"
+    action:
+      - service: voltalis.disable_manual_mode
+        target:
+          entity_id: climate.bedroom_heater
+```
 
 ## Inspirations
 
