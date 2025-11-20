@@ -64,4 +64,3 @@ class VoltalisDevice(CustomModel):
     modulator_type: VoltalisDeviceModulatorTypeEnum
     available_modes: list[VoltalisDeviceModeEnum]
     programming: VoltalisDeviceProgrammingStatus
-    heating_level: int | None = None

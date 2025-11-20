@@ -92,7 +92,6 @@ class VoltalisClientStub(VoltalisClient):
                     until_further_notice=setting.until_further_notice,
                     is_on=setting.is_on,
                     mode=setting.mode,
-                    heating_level=manual_setting.heating_level,
                     end_date=setting.end_date,
                     temperature_target=setting.temperature_target,
                 )

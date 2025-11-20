@@ -162,7 +162,6 @@ class VoltalisClientAiohttp(VoltalisClient):
                         temperature_target=device_document.get("programming", {}).get("temperatureTarget"),
                         default_temperature=device_document.get("programming", {}).get("defaultTemperature"),
                     ),
-                    heating_level=device_document.get("heatingLevel"),
                 )
                 devices[device_document["id"]] = device
         except ValidationError as err:
@@ -269,7 +268,6 @@ class VoltalisClientAiohttp(VoltalisClient):
                     until_further_notice=setting_document["untilFurtherNotice"],
                     is_on=setting_document["isOn"],
                     mode=setting_document["mode"].lower(),
-                    heating_level=setting_document["heatingLevel"],
                     end_date=setting_document["endDate"],
                     temperature_target=setting_document["temperatureTarget"],
                 )
