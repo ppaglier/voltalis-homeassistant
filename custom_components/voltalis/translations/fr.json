@@ -32,7 +32,7 @@
         "name": "Statut de la connexion",
         "state": {
           "ok": "Connecté",
-          "not_ok": "Déconnecté",
+          "nok": "Déconnecté",
           "test_in_progress": "Test en cours"
         }
       },

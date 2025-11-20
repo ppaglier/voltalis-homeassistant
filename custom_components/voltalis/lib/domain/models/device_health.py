@@ -8,7 +8,7 @@ class VoltalisHealthStatusEnum(StrEnum):
 
     OK = "ok"
     NOT_OK = "nok"
-    TEST_IN_PROGRESS = "other"
+    TEST_IN_PROGRESS = "test_in_progress"
 
 
 class VoltalisDeviceHealth(CustomModel):
