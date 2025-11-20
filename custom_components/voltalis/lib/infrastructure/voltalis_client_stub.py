@@ -87,8 +87,6 @@ class VoltalisClientStub(VoltalisClient):
                     id=manual_setting.id,
                     enabled=setting.enabled,
                     id_appliance=setting.id_appliance,
-                    appliance_name=manual_setting.appliance_name,
-                    appliance_type=manual_setting.appliance_type,
                     until_further_notice=setting.until_further_notice,
                     is_on=setting.is_on,
                     mode=setting.mode,

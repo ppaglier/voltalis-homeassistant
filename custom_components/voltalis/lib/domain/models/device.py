@@ -44,13 +44,9 @@ class VoltalisDeviceProgrammingStatus(CustomModel):
     """Class to represent the status of a Voltalis device"""
 
     prog_type: VoltalisDeviceProgTypeEnum
-    prog_name: str | None = None
     id_manual_setting: int | None = None
     is_on: bool | None = None
-    until_further_notice: bool | None = None
     mode: VoltalisDeviceModeEnum | None = None
-    id_planning: int | None = None
-    end_date: str | None = None
     temperature_target: float | None = None
     default_temperature: float | None = None
 

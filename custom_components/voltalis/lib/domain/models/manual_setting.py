@@ -1,5 +1,5 @@
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceModeEnum, VoltalisDeviceTypeEnum
+from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceModeEnum
 
 
 class VoltalisManualSetting(CustomModel):
@@ -8,8 +8,6 @@ class VoltalisManualSetting(CustomModel):
     id: int
     enabled: bool
     id_appliance: int
-    appliance_name: str
-    appliance_type: VoltalisDeviceTypeEnum
     until_further_notice: bool
     is_on: bool
     mode: VoltalisDeviceModeEnum

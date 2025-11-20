@@ -152,13 +152,9 @@ class VoltalisClientAiohttp(VoltalisClient):
                     available_modes=[mode.lower() for mode in device_document["availableModes"]],
                     programming=VoltalisDeviceProgrammingStatus(
                         prog_type=device_document.get("programming", {}).get("progType", "").lower() or None,
-                        prog_name=device_document.get("programming", {}).get("progName"),
                         id_manual_setting=device_document.get("programming", {}).get("idManualSetting"),
                         is_on=device_document.get("programming", {}).get("isOn"),
-                        until_further_notice=device_document.get("programming", {}).get("untilFurtherNotice"),
                         mode=device_document.get("programming", {}).get("mode", "").lower() or None,
-                        id_planning=device_document.get("programming", {}).get("idPlanning"),
-                        end_date=device_document.get("programming", {}).get("endDate"),
                         temperature_target=device_document.get("programming", {}).get("temperatureTarget"),
                         default_temperature=device_document.get("programming", {}).get("defaultTemperature"),
                     ),
