@@ -31,9 +31,9 @@
       "connected": {
         "name": "Statut de la connexion",
         "state": {
-          "OK": "Connecté",
-          "NOT_OK": "Déconnecté",
-          "TEST_IN_PROGRESS": "Test en cours"
+          "ok": "Connecté",
+          "not_ok": "Déconnecté",
+          "test_in_progress": "Test en cours"
         }
       },
       "consumption": {
@@ -42,10 +42,10 @@
       "programming_type": {
         "name": "Type de programmation",
         "state": {
-          "MANUAL": "Manuelle",
-          "DEFAULT": "Par défaut",
-          "USER": "Utilisateur",
-          "QUICK": "Rapide"
+          "manual": "Manuelle",
+          "default": "Par défaut",
+          "user": "Utilisateur",
+          "quick": "Rapide"
         }
       }
     },
@@ -53,13 +53,13 @@
       "program_mode": {
         "name": "Mode de programme",
         "state": {
-          "CONFORT": "Confort",
-          "ECO": "Éco",
-          "HORS_GEL": "Hors-gel",
-          "TEMPERATURE": "Température",
-          "AUTO": "Auto",
-          "NORMAL": "Marche",
-          "OFF": "Arrêt"
+          "confort": "Confort",
+          "eco": "Éco",
+          "hors_gel": "Hors-gel",
+          "temperature": "Température",
+          "auto": "Auto",
+          "normal": "Marche",
+          "off": "Arrêt"
         }
       }
     }

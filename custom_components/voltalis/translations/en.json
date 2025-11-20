@@ -31,9 +31,9 @@
       "connected": {
         "name": "Connection status",
         "state": {
-          "OK": "Connected",
-          "NOT_OK": "Disconnected",
-          "TEST_IN_PROGRESS": "Test in progress"
+          "ok": "Connected",
+          "not_ok": "Disconnected",
+          "test_in_progress": "Test in progress"
         }
       },
       "consumption": {
@@ -42,10 +42,10 @@
       "programming_type": {
         "name": "Programming type",
         "state": {
-          "MANUAL": "Manual",
-          "DEFAULT": "Default",
-          "USER": "User",
-          "QUICK": "Quick"
+          "manual": "Manual",
+          "default": "Default",
+          "user": "User",
+          "quick": "Quick"
         }
       }
     },
@@ -53,13 +53,13 @@
       "program_mode": {
         "name": "Program mode",
         "state": {
-          "CONFORT": "Comfort",
-          "ECO": "Eco",
-          "HORS_GEL": "Frost protection",
-          "TEMPERATURE": "Temperature",
-          "AUTO": "Auto",
-          "NORMAL": "ON",
-          "OFF": "Off"
+          "confort": "Comfort",
+          "eco": "Eco",
+          "hors_gel": "Frost protection",
+          "temperature": "Temperature",
+          "auto": "Auto",
+          "normal": "ON",
+          "off": "Off"
         }
       }
     }
