@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any
 
-from custom_components.voltalis.lib.domain.models.device import (
-    VoltalisDevice,
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
+from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
+from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 
 
 class VoltalisClient(ABC):

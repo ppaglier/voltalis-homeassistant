@@ -2,12 +2,12 @@ from datetime import datetime
 
 from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
 from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
-from custom_components.voltalis.lib.domain.models.device import (
-    VoltalisDevice,
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
+from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
+from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 
 
 class VoltalisClientStub(VoltalisClient):

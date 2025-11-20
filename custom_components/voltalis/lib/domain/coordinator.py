@@ -14,12 +14,9 @@ from custom_components.voltalis.lib.domain.exceptions import (
     VoltalisException,
     VoltalisValidationException,
 )
-from custom_components.voltalis.lib.domain.models.device import (
-    VoltalisDevice,
-    VoltalisDeviceTypeEnum,
-    VoltalisManualSetting,
-)
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceTypeEnum
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
+from custom_components.voltalis.lib.domain.models.manual_setting import VoltalisManualSetting
 
 _LOGGER = logging.getLogger(__name__)
 
