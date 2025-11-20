@@ -33,7 +33,8 @@
         "state": {
           "ok": "Connecté",
           "nok": "Déconnecté",
-          "test_in_progress": "Test en cours"
+          "test_in_progress": "Test en cours",
+          "no_consumption": "Aucune consommation détectée"
         }
       },
       "device_consumption": {

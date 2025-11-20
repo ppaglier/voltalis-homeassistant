@@ -28,9 +28,9 @@ class VoltalisDeviceConnectedSensor(VoltalisEntity, SensorEntity):
             return "mdi:minus-network-outline"
         if self.native_value == VoltalisHealthStatusEnum.TEST_IN_PROGRESS:
             return "mdi:help-network-outline"
-        if self.native_value == VoltalisHealthStatusEnum.NOT_OK:
-            return "mdi:close-network-outline"
-        return "mdi:check-network-outline"
+        if self.native_value == VoltalisHealthStatusEnum.OK:
+            return "mdi:check-network-outline"
+        return "mdi:close-network-outline"
 
     @callback
     def _handle_coordinator_update(self) -> None:

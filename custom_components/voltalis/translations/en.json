@@ -33,7 +33,8 @@
         "state": {
           "ok": "Connected",
           "nok": "Disconnected",
-          "test_in_progress": "Test in progress"
+          "test_in_progress": "Test in progress",
+          "no_consumption": "No consumption detected"
         }
       },
       "consumption": {
