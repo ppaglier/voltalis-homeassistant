@@ -4,8 +4,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.device import VoltalisDevice
-from custom_components.voltalis.lib.domain.sensors.voltalis_connected_sensor import VoltalisConnectedSensor
+from custom_components.voltalis.lib.domain.entities.voltalis_device_preset_select import VoltalisDevicePresetSelect
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ async def async_setup_entry(
     entry: VoltalisConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Voltalis sensors from a config entry."""
+    """Set up Voltalis select entities from a config entry."""
 
     coordinator = entry.runtime_data.coordinator
 
@@ -27,19 +27,14 @@ async def async_setup_entry(
         _LOGGER.warning("No Voltalis data available during setup, waiting for first refresh")
         await coordinator.async_config_entry_first_refresh()
 
-    sensors: list[VoltalisEntity] = []
+    selects: dict[str, VoltalisEntity] = {}
 
     for data in coordinator.data.values():
-        # Ignore devices data that didn't have status
-        if data.status is None:
-            continue
         device: VoltalisDevice = data.device
 
-        # Create the connected sensor for each device
-        connected_sensor = VoltalisConnectedSensor(coordinator, device)
-        sensors.append(connected_sensor)
+        # Create the program select entity
+        device_preset_select = VoltalisDevicePresetSelect(entry, device)
+        selects[device_preset_select.unique_internal_name] = device_preset_select
 
-        _LOGGER.debug("Created connected sensor for device %s", device.name)
-
-    async_add_entities(sensors, update_before_add=True)
-    _LOGGER.info("Added %d Voltalis connected sensors", len(sensors))
+    async_add_entities(selects.values(), update_before_add=True)
+    _LOGGER.info(f"Added {len(selects)} Voltalis select entities: {list(selects.keys())}")

@@ -47,6 +47,7 @@ include = [
 ]
 extend-exclude = [
     ".venv",
+    "*.yaml",
     "*.md",
     "*.json",
     "*.png"

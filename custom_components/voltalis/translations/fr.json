@@ -28,13 +28,90 @@
   },
   "entity": {
     "sensor": {
-      "consumption": {
+      "device_connected": {
+        "name": "Statut de la connexion",
+        "state": {
+          "ok": "Connecté",
+          "nok": "Déconnecté",
+          "test_in_progress": "Test en cours",
+          "no_consumption": "Aucune consommation détectée",
+          "comm_error": "Erreur de communication"
+        }
+      },
+      "device_consumption": {
         "name": "Consommation"
+      },
+      "device_programming": {
+        "name": "Programmation",
+        "state": {
+          "manual": "Manuelle",
+          "default": "Par défaut",
+          "user": "Utilisateur",
+          "quick": "Rapide"
+        }
+      },
+      "device_current_mode": {
+        "name": "Mode actuel",
+        "state": {
+          "confort": "Confort",
+          "eco": "Éco",
+          "hors_gel": "Hors-gel",
+          "temperature": "Température",
+          "normal": "Marche",
+          "off": "Arrêt"
+        }
       }
     },
-    "binary_sensor": {
-      "connected": {
-        "name": "Statut de la connexion"
+    "select": {
+      "device_preset": {
+        "name": "Préréglage",
+        "state": {
+          "confort": "Confort",
+          "eco": "Éco",
+          "hors_gel": "Hors-gel",
+          "temperature": "Température",
+          "auto": "Auto",
+          "normal": "Marche",
+          "off": "Arrêt"
+        }
+      }
+    }
+  },
+  "services": {
+    "set_manual_mode": {
+      "name": "Définir le mode manuel",
+      "description": "Définir l'appareil en mode manuel avec un préréglage ou une température spécifique.",
+      "fields": {
+        "preset_mode": {
+          "name": "Mode préréglé",
+          "description": "Le mode préréglé à appliquer."
+        },
+        "temperature": {
+          "name": "Température",
+          "description": "La température cible en Celsius. Si définie, l'appareil utilisera le mode température."
+        },
+        "duration_hours": {
+          "name": "Durée (heures)",
+          "description": "Combien de temps rester en mode manuel (en heures). La valeur par défaut est illimitée (jusqu'à nouvel ordre)."
+        }
+      }
+    },
+    "disable_manual_mode": {
+      "name": "Désactiver le mode manuel",
+      "description": "Retourner l'appareil au mode de planification automatique."
+    },
+    "set_quick_boost": {
+      "name": "Activer le boost rapide",
+      "description": "Booster rapidement le chauffage pour une courte période.",
+      "fields": {
+        "temperature": {
+          "name": "Température",
+          "description": "La température cible pour le mode boost. Si non spécifiée, utilise le mode confort."
+        },
+        "duration_hours": {
+          "name": "Durée (heures)",
+          "description": "Combien de temps booster le chauffage (en heures). La valeur par défaut est 2 heures."
+        }
       }
     }
   }

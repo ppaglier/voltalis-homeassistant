@@ -1,4 +1,4 @@
-""""""
+"""Initialization of the Voltalis integration."""
 
 import logging
 
@@ -12,12 +12,10 @@ from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinato
 from custom_components.voltalis.lib.infrastructure.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.voltalis_client_aiohttp import VoltalisClientAiohttp
 
-_LOGGER = logging.getLogger(__name__)
-_LOGGER.setLevel(logging.DEBUG)
-
 PLATFORMS = [
     Platform.SENSOR,
-    Platform.BINARY_SENSOR,
+    Platform.CLIMATE,
+    Platform.SELECT,
 ]
 
 
@@ -43,6 +41,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
         session=async_get_clientsession(hass),
     )
 
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
     await client.login()
 
     coordinator = VoltalisCoordinator(hass, client, date_provider, entry=entry)
@@ -60,6 +61,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 
 async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Unload a config entry."""
+
+    await entry.runtime_data.coordinator.client.logout()
 
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     return unload_ok

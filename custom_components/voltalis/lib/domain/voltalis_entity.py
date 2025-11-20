@@ -2,8 +2,9 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.voltalis.const import DOMAIN
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
-from custom_components.voltalis.lib.domain.device import (
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator, VoltalisCoordinatorData
+from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModulatorTypeEnum,
     VoltalisDeviceTypeEnum,
@@ -13,13 +14,19 @@ from custom_components.voltalis.lib.domain.device import (
 class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
     """Base class for Voltalis entities."""
 
+    _unique_id_suffix: str = ""
+
     def __init__(
         self,
-        coordinator: VoltalisCoordinator,
+        entry: VoltalisConfigEntry,
         device: VoltalisDevice,
     ) -> None:
         """Initialize the device."""
-        super().__init__(coordinator)
+        super().__init__(entry.runtime_data.coordinator)
+        self._entry = entry
+
+        if len(self._unique_id_suffix) == 0:
+            raise ValueError("Unique ID suffix must be defined in subclass.")
 
         self._device = device
 
@@ -27,7 +34,7 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
         device_name = self.__get_device_name()
 
         # Unique id for Home Assistant
-        self._attr_unique_id = unique_id
+        self._attr_unique_id = f"{unique_id}_{self._unique_id_suffix}"
 
         self._attr_device_info: DeviceInfo = DeviceInfo(
             identifiers={(DOMAIN, unique_id)},
@@ -35,6 +42,11 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
             manufacturer="Voltalis",
             model=self.__get_device_model(),
         )
+
+    @property
+    def unique_internal_name(self) -> str:
+        """Return a unique internal name for the entity."""
+        return f"{self._device.name.lower()}_{self._attr_unique_id}"
 
     @property
     def has_entity_name(self) -> bool:
@@ -77,8 +89,12 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
         - Subclass-specific data (consumption/status) is present.
         """
         data = self.coordinator.data.get(self._device.id)
+        if data is None:
+            return False
         return self.coordinator.last_update_success and self._is_available_from_data(data)
 
-    def _is_available_from_data(self, data: object) -> bool:
-        """Base availability check, overridden by subclasses."""
-        return data is not None
+    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
+        """Check if entity is available based on device data.
+        This method should be implemented by subclasses.
+        """
+        raise NotImplementedError()

@@ -8,6 +8,7 @@ class VoltalisDeviceTypeEnum(StrEnum):
 
     HEATER = "HEATER"
     WATER_HEATER = "WATER_HEATER"
+    OTHER = "OTHER"
 
 
 class VoltalisDeviceModulatorTypeEnum(StrEnum):
@@ -20,20 +21,34 @@ class VoltalisDeviceModulatorTypeEnum(StrEnum):
 class VoltalisDeviceModeEnum(StrEnum):
     """Enum for the available_modes field"""
 
-    ECO = "ECO"
-    CONFORT = "CONFORT"
-    TEMPERATURE = "TEMPERATURE"
-    HORS_GEL = "HORS_GEL"
-    NORMAL = "NORMAL"
-    ECOV = "ECOV"
+    ECO = "eco"
+    CONFORT = "confort"
+    TEMPERATURE = "temperature"
+    HORS_GEL = "hors_gel"
+    NORMAL = "normal"
+    ECOV = "ecov"
+    OFF = "off"
+    AUTO = "auto"
 
 
 class VoltalisDeviceProgTypeEnum(StrEnum):
     """Enum for the type field"""
 
-    MANUAL = "MANUAL"
-    DEFAULT = "DEFAULT"
-    USER = "USER"
+    MANUAL = "manual"
+    DEFAULT = "default"
+    USER = "user"
+    QUICK = "quick"
+
+
+class VoltalisDeviceProgrammingStatus(CustomModel):
+    """Class to represent the status of a Voltalis device"""
+
+    prog_type: VoltalisDeviceProgTypeEnum
+    id_manual_setting: int | None = None
+    is_on: bool | None = None
+    mode: VoltalisDeviceModeEnum | None = None
+    temperature_target: float | None = None
+    default_temperature: float | None = None
 
 
 class VoltalisDevice(CustomModel):
@@ -44,4 +59,4 @@ class VoltalisDevice(CustomModel):
     type: VoltalisDeviceTypeEnum
     modulator_type: VoltalisDeviceModulatorTypeEnum
     available_modes: list[VoltalisDeviceModeEnum]
-    prog_type: VoltalisDeviceProgTypeEnum
+    programming: VoltalisDeviceProgrammingStatus

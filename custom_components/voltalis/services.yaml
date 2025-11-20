@@ -1,0 +1,90 @@
+# Service actions for Voltalis integration
+
+set_manual_mode:
+  name: Set manual mode
+  description: Set the device to manual mode with a specific preset or temperature.
+  target:
+    entity:
+      domain: climate
+      integration: voltalis
+  fields:
+    preset_mode:
+      name: Preset mode
+      description: The preset mode to apply.
+      required: false
+      example: "comfort"
+      selector:
+        select:
+          # HACS preset modes
+          options:
+            - value: "away"
+              label: "Away"
+            - value: "eco"
+              label: "Eco"
+            - value: "none"
+              label: "None"
+            - value: "comfort"
+              label: "Comfort"
+            - value: "home"
+              label: "Home"
+    temperature:
+      name: Temperature
+      description: The target temperature in Celsius. If set, the device will use temperature mode.
+      required: false
+      example: 20
+      selector:
+        number:
+          min: 7
+          max: 30
+          step: 0.5
+          unit_of_measurement: "°C"
+    duration_hours:
+      name: Duration (hours)
+      description: How long to stay in manual mode (in hours). Default is to stay until further notice.
+      required: false
+      example: 12
+      selector:
+        number:
+          min: 1
+          step: 1
+          unit_of_measurement: "hours"
+
+disable_manual_mode:
+  name: Disable manual mode
+  description: Return the device to automatic planning mode.
+  target:
+    entity:
+      domain: climate
+      integration: voltalis
+
+set_quick_boost:
+  name: Set quick boost
+  description: Quickly boost heating for a short period.
+  target:
+    entity:
+      domain: climate
+      integration: voltalis
+  fields:
+    temperature:
+      name: Temperature
+      description: The target temperature for boost mode. If not specified, uses comfort mode.
+      required: false
+      example: 22
+      selector:
+        number:
+          min: 7
+          max: 30
+          step: 0.5
+          unit_of_measurement: "°C"
+    duration_hours:
+      name: Duration (hours)
+      description: How long to boost heating (in hours). Default is 2 hours.
+      required: false
+      default: 2
+      example: 1
+      selector:
+        number:
+          min: 0.5
+          max: 12
+          step: 0.5
+          unit_of_measurement: "hours"

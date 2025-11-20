@@ -1,0 +1,13 @@
+{
+  "services": {
+    "set_manual_mode": {
+      "service": "mdi:hand-back-right"
+    },
+    "disable_manual_mode": {
+      "service": "mdi:calendar-clock"
+    },
+    "set_quick_boost": {
+      "service": "mdi:fire"
+    }
+  }
+}

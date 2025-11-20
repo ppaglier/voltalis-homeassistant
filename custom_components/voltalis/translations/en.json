@@ -28,13 +28,90 @@
   },
   "entity": {
     "sensor": {
+      "connected": {
+        "name": "Connection status",
+        "state": {
+          "ok": "Connected",
+          "nok": "Disconnected",
+          "test_in_progress": "Test in progress",
+          "no_consumption": "No consumption detected",
+          "comm_error": "Communication error"
+        }
+      },
       "consumption": {
         "name": "Consumption"
+      },
+      "device_programming": {
+        "name": "Programming",
+        "state": {
+          "manual": "Manual",
+          "default": "Default",
+          "user": "User",
+          "quick": "Quick"
+        }
+      },
+      "device_current_mode": {
+        "name": "Current mode",
+        "state": {
+          "confort": "Comfort",
+          "eco": "Eco",
+          "hors_gel": "Frost protection",
+          "temperature": "Temperature",
+          "normal": "On",
+          "off": "Off"
+        }
       }
     },
-    "binary_sensor": {
-      "connected": {
-        "name": "Connection status"
+    "select": {
+      "device_preset": {
+        "name": "Preset",
+        "state": {
+          "confort": "Comfort",
+          "eco": "Eco",
+          "hors_gel": "Frost protection",
+          "temperature": "Temperature",
+          "auto": "Auto",
+          "normal": "On",
+          "off": "Off"
+        }
+      }
+    }
+  },
+  "services": {
+    "set_manual_mode": {
+      "name": "Set manual mode",
+      "description": "Set the device to manual mode with a specific preset or temperature.",
+      "fields": {
+        "preset_mode": {
+          "name": "Preset mode",
+          "description": "The preset mode to apply."
+        },
+        "temperature": {
+          "name": "Temperature",
+          "description": "The target temperature in Celsius. If set, the device will use temperature mode."
+        },
+        "duration_hours": {
+          "name": "Duration (hours)",
+          "description": "How long to stay in manual mode (in hours). Default is unlimited (until further notice)."
+        }
+      }
+    },
+    "disable_manual_mode": {
+      "name": "Disable manual mode",
+      "description": "Return the device to automatic planning mode."
+    },
+    "set_quick_boost": {
+      "name": "Set quick boost",
+      "description": "Quickly boost heating for a short period.",
+      "fields": {
+        "temperature": {
+          "name": "Temperature",
+          "description": "The target temperature for boost mode. If not specified, uses comfort mode."
+        },
+        "duration_hours": {
+          "name": "Duration (hours)",
+          "description": "How long to boost heating (in hours). Default is 2 hours."
+        }
       }
     }
   }
