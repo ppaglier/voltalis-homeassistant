@@ -10,6 +10,7 @@ class VoltalisHealthStatusEnum(StrEnum):
     NOT_OK = "nok"
     TEST_IN_PROGRESS = "test_in_progress"
     NO_CONSUMPTION = "no_consumption"
+    COMM_ERROR = "comm_error"
 
 
 class VoltalisDeviceHealth(CustomModel):

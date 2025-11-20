@@ -34,7 +34,8 @@
           "ok": "Connected",
           "nok": "Disconnected",
           "test_in_progress": "Test in progress",
-          "no_consumption": "No consumption detected"
+          "no_consumption": "No consumption detected",
+          "comm_error": "Communication error"
         }
       },
       "consumption": {
