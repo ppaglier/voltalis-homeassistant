@@ -42,7 +42,6 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
     def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDevice) -> None:
         """Initialize the program select entity."""
         super().__init__(entry, device)
-        self._attr_name = None  # Will use device name from device_info
 
         self.__has_ecov_mode = VoltalisDeviceModeEnum.ECOV in device.available_modes
         self.__has_on_mode = VoltalisDeviceModeEnum.NORMAL in device.available_modes

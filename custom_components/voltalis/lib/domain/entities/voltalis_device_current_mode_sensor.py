@@ -34,6 +34,25 @@ class VoltalisDeviceCurrentModeSensor(VoltalisEntity, SensorEntity):
     _attr_translation_key = "device_current_mode"
     _unique_id_suffix = "device_current_mode"
 
+    @property
+    def icon(self) -> str:
+        """Return the icon to use for this entity."""
+        current = self.native_value
+        if current is not None:
+            if current == VoltalisDeviceCurrentModeEnum.COMFORT:
+                return "mdi:home-thermometer"
+            if current == VoltalisDeviceCurrentModeEnum.ECO:
+                return "mdi:leaf"
+            if current == VoltalisDeviceCurrentModeEnum.FROST_PROTECTION:
+                return "mdi:snowflake-alert"
+            if current == VoltalisDeviceCurrentModeEnum.TEMPERATURE:
+                return "mdi:thermometer"
+            if current == VoltalisDeviceCurrentModeEnum.ON:
+                return "mdi:flash-outline"
+            if current == VoltalisDeviceCurrentModeEnum.OFF:
+                return "mdi:power"
+        return "mdi:eye-off"
+
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""

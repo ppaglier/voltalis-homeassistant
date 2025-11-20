@@ -47,6 +47,17 @@
           "user": "User",
           "quick": "Quick"
         }
+      },
+      "device_current_mode": {
+        "name": "Current mode",
+        "state": {
+          "confort": "Comfort",
+          "eco": "Eco",
+          "hors_gel": "Frost protection",
+          "temperature": "Temperature",
+          "normal": "On",
+          "off": "Off"
+        }
       }
     },
     "select": {

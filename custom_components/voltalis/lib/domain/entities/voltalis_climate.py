@@ -44,7 +44,6 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDevice) -> None:
         """Initialize the climate entity."""
         super().__init__(entry, device)
-        self._attr_name = None  # Will use device name from device_info
 
         # Build preset modes from available modes
         presets: list[str] = []

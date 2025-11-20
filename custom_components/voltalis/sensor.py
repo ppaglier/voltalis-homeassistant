@@ -52,7 +52,7 @@ async def async_setup_entry(
             device_connected_sensor = VoltalisDeviceConnectedSensor(entry, device)
             sensors[device_connected_sensor.unique_internal_name] = device_connected_sensor
 
-        if device.programming.mode is None:
+        if device.programming.mode is not None:
             device_current_mode_sensor = VoltalisDeviceCurrentModeSensor(entry, device)
             sensors[device_current_mode_sensor.unique_internal_name] = device_current_mode_sensor
 
