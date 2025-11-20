@@ -47,9 +47,6 @@ class VoltalisProgrammingTypeSensor(VoltalisEntity, SensorEntity):
             return
 
         self._attr_native_value = new_value
-        self._attr_extra_state_attributes = {
-            "prog_name": data.device.programming.prog_name,
-        }
         self.async_write_ha_state()
 
     # ------------------------------------------------------------------
