@@ -39,6 +39,7 @@ class VoltalisDeviceProgTypeEnum(StrEnum):
     USER = "user"
     QUICK = "quick"
 
+
 class VoltalisDeviceProgrammingStatus(CustomModel):
     """Class to represent the status of a Voltalis device"""
 

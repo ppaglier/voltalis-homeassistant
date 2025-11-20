@@ -7,7 +7,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.voltalis.const import CLIMATE_DEFAULT_TEMP, VoltalisProgramSelectOptionsEnum
+from custom_components.voltalis.const import CLIMATE_DEFAULT_TEMP, VoltalisDevicePresetSelectOptionsEnum
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
@@ -35,31 +35,31 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
 
         # Build options modes from available modes
         options: list[str] = []
-        for voltalis_mode in VoltalisProgramSelectOptionsEnum:
+        for voltalis_mode in VoltalisDevicePresetSelectOptionsEnum:
             # Skip AUTO | ON | NONE mode here, will add it after the loop
             if voltalis_mode in [
-                VoltalisProgramSelectOptionsEnum.AUTO,
-                VoltalisProgramSelectOptionsEnum.ON,
-                VoltalisProgramSelectOptionsEnum.OFF,
+                VoltalisDevicePresetSelectOptionsEnum.AUTO,
+                VoltalisDevicePresetSelectOptionsEnum.ON,
+                VoltalisDevicePresetSelectOptionsEnum.OFF,
             ]:
                 continue
 
             if voltalis_mode not in device.available_modes:
                 # Special handling for ECOV mode
                 if (
-                    self.__has_ecov_mode and voltalis_mode != VoltalisProgramSelectOptionsEnum.ECO
+                    self.__has_ecov_mode and voltalis_mode != VoltalisDevicePresetSelectOptionsEnum.ECO
                 ) or not self.__has_ecov_mode:
                     continue
-                voltalis_mode = VoltalisProgramSelectOptionsEnum.ECO
+                voltalis_mode = VoltalisDevicePresetSelectOptionsEnum.ECO
 
             if voltalis_mode not in options:
                 options.append(voltalis_mode)
 
         self._attr_options = (
-            [VoltalisProgramSelectOptionsEnum.AUTO]
-            + ([VoltalisProgramSelectOptionsEnum.ON] if self.__has_on_mode else [])
+            [VoltalisDevicePresetSelectOptionsEnum.AUTO]
+            + ([VoltalisDevicePresetSelectOptionsEnum.ON] if self.__has_on_mode else [])
             + options
-            + [VoltalisProgramSelectOptionsEnum.OFF]
+            + [VoltalisDevicePresetSelectOptionsEnum.OFF]
         )
 
     @property
@@ -73,19 +73,19 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
         """Return the icon to use for this entity."""
         current = self.current_option
         if current is not None:
-            if current == VoltalisProgramSelectOptionsEnum.COMFORT:
+            if current == VoltalisDevicePresetSelectOptionsEnum.COMFORT:
                 return "mdi:home-thermometer"
-            if current == VoltalisProgramSelectOptionsEnum.ECO:
+            if current == VoltalisDevicePresetSelectOptionsEnum.ECO:
                 return "mdi:leaf"
-            if current == VoltalisProgramSelectOptionsEnum.FROST_PROTECTION:
+            if current == VoltalisDevicePresetSelectOptionsEnum.FROST_PROTECTION:
                 return "mdi:snowflake-alert"
-            if current == VoltalisProgramSelectOptionsEnum.TEMPERATURE:
+            if current == VoltalisDevicePresetSelectOptionsEnum.TEMPERATURE:
                 return "mdi:thermometer"
-            if current == VoltalisProgramSelectOptionsEnum.ON:
+            if current == VoltalisDevicePresetSelectOptionsEnum.ON:
                 return "mdi:flash-outline"
-            if current == VoltalisProgramSelectOptionsEnum.OFF:
+            if current == VoltalisDevicePresetSelectOptionsEnum.OFF:
                 return "mdi:power"
-            if current == VoltalisProgramSelectOptionsEnum.AUTO:
+            if current == VoltalisDevicePresetSelectOptionsEnum.AUTO:
                 return "mdi:autorenew"
         return "mdi:playlist-edit"
 
@@ -101,17 +101,17 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
         def get_current_option() -> str | None:
             # Check if device is off
             if device.programming.is_on is False:
-                return VoltalisProgramSelectOptionsEnum.OFF
+                return VoltalisDevicePresetSelectOptionsEnum.OFF
 
             # Check if device is off
             if device.programming.id_manual_setting is None:
-                return VoltalisProgramSelectOptionsEnum.AUTO
+                return VoltalisDevicePresetSelectOptionsEnum.AUTO
 
             # Get current mode
             current_mode = device.programming.mode
             # Handle ECOV mode
             if current_mode == VoltalisDeviceModeEnum.ECOV:
-                return VoltalisProgramSelectOptionsEnum.ECO
+                return VoltalisDevicePresetSelectOptionsEnum.ECO
             return current_mode
 
         self._attr_current_option = get_current_option()
@@ -121,12 +121,12 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
         """Change the selected program mode."""
 
         # Handle OFF mode
-        if option == VoltalisProgramSelectOptionsEnum.OFF:
+        if option == VoltalisDevicePresetSelectOptionsEnum.OFF:
             await self.__set_manual_mode(is_on=False, mode=VoltalisDeviceModeEnum.NORMAL)
             return
 
         # Disable manual mode
-        if option == VoltalisProgramSelectOptionsEnum.AUTO:
+        if option == VoltalisDevicePresetSelectOptionsEnum.AUTO:
             await self.__set_manual_mode(is_on=True, mode=None)
             return
 

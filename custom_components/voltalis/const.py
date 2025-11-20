@@ -36,8 +36,8 @@ class HomeAssistantPresetModeEnum(StrEnum):
     NONE = PRESET_NONE
 
 
-class VoltalisProgramSelectOptionsEnum(StrEnum):
-    """Enum for Voltalis program select options."""
+class VoltalisDevicePresetSelectOptionsEnum(StrEnum):
+    """Voltalis device preset select options."""
 
     COMFORT = VoltalisDeviceModeEnum.CONFORT.value
     ECO = VoltalisDeviceModeEnum.ECO.value
