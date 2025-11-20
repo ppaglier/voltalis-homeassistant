@@ -21,6 +21,7 @@ from custom_components.voltalis.const import (
     HomeAssistantPresetModeEnum,
 )
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
@@ -286,13 +287,15 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
             )
         )
 
-    def _is_available_from_data(self, data: object) -> bool:
-        """Check if entity is available based on device data."""
-        if data is None:
-            return False
-
-        # Climate entity requires device data to be present
-        return hasattr(data, "device") and data.device is not None
+    # ------------------------------------------------------------------
+    # Availability handling override
+    # ------------------------------------------------------------------
+    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
+        return (
+            data.device.programming.is_on is not None
+            and data.device.programming.mode is not None
+            and data.manual_setting is not None
+        )
 
     # ------------------------------------------------------------------
     # Service action methods

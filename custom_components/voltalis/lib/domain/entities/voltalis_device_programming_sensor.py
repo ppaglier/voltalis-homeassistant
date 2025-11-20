@@ -5,6 +5,7 @@ import logging
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.core import callback
 
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceProgTypeEnum
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
@@ -52,10 +53,5 @@ class VoltalisDeviceProgrammingSensor(VoltalisEntity, SensorEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: object) -> bool:
-        if data is None:
-            return False
-        # Safe attribute access with getattr (coordinator data model has .device.programming.prog_type)
-        device = getattr(data, "device", {})
-        programming = getattr(device, "programming", {})
-        return getattr(programming, "prog_type", None) is not None
+    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
+        return data.device.programming.prog_type is not None

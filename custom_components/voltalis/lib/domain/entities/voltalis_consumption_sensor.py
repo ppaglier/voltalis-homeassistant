@@ -8,6 +8,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import UnitOfEnergy
 from homeassistant.core import callback
 
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -41,8 +42,5 @@ class VoltalisConsumptionSensor(VoltalisEntity, SensorEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: object) -> bool:
-        if data is None:
-            return False
-        # Safe attribute access with getattr (coordinator data model has .consumption)
-        return getattr(data, "consumption", None) is not None
+    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
+        return data.consumption is not None

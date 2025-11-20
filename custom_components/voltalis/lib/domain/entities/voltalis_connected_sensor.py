@@ -6,6 +6,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.core import callback
 
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisHealthStatusEnum
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
@@ -54,8 +55,5 @@ class VoltalisConnectedSensor(VoltalisEntity, SensorEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: object) -> bool:
-        if data is None:
-            return False
-        health = getattr(data, "health", {})
-        return getattr(health, "status", None) is not None
+    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
+        return data.health is not None

@@ -10,6 +10,7 @@ from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.voltalis.const import CLIMATE_DEFAULT_TEMP
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
@@ -223,10 +224,12 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
             )
         )
 
-    def _is_available_from_data(self, data: object) -> bool:
-        """Check if entity is available based on device data."""
-        if data is None:
-            return False
-
-        # Safe attribute access with getattr (coordinator data model has .device)
-        return getattr(data, "device", None) is not None
+    # ------------------------------------------------------------------
+    # Availability handling override
+    # ------------------------------------------------------------------
+    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
+        return (
+            data.device.programming.is_on is not None
+            and data.device.programming.mode is not None
+            and data.manual_setting is not None
+        )

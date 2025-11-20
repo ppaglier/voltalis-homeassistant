@@ -3,7 +3,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
+from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator, VoltalisCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModulatorTypeEnum,
@@ -89,8 +89,12 @@ class VoltalisEntity(CoordinatorEntity[VoltalisCoordinator]):
         - Subclass-specific data (consumption/status) is present.
         """
         data = self.coordinator.data.get(self._device.id)
+        if data is None:
+            return False
         return self.coordinator.last_update_success and self._is_available_from_data(data)
 
-    def _is_available_from_data(self, data: object) -> bool:
-        """Base availability check, overridden by subclasses."""
-        return data is not None
+    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
+        """Check if entity is available based on device data.
+        This method should be implemented by subclasses.
+        """
+        raise NotImplementedError()
