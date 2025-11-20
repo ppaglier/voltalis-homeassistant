@@ -150,14 +150,14 @@ class VoltalisClientAiohttp(VoltalisClient):
                     name=device_document["name"],
                     type=device_document["applianceType"],
                     modulator_type=device_document["modulatorType"],
-                    available_modes=device_document["availableModes"],
+                    available_modes=[mode.lower() for mode in device_document["availableModes"]],
                     programming=VoltalisDeviceProgrammingStatus(
-                        prog_type=device_document.get("programming", {}).get("progType"),
+                        prog_type=device_document.get("programming", {}).get("progType", "").lower() or None,
                         prog_name=device_document.get("programming", {}).get("progName"),
                         id_manual_setting=device_document.get("programming", {}).get("idManualSetting"),
                         is_on=device_document.get("programming", {}).get("isOn"),
                         until_further_notice=device_document.get("programming", {}).get("untilFurtherNotice"),
-                        mode=device_document.get("programming", {}).get("mode"),
+                        mode=device_document.get("programming", {}).get("mode", "").lower() or None,
                         id_planning=device_document.get("programming", {}).get("idPlanning"),
                         end_date=device_document.get("programming", {}).get("endDate"),
                         temperature_target=device_document.get("programming", {}).get("temperatureTarget"),
@@ -185,7 +185,7 @@ class VoltalisClientAiohttp(VoltalisClient):
         try:
             for device_health_document in devices_health_response:
                 devices_health[device_health_document["csApplianceId"]] = VoltalisDeviceHealth(
-                    status=device_health_document["status"],
+                    status=device_health_document["status"].lower(),
                 )
         except ValidationError as err:
             self.__logger.error("Error parsing health: %s", err)
@@ -269,7 +269,7 @@ class VoltalisClientAiohttp(VoltalisClient):
                     appliance_type=setting_document["applianceType"],
                     until_further_notice=setting_document["untilFurtherNotice"],
                     is_on=setting_document["isOn"],
-                    mode=setting_document["mode"],
+                    mode=setting_document["mode"].lower(),
                     heating_level=setting_document["heatingLevel"],
                     end_date=setting_document["endDate"],
                     temperature_target=setting_document["temperatureTarget"],
@@ -289,7 +289,7 @@ class VoltalisClientAiohttp(VoltalisClient):
             "idAppliance": setting.id_appliance,
             "untilFurtherNotice": setting.until_further_notice,
             "isOn": setting.is_on,
-            "mode": setting.mode,
+            "mode": setting.mode.upper(),
             "endDate": setting.end_date,
             "temperatureTarget": setting.temperature_target,
         }

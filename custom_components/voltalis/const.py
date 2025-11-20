@@ -44,8 +44,8 @@ class VoltalisProgramSelectOptionsEnum(StrEnum):
     FROST_PROTECTION = VoltalisDeviceModeEnum.HORS_GEL.value
     TEMPERATURE = VoltalisDeviceModeEnum.TEMPERATURE.value
     ON = VoltalisDeviceModeEnum.NORMAL.value
-    OFF = "OFF"
-    AUTO = "AUTO"
+    OFF = "off"
+    AUTO = "auto"
 
 
 # Presets (Ordered to match typical user expectations)

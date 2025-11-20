@@ -12,7 +12,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class VoltalisProgrammingTypeSensor(VoltalisEntity, SensorEntity):
-    """Sensor for programming type (MANUAL, DEFAULT, USER)."""
+    """Sensor for programming type (manual, default, user, quick)."""
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_translation_key = "programming_type"

@@ -21,24 +21,23 @@ class VoltalisDeviceModulatorTypeEnum(StrEnum):
 class VoltalisDeviceModeEnum(StrEnum):
     """Enum for the available_modes field"""
 
-    ECO = "ECO"
-    CONFORT = "CONFORT"
-    TEMPERATURE = "TEMPERATURE"
-    HORS_GEL = "HORS_GEL"
-    NORMAL = "NORMAL"
-    ECOV = "ECOV"
-    OFF = "OFF"
-    AUTO = "AUTO"
+    ECO = "eco"
+    CONFORT = "confort"
+    TEMPERATURE = "temperature"
+    HORS_GEL = "hors_gel"
+    NORMAL = "normal"
+    ECOV = "ecov"
+    OFF = "off"
+    AUTO = "auto"
 
 
 class VoltalisDeviceProgTypeEnum(StrEnum):
     """Enum for the type field"""
 
-    MANUAL = "MANUAL"
-    DEFAULT = "DEFAULT"
-    USER = "USER"
-    QUICK = "QUICK"
-
+    MANUAL = "manual"
+    DEFAULT = "default"
+    USER = "user"
+    QUICK = "quick"
 
 class VoltalisDeviceProgrammingStatus(CustomModel):
     """Class to represent the status of a Voltalis device"""
