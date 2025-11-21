@@ -5,8 +5,7 @@ from homeassistant import config_entries
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 
-if TYPE_CHECKING:
-    from custom_components.voltalis.services import VoltalisServiceHandler
+from custom_components.voltalis.services import VoltalisServiceHandler
 
 
 class VoltalisConfigEntryData(CustomModel):
