@@ -3,7 +3,7 @@
 import logging
 
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.voltalis.const import DOMAIN
@@ -11,6 +11,7 @@ from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConf
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.infrastructure.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.voltalis_client_aiohttp import VoltalisClientAiohttp
+from custom_components.voltalis.services import VoltalisServiceHandler
 
 PLATFORMS = [
     Platform.SENSOR,
@@ -56,6 +57,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
     # forward setup to sensor platform
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    # Register integration services
+    service_handler = VoltalisServiceHandler(hass, coordinator)
+    service_handler.register_services()
+    hass.data[DOMAIN]["service_handler"] = service_handler
+
     return True
 
 
@@ -63,6 +69,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) ->
     """Unload a config entry."""
 
     await entry.runtime_data.coordinator.client.logout()
+
+    # Unregister services
+    service_handler = hass.data[DOMAIN].get("service_handler")
+    if service_handler:
+        service_handler.unregister_services()
 
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     return unload_ok

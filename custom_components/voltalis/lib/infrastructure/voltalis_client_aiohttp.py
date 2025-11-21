@@ -20,6 +20,10 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.models.subscriber_contract import (
+    VoltalisSubscriberContract,
+    VoltalisTimeRange,
+)
 
 
 class VoltalisClientAiohttp(VoltalisClient):
@@ -295,6 +299,61 @@ class VoltalisClientAiohttp(VoltalisClient):
         )
 
         self.__logger.info("Manual setting %s updated for appliance %s", manual_setting_id, setting.id_appliance)
+
+    async def get_subscriber_contracts(self) -> list[VoltalisSubscriberContract]:
+        """Get subscriber contracts."""
+
+        contracts_response: list[dict] = await self.__send_request(
+            url="/api/site/{site_id}/subscriber-contract",
+            method="GET",
+            retry=False,
+        )
+
+        contracts: list[VoltalisSubscriberContract] = []
+
+        try:
+            for contract_data in contracts_response:
+                # Parse peak hours
+                peak_hours = [
+                    VoltalisTimeRange(from_time=hour["from"], to_time=hour["to"])
+                    for hour in contract_data.get("peakHours", [])
+                ]
+                # Parse offpeak hours
+                offpeak_hours = [
+                    VoltalisTimeRange(from_time=hour["from"], to_time=hour["to"])
+                    for hour in contract_data.get("offpeakHours", [])
+                ]
+
+                contract = VoltalisSubscriberContract(
+                    id=contract_data["id"],
+                    site_id=contract_data["siteId"],
+                    subscriber_id=contract_data["subscriberId"],
+                    name=contract_data["name"],
+                    is_default=contract_data["isDefault"],
+                    subscribed_power=contract_data["subscribedPower"],
+                    is_peak_offpeak_contract=contract_data["isPeakOffPeakContract"],
+                    subscription_base_price=contract_data.get("subscriptionBasePrice"),
+                    subscription_peak_and_offpeak_hour_base_price=contract_data.get(
+                        "subscriptionPeakAndOffPeakHourBasePrice"
+                    ),
+                    kwh_base_price=contract_data.get("kwhBasePrice"),
+                    kwh_peak_hour_price=contract_data.get("kwhPeakHourPrice"),
+                    kwh_offpeak_hour_price=contract_data.get("kwhOffpeakHourPrice"),
+                    creation_date_time=contract_data["creationDateTime"],
+                    start_date=contract_data.get("startDate"),
+                    end_date=contract_data.get("endDate"),
+                    company_name=contract_data["companyName"],
+                    api_contract_id=contract_data["apiContractId"],
+                    company_id=contract_data["companyId"],
+                    peak_hours=peak_hours,
+                    offpeak_hours=offpeak_hours,
+                )
+                contracts.append(contract)
+        except ValidationError as err:
+            self.__logger.exception("Failed to parse subscriber contracts")
+            raise VoltalisValidationException("Failed to parse subscriber contracts") from err
+
+        return contracts
 
     async def __send_request(
         self,

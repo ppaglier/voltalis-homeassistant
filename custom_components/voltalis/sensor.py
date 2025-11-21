@@ -16,6 +16,9 @@ from custom_components.voltalis.lib.domain.entities.voltalis_device_current_mode
 from custom_components.voltalis.lib.domain.entities.voltalis_device_programming_sensor import (
     VoltalisDeviceProgrammingSensor,
 )
+from custom_components.voltalis.lib.domain.entities.voltalis_contract_info_sensor import (
+    VoltalisContractInfoSensor,
+)
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
@@ -37,6 +40,12 @@ async def async_setup_entry(
     if not coordinator.data:
         _LOGGER.warning("No Voltalis data available during setup, waiting for first refresh")
         await coordinator.async_config_entry_first_refresh()
+
+    # Fetch contracts once at setup
+    try:
+        await coordinator.async_fetch_contracts()
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.warning("Failed to fetch subscriber contracts during setup: %s", err)
 
     sensors: dict[str, VoltalisEntity] = {}
 

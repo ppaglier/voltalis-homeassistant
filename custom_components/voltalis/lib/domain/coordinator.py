@@ -17,6 +17,7 @@ from custom_components.voltalis.lib.domain.exceptions import (
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceTypeEnum
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 from custom_components.voltalis.lib.domain.models.manual_setting import VoltalisManualSetting
+from custom_components.voltalis.lib.domain.models.subscriber_contract import VoltalisSubscriberContract
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -56,11 +57,36 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
         self.__date_provider = date_provider
         self.__entry = entry
         self._was_unavailable = False  # Track previous availability state for one-shot logging
+        self.__contracts: list[VoltalisSubscriberContract] | None = None  # Store contracts separately
 
     @property
     def client(self) -> VoltalisClient:
         """Expose the client for service calls."""
         return self.__client
+
+    @property
+    def contracts(self) -> list[VoltalisSubscriberContract]:
+        """Get cached subscriber contracts."""
+        return self.__contracts or []
+
+    async def async_fetch_contracts(self) -> None:
+        """Fetch subscriber contracts (called once at setup or manually via service)."""
+        try:
+            _LOGGER.debug("Fetching Voltalis subscriber contracts...")
+            self.__contracts = await self.__client.get_subscriber_contracts()
+            _LOGGER.info("Fetched %d subscriber contracts from Voltalis", len(self.__contracts))
+        except VoltalisAuthenticationException as err:
+            _LOGGER.error("Voltalis authentication failed while fetching contracts: %s", err)
+            raise
+        except VoltalisValidationException as err:
+            _LOGGER.error("Voltalis contract data validation error: %s", err)
+            raise
+        except VoltalisException as err:
+            _LOGGER.error("Voltalis API error while fetching contracts: %s", err)
+            raise
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.exception("Unexpected error while fetching Voltalis contracts")
+            raise
 
     async def _async_update_data(self) -> dict[int, VoltalisCoordinatorData]:
         """Fetch updated data from the Voltalis API."""
