@@ -1,23 +1,26 @@
+from pydantic import ConfigDict
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 
 
 class VoltalisTimeRange(CustomModel):
     """Class to represent time ranges for peak/offpeak hours"""
+    
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=None,
+    )
 
     from_time: str  # Format: "HH:MM"
     to_time: str  # Format: "HH:MM"
 
-    class Config:
-        """Pydantic config"""
-
-        fields = {
-            "from_time": "from",
-            "to_time": "to",
-        }
-
 
 class VoltalisSubscriberContract(CustomModel):
     """Class to represent a Voltalis subscriber contract"""
+    
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=None,
+    )
 
     id: int
     site_id: int
@@ -39,27 +42,3 @@ class VoltalisSubscriberContract(CustomModel):
     company_id: int
     peak_hours: list[VoltalisTimeRange]
     offpeak_hours: list[VoltalisTimeRange]
-
-    class Config:
-        """Pydantic config"""
-
-        fields = {
-            "site_id": "siteId",
-            "subscriber_id": "subscriberId",
-            "is_default": "isDefault",
-            "subscribed_power": "subscribedPower",
-            "is_peak_offpeak_contract": "isPeakOffPeakContract",
-            "subscription_base_price": "subscriptionBasePrice",
-            "subscription_peak_offpeak_base_price": "subscriptionPeakAndOffPeakHourBasePrice",
-            "kwh_base_price": "kwhBasePrice",
-            "kwh_peak_hour_price": "kwhPeakHourPrice",
-            "kwh_offpeak_hour_price": "kwhOffpeakHourPrice",
-            "creation_date_time": "creationDateTime",
-            "start_date": "startDate",
-            "end_date": "endDate",
-            "company_name": "companyName",
-            "api_contract_id": "apiContractId",
-            "company_id": "companyId",
-            "peak_hours": "peakHours",
-            "offpeak_hours": "offpeakHours",
-        }
