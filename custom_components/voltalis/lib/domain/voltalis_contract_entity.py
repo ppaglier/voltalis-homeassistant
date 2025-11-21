@@ -58,7 +58,7 @@ class VoltalisContractEntity(Entity):
     @property
     def available(self) -> bool:
         """Return True if entity is available.
-        
+
         Contract entities are always available once loaded since they don't update frequently.
         """
         return len(self._coordinator.contracts) > 0

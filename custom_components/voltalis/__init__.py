@@ -3,7 +3,7 @@
 import logging
 
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.voltalis.const import DOMAIN

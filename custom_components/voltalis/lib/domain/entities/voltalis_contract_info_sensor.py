@@ -1,6 +1,6 @@
 import logging
 
-from homeassistant.components.sensor import SensorEntity, SensorStateClass
+from homeassistant.components.sensor import SensorEntity
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.models.subscriber_contract import VoltalisSubscriberContract
@@ -36,14 +36,11 @@ class VoltalisContractInfoSensor(VoltalisContractEntity, SensorEntity):
             "start_date": self._contract.start_date,
             "end_date": self._contract.end_date,
             "subscription_base_price": self._contract.subscription_base_price,
-            "subscription_peak_and_offpeak_hour_base_price": self._contract.subscription_peak_and_offpeak_hour_base_price,
+            "subscription_peak_and_offpeak_hour_base_price":
+            self._contract.subscription_peak_and_offpeak_hour_base_price,
             "kwh_base_price": self._contract.kwh_base_price,
             "kwh_peak_hour_price": self._contract.kwh_peak_hour_price,
             "kwh_offpeak_hour_price": self._contract.kwh_offpeak_hour_price,
-            "peak_hours": [
-                {"from": hour.from_time, "to": hour.to_time} for hour in self._contract.peak_hours
-            ],
-            "offpeak_hours": [
-                {"from": hour.from_time, "to": hour.to_time} for hour in self._contract.offpeak_hours
-            ],
+            "peak_hours": [{"from": hour.from_time, "to": hour.to_time} for hour in self._contract.peak_hours],
+            "offpeak_hours": [{"from": hour.from_time, "to": hour.to_time} for hour in self._contract.offpeak_hours],
         }

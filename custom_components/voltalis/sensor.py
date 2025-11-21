@@ -4,6 +4,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.entities.voltalis_contract_info_sensor import (
+    VoltalisContractInfoSensor,
+)
 from custom_components.voltalis.lib.domain.entities.voltalis_device_connected_sensor import (
     VoltalisDeviceConnectedSensor,
 )
@@ -16,10 +19,8 @@ from custom_components.voltalis.lib.domain.entities.voltalis_device_current_mode
 from custom_components.voltalis.lib.domain.entities.voltalis_device_programming_sensor import (
     VoltalisDeviceProgrammingSensor,
 )
-from custom_components.voltalis.lib.domain.entities.voltalis_contract_info_sensor import (
-    VoltalisContractInfoSensor,
-)
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
+from custom_components.voltalis.lib.domain.voltalis_contract_entity import VoltalisContractEntity
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -47,33 +48,36 @@ async def async_setup_entry(
     except Exception as err:  # noqa: BLE001
         _LOGGER.warning("Failed to fetch subscriber contracts during setup: %s", err)
 
-    sensors: dict[str, VoltalisEntity] = {}
+    entity_sensors: dict[str, VoltalisEntity] = {}
 
     for data in coordinator.data.values():
         device: VoltalisDevice = data.device
 
         # Create the consumption sensor for each device
         device_consumption_sensor = VoltalisDeviceConsumptionSensor(entry, device)
-        sensors[device_consumption_sensor.unique_internal_name] = device_consumption_sensor
+        entity_sensors[device_consumption_sensor.unique_internal_name] = device_consumption_sensor
 
         # Create the connected sensor for each device (if status is available)
         if data.health is not None:
             device_connected_sensor = VoltalisDeviceConnectedSensor(entry, device)
-            sensors[device_connected_sensor.unique_internal_name] = device_connected_sensor
+            entity_sensors[device_connected_sensor.unique_internal_name] = device_connected_sensor
 
         if device.programming.mode is not None:
             device_current_mode_sensor = VoltalisDeviceCurrentModeSensor(entry, device)
-            sensors[device_current_mode_sensor.unique_internal_name] = device_current_mode_sensor
+            entity_sensors[device_current_mode_sensor.unique_internal_name] = device_current_mode_sensor
 
         # Create the programming sensor for each device (if applicable)
         if device.programming.prog_type is not None:
             device_programming_sensor = VoltalisDeviceProgrammingSensor(entry, device)
-            sensors[device_programming_sensor.unique_internal_name] = device_programming_sensor
+            entity_sensors[device_programming_sensor.unique_internal_name] = device_programming_sensor
 
     # Create contract sensors
+    contract_sensors: dict[str, VoltalisContractEntity] = {}
     for contract in coordinator.contracts:
         # Main contract info sensor
         contract_info_sensor = VoltalisContractInfoSensor(entry, contract)
-        sensors[contract_info_sensor.unique_internal_name] = contract_info_sensor
-    async_add_entities(sensors.values(), update_before_add=True)
-    _LOGGER.info(f"Added {len(sensors)} Voltalis sensor entities: {list(sensors.keys())}")
+        contract_sensors[contract_info_sensor.unique_internal_name] = contract_info_sensor
+
+    async_add_entities(entity_sensors.values(), update_before_add=True)
+    async_add_entities(contract_sensors.values(), update_before_add=True)
+    _LOGGER.info(f"Added {len(entity_sensors)} Voltalis sensor entities: {list(entity_sensors.keys())}")

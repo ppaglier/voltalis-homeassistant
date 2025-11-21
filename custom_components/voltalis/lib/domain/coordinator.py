@@ -84,7 +84,7 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
         except VoltalisException as err:
             _LOGGER.error("Voltalis API error while fetching contracts: %s", err)
             raise
-        except Exception as err:  # noqa: BLE001
+        except Exception:  # noqa: BLE001
             _LOGGER.exception("Unexpected error while fetching Voltalis contracts")
             raise
 
