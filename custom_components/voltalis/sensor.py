@@ -70,5 +70,10 @@ async def async_setup_entry(
             device_programming_sensor = VoltalisDeviceProgrammingSensor(entry, device)
             sensors[device_programming_sensor.unique_internal_name] = device_programming_sensor
 
+    # Create contract sensors
+    for contract in coordinator.contracts:
+        # Main contract info sensor
+        contract_info_sensor = VoltalisContractInfoSensor(entry, contract)
+        sensors[contract_info_sensor.unique_internal_name] = contract_info_sensor
     async_add_entities(sensors.values(), update_before_add=True)
     _LOGGER.info(f"Added {len(sensors)} Voltalis sensor entities: {list(sensors.keys())}")
