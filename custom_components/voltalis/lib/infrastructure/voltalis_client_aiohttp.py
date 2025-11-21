@@ -333,9 +333,7 @@ class VoltalisClientAiohttp(VoltalisClient):
                     subscribed_power=contract_data["subscribedPower"],
                     is_peak_offpeak_contract=contract_data["isPeakOffPeakContract"],
                     subscription_base_price=contract_data.get("subscriptionBasePrice"),
-                    subscription_peak_and_offpeak_hour_base_price=contract_data.get(
-                        "subscriptionPeakAndOffPeakHourBasePrice"
-                    ),
+                    subscription_peak_offpeak_base_price=contract_data.get("subscriptionPeakAndOffPeakHourBasePrice"),
                     kwh_base_price=contract_data.get("kwhBasePrice"),
                     kwh_peak_hour_price=contract_data.get("kwhPeakHourPrice"),
                     kwh_offpeak_hour_price=contract_data.get("kwhOffpeakHourPrice"),

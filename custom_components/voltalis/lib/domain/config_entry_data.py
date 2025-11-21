@@ -1,4 +1,3 @@
-
 from homeassistant import config_entries
 
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator

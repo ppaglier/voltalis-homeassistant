@@ -27,7 +27,7 @@ class VoltalisSubscriberContract(CustomModel):
     subscribed_power: int
     is_peak_offpeak_contract: bool
     subscription_base_price: float | None = None
-    subscription_peak_and_offpeak_hour_base_price: float | None = None
+    subscription_peak_offpeak_base_price: float | None = None
     kwh_base_price: float | None = None
     kwh_peak_hour_price: float | None = None
     kwh_offpeak_hour_price: float | None = None
@@ -50,7 +50,7 @@ class VoltalisSubscriberContract(CustomModel):
             "subscribed_power": "subscribedPower",
             "is_peak_offpeak_contract": "isPeakOffPeakContract",
             "subscription_base_price": "subscriptionBasePrice",
-            "subscription_peak_and_offpeak_hour_base_price": "subscriptionPeakAndOffPeakHourBasePrice",
+            "subscription_peak_offpeak_base_price": "subscriptionPeakAndOffPeakHourBasePrice",
             "kwh_base_price": "kwhBasePrice",
             "kwh_peak_hour_price": "kwhPeakHourPrice",
             "kwh_offpeak_hour_price": "kwhOffpeakHourPrice",

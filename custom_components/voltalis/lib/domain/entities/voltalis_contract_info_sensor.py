@@ -36,8 +36,7 @@ class VoltalisContractInfoSensor(VoltalisContractEntity, SensorEntity):
             "start_date": self._contract.start_date,
             "end_date": self._contract.end_date,
             "subscription_base_price": self._contract.subscription_base_price,
-            "subscription_peak_and_offpeak_hour_base_price":
-            self._contract.subscription_peak_and_offpeak_hour_base_price,
+            "subscription_peak_offpeak_base_price": self._contract.subscription_peak_offpeak_base_price,
             "kwh_base_price": self._contract.kwh_base_price,
             "kwh_peak_hour_price": self._contract.kwh_peak_hour_price,
             "kwh_offpeak_hour_price": self._contract.kwh_offpeak_hour_price,
