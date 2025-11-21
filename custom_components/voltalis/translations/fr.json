@@ -60,6 +60,9 @@
           "normal": "Marche",
           "off": "Arrêt"
         }
+      },
+      "contract_info": {
+        "name": "Informations du contrat"
       }
     },
     "select": {
@@ -113,6 +116,10 @@
           "description": "Combien de temps booster le chauffage (en heures). La valeur par défaut est 2 heures."
         }
       }
+    },
+    "refresh_subscriber_contracts": {
+      "name": "Rafraîchir les contrats d'abonnement",
+      "description": "Rafraîchir manuellement les données des contrats d'abonnement depuis l'API Voltalis."
     }
   }
 }

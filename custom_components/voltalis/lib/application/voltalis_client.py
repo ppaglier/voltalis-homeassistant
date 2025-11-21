@@ -8,6 +8,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.models.subscriber_contract import VoltalisSubscriberContract
 
 
 class VoltalisClient(ABC):
@@ -70,4 +71,9 @@ class VoltalisClient(ABC):
             manual_setting_id: The ID of the manual setting (not the appliance ID)
             setting: The manual setting update to apply
         """
+        ...
+
+    @abstractmethod
+    async def get_subscriber_contracts(self) -> list[VoltalisSubscriberContract]:
+        """Get subscriber contracts from the Voltalis servers"""
         ...
