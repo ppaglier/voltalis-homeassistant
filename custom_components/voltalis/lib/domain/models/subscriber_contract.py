@@ -1,10 +1,11 @@
 from pydantic import ConfigDict
+
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 
 
 class VoltalisTimeRange(CustomModel):
     """Class to represent time ranges for peak/offpeak hours"""
-    
+
     model_config = ConfigDict(
         populate_by_name=True,
         alias_generator=None,
@@ -16,7 +17,7 @@ class VoltalisTimeRange(CustomModel):
 
 class VoltalisSubscriberContract(CustomModel):
     """Class to represent a Voltalis subscriber contract"""
-    
+
     model_config = ConfigDict(
         populate_by_name=True,
         alias_generator=None,
