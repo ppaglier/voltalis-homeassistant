@@ -37,9 +37,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
     date_provider = DateProviderReal()
 
     client = VoltalisClientAiohttp(
+        session=async_get_clientsession(hass),
         username=username,
         password=password,
-        session=async_get_clientsession(hass),
     )
 
     logger = logging.getLogger(__name__)
