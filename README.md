@@ -32,6 +32,7 @@ This integration provides comprehensive control and monitoring of your Voltalis 
 - **Connection Status**: Check if devices are online and connected
 - **Current Mode**: View the active operating mode (Comfort, Eco, Frost Protection, etc.)
 - **Programming Type**: See which programming is active (Manual, Default, User, Quick)
+- **Contract Info**: View your electricity contract details (tariffs, subscribed power, peak/off-peak hours)
 
 ### Controls
 - **Preset Selector**: Quickly change device mode (Auto, Comfort, Eco, Frost Protection, Temperature, On, Off)
@@ -216,6 +217,24 @@ The integration creates different entities depending on the device type and capa
   - **Note**: This sensor is disabled by default. Enable it in the entity settings if needed.
 </details>
 
+<details>
+  <summary>Contract Info Sensor</summary>
+
+  - **Entity ID**: `sensor.contract_{contract_id}_contract_info`
+  - **Type**: Sensor
+  - **Icon**: `mdi:file-document-outline`
+  - **Description**: Displays your electricity contract information
+  - **State**: Contract name
+  - **Attributes**:
+    - Contract details (ID, company name, subscribed power, contract type)
+    - Pricing information (subscription prices, kWh prices for base/peak/off-peak)
+    - Peak and off-peak hour schedules
+  - **Use Cases**:
+    - Calculate energy costs based on current tariffs
+    - Create automations based on peak/off-peak hours
+    - Track tariff changes over time
+</details>
+
 ### Select Entity
 
 <details>
@@ -394,6 +413,18 @@ target:
 data:
   temperature: 23
   duration_hours: 1
+```
+
+### Refresh Subscriber Contracts
+
+Service: `voltalis.refresh_subscriber_contracts`
+
+Manually refresh subscriber contract data from the Voltalis API.
+
+**Example:**
+
+```yaml
+service: voltalis.refresh_subscriber_contracts
 ```
 
 ### Usage in Automations

@@ -60,6 +60,9 @@
           "normal": "On",
           "off": "Off"
         }
+      },
+      "contract_info": {
+        "name": "Contract information"
       }
     },
     "select": {
@@ -113,6 +116,10 @@
           "description": "How long to boost heating (in hours). Default is 2 hours."
         }
       }
+    },
+    "refresh_subscriber_contracts": {
+      "name": "Refresh subscriber contracts",
+      "description": "Manually refresh subscriber contract data from Voltalis API."
     }
   }
 }

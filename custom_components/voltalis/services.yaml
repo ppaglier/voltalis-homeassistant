@@ -88,3 +88,7 @@ set_quick_boost:
           max: 12
           step: 0.5
           unit_of_measurement: "hours"
+
+refresh_subscriber_contracts:
+  name: Refresh subscriber contracts
+  description: Manually refresh subscriber contract data from Voltalis API.
