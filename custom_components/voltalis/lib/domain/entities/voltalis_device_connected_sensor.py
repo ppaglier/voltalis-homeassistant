@@ -1,9 +1,7 @@
 import logging
 
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntity,
-)
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.const import EntityCategory
 from homeassistant.core import callback
 
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
@@ -19,6 +17,7 @@ class VoltalisDeviceConnectedSensor(VoltalisEntity, SensorEntity):
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_translation_key = "device_connected"
     _attr_options = [option for option in VoltalisHealthStatusEnum]
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _unique_id_suffix = "device_connected"
 
     @property

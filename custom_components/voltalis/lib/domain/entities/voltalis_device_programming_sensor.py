@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.const import EntityCategory
 from homeassistant.core import callback
 
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
@@ -18,6 +19,7 @@ class VoltalisDeviceProgrammingSensor(VoltalisEntity, SensorEntity):
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_translation_key = "device_programming"
     _attr_options = [option for option in VoltalisDeviceProgTypeEnum]
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "device_programming"
 
