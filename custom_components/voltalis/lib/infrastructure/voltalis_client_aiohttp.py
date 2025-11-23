@@ -93,7 +93,6 @@ class VoltalisClientAiohttp(VoltalisClient):
         response = await self.__send_request(
             url=VoltalisClientAiohttp.LOGIN_ROUTE,
             method="POST",
-            retry=False,
             json=payload,
         )
         return response["token"]
@@ -101,7 +100,6 @@ class VoltalisClientAiohttp(VoltalisClient):
     async def __get_me(self) -> str:
         response = await self.__send_request(
             url="/api/account/me",
-            retry=False,
             method="GET",
         )
         return response["defaultSite"]["id"]
@@ -127,7 +125,7 @@ class VoltalisClientAiohttp(VoltalisClient):
             return
 
         self.__logger.info("Voltalis logout in progress...")
-        await self.__send_request(url="/auth/logout", retry=False, method="DELETE")
+        await self.__send_request(url="/auth/logout", method="DELETE")
         self.__logger.info("Logout successful")
         self.__storage["auth_token"] = None
 
@@ -137,7 +135,6 @@ class VoltalisClientAiohttp(VoltalisClient):
         devices_response: list[dict] = await self.__send_request(
             url="/api/site/{site_id}/managed-appliance",
             method="GET",
-            retry=False,
         )
 
         devices: dict[int, VoltalisDevice] = {}
@@ -172,7 +169,6 @@ class VoltalisClientAiohttp(VoltalisClient):
         devices_health_response: list[dict] = await self.__send_request(
             url="/api/site/{site_id}/autodiag",
             method="GET",
-            retry=False,
         )
 
         devices_health: dict[int, VoltalisDeviceHealth] = {}
@@ -215,7 +211,6 @@ class VoltalisClientAiohttp(VoltalisClient):
         response: dict[str, dict[str, list[dict]]] = await self.__send_request(
             url=f"/api/site/{{site_id}}/consumption/day/{target_date_str}/full-data",
             method="GET",
-            retry=False,
         )
 
         devices_consumptions: dict[int, list[RawDeviceConsumption]] = {}
@@ -249,7 +244,6 @@ class VoltalisClientAiohttp(VoltalisClient):
         manual_settings_response: list[dict] = await self.__send_request(
             url="/api/site/{site_id}/manualsetting",
             method="GET",
-            retry=True,
         )
 
         manual_settings: dict[int, VoltalisManualSetting] = {}
@@ -290,7 +284,6 @@ class VoltalisClientAiohttp(VoltalisClient):
         await self.__send_request(
             url=f"/api/site/{{site_id}}/manualsetting/{manual_setting_id}",
             method="PUT",
-            retry=False,
             json=payload,
         )
 
@@ -325,21 +318,30 @@ class VoltalisClientAiohttp(VoltalisClient):
         try:
             response = await self.__session.request(url=full_url, method=method, headers=headers, **kwargs)
             if response.status == 401:
-                if retry:
-                    self.__logger.warning("Authentication failed (401), retrying with new login...")
+                if not retry:
+                    raise VoltalisAuthenticationException(await response.text())
+
+                self.__logger.warning("Authentication failed (401), retrying with new login...")
+                try:
                     await self.login()
-                    return await self.__send_request(url=url, method=method, retry=False, **kwargs)
-                raise VoltalisAuthenticationException(await response.text())
+                except Exception as login_ex:
+                    self.__logger.error("Re-login failed during retry after 401: %s", login_ex)
+                return await self.__send_request(url=url, method=method, retry=False, **kwargs)
+
             if response.status == 404:
                 self.__logger.exception(await response.text())
                 return None
             response.raise_for_status()
         except (ClientConnectorError, ClientError, ClientResponseError) as ex:
-            if retry:
-                self.__logger.warning("Connection error, retrying with new login...")
+            if not retry:
+                raise VoltalisException from ex
+
+            self.__logger.warning("Connection error, retrying with new login...")
+            try:
                 await self.login()
-                return await self.__send_request(url=url, method=method, retry=False, **kwargs)
-            raise VoltalisException from ex
+            except Exception as login_ex:
+                self.__logger.error("Re-login failed during retry after 401: %s", login_ex)
+            return await self.__send_request(url=url, method=method, retry=False, **kwargs)
 
         # Return response depends on the content type
         if response.content_type == "application/json":
