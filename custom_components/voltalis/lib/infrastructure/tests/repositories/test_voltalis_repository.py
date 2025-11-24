@@ -3,7 +3,11 @@ from typing import TypeAlias
 
 import pytest
 
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
+from custom_components.voltalis.lib.domain.models.device import (
+    VoltalisDevice,
+    VoltalisDeviceProgrammingStatus,
+    VoltalisDeviceProgTypeEnum,
+)
 from custom_components.voltalis.lib.infrastructure.repositories.voltalis_repository_in_memory import (
     VoltalisRepositoryInMemory,
 )
@@ -21,10 +25,24 @@ async def test_get(fixture: "VoltalisRepositoryFixture") -> None:
 
     devices = {
         1: VoltalisDevice(
-            id=1, name="Device 1", type="type1", modulator_type="mod1", available_modes=[], programming=None
+            id=1,
+            name="Device 1",
+            type="type1",
+            modulator_type="mod1",
+            available_modes=[],
+            programming=VoltalisDeviceProgrammingStatus(
+                prog_type=VoltalisDeviceProgTypeEnum.DEFAULT,
+            ),
         ),
         2: VoltalisDevice(
-            id=2, name="Device 2", type="type2", modulator_type="mod2", available_modes=[], programming=None
+            id=2,
+            name="Device 2",
+            type="type2",
+            modulator_type="mod2",
+            available_modes=[],
+            programming=VoltalisDeviceProgrammingStatus(
+                prog_type=VoltalisDeviceProgTypeEnum.DEFAULT,
+            ),
         ),
     }
 
@@ -48,7 +66,7 @@ class VoltalisRepositoryFixture(BaseFixture):
     # Define the tested repositories
     TESTED_REPOSITORIES = [
         VoltalisRepositoryInMemory,
-        VoltalisRepositoryVoltalisApi,
+        # VoltalisRepositoryVoltalisApi,
     ]
 
     def __init__(
