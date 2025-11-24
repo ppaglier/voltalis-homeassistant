@@ -1,29 +1,19 @@
 import logging
-from datetime import datetime
 from typing import Any, TypedDict
-from urllib.parse import urljoin
 
-from aiohttp import ClientConnectorError, ClientError, ClientResponseError, ClientSession, ClientTimeout
-from pydantic import ValidationError
+from aiohttp import ClientSession
 
 from custom_components.voltalis.const import VOLTALIS_API_BASE_URL, VOLTALIS_API_LOGIN_ROUTE
-from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
-from custom_components.voltalis.lib.domain.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.exceptions import (
-    VoltalisAuthenticationException,
-    VoltalisException,
-    VoltalisValidationException,
-)
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgrammingStatus
-from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
-from custom_components.voltalis.lib.domain.models.manual_setting import (
-    VoltalisManualSetting,
-    VoltalisManualSettingUpdate,
-)
+from custom_components.voltalis.lib.application.http_client import HttpClientException, HttpClientResponse, TData
+from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException
+from custom_components.voltalis.lib.infrastructure.http_client_aiohttp import HttpClientAioHttp
 
 
-class VoltalisClientAiohttp(VoltalisClient):
-    """Voltalis client integration using the Aiohttp lib"""
+class VoltalisClientAiohttp(HttpClientAioHttp):
+    """
+    Aiohttp client for Voltalis API.
+    It implements authentication and token management.
+    """
 
     BASE_URL = VOLTALIS_API_BASE_URL
     LOGIN_ROUTE = VOLTALIS_API_LOGIN_ROUTE
@@ -31,33 +21,23 @@ class VoltalisClientAiohttp(VoltalisClient):
     class Storage(TypedDict):
         """Dict that represent the storage of the client"""
 
+        username: str | None
+        password: str | None
         auth_token: str | None
         default_site_id: str | None
 
     def __init__(
         self,
         *,
-        username: str | None = None,
-        password: str | None = None,
+        session: ClientSession,
         base_url: str = BASE_URL,
-        session: ClientSession | None = None,
     ) -> None:
-        self.__username = username
-        self.__password = password
-        self.__base_url = base_url
-
-        # Setup session if not provided & set the close_session var for later
-        _session = session
-        if _session is None:
-            _session = ClientSession(
-                timeout=ClientTimeout(30),
-            )
-
-        self.__session = _session
-        self.__close_session = session is None
+        super().__init__(session=session, base_url=base_url)
 
         # Setup storage
         self.__storage = VoltalisClientAiohttp.Storage(
+            username=None,
+            password=None,
             auth_token=None,
             default_site_id=None,
         )
@@ -66,17 +46,10 @@ class VoltalisClientAiohttp(VoltalisClient):
         logger = logging.getLogger(__name__)
         self.__logger = logger
 
-    async def __aenter__(self) -> "VoltalisClientAiohttp":
-        """Async enter."""
-
-        return self
-
-    async def __aexit__(self, *exc_info: Any) -> None:
-        """Logout and close the session if the session wasn't provided at init."""
-        await super().__aexit__()
-
-        if self.__close_session:
-            await self.__session.close()
+    @property
+    def storage(self) -> "VoltalisClientAiohttp.Storage":
+        """Get the aiohttp storage."""
+        return self.__storage
 
     async def get_access_token(
         self,
@@ -90,34 +63,42 @@ class VoltalisClientAiohttp(VoltalisClient):
             "login": username,
             "password": password,
         }
-        response = await self.__send_request(
-            url=VoltalisClientAiohttp.LOGIN_ROUTE,
-            method="POST",
-            json=payload,
-        )
-        return response["token"]
+        try:
+            response: HttpClientResponse[dict] = await self.send_request(
+                url=VoltalisClientAiohttp.LOGIN_ROUTE,
+                method="POST",
+                body=payload,
+                can_retry=False,
+            )
+            return response.data["token"]
+        except HttpClientException as err:
+            self.__logger.error("Error while getting access token: %s", err)
+            if err.response and err.response.status == 401:
+                raise VoltalisAuthenticationException("Invalid username or password") from err
+            raise err
 
     async def __get_me(self) -> str:
-        response = await self.__send_request(
+        response: HttpClientResponse[dict] = await self.send_request(
             url="/api/account/me",
             method="GET",
         )
-        return response["defaultSite"]["id"]
+        return response.data["defaultSite"]["id"]
 
-    async def login(self) -> None:
+    async def login(self, *, username: str, password: str) -> None:
         """Execute Voltalis login."""
-
-        if self.__username is None or self.__password is None:
-            raise VoltalisException("You must provide username & password")
 
         self.__logger.info("Voltalis login in progress...")
         token = await self.get_access_token(
-            username=self.__username,
-            password=self.__password,
+            username=username,
+            password=password,
         )
-        self.__storage["auth_token"] = token
+        # Store login data for refreshing token later (maybe hash credentials?)
+        self.__storage["username"] = username
+        self.__storage["password"] = password
 
+        self.__storage["auth_token"] = token
         self.__storage["default_site_id"] = await self.__get_me()
+
         self.__logger.info("Voltalis login successful")
 
     async def logout(self) -> None:
@@ -125,182 +106,34 @@ class VoltalisClientAiohttp(VoltalisClient):
             return
 
         self.__logger.info("Voltalis logout in progress...")
-        await self.__send_request(url="/auth/logout", method="DELETE")
+        await self.send_request(url="/auth/logout", method="DELETE")
         self.__logger.info("Logout successful")
+
+        self.__storage["username"] = None
+        self.__storage["password"] = None
+
         self.__storage["auth_token"] = None
+        self.__storage["default_site_id"] = None
 
-    async def get_devices(self) -> dict[int, VoltalisDevice]:
-        """Get all Voltalis devices."""
-
-        devices_response: list[dict] = await self.__send_request(
-            url="/api/site/{site_id}/managed-appliance",
-            method="GET",
-        )
-
-        devices: dict[int, VoltalisDevice] = {}
-
-        try:
-            for device_document in devices_response:
-                device = VoltalisDevice(
-                    id=device_document["id"],
-                    name=device_document["name"],
-                    type=device_document["applianceType"],
-                    modulator_type=device_document["modulatorType"],
-                    available_modes=[mode.lower() for mode in device_document["availableModes"]],
-                    programming=VoltalisDeviceProgrammingStatus(
-                        prog_type=device_document.get("programming", {}).get("progType", "").lower() or None,
-                        id_manual_setting=device_document.get("programming", {}).get("idManualSetting"),
-                        is_on=device_document.get("programming", {}).get("isOn"),
-                        mode=device_document.get("programming", {}).get("mode", "").lower() or None,
-                        temperature_target=device_document.get("programming", {}).get("temperatureTarget"),
-                        default_temperature=device_document.get("programming", {}).get("defaultTemperature"),
-                    ),
-                )
-                devices[device_document["id"]] = device
-        except ValidationError as err:
-            self.__logger.error("Error parsing devices: %s", err)
-            raise VoltalisValidationException(*err.args) from err
-
-        return devices
-
-    async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
-        """Get devices health"""
-
-        devices_health_response: list[dict] = await self.__send_request(
-            url="/api/site/{site_id}/autodiag",
-            method="GET",
-        )
-
-        devices_health: dict[int, VoltalisDeviceHealth] = {}
-        try:
-            for device_health_document in devices_health_response:
-                devices_health[device_health_document["csApplianceId"]] = VoltalisDeviceHealth(
-                    status=device_health_document["status"].lower(),
-                )
-        except ValidationError as err:
-            self.__logger.error("Error parsing health: %s", err)
-            raise VoltalisValidationException(*err.args) from err
-
-        return devices_health
-
-    async def get_devices_consumptions(self, target_datetime: datetime) -> dict[int, float]:
-        """Get all Voltalis devices consumption."""
-
-        class RawDeviceConsumption(CustomModel):
-            date: datetime
-            consumption: float
-
-        def __get_consumption_for_hour(
-            devices_consumptions: dict[int, list[RawDeviceConsumption]],
-            target_datetime: datetime,
-        ) -> dict[int, RawDeviceConsumption]:
-            target_hour = target_datetime.replace(minute=0, second=0, microsecond=0)
-            result: dict[int, RawDeviceConsumption] = {}
-
-            for device_id, consumptions in devices_consumptions.items():
-                match = next(
-                    (c for c in consumptions if c.date.replace(minute=0, second=0, microsecond=0) == target_hour), None
-                )
-                if match:
-                    result[device_id] = match
-
-            return result
-
-        # Fetch the data from the voltalis API
-        target_date_str = target_datetime.isoformat("T").split("T")[0]
-        response: dict[str, dict[str, list[dict]]] = await self.__send_request(
-            url=f"/api/site/{{site_id}}/consumption/day/{target_date_str}/full-data",
-            method="GET",
-        )
-
-        devices_consumptions: dict[int, list[RawDeviceConsumption]] = {}
-
-        try:
-            for device_id, device_consumptions in response["perAppliance"].items():
-                devices_consumptions[int(device_id)] = [
-                    RawDeviceConsumption(
-                        date=device_consumption["stepTimestampOnSite"],
-                        consumption=device_consumption["totalConsumptionInWh"],
-                    )
-                    for device_consumption in device_consumptions
-                ]
-        except ValidationError as err:
-            self.__logger.error("Error parsing consumptions: %s", err)
-            raise VoltalisValidationException(*err.args) from err
-
-        filtered_consumptions = __get_consumption_for_hour(
-            devices_consumptions=devices_consumptions,
-            target_datetime=target_datetime,
-        )
-
-        return {
-            device_id: filtered_consumption.consumption
-            for device_id, filtered_consumption in filtered_consumptions.items()
-        }
-
-    async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
-        """Get manual settings for all devices."""
-
-        manual_settings_response: list[dict] = await self.__send_request(
-            url="/api/site/{site_id}/manualsetting",
-            method="GET",
-        )
-
-        manual_settings: dict[int, VoltalisManualSetting] = {}
-        try:
-            for setting_document in manual_settings_response:
-                new_settings = VoltalisManualSetting(
-                    id=setting_document["id"],
-                    enabled=setting_document["enabled"],
-                    id_appliance=setting_document["idAppliance"],
-                    appliance_name=setting_document["applianceName"],
-                    appliance_type=setting_document["applianceType"],
-                    until_further_notice=setting_document["untilFurtherNotice"],
-                    is_on=setting_document["isOn"],
-                    mode=setting_document["mode"].lower(),
-                    end_date=setting_document["endDate"],
-                    temperature_target=setting_document["temperatureTarget"],
-                )
-                manual_settings[setting_document["idAppliance"]] = new_settings
-        except ValidationError as err:
-            self.__logger.error("Error parsing manual settings: %s", err)
-            raise VoltalisValidationException(*err.args) from err
-
-        return manual_settings
-
-    async def set_manual_setting(self, manual_setting_id: int, setting: VoltalisManualSettingUpdate) -> None:
-        """Set manual setting for a device."""
-
-        payload = {
-            "enabled": setting.enabled,
-            "idAppliance": setting.id_appliance,
-            "untilFurtherNotice": setting.until_further_notice,
-            "isOn": setting.is_on,
-            "mode": setting.mode.upper(),
-            "endDate": setting.end_date,
-            "temperatureTarget": setting.temperature_target,
-        }
-
-        await self.__send_request(
-            url=f"/api/site/{{site_id}}/manualsetting/{manual_setting_id}",
-            method="PUT",
-            json=payload,
-        )
-
-        self.__logger.info("Manual setting %s updated for appliance %s", manual_setting_id, setting.id_appliance)
-
-    async def __send_request(
+    async def send_request(
         self,
         *,
         url: str,
         method: str,
-        retry: bool = True,
+        body: Any | None = None,
+        query_params: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
         **kwargs: Any,
-    ) -> Any:
+    ) -> HttpClientResponse[TData]:
         """Send http requests to Voltalis."""
 
+        can_retry = kwargs.pop("can_retry", True)
+
         if self.__storage["auth_token"] is None and url != VoltalisClientAiohttp.LOGIN_ROUTE:
-            await self.login()
+            await self.login(
+                username=self.__storage["username"] or "",
+                password=self.__storage["password"] or "",
+            )
 
         headers = {
             "content-type": "application/json",
@@ -313,37 +146,35 @@ class VoltalisClientAiohttp(VoltalisClient):
         if self.__storage["default_site_id"] is not None:
             _url = url.format(site_id=self.__storage["default_site_id"])
 
-        full_url = urljoin(self.__base_url, _url)
-
         try:
-            response = await self.__session.request(url=full_url, method=method, headers=headers, **kwargs)
-            if response.status == 401:
-                if not retry:
-                    raise VoltalisAuthenticationException(await response.text())
+            response: HttpClientResponse[TData] = await super().send_request(
+                url=_url,
+                method=method,
+                body=body,
+                query_params=query_params,
+                headers=headers,
+                **kwargs,
+            )
+        except HttpClientException as ex:
+            if ex.response is None or ex.response.status == 401 or not can_retry:
+                raise ex
 
-                self.__logger.warning("Authentication failed (401), retrying with new login...")
-                try:
-                    await self.login()
-                except Exception as login_ex:
-                    self.__logger.error("Re-login failed during retry after 401: %s", login_ex)
-                return await self.__send_request(url=url, method=method, retry=False, **kwargs)
-
-            if response.status == 404:
-                self.__logger.exception(await response.text())
-                return None
-            response.raise_for_status()
-        except (ClientConnectorError, ClientError, ClientResponseError) as ex:
-            if not retry:
-                raise VoltalisException from ex
-
-            self.__logger.warning("Connection error, retrying with new login...")
+            self.__logger.warning("Authentication failed (401), retrying with new login...")
             try:
-                await self.login()
+                await self.login(
+                    username=self.__storage["username"] or "",
+                    password=self.__storage["password"] or "",
+                )
             except Exception as login_ex:
                 self.__logger.error("Re-login failed during retry after 401: %s", login_ex)
-            return await self.__send_request(url=url, method=method, retry=False, **kwargs)
+            response = await super().send_request(
+                url=_url,
+                method=method,
+                body=body,
+                query_params=query_params,
+                headers=headers,
+                can_retry=False,
+                **kwargs,
+            )
 
-        # Return response depends on the content type
-        if response.content_type == "application/json":
-            return await response.json()
-        return await response.read()
+        return response

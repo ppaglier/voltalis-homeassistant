@@ -159,7 +159,7 @@ class VoltalisWaterHeater(VoltalisEntity, WaterHeaterEntity):
         manual_setting_id = data.manual_setting.id
 
         # Call API
-        await self.coordinator.client.set_manual_setting(manual_setting_id, settings)
+        await self.coordinator.voltalis_provider.set_manual_setting(manual_setting_id, settings)
 
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()

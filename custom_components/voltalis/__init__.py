@@ -11,6 +11,7 @@ from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConf
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.infrastructure.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.voltalis_client_aiohttp import VoltalisClientAiohttp
+from custom_components.voltalis.lib.infrastructure.voltalis_provider_voltalis_api import VoltalisProviderVoltalisApi
 
 PLATFORMS = [
     Platform.SENSOR,
@@ -36,23 +37,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 
     date_provider = DateProviderReal()
 
-    client = VoltalisClientAiohttp(
-        session=async_get_clientsession(hass),
-        username=username,
-        password=password,
-    )
+    voltalis_client = VoltalisClientAiohttp(session=async_get_clientsession(hass))
 
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 
-    await client.login()
+    await voltalis_client.login(
+        username=username,
+        password=password,
+    )
 
-    coordinator = VoltalisCoordinator(hass, client, date_provider, entry=entry)
+    voltalis_provider = VoltalisProviderVoltalisApi(client=voltalis_client)
+
+    coordinator = VoltalisCoordinator(hass, voltalis_provider, date_provider, entry=entry)
 
     await coordinator.async_config_entry_first_refresh()
 
     # ✅ store coordinator for other platforms
-    entry.runtime_data = VoltalisConfigEntryData(coordinator=coordinator)
+    entry.runtime_data = VoltalisConfigEntryData(
+        voltalis_client=voltalis_client,
+        coordinator=coordinator,
+    )
 
     # forward setup to sensor platform
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -63,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Unload a config entry."""
 
-    await entry.runtime_data.coordinator.client.logout()
+    await entry.runtime_data.voltalis_client.logout()
 
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     return unload_ok
