@@ -3,8 +3,8 @@ from datetime import datetime
 
 from pydantic import ValidationError
 
-from custom_components.voltalis.lib.application.http_client import HttpClient, HttpClientResponse
-from custom_components.voltalis.lib.application.voltalis_provider import VoltalisProvider
+from custom_components.voltalis.lib.application.providers.http_client import HttpClient, HttpClientResponse
+from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.exceptions import VoltalisValidationException
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgrammingStatus
@@ -15,9 +15,9 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
 )
 
 
-class VoltalisProviderVoltalisApi(VoltalisProvider):
+class VoltalisRepositoryVoltalisApi(VoltalisRepository):
     """
-    Provider for Voltalis data access using the Voltalis API client.
+    Repository for Voltalis data access using the Voltalis API client.
     It implements methods to fetch devices, their health, consumptions, and manage manual settings.
     """
 

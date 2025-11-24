@@ -9,8 +9,8 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
 )
 
 
-class VoltalisProvider(ABC):
-    """Provider for Voltalis data access."""
+class VoltalisRepository(ABC):
+    """Repository for Voltalis data access."""
 
     @abstractmethod
     async def get_devices(self) -> dict[int, VoltalisDevice]:

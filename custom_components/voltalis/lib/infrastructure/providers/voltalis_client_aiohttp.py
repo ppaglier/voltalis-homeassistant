@@ -4,9 +4,13 @@ from typing import Any, TypedDict
 from aiohttp import ClientSession
 
 from custom_components.voltalis.const import VOLTALIS_API_BASE_URL, VOLTALIS_API_LOGIN_ROUTE
-from custom_components.voltalis.lib.application.http_client import HttpClientException, HttpClientResponse, TData
+from custom_components.voltalis.lib.application.providers.http_client import (
+    HttpClientException,
+    HttpClientResponse,
+    TData,
+)
 from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException
-from custom_components.voltalis.lib.infrastructure.http_client_aiohttp import HttpClientAioHttp
+from custom_components.voltalis.lib.infrastructure.providers.http_client_aiohttp import HttpClientAioHttp
 
 
 class VoltalisClientAiohttp(HttpClientAioHttp):

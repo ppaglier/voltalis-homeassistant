@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from custom_components.voltalis.lib.application.date_provider import DateProvider
+from custom_components.voltalis.lib.application.providers.date_provider import DateProvider
 
 
 class DateProviderReal(DateProvider):

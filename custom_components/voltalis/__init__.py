@@ -9,9 +9,11 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry, VoltalisConfigEntryData
 from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
-from custom_components.voltalis.lib.infrastructure.date_provider_real import DateProviderReal
-from custom_components.voltalis.lib.infrastructure.voltalis_client_aiohttp import VoltalisClientAiohttp
-from custom_components.voltalis.lib.infrastructure.voltalis_provider_voltalis_api import VoltalisProviderVoltalisApi
+from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
+from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
+from custom_components.voltalis.lib.infrastructure.repositories.voltalis_repository_voltalis_api import (
+    VoltalisRepositoryVoltalisApi,
+)
 
 PLATFORMS = [
     Platform.SENSOR,
@@ -47,7 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
         password=password,
     )
 
-    voltalis_provider = VoltalisProviderVoltalisApi(client=voltalis_client)
+    voltalis_provider = VoltalisRepositoryVoltalisApi(client=voltalis_client)
 
     coordinator = VoltalisCoordinator(hass, voltalis_provider, date_provider, entry=entry)
 

@@ -2,7 +2,11 @@ from typing import Any, TypeVar
 
 from aiohttp import ClientConnectorError, ClientError, ClientResponse, ClientResponseError, ClientSession
 
-from custom_components.voltalis.lib.application.http_client import HttpClient, HttpClientException, HttpClientResponse
+from custom_components.voltalis.lib.application.providers.http_client import (
+    HttpClient,
+    HttpClientException,
+    HttpClientResponse,
+)
 
 T = TypeVar("T")
 TData = TypeVar("TData")
