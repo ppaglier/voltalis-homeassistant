@@ -40,7 +40,7 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
     def __init__(
         self,
         hass: HomeAssistant,
-        voltalis_provider: VoltalisRepository,
+        voltalis_repository: VoltalisRepository,
         date_provider: DateProvider,
         *,
         entry: ConfigEntry,  # ConfigEntry reference used for reauth triggering
@@ -52,15 +52,15 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
             name="Voltalis",
             update_interval=timedelta(minutes=1),
         )
-        self.__voltalis_provider = voltalis_provider
+        self.__voltalis_repository = voltalis_repository
         self.__date_provider = date_provider
         self.__entry = entry
         self._was_unavailable = False  # Track previous availability state for one-shot logging
 
     @property
-    def voltalis_provider(self) -> VoltalisRepository:
+    def voltalis_repository(self) -> VoltalisRepository:
         """Expose the voltalis provider for service calls."""
-        return self.__voltalis_provider
+        return self.__voltalis_repository
 
     async def _async_update_data(self) -> dict[int, VoltalisCoordinatorData]:
         """Fetch updated data from the Voltalis API."""
@@ -68,13 +68,13 @@ class VoltalisCoordinator(DataUpdateCoordinator[dict[int, VoltalisCoordinatorDat
             _LOGGER.debug("Fetching Voltalis data...")
 
             # Fetch devices, health, consumptions, and manual settings
-            devices = await self.__voltalis_provider.get_devices()
-            devices_health = await self.__voltalis_provider.get_devices_health()
-            manual_settings = await self.__voltalis_provider.get_manual_settings()
+            devices = await self.__voltalis_repository.get_devices()
+            devices_health = await self.__voltalis_repository.get_devices_health()
+            manual_settings = await self.__voltalis_repository.get_manual_settings()
 
             # We remove 1 hour because we can't fetch data from the current our
             target_datetime = self.__date_provider.get_now() - timedelta(hours=1)
-            consumptions = await self.__voltalis_provider.get_devices_consumptions(target_datetime)
+            consumptions = await self.__voltalis_repository.get_devices_consumptions(target_datetime)
 
             result: dict[int, VoltalisCoordinatorData] = {}
 
