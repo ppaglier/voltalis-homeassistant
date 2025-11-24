@@ -25,8 +25,8 @@ class HttpClientAioHttp(HttpClient):
         self._base_url = base_url
 
     @staticmethod
-    async def _from_requests_response(*, response: ClientResponse) -> HttpClientResponse[T]:
-        """Convert a requests Response to a HttpClientResponse."""
+    async def _from_response(*, response: ClientResponse) -> HttpClientResponse[T]:
+        """Convert a aiohttp Response to a HttpClientResponse."""
 
         data: Any = None
         if response.content_type == "application/json":
@@ -42,10 +42,13 @@ class HttpClientAioHttp(HttpClient):
         )
 
     @staticmethod
-    def _from_requests_exception(
+    def _from_exception(
         *, exception: ClientConnectorError | ClientError | ClientResponseError
     ) -> HttpClientException[T]:
-        """Convert a requests RequestException to a HttpClientResponse."""
+        """
+        Convert an aiohttp exception (ClientConnectorError, ClientError, or ClientResponseError)
+        to a HttpClientException.
+        """
 
         response: HttpClientResponse[T] | None = None
         if isinstance(exception, ClientResponseError):
@@ -97,6 +100,6 @@ class HttpClientAioHttp(HttpClient):
                 **kwargs,
             )
             response.raise_for_status()
-            return await self._from_requests_response(response=response)
+            return await self._from_response(response=response)
         except (ClientConnectorError, ClientError, ClientResponseError) as e:
-            raise self._from_requests_exception(exception=e) from e
+            raise self._from_exception(exception=e) from e

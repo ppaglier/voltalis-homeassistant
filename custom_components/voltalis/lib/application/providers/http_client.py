@@ -17,7 +17,7 @@ class HttpClientResponse(CustomModel, Generic[T]):
 
 
 class HttpClientException(Exception, Generic[T]):
-    """Raised when an error occurs while sending an alert."""
+    """Raised when an error occurs while sending an HTTP request."""
 
     request: dict | None
     response: HttpClientResponse[T] | None

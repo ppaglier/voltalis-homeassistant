@@ -140,8 +140,11 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
             )
 
         headers = {
-            "content-type": "application/json",
-            "accept": "*/*",
+            **{
+                "content-type": "application/json",
+                "accept": "*/*",
+            },
+            **(headers or {}),
         }
         if self.__storage["auth_token"] is not None:
             headers["Authorization"] = f"Bearer {self.__storage['auth_token']}"
@@ -160,7 +163,7 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
                 **kwargs,
             )
         except HttpClientException as ex:
-            if ex.response is None or ex.response.status == 401 or not can_retry:
+            if ex.response is None or ex.response.status != 401 or not can_retry:
                 raise ex
 
             self.__logger.warning("Authentication failed (401), retrying with new login...")

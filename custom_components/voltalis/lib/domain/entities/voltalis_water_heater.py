@@ -122,8 +122,8 @@ class VoltalisWaterHeater(VoltalisEntity, WaterHeaterEntity):
 
     async def async_turn_away_mode_on(self) -> None:
         """Enable away mode by turning off the water heater."""
-        await self.async_turn_off()
         self.__before_away_mode_operation = self.current_operation
+        await self.async_turn_off()
         self._attr_is_away_mode_on = True
 
     async def async_turn_away_mode_off(self) -> None:
