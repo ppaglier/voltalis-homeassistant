@@ -1,0 +1,58 @@
+name: Check version bump in PR
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  check-version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get base branch
+        id: base
+        run: echo "BASE_REF=${{ github.event.pull_request.base.ref }}" >> $GITHUB_ENV
+
+      - name: Get manifest version (PR)
+        id: manifest_pr
+        run: |
+          MANIFEST_VERSION=$(jq -r .version custom_components/voltalis/manifest.json)
+          echo "MANIFEST_VERSION_PR=$MANIFEST_VERSION" >> $GITHUB_ENV
+
+      - name: Get manifest version (base)
+        id: manifest_base
+        run: |
+          git fetch origin $BASE_REF
+          git show origin/$BASE_REF:custom_components/voltalis/manifest.json > base_manifest.json
+          MANIFEST_VERSION_BASE=$(jq -r .version base_manifest.json)
+          echo "MANIFEST_VERSION_BASE=$MANIFEST_VERSION_BASE" >> $GITHUB_ENV
+
+      - name: Get pyproject version (PR)
+        id: pyproject_pr
+        run: |
+          PYPROJECT_VERSION=$(grep -m1 '^version = ' pyproject.toml | cut -d '"' -f2)
+          echo "PYPROJECT_VERSION_PR=$PYPROJECT_VERSION" >> $GITHUB_ENV
+
+      - name: Get pyproject version (base)
+        id: pyproject_base
+        run: |
+          git show origin/$BASE_REF:pyproject.toml > base_pyproject.toml
+          PYPROJECT_VERSION_BASE=$(grep -m1 '^version = ' base_pyproject.toml | cut -d '"' -f2)
+          echo "PYPROJECT_VERSION_BASE=$PYPROJECT_VERSION_BASE" >> $GITHUB_ENV
+
+      - name: Check both versions bumped
+        run: |
+          if [ "$MANIFEST_VERSION_PR" = "$MANIFEST_VERSION_BASE" ]; then
+            echo "manifest.json version not bumped! ($MANIFEST_VERSION_PR)"
+            exit 1
+          fi
+          if [ "$PYPROJECT_VERSION_PR" = "$PYPROJECT_VERSION_BASE" ]; then
+            echo "pyproject.toml version not bumped! ($PYPROJECT_VERSION_PR)"
+            exit 1
+          fi
+          echo "Both versions bumped: manifest.json=$MANIFEST_VERSION_PR, pyproject.toml=$PYPROJECT_VERSION_PR"
