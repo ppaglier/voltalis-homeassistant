@@ -4,7 +4,8 @@
 [![Stable][release-badge]][release-link]
 [![Integration quality][integration-quality-badge]][integration-quality-link]
 ![Active users][integration-users-badge]
-<!-- ![Downloads][integration-downloads-badge] -->
+![Downloads][integration-downloads-badge]
+
 
 
 <!-- Latest release -->
@@ -14,9 +15,9 @@
 [integration-quality-badge]: https://img.shields.io/badge/quality-silver-c0c0c0
 [integration-quality-link]: https://developers.home-assistant.io/docs/core/integration-quality-scale/#-silver
 <!-- Integration users -->
-[integration-users-badge]: https://img.shields.io/badge/dynamic/json?url=https://analytics.home-assistant.io/custom_integrations.json&query=%24.voltalis.total&color=brightgreen&label=Active%20users
+[integration-users-badge]: https://img.shields.io/badge/dynamic/json?url=https://analytics.home-assistant.io/custom_integrations.json&query=%24.voltalis.total&color=brightgreen&label=active%20users
 <!-- Integration downloads -->
-<!-- [integration-downloads-badge]: https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/ppaglier/voltalis-homeassistant/releases/latest&query=%24.assets%5B%3F%28%40.name%3D%3D%27voltalis-homeassistant.zip%27%29%5D.download_count&label=Downloads&color=blue -->
+[integration-downloads-badge]: https://img.shields.io/github/downloads/ppaglier/voltalis-homeassistant/total?&color=blue
 
 
 
