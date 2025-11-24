@@ -159,9 +159,9 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "invalid_auth"
             except self.ConnectionError:
                 errors["base"] = "cannot_connect"
-            except self.ConfigFlowError as err:  # pragma: no cover - defensive
+            except self.ConfigFlowError as err:
                 errors["base"] = str(err)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 errors["base"] = "unknown"
 
             if not errors:

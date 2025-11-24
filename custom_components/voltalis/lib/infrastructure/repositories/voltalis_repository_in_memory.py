@@ -54,9 +54,6 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
         return self.__manual_settings
 
     async def set_manual_setting(self, manual_setting_id: int, setting: VoltalisManualSettingUpdate) -> None:
-        if manual_setting_id not in self.__manual_settings:
-            raise Exception(f"Manual setting with ID {manual_setting_id} does not exist.")
-
         existing_setting = self.__manual_settings[manual_setting_id]
         updated_setting = existing_setting.model_copy(update=setting.model_dump(exclude_unset=True))
         self.__manual_settings[manual_setting_id] = updated_setting

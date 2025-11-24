@@ -39,13 +39,21 @@ class VoltalisClientStub(HttpClient):
         username: str,
         password: str,
     ) -> str:
-        if self.__should_fail_auth:
-            raise VoltalisAuthenticationException("Invalid credentials")
-        if self.__should_fail_connection:
-            raise HttpClientException("Connection failed")
-        if self.__should_fail_unexpected:
-            raise RuntimeError("Unexpected error")
-        return "valid_access_token"
+        payload = {
+            "login": username,
+            "password": password,
+        }
+        try:
+            response: HttpClientResponse[dict] = await self.send_request(
+                url="some_url",
+                method="POST",
+                body=payload,
+            )
+            return response.data["token"]
+        except HttpClientException as err:
+            if err.response and err.response.status == 401:
+                raise VoltalisAuthenticationException("Invalid username or password") from err
+            raise err
 
     async def send_request(
         self,
@@ -57,4 +65,26 @@ class VoltalisClientStub(HttpClient):
         headers: dict[str, str] | None = None,
         **kwargs: Any,
     ) -> HttpClientResponse[TData]:
-        raise NotImplementedError("This is a stub method.")
+        if self.__should_fail_auth:
+            raise HttpClientException(
+                "Authentication failed",
+                response=HttpClientResponse(
+                    data=None,
+                    status=401,
+                    url=url,
+                    header={},
+                ),
+            )
+        if self.__should_fail_connection:
+            raise HttpClientException(
+                "Connection failed",
+                response=HttpClientResponse(
+                    data=None,
+                    status=503,
+                    url=url,
+                    header={},
+                ),
+            )
+        if self.__should_fail_unexpected:
+            raise RuntimeError("Unexpected error")
+        return HttpClientResponse[TData](data={"token": None}, status=200, url=url)
