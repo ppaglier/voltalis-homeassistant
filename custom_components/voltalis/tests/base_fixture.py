@@ -194,9 +194,9 @@ class BaseFixture(Generic[T]):
                                 rdict[index],
                             )
                         )
-                    ), f"Output are differents from the expected ones (index={index}):\n{pretty_dictdiffer(ddiff)}"
+                    ), f"Output are different from the expected ones (index={index}):\n{pretty_dictdiffer(ddiff)}"
             except json.JSONDecodeError:
-                assert rvalue == evalue, f"Output are differents from the expected ones:\n{evalue}\n\n{rvalue}"
+                assert rvalue == evalue, f"Output are different from the expected ones:\n{evalue}\n\n{rvalue}"
         else:
             assert False, f"Expected {type(expected_data)} but got {type(data)}"
 

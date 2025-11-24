@@ -1,4 +1,4 @@
-"""Platform for Voltalis climate integration."""
+"""Platform for Voltalis water heater integration."""
 
 import logging
 
@@ -21,7 +21,7 @@ async def async_setup_entry(
     entry: VoltalisConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Voltalis climate entities from a config entry."""
+    """Set up Voltalis water heater entities from a config entry."""
 
     coordinator = entry.runtime_data.coordinator
 
@@ -34,7 +34,7 @@ async def async_setup_entry(
     for data in coordinator.data.values():
         device: VoltalisDevice = data.device
 
-        # Only create climate entities for heater devices
+        # Only create water heater entities for water heater devices
         if device.type == VoltalisDeviceTypeEnum.WATER_HEATER:
             water_heater_entity = VoltalisWaterHeater(entry, device)
             water_heater_entities[water_heater_entity.unique_internal_name] = water_heater_entity
