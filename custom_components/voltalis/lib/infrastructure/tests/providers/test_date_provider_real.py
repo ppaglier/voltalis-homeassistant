@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from custom_components.voltalis.lib.infrastructure.date_provider_real import DateProviderReal
+from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
 
 
 @pytest.mark.integration

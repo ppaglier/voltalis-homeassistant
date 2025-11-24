@@ -163,7 +163,7 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
         manual_setting_id = data.manual_setting.id
 
         # Call API
-        await self.coordinator.client.set_manual_setting(manual_setting_id, settings)
+        await self.coordinator.voltalis_repository.set_manual_setting(manual_setting_id, settings)
 
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()

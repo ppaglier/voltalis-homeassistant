@@ -75,6 +75,15 @@
           "off": "Arrêt"
         }
       }
+    },
+    "water_heater": {
+      "water_heater": {
+        "state": {
+          "on": "Marche",
+          "off": "Arrêt",
+          "auto": "Auto"
+        }
+      }
     }
   },
   "services": {

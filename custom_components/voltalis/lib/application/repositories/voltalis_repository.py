@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any
 
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
@@ -10,37 +9,8 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
 )
 
 
-class VoltalisClient(ABC):
-    """Create a Voltalis client that will be used to communicate with Voltalis servers."""
-
-    async def __aenter__(self) -> "VoltalisClient":
-        """Async enter."""
-
-        return self
-
-    async def __aexit__(self, *exc_info: Any) -> None:
-        """Logout after async exit."""
-        await self.logout()
-
-    @abstractmethod
-    async def get_access_token(
-        self,
-        *,
-        username: str,
-        password: str,
-    ) -> str:
-        """Get access token of the Voltalis servers"""
-        ...
-
-    @abstractmethod
-    async def login(self) -> None:
-        """Login to the Voltalis servers"""
-        ...
-
-    @abstractmethod
-    async def logout(self) -> None:
-        """Logout from the Voltalis servers"""
-        ...
+class VoltalisRepository(ABC):
+    """Repository for Voltalis data access."""
 
     @abstractmethod
     async def get_devices(self) -> dict[int, VoltalisDevice]:

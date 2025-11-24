@@ -6,9 +6,9 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.voltalis.const import DOMAIN
-from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
-from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException, VoltalisException
-from custom_components.voltalis.lib.infrastructure.voltalis_client_aiohttp import VoltalisClientAiohttp
+from custom_components.voltalis.lib.application.providers.http_client import HttpClientException
+from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException
+from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 
 
 class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -29,11 +29,11 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(
         self,
         *,
-        client: VoltalisClient | None = None,
+        client: VoltalisClientAiohttp | None = None,
     ) -> None:
         self.__client = client
 
-    async def __get_client(self) -> VoltalisClient:
+    async def __get_client(self) -> VoltalisClientAiohttp:
         """Get or create the Voltalis client."""
 
         if self.__client is not None:
@@ -61,7 +61,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
         except VoltalisAuthenticationException as err:
             raise self.AuthError("invalid_auth") from err
-        except VoltalisException as err:
+        except HttpClientException as err:
             raise self.ConnectionError("cannot_connect") from err
         except Exception as err:
             raise self.ConfigFlowError("unknown") from err
@@ -159,9 +159,9 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "invalid_auth"
             except self.ConnectionError:
                 errors["base"] = "cannot_connect"
-            except self.ConfigFlowError as err:  # pragma: no cover - defensive
+            except self.ConfigFlowError as err:
                 errors["base"] = str(err)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 errors["base"] = "unknown"
 
             if not errors:

@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pytest
 
-from custom_components.voltalis.lib.infrastructure.date_provider_stub import DateProviderStub
+from custom_components.voltalis.lib.infrastructure.providers.date_provider_stub import DateProviderStub
 
 
 @pytest.mark.integration
