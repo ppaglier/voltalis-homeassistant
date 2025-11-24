@@ -2,5 +2,7 @@
   "name": "Voltalis",
   "country": "FR",
   "homeassistant": "2025.10.3",
-  "hacs": "2.0.0"
+  "hacs": "2.0.0",
+  "zip_release": true,
+  "filename": "voltalis_homeassistant.zip"
 }
