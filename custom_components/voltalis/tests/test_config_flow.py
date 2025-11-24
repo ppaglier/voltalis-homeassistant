@@ -6,8 +6,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
 from custom_components.voltalis.const import DOMAIN
-from custom_components.voltalis.lib.application.voltalis_client import VoltalisClient
-from custom_components.voltalis.lib.infrastructure.voltalis_client_stub import VoltalisClientStub
+from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_stub import VoltalisClientStub
+
+# TODO: Use MockVoltalisServer when available to use realistic stub responses
 
 
 @pytest.mark.e2e
@@ -72,7 +73,7 @@ async def test_form_errors(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch,
     """Test that errors are handled correctly in the config flow."""
 
     # Ensure the config flow uses the stub client instead of performing real I/O
-    def get_client() -> VoltalisClient:
+    def get_client() -> VoltalisClientStub:
         client = VoltalisClientStub()
         client.set_auth_failure(exception_type == "invalid_auth")
         client.set_connection_failure(exception_type == "cannot_connect")
@@ -263,7 +264,7 @@ async def test_step_reconfigure_invalid_auth(
     is_reconfiguring = False
 
     # Ensure the config flow uses the stub client instead of performing real I/O
-    def get_client() -> VoltalisClient:
+    def get_client() -> VoltalisClientStub:
         client = VoltalisClientStub()
         # Only fail auth during reconfiguration, not during initial setup
         if is_reconfiguring:

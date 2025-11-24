@@ -310,7 +310,7 @@ class VoltalisRepositoryFixture(BaseFixture):
         if repository_type == VoltalisRepositoryInMemory:
             return VoltalisRepositoryInMemory()
 
-        # Initialize the mongo repository
+        # Initialize the voltalis-api repository
         # if repository_type == VoltalisRepositoryVoltalisApi:
         #     self.voltalis_server.start_server()
         #     return VoltalisRepositoryVoltalisApi(http_client=self.voltalis_server.get_client())
