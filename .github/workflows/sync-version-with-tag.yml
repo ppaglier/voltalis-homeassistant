@@ -1,0 +1,66 @@
+name: Sync versions with tag
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract tag version
+        id: tag
+        run: |
+          echo "TAG_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Read manifest version
+        id: manifest
+        run: |
+          MANIFEST_VERSION=$(jq -r .version custom_components/voltalis/manifest.json)
+          echo "MANIFEST_VERSION=$MANIFEST_VERSION" >> $GITHUB_ENV
+
+      - name: Read pyproject.toml version
+        id: pyproject
+        run: |
+          PYPROJECT_VERSION=$(grep -m1 '^version = ' pyproject.toml | cut -d '"' -f2)
+          echo "PYPROJECT_VERSION=$PYPROJECT_VERSION" >> $GITHUB_ENV
+
+      - name: Update manifest.json version if needed
+        id: update_manifest
+        run: |
+          updated=0
+          if [ "$TAG_VERSION" != "$MANIFEST_VERSION" ]; then
+            echo "Updating manifest.json version from $MANIFEST_VERSION to $TAG_VERSION"
+            jq --arg v "$TAG_VERSION" '.version = $v' custom_components/voltalis/manifest.json > tmp.json && mv tmp.json custom_components/voltalis/manifest.json
+            updated=1
+          else
+            echo "manifest.json version already up to date."
+          fi
+          echo "UPDATED_MANIFEST=$updated" >> $GITHUB_ENV
+
+      - name: Update pyproject.toml version if needed
+        id: update_pyproject
+        run: |
+          updated=0
+          PYPROJECT_VERSION=$(grep -m1 '^version = ' pyproject.toml | cut -d '"' -f2)
+          if [ "$TAG_VERSION" != "$PYPROJECT_VERSION" ]; then
+            echo "Updating pyproject.toml version from $PYPROJECT_VERSION to $TAG_VERSION"
+            sed -i.bak "s/^version = \".*\"/version = \"$TAG_VERSION\"/" pyproject.toml && rm pyproject.toml.bak
+            updated=1
+          else
+            echo "pyproject.toml version already up to date."
+          fi
+          echo "UPDATED_PYPROJECT=$updated" >> $GITHUB_ENV
+
+      - name: Commit and push changes if needed
+        if: env.UPDATED_MANIFEST == '1' || env.UPDATED_PYPROJECT == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add custom_components/voltalis/manifest.json pyproject.toml
+          git commit -m "chore: update manifest.json and/or pyproject.toml version to $TAG_VERSION [skip ci]"
+          git push
