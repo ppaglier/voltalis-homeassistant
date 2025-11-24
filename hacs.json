@@ -4,5 +4,5 @@
   "homeassistant": "2025.10.3",
   "hacs": "2.0.0",
   "zip_release": true,
-  "filename": "voltalis_homeassistant.zip"
+  "filename": "voltalis-homeassistant.zip"
 }
