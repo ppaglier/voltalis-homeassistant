@@ -49,7 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
         password=password,
     )
 
-    voltalis_provider = VoltalisRepositoryVoltalisApi(client=voltalis_client)
+    voltalis_provider = VoltalisRepositoryVoltalisApi(http_client=voltalis_client)
 
     coordinator = VoltalisCoordinator(hass, voltalis_provider, date_provider, entry=entry)
 

@@ -16,13 +16,10 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
 
 
 class VoltalisRepositoryVoltalisApi(VoltalisRepository):
-    """
-    Repository for Voltalis data access using the Voltalis API client.
-    It implements methods to fetch devices, their health, consumptions, and manage manual settings.
-    """
+    """Repository for Voltalis data access using the Voltalis API client."""
 
-    def __init__(self, *, client: HttpClient) -> None:
-        self._client = client
+    def __init__(self, *, http_client: HttpClient) -> None:
+        self._client = http_client
         self.__logger = logging.getLogger(__name__)
 
     async def get_devices(self) -> dict[int, VoltalisDevice]:

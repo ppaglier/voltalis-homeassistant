@@ -1,3 +1,4 @@
+import asyncio
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
@@ -5,6 +6,7 @@ from types import NoneType, UnionType
 from typing import (
     Annotated,
     Any,
+    Awaitable,
     Callable,
     Generic,
     TypeVar,
@@ -36,7 +38,7 @@ class MockHttpServer:
     class RequestHandler(CustomModel, Generic[T]):
         """Request handler type."""
 
-        response: Callable[[], "MockHttpServer.StubResponse[T]"] | None = None
+        response: Callable[[], Awaitable["MockHttpServer.StubResponse[T]"]] | None = None
         request_interceptor: Callable[[Any, dict], None] | None = None
 
     def __init__(self) -> None:
@@ -243,7 +245,8 @@ class MockHttpServer:
                         return
 
                 try:
-                    response = request_handler.response()
+                    loop = asyncio.get_event_loop()
+                    response = loop.run_until_complete(request_handler.response())
                     status_code = response.status_code or 200
                     self.send_response(status_code)
                     self.send_header("Content-Type", "application/json")
