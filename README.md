@@ -1,7 +1,9 @@
 
 # Voltalis Home Assistant Integration
 
-[![Stable][release-badge]][release-link] [![Integration quality][integration-quality-badge]][integration-quality-link]
+[![Stable][release-badge]][release-link]
+[![Integration quality][integration-quality-badge]][integration-quality-link]
+![Active users][integration-users-badge]
 
 
 <!-- Latest release -->
@@ -10,6 +12,8 @@
 <!-- Integration quality -->
 [integration-quality-badge]: https://img.shields.io/badge/quality-silver-c0c0c0
 [integration-quality-link]: https://developers.home-assistant.io/docs/core/integration-quality-scale/#-silver
+<!-- Integration users -->
+[integration-users-badge]: https://img.shields.io/badge/dynamic/json?url=https://analytics.home-assistant.io/custom_integrations.json&query=%24.voltalis.total&color=brightgreen&label=Active%20users
 
 
 
