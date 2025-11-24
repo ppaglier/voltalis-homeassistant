@@ -1,6 +1,16 @@
+
 # Voltalis Home Assistant Integration
 
-[![Quality Scale](https://img.shields.io/badge/quality-silver-c0c0c0)](https://developers.home-assistant.io/docs/core/integration-quality-scale/#-silver)
+[![Stable][release-badge]][release-link] [![Integration quality][integration-quality-badge]][integration-quality-link]
+
+
+<!-- Latest release -->
+[release-badge]: https://img.shields.io/github/v/release/ppaglier/voltalis-homeassistant?label=release&sort=semver
+[release-link]: https://github.com/ppaglier/voltalis-homeassistant/releases/latest
+<!-- Integration quality -->
+[integration-quality-badge]: https://img.shields.io/badge/quality-silver-c0c0c0
+[integration-quality-link]: https://developers.home-assistant.io/docs/core/integration-quality-scale/#-silver
+
 
 
 ## About Voltalis
@@ -140,6 +150,7 @@ Before installing this integration, you need:
 
 </details>
 
+
 ## Entities
 
 The integration creates different entities depending on the device type and capabilities:
@@ -165,6 +176,25 @@ The integration creates different entities depending on the device type and capa
     - Adjust target temperature (if supported)
   - **Update Frequency**: Every 1 minute
 </details>
+
+### Water Heater Entity
+
+<details>
+  <summary>Water Heater Entity (Water Heating Devices Only)</summary>
+
+  - **Entity ID**: `water_heater.<device_name>_water_heater`
+  - **Type**: Water Heater
+  - **Operation Modes**:
+    - `Off`: The water heater is turned off (no heating allowed)
+    - `On`: The water heater is allowed to operate (not a forced heating mode). If the device is behind a peak/off-peak (HP/HC) relay, it will only heat when the relay allows it. This mode does not override the relay or force heating.
+    - `Auto`: Voltalis manages the water heater's on/off state according to its own schedule. However, if the device is behind a HP/HC relay, the relay always has priority: Voltalis can only allow or prevent heating when the relay is closed (off-peak). Voltalis cannot force the water heater to heat during peak hours if the relay is open.
+    - `Away`: The water heater is in away mode (reduced or no heating, for periods of absence).
+  - **Features**:
+    - Turn on/off
+    - Change operation mode (including away)
+  - **Update Frequency**: Every 1 minute
+</details>
+
 
 ### Sensors
 
