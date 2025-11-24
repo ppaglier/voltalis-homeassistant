@@ -1,0 +1,26 @@
+name: 'Zip Release'
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: ZIP the integration directory
+        run: |
+          cd "${{ github.workspace }}/custom_components/voltalis"
+          zip voltalis_homeassistant.zip -r ./
+          mv voltalis_homeassistant.zip ${{ github.workspace }}
+
+      - name: Upload the ZIP file to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: voltalis_homeassistant.zip

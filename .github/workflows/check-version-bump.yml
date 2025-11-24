@@ -1,4 +1,4 @@
-name: Check version bump in PR
+name: 'Check version bump in PR'
 
 on:
   pull_request:
@@ -9,8 +9,8 @@ jobs:
   check-version-bump:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR branch
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           fetch-depth: 2
 
