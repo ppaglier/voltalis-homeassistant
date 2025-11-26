@@ -19,7 +19,7 @@ jobs:
       checks: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install Poetry
         uses: snok/install-poetry@v1
       - name: Setup Python
@@ -49,7 +49,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install Poetry
         uses: snok/install-poetry@v1
       - name: Setup Python
