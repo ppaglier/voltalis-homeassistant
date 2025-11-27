@@ -3,23 +3,31 @@
 
 [![Stable][release-badge]][release-link]
 [![Integration quality][integration-quality-badge]][integration-quality-link]
-[![Active users][integration-users-badge]][integration-users-link]
-[![Downloads][integration-downloads-badge]][integration-downloads-link]
+[![Active instalations][integration-active-instalations-badge]][integration-active-instalations-link]
+[![All downloads][integration-all-downloads-badge]][integration-all-downloads-link]
+[![Latest downloads][integration-latest-downloads-badge]][integration-latest-downloads-link]
+
 
 
 
 <!-- Latest release -->
-[release-badge]: https://img.shields.io/github/v/release/ppaglier/voltalis-homeassistant?label=release&sort=semver
+[release-badge]: https://img.shields.io/github/v/release/ppaglier/voltalis-homeassistant?label=release&sort=semver&logo=github
 [release-link]: https://github.com/ppaglier/voltalis-homeassistant/releases/latest
 <!-- Integration quality -->
 [integration-quality-badge]: https://img.shields.io/badge/quality-silver-c0c0c0
 [integration-quality-link]: https://developers.home-assistant.io/docs/core/integration-quality-scale/#-silver
-<!-- Integration users -->
-[integration-users-badge]: https://img.shields.io/badge/dynamic/json?url=https://analytics.home-assistant.io/custom_integrations.json&query=%24.voltalis.total&color=brightgreen&label=active%20users
-[integration-users-link]: https://analytics.home-assistant.io/custom_integrations.json
-<!-- Integration downloads -->
-[integration-downloads-badge]: https://img.shields.io/github/downloads/ppaglier/voltalis-homeassistant/total?&color=blue
-[integration-downloads-link]: https://github.com/ppaglier/voltalis-homeassistant/releases
+<!-- Integration active instalations -->
+[integration-active-instalations-badge]: https://img.shields.io/badge/dynamic/json?url=https://analytics.home-assistant.io/custom_integrations.json&query=%24.voltalis.total&color=brightgreen&label=active%20instalations&logo=homeassistant
+[integration-active-instalations-link]: https://analytics.home-assistant.io/custom_integrations.json
+<!-- Integration all downloads -->
+[integration-all-downloads-badge]: https://img.shields.io/github/downloads/ppaglier/voltalis-homeassistant/total?&color=blue&logo=github
+[integration-all-downloads-link]: https://github.com/ppaglier/voltalis-homeassistant/releases
+<!-- Integration latest downloads -->
+[integration-latest-downloads-badge]: https://img.shields.io/github/downloads/ppaglier/voltalis-homeassistant/latest/total?&color=blue&logo=homeassistantcommunitystore
+[integration-latest-downloads-link]: https://github.com/ppaglier/voltalis-homeassistant/releases/latest
+<!-- HACS button -->
+[hacs-badge]: https://my.home-assistant.io/badges/hacs_repository.svg
+[hacs-link]: https://my.home-assistant.io/redirect/hacs_repository/?owner=ppaglier&repository=voltalis-homeassistant&category=integration
 
 
 
@@ -68,7 +76,7 @@ Before installing this integration, you need:
 
 ### Installation via HACS (Recommended)
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ppaglier&repository=voltalis-homeassistant&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.][hacs-badge]][hacs-link]
 
 <details>
   <summary>Click to show installation instructions</summary>
