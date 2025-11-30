@@ -10,7 +10,7 @@ from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.voltalis.const import CLIMATE_DEFAULT_TEMP
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
+from custom_components.voltalis.lib.domain.coordinators.coordinator import VoltalisCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceModeEnum
 from custom_components.voltalis.lib.domain.models.manual_setting import VoltalisManualSettingUpdate
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity

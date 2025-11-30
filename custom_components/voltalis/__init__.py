@@ -8,7 +8,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry, VoltalisConfigEntryData
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
+from custom_components.voltalis.lib.domain.coordinators.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 from custom_components.voltalis.lib.infrastructure.repositories.voltalis_repository_voltalis_api import (
@@ -51,7 +51,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 
     voltalis_repository = VoltalisRepositoryVoltalisApi(http_client=voltalis_client)
 
-    coordinator = VoltalisCoordinator(hass, voltalis_repository, date_provider, entry=entry)
+    coordinator = VoltalisCoordinator(
+        hass=hass,
+        voltalis_repository=voltalis_repository,
+        date_provider=date_provider,
+        entry=entry,
+    )
 
     await coordinator.async_config_entry_first_refresh()
 

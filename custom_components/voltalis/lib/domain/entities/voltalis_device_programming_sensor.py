@@ -6,7 +6,7 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import callback
 
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
+from custom_components.voltalis.lib.domain.coordinators.coordinator import VoltalisCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceProgTypeEnum
 from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
 

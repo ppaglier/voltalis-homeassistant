@@ -1,6 +1,6 @@
 from homeassistant import config_entries
 
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
+from custom_components.voltalis.lib.domain.coordinators.coordinator import VoltalisCoordinator
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 

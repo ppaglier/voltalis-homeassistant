@@ -3,7 +3,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator, VoltalisCoordinatorData
+from custom_components.voltalis.lib.domain.coordinators.coordinator import VoltalisCoordinator, VoltalisCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModulatorTypeEnum,
