@@ -9,6 +9,7 @@ from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.voltalis.const import CLIMATE_UNIT
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
@@ -41,7 +42,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     _attr_translation_key = "water_heater"
     _unique_id_suffix = "water_heater"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDevice) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
         """Initialize the water heater entity."""
         super().__init__(entry, device, entry.runtime_data.coordinators.device)
         # We don't set name there because this is only one entity per device
@@ -59,7 +60,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
         self.__before_away_mode_operation: VoltalisWaterHeaterOperationsEnum | None = None
 
     @property
-    def _current_device(self) -> VoltalisDevice:
+    def _current_device(self) -> VoltalisDeviceCoordinatorData:
         """Get the current device data from coordinator."""
         device = self._coordinators.device.data.get(self._device.id)
         return device if device else self._device
@@ -148,18 +149,16 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
         device = self._current_device
 
         # Get manual setting ID
-        manual_setting = self._coordinators.device_settings.data.get(device.id)
-        if not manual_setting:
+        if not device.manual_setting:
             raise HomeAssistantError(f"Manual setting not available for device {device.id}")
 
-        manual_setting_id = manual_setting.id
+        manual_setting_id = device.manual_setting.id
 
         # Call API
-        await self._coordinators.device_settings.voltalis_repository.set_manual_setting(manual_setting_id, settings)
+        await self._coordinators.device.set_manual_setting(manual_setting_id, settings)
 
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()
-        await self._coordinators.device_settings.async_request_refresh()
 
     async def __set_manual_mode(self, is_on: bool) -> None:
         """Set manual mode for the device (simple ON/OFF relay)."""
@@ -209,5 +208,4 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     # Availability handling override
     # ------------------------------------------------------------------
     def _is_available_from_data(self, data: VoltalisDevice) -> bool:
-        manual_setting = self._coordinators.device_settings.data.get(data.id)
-        return data.programming.is_on is not None and data.programming.mode is not None and manual_setting is not None
+        return data.programming.is_on is not None and data.programming.mode is not None

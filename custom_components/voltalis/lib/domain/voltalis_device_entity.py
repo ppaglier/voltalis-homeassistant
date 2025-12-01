@@ -6,11 +6,8 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalisCoordinator
-from custom_components.voltalis.lib.domain.models.device import (
-    VoltalisDevice,
-    VoltalisDeviceModulatorTypeEnum,
-    VoltalisDeviceTypeEnum,
-)
+from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
+from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceModulatorTypeEnum, VoltalisDeviceTypeEnum
 
 
 class VoltalisDeviceEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any]]]):
@@ -21,7 +18,7 @@ class VoltalisDeviceEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, A
     def __init__(
         self,
         entry: VoltalisConfigEntry,
-        device: VoltalisDevice,
+        device: VoltalisDeviceCoordinatorData,
         coordinator: BaseVoltalisCoordinator[dict[int, Any]],
     ) -> None:
         """Initialize the device."""

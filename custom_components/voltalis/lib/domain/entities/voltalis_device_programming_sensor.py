@@ -7,6 +7,7 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import callback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgTypeEnum
 from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
@@ -23,7 +24,7 @@ class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):
     _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "device_programming"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDevice) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
         """Initialize the sensor entity."""
         super().__init__(entry, device, entry.runtime_data.coordinators.device)
 
