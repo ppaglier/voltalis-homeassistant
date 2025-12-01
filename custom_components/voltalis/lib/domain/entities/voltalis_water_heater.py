@@ -9,13 +9,12 @@ from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.voltalis.const import CLIMATE_UNIT
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.coordinators.coordinator import VoltalisCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
 )
 from custom_components.voltalis.lib.domain.models.manual_setting import VoltalisManualSettingUpdate
-from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 
 class VoltalisWaterHeaterOperationsEnum(StrEnum):
@@ -26,7 +25,7 @@ class VoltalisWaterHeaterOperationsEnum(StrEnum):
     AUTO = "auto"
 
 
-class VoltalisWaterHeater(VoltalisEntity, WaterHeaterEntity):
+class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     """Water heater entity for Voltalis water heater devices.
 
     This is a relay controller with 3 states:
@@ -43,7 +42,7 @@ class VoltalisWaterHeater(VoltalisEntity, WaterHeaterEntity):
 
     def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDevice) -> None:
         """Initialize the water heater entity."""
-        super().__init__(entry, device)
+        super().__init__(entry, device, entry.runtime_data.coordinators.device)
         # We don't set name there because this is only one entity per device
         # and the device name is already used for the main entity.
         self._attr_name = None
@@ -61,8 +60,8 @@ class VoltalisWaterHeater(VoltalisEntity, WaterHeaterEntity):
     @property
     def _current_device(self) -> VoltalisDevice:
         """Get the current device data from coordinator."""
-        data = self.coordinator.data.get(self._device.id)
-        return data.device if data else self._device
+        device = self._coordinators.device.data.get(self._device.id)
+        return device if device else self._device
 
     @property
     def icon(self) -> str:
@@ -87,12 +86,12 @@ class VoltalisWaterHeater(VoltalisEntity, WaterHeaterEntity):
         device = self._current_device
 
         # Check if device has manual setting data
-        data = self.coordinator.data.get(device.id)
-        if not data or not data.manual_setting:
+        manual_setting = self._coordinators.device_settings.data.get(device.id)
+        if not manual_setting:
             return None
 
         # If manual mode is disabled, it's AUTO (Voltalis controls)
-        if not data.manual_setting.enabled:
+        if not manual_setting.enabled:
             return VoltalisWaterHeaterOperationsEnum.AUTO
 
         # Manual mode is enabled - check if ON or OFF
@@ -152,17 +151,18 @@ class VoltalisWaterHeater(VoltalisEntity, WaterHeaterEntity):
         device = self._current_device
 
         # Get manual setting ID
-        data = self.coordinator.data.get(device.id)
-        if not data or not data.manual_setting:
-            raise HomeAssistantError(f"No manual setting found for device {device.id}")
+        manual_setting = self._coordinators.device_settings.data.get(device.id)
+        if not manual_setting:
+            raise HomeAssistantError(f"Manual setting not available for device {device.id}")
 
-        manual_setting_id = data.manual_setting.id
+        manual_setting_id = manual_setting.id
 
         # Call API
-        await self.coordinator.voltalis_repository.set_manual_setting(manual_setting_id, settings)
+        await self._coordinators.device_settings.voltalis_repository.set_manual_setting(manual_setting_id, settings)
 
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()
+        await self._coordinators.device_settings.async_request_refresh()
 
     async def __set_manual_mode(self, is_on: bool) -> None:
         """Set manual mode for the device (simple ON/OFF relay)."""
@@ -211,9 +211,6 @@ class VoltalisWaterHeater(VoltalisEntity, WaterHeaterEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
-        return (
-            data.device.programming.is_on is not None
-            and data.device.programming.mode is not None
-            and data.manual_setting is not None
-        )
+    def _is_available_from_data(self, data: VoltalisDevice) -> bool:
+        manual_setting = self._coordinators.device_settings.data.get(data.id)
+        return data.programming.is_on is not None and data.programming.mode is not None and manual_setting is not None

@@ -7,7 +7,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from custom_components.voltalis.lib.application.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
 from custom_components.voltalis.lib.domain.exceptions import (
     VoltalisAuthenticationException,
@@ -23,22 +22,21 @@ class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
 
     def __init__(
         self,
+        name: str,
         *,
         hass: HomeAssistant,
         logger: logging.Logger,
         voltalis_repository: VoltalisRepository,
-        date_provider: DateProvider,
         update_interval: timedelta,
         entry: ConfigEntry,  # ConfigEntry reference used for reauth triggering
     ) -> None:
         super().__init__(
             hass,
             logger=logger,
-            name="Voltalis",
+            name=name,
             update_interval=update_interval,
         )
         self._voltalis_repository = voltalis_repository
-        self._date_provider = date_provider
         self._entry = entry
         self._was_unavailable = False  # Track previous availability state for one-shot logging
 

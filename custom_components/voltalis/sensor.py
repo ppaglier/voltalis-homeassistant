@@ -16,8 +16,7 @@ from custom_components.voltalis.lib.domain.entities.voltalis_device_current_mode
 from custom_components.voltalis.lib.domain.entities.voltalis_device_programming_sensor import (
     VoltalisDeviceProgrammingSensor,
 )
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
-from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,23 +31,23 @@ async def async_setup_entry(
 ) -> None:
     """Set up Voltalis sensors from a config entry."""
 
-    coordinator = entry.runtime_data.coordinator
+    device_coordinator = entry.runtime_data.coordinators.device
+    health_coordinator = entry.runtime_data.coordinators.device_health
 
-    if not coordinator.data:
+    if not device_coordinator.data:
         _LOGGER.warning("No Voltalis data available during setup, waiting for first refresh")
-        await coordinator.async_config_entry_first_refresh()
+        await device_coordinator.async_config_entry_first_refresh()
 
-    sensors: dict[str, VoltalisEntity] = {}
+    sensors: dict[str, VoltalisDeviceEntity] = {}
 
-    for data in coordinator.data.values():
-        device: VoltalisDevice = data.device
-
+    for device in device_coordinator.data.values():
         # Create the consumption sensor for each device
         device_consumption_sensor = VoltalisDeviceConsumptionSensor(entry, device)
         sensors[device_consumption_sensor.unique_internal_name] = device_consumption_sensor
 
         # Create the connected sensor for each device (if status is available)
-        if data.health is not None:
+        device_health = health_coordinator.data.get(device.id)
+        if device_health is not None:
             device_connected_sensor = VoltalisDeviceConnectedSensor(entry, device)
             sensors[device_connected_sensor.unique_internal_name] = device_connected_sensor
 

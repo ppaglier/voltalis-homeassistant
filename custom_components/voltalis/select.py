@@ -5,8 +5,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.entities.voltalis_device_preset_select import VoltalisDevicePresetSelect
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
-from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,17 +20,15 @@ async def async_setup_entry(
 ) -> None:
     """Set up Voltalis select entities from a config entry."""
 
-    coordinator = entry.runtime_data.coordinator
+    device_coordinator = entry.runtime_data.coordinators.device
 
-    if not coordinator.data:
+    if not device_coordinator.data:
         _LOGGER.warning("No Voltalis data available during setup, waiting for first refresh")
-        await coordinator.async_config_entry_first_refresh()
+        await device_coordinator.async_config_entry_first_refresh()
 
-    selects: dict[str, VoltalisEntity] = {}
+    selects: dict[str, VoltalisDeviceEntity] = {}
 
-    for data in coordinator.data.values():
-        device: VoltalisDevice = data.device
-
+    for device in device_coordinator.data.values():
         # Create the program select entity
         device_preset_select = VoltalisDevicePresetSelect(entry, device)
         selects[device_preset_select.unique_internal_name] = device_preset_select

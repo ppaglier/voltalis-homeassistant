@@ -10,8 +10,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.entities.voltalis_climate import VoltalisClimate
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceTypeEnum
-from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceTypeEnum
+from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,17 +26,15 @@ async def async_setup_entry(
 ) -> None:
     """Set up Voltalis climate entities from a config entry."""
 
-    coordinator = entry.runtime_data.coordinator
+    device_coordinator = entry.runtime_data.coordinators.device
 
-    if not coordinator.data:
+    if not device_coordinator.data:
         _LOGGER.warning("No Voltalis data available during setup, waiting for first refresh")
-        await coordinator.async_config_entry_first_refresh()
+        await device_coordinator.async_config_entry_first_refresh()
 
-    climate_entities: dict[str, VoltalisEntity] = {}
+    climate_entities: dict[str, VoltalisDeviceEntity] = {}
 
-    for data in coordinator.data.values():
-        device: VoltalisDevice = data.device
-
+    for device in device_coordinator.data.values():
         # Only create climate entities for heater devices
         if device.type == VoltalisDeviceTypeEnum.HEATER:
             climate_entity = VoltalisClimate(entry, device)

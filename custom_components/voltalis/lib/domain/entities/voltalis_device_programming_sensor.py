@@ -6,14 +6,14 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import callback
 
-from custom_components.voltalis.lib.domain.coordinators.coordinator import VoltalisCoordinatorData
-from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceProgTypeEnum
-from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgTypeEnum
+from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisDeviceProgrammingSensor(VoltalisEntity, SensorEntity):
+class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):
     """Sensor for programming of devices (manual, default, user, quick)."""
 
     _attr_device_class = SensorDeviceClass.ENUM
@@ -22,6 +22,10 @@ class VoltalisDeviceProgrammingSensor(VoltalisEntity, SensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "device_programming"
+
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDevice) -> None:
+        """Initialize the sensor entity."""
+        super().__init__(entry, device, entry.runtime_data.coordinators.device)
 
     @property
     def icon(self) -> str:
@@ -40,12 +44,12 @@ class VoltalisDeviceProgrammingSensor(VoltalisEntity, SensorEntity):
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        data = self.coordinator.data.get(self._device.id)
-        if data is None:
+        device = self._coordinators.device.data.get(self._device.id)
+        if device is None:
             _LOGGER.warning("Device %s not found in coordinator data", self._device.id)
             return
 
-        new_value = str(data.device.programming.prog_type)
+        new_value = str(device.programming.prog_type)
         if new_value is None or self.native_value == new_value:
             return
 
@@ -55,5 +59,5 @@ class VoltalisDeviceProgrammingSensor(VoltalisEntity, SensorEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
-        return data.device.programming.prog_type is not None
+    def _is_available_from_data(self, data: VoltalisDevice) -> bool:
+        return data.programming.prog_type is not None
