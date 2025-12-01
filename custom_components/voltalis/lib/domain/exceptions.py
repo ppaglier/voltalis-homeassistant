@@ -6,5 +6,9 @@ class VoltalisAuthenticationException(VoltalisException):
     """Exception that will be thrown when there's some error during the authentification process"""
 
 
+class VoltalisConnectionException(VoltalisException):
+    """Exception that will be thrown when there's some connection error with the API"""
+
+
 class VoltalisValidationException(VoltalisException):
     """Exception that will be thrown when there's some Validation error during data parsing from the API"""

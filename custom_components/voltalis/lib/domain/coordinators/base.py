@@ -10,6 +10,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
 from custom_components.voltalis.lib.domain.exceptions import (
     VoltalisAuthenticationException,
+    VoltalisConnectionException,
     VoltalisException,
     VoltalisValidationException,
 )
@@ -63,6 +64,11 @@ class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
                 )
 
             return UpdateFailed("Authentication failed")
+
+        if isinstance(err, VoltalisConnectionException):
+            if not was_unavailable:
+                self.logger.error("Voltalis connection error: %s", err)
+            return UpdateFailed("Voltalis connection error")
 
         if isinstance(err, VoltalisValidationException):
             if not was_unavailable:

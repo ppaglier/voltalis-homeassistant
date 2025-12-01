@@ -3,10 +3,14 @@ from datetime import datetime
 
 from pydantic import ValidationError
 
-from custom_components.voltalis.lib.application.providers.http_client import HttpClient, HttpClientResponse
+from custom_components.voltalis.lib.application.providers.http_client import (
+    HttpClient,
+    HttpClientException,
+    HttpClientResponse,
+)
 from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.exceptions import VoltalisValidationException
+from custom_components.voltalis.lib.domain.exceptions import VoltalisConnectionException, VoltalisValidationException
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgrammingStatus
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 from custom_components.voltalis.lib.domain.models.manual_setting import (
@@ -23,13 +27,16 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         self.__logger = logging.getLogger(__name__)
 
     async def get_devices(self) -> dict[int, VoltalisDevice]:
-        devices_response: HttpClientResponse[list[dict]] = await self._client.send_request(
-            url="/api/site/{site_id}/managed-appliance",
-            method="GET",
-        )
+        devices_response: HttpClientResponse[list[dict]]
+        try:
+            devices_response = await self._client.send_request(
+                url="/api/site/{site_id}/managed-appliance",
+                method="GET",
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
         devices: dict[int, VoltalisDevice] = {}
-
         try:
             for device_document in devices_response.data:
                 device = VoltalisDevice(
@@ -55,10 +62,14 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         return devices
 
     async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
-        devices_health_response: HttpClientResponse[list[dict]] = await self._client.send_request(
-            url="/api/site/{site_id}/autodiag",
-            method="GET",
-        )
+        devices_health_response: HttpClientResponse[list[dict]]
+        try:
+            devices_health_response = await self._client.send_request(
+                url="/api/site/{site_id}/autodiag",
+                method="GET",
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
         devices_health: dict[int, VoltalisDeviceHealth] = {}
         try:
@@ -97,13 +108,17 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
 
         # Fetch the data from the voltalis API
         target_date_str = target_datetime.isoformat("T").split("T")[0]
-        response: HttpClientResponse[dict[str, dict[str, list[dict]]]] = await self._client.send_request(
-            url=f"/api/site/{{site_id}}/consumption/day/{target_date_str}/full-data",
-            method="GET",
-        )
+
+        response: HttpClientResponse[dict[str, dict[str, list[dict]]]]
+        try:
+            response = await self._client.send_request(
+                url=f"/api/site/{{site_id}}/consumption/day/{target_date_str}/full-data",
+                method="GET",
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
         devices_consumptions: dict[int, list[RawDeviceConsumption]] = {}
-
         try:
             for device_id, device_consumptions in response.data["perAppliance"].items():
                 devices_consumptions[int(device_id)] = [
@@ -129,11 +144,14 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
 
     async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
         """Get manual settings for all devices."""
-
-        manual_settings_response: HttpClientResponse[list[dict]] = await self._client.send_request(
-            url="/api/site/{site_id}/manualsetting",
-            method="GET",
-        )
+        manual_settings_response: HttpClientResponse[list[dict]]
+        try:
+            manual_settings_response = await self._client.send_request(
+                url="/api/site/{site_id}/manualsetting",
+                method="GET",
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
         manual_settings: dict[int, VoltalisManualSetting] = {}
         try:
@@ -170,10 +188,13 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
             "temperatureTarget": setting.temperature_target,
         }
 
-        await self._client.send_request(
-            url=f"/api/site/{{site_id}}/manualsetting/{manual_setting_id}",
-            method="PUT",
-            body=payload,
-        )
+        try:
+            await self._client.send_request(
+                url=f"/api/site/{{site_id}}/manualsetting/{manual_setting_id}",
+                method="PUT",
+                body=payload,
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
         self.__logger.info("Manual setting %s updated for appliance %s", manual_setting_id, setting.id_appliance)
