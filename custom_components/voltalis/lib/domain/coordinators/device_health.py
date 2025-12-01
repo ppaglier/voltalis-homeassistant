@@ -30,16 +30,8 @@ class VoltalisDeviceHealthCoordinator(BaseVoltalisCoordinator[dict[int, Voltalis
             update_interval=timedelta(minutes=1),
         )
 
-    async def _async_update_data(self) -> dict[int, VoltalisDeviceHealth]:
+    async def _get_data(self) -> dict[int, VoltalisDeviceHealth]:
         """Fetch updated data from the Voltalis API."""
 
-        try:
-            self.logger.debug("Fetching Voltalis devices data...")
-
-            result = await self._voltalis_repository.get_devices_health()
-
-            self._handle_after_update()
-            return result
-
-        except Exception as err:
-            raise self._handle_update_error(err) from err
+        result = await self._voltalis_repository.get_devices_health()
+        return result

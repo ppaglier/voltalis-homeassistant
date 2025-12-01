@@ -30,28 +30,18 @@ class VoltalisDeviceCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisDevice
             update_interval=timedelta(minutes=1),
         )
 
-    async def _async_update_data(self) -> dict[int, VoltalisDevice]:
+    async def _get_data(self) -> dict[int, VoltalisDevice]:
         """Fetch updated data from the Voltalis API."""
 
-        try:
-            self.logger.debug("Fetching Voltalis devices data...")
+        # Fetch devices, health, consumptions, and manual settings
+        devices = await self._voltalis_repository.get_devices()
 
-            # Fetch devices, health, consumptions, and manual settings
-            devices = await self._voltalis_repository.get_devices()
+        result: dict[int, VoltalisDevice] = {}
+        for device_id, device in devices.items():
+            if device.type not in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]:
+                self.logger.debug(f"Skipping unsupported device type: {device.type}")
+                continue
 
-            result: dict[int, VoltalisDevice] = {}
+            result[device_id] = device
 
-            for device_id, device in devices.items():
-                if device.type not in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]:
-                    self.logger.debug(f"Skipping unsupported device type: {device.type}")
-                    continue
-
-                result[device_id] = device
-
-            self.logger.debug("Fetched %d devices from Voltalis", len(result))
-
-            self._handle_after_update()
-            return result
-
-        except Exception as err:
-            raise self._handle_update_error(err) from err
+        return result

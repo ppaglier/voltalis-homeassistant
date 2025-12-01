@@ -35,16 +35,8 @@ class VoltalisDeviceSettingsCoordinator(BaseVoltalisCoordinator[dict[int, Voltal
         """Get the Voltalis repository."""
         return self._voltalis_repository
 
-    async def _async_update_data(self) -> dict[int, VoltalisManualSetting]:
+    async def _get_data(self) -> dict[int, VoltalisManualSetting]:
         """Fetch updated data from the Voltalis API."""
 
-        try:
-            self.logger.debug("Fetching Voltalis devices data...")
-
-            result = await self._voltalis_repository.get_manual_settings()
-
-            self._handle_after_update()
-            return result
-
-        except Exception as err:
-            raise self._handle_update_error(err) from err
+        result = await self._voltalis_repository.get_manual_settings()
+        return result
