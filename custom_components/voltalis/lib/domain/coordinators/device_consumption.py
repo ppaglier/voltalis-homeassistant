@@ -1,8 +1,10 @@
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
+from typing import Callable
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.event import async_track_time_change
 
 from custom_components.voltalis.lib.application.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
@@ -14,7 +16,6 @@ _LOGGER = logging.getLogger(__name__)
 class VoltalisDeviceConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, float]]):
     """Coordinator to fetch devices consumptions from Voltalis API at specific hours."""
 
-    INTERVAL = timedelta(hours=1)
     # Minutes offset after the hour to launch the update (e.g., 5 = HH:05)
     MINUTE_OFFSET = 5
 
@@ -24,42 +25,47 @@ class VoltalisDeviceConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, flo
         hass: HomeAssistant,
         voltalis_repository: VoltalisRepository,
         date_provider: DateProvider,
-        entry: ConfigEntry,  # ConfigEntry reference used for reauth triggering
+        entry: ConfigEntry,
     ) -> None:
+        # No automatic update_interval - updates only triggered by time tracker
         super().__init__(
             "Voltalis Device Consumption",
             hass=hass,
             logger=_LOGGER,
             voltalis_repository=voltalis_repository,
             entry=entry,
-            # Start immediately at initialization
-            update_interval=timedelta(seconds=30),  # Will be recalculated after first update
         )
 
         self.__date_provider = date_provider
+        self.__stop_time_tracking: Callable[[], None] | None = None
 
-    def _calculate_next_update_interval(self) -> timedelta:
-        """Calculate time until next hour + minute offset."""
-        now = self.__date_provider.get_now()
-
-        # Next hour at HH:MM (e.g., 15:05)
-        next_update = (now + VoltalisDeviceConsumptionCoordinator.INTERVAL).replace(
+    def start_time_tracking(self) -> None:
+        """Start tracking time to trigger updates at specific minutes."""
+        if self.__stop_time_tracking:
+            return
+        # Schedule updates every hour at MINUTE_OFFSET minutes (e.g., HH:05)
+        self.__stop_time_tracking = async_track_time_change(
+            self.hass,
+            self.__scheduled_update,
             minute=VoltalisDeviceConsumptionCoordinator.MINUTE_OFFSET,
             second=0,
-            microsecond=0,
         )
+        self.logger.debug("Started time tracking - will update every hour at HH:%02d", self.MINUTE_OFFSET)
 
-        # If we're past the target minute in current hour, schedule for next hour
-        if now.minute >= VoltalisDeviceConsumptionCoordinator.MINUTE_OFFSET and next_update <= now:
-            next_update += VoltalisDeviceConsumptionCoordinator.INTERVAL
+    def stop_time_tracking(self) -> None:
+        """Stop the time tracking."""
+        if not self.__stop_time_tracking:
+            return
 
-        delay = next_update - now
-        self.logger.debug(
-            "Next consumption update scheduled at %s (in %s)",
-            next_update.strftime("%H:%M:%S"),
-            delay,
-        )
-        return delay
+        self.__stop_time_tracking()
+        self.__stop_time_tracking = None
+
+    @callback
+    def __scheduled_update(self, scheduled_at: datetime) -> None:
+        """Triggered by time tracker at the scheduled time."""
+        self.logger.debug("Scheduled update triggered at %s", scheduled_at.strftime("%H:%M:%S"))
+        # Request a refresh (will call _async_update_data)
+        self.hass.async_create_task(self.async_request_refresh())
 
     async def _get_data(self) -> dict[int, float]:
         """Fetch updated data from the Voltalis API."""
@@ -67,5 +73,4 @@ class VoltalisDeviceConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, flo
         # We remove 1 hour because we can't fetch data from the current hour
         target_datetime = self.__date_provider.get_now() - timedelta(hours=1)
         result = await self._voltalis_repository.get_devices_consumptions(target_datetime)
-
         return result

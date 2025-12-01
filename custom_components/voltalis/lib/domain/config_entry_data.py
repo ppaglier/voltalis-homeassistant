@@ -15,14 +15,18 @@ class VoltalisCoordinators(CustomModel):
     device_health: VoltalisDeviceHealthCoordinator
     device_consumption: VoltalisDeviceConsumptionCoordinator
 
-    @property
-    def all(self) -> list[BaseVoltalisCoordinator]:
-        """Get all coordinators as a list."""
-        return [
+    async def setup_all(self) -> None:
+        # Do first refresh for regular coordinators
+        arr: list[BaseVoltalisCoordinator] = [
             self.device,
             self.device_health,
             self.device_consumption,
         ]
+        for coordinator in arr:
+            await coordinator.async_config_entry_first_refresh()
+
+        # For consumption, start time-based scheduling after initial refresh
+        self.device_consumption.start_time_tracking()
 
 
 class VoltalisConfigEntryData(CustomModel):

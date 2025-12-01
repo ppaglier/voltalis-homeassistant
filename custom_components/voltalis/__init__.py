@@ -76,8 +76,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
         ),
     )
 
-    for coordinator in coordinators.all:
-        await coordinator.async_config_entry_first_refresh()
+    await coordinators.setup_all()
 
     # ✅ store coordinator for other platforms
     entry.runtime_data = VoltalisConfigEntryData(
@@ -93,6 +92,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 
 async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Unload a config entry."""
+
+    # Stop time tracking for consumption coordinator
+    entry.runtime_data.coordinators.device_consumption.stop_time_tracking()
 
     await entry.runtime_data.voltalis_client.logout()
 

@@ -30,8 +30,7 @@ class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
         logger: logging.Logger,
         voltalis_repository: VoltalisRepository,
         entry: ConfigEntry,  # ConfigEntry reference used for reauth triggering
-        update_interval: timedelta,
-        retry_interval_on_error: timedelta = timedelta(seconds=30),
+        update_interval: timedelta | None = None,
     ) -> None:
         super().__init__(
             hass,
@@ -42,9 +41,6 @@ class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
         self._voltalis_repository = voltalis_repository
         self._entry = entry
         self._was_unavailable = False  # Track previous availability state for one-shot logging
-
-        # Enforce type for subclasses
-        self.__retry_interval_on_error = retry_interval_on_error
 
     def _handle_update_error(self, err: Exception) -> Exception:
         if self._was_unavailable:
@@ -89,33 +85,10 @@ class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
             self.logger.exception("Unexpected error while updating Voltalis data")
         return UpdateFailed(f"Unexpected error: {err}")
 
-    def _calculate_next_update_interval(self) -> timedelta | None:
-        """Calculate time until next update.
-
-        This is a placeholder method and should be overridden by subclasses
-        if they require custom update interval calculations.
-        """
-        return self.update_interval
-
     @abstractmethod
     async def _get_data(self) -> TData:
         """Fetch updated data from the Voltalis API."""
         raise NotImplementedError()
-
-    def __update_interval(self) -> None:
-        """Recalculate and update the update interval if needed."""
-
-        new_update_interval = self._calculate_next_update_interval()
-        if new_update_interval == self.update_interval:
-            return
-
-        self.logger.debug(
-            "Updating %s update interval: %s -> %s",
-            self.name,
-            self.update_interval,
-            new_update_interval,
-        )
-        self.update_interval = new_update_interval
 
     async def _async_update_data(self) -> TData:
         """Fetch updated data from the Voltalis API."""
@@ -127,9 +100,6 @@ class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
                 self.logger.info("Voltalis API back online for %s", self.name)
                 self._was_unavailable = False
 
-            self.__update_interval()
-
             return result
         except Exception as err:
-            self.update_interval = self.__retry_interval_on_error
             raise self._handle_update_error(err) from err
