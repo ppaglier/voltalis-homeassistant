@@ -12,6 +12,7 @@ from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConf
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
+    VoltalisDeviceProgTypeEnum,
 )
 from custom_components.voltalis.lib.domain.models.manual_setting import VoltalisManualSettingUpdate
 from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
@@ -84,20 +85,16 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     def current_operation(self) -> VoltalisWaterHeaterOperationsEnum | None:
         """Return current operation mode: on, off, or auto."""
         device = self._current_device
+        if not device.programming or not device.programming.is_on:
+            return VoltalisWaterHeaterOperationsEnum.OFF
 
-        # Check if device has manual setting data
-        manual_setting = self._coordinators.device_settings.data.get(device.id)
-        if not manual_setting:
-            return None
-
-        # If manual mode is disabled, it's AUTO (Voltalis controls)
-        if not manual_setting.enabled:
-            return VoltalisWaterHeaterOperationsEnum.AUTO
-
-        # Manual mode is enabled - check if ON or OFF
-        if device.programming and device.programming.is_on:
+        # Check programming type to determine mode
+        prog_type = device.programming.prog_type
+        if prog_type == VoltalisDeviceProgTypeEnum.MANUAL:
             return VoltalisWaterHeaterOperationsEnum.ON
-        return VoltalisWaterHeaterOperationsEnum.OFF
+
+        # DEFAULT or USER planning means AUTO mode
+        return VoltalisWaterHeaterOperationsEnum.AUTO
 
     async def async_set_operation_mode(self, operation_mode: str) -> None:
         """Set new operation mode: on, off, or auto."""
