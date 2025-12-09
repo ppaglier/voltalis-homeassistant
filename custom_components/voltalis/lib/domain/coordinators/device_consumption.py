@@ -50,7 +50,6 @@ class VoltalisDeviceConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, flo
             minute=VoltalisDeviceConsumptionCoordinator.MINUTE_OFFSET,
             second=0,
         )
-        self.logger.debug("Started time tracking - will update every hour at HH:%02d", self.MINUTE_OFFSET)
 
     def stop_time_tracking(self) -> None:
         """Stop the time tracking."""
@@ -63,7 +62,6 @@ class VoltalisDeviceConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, flo
     @callback
     def __scheduled_update(self, scheduled_at: datetime) -> None:
         """Triggered by time tracker at the scheduled time."""
-        self.logger.debug("Scheduled update triggered at %s", scheduled_at.strftime("%H:%M:%S"))
         # Request a refresh (will call _async_update_data)
         self.hass.async_create_task(self.async_request_refresh())
 
