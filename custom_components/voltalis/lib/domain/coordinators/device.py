@@ -47,7 +47,7 @@ class VoltalisDeviceCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisDevice
     async def _get_data(self) -> dict[int, VoltalisDeviceCoordinatorData]:
         """Fetch updated data from the Voltalis API."""
 
-        # Fetch devices, health, consumptions, and manual settings
+        # Fetch devices and manual settings
         devices = await self._voltalis_repository.get_devices()
         devices_manual_settings = await self._voltalis_repository.get_manual_settings()
 

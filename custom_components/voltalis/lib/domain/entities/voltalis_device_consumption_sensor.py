@@ -38,7 +38,7 @@ class VoltalisDeviceConsumptionSensor(VoltalisDeviceEntity, SensorEntity):
             return
 
         new_value = device_consumption
-        if new_value is None or self.native_value == new_value:
+        if self.native_value == new_value:
             return
 
         self._attr_native_value = new_value

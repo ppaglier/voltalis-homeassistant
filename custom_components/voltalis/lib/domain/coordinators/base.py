@@ -20,7 +20,7 @@ TData = TypeVar("TData")
 
 
 class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
-    """Mixin supplying shared Voltalis error handling & recovery logging."""
+    """Base class for Voltalis coordinators with shared error handling & recovery logging."""
 
     def __init__(
         self,
