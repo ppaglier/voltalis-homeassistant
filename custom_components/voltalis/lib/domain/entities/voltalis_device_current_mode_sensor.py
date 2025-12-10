@@ -6,11 +6,10 @@ from enum import StrEnum
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.core import callback
 
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
-from custom_components.voltalis.lib.domain.models.device import (
-    VoltalisDeviceModeEnum,
-)
-from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceModeEnum
+from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,13 +25,17 @@ class VoltalisDeviceCurrentModeEnum(StrEnum):
     OFF = "off"
 
 
-class VoltalisDeviceCurrentModeSensor(VoltalisEntity, SensorEntity):
+class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
     """Select entity for Voltalis heating device mode."""
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_options = [option for option in VoltalisDeviceCurrentModeEnum]
     _attr_translation_key = "device_current_mode"
     _unique_id_suffix = "device_current_mode"
+
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
+        """Initialize the sensor entity."""
+        super().__init__(entry, device, entry.runtime_data.coordinators.device)
 
     @property
     def icon(self) -> str:
@@ -56,11 +59,11 @@ class VoltalisDeviceCurrentModeSensor(VoltalisEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        data = self.coordinator.data.get(self._device.id)
-        if data is None:
+
+        device = self._coordinators.device.data.get(self._device.id)
+        if device is None:
             _LOGGER.warning("Device %s not found in coordinator data", self._device.id)
             return
-        device = data.device
 
         def get_current_option() -> str | None:
             # Check if device is off
@@ -77,5 +80,5 @@ class VoltalisDeviceCurrentModeSensor(VoltalisEntity, SensorEntity):
         self._attr_native_value = get_current_option()
         self.async_write_ha_state()
 
-    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
-        return data.device.programming.mode is not None
+    def _is_available_from_data(self, data: VoltalisDevice) -> bool:
+        return data.programming.mode is not None

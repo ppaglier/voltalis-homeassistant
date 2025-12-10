@@ -8,13 +8,14 @@ from homeassistant.components.sensor import (
 from homeassistant.const import UnitOfEnergy
 from homeassistant.core import callback
 
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
-from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
+from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisDeviceConsumptionSensor(VoltalisEntity, SensorEntity):
+class VoltalisDeviceConsumptionSensor(VoltalisDeviceEntity, SensorEntity):
     """References the consumption of a device."""
 
     _attr_device_class = SensorDeviceClass.ENERGY
@@ -23,17 +24,21 @@ class VoltalisDeviceConsumptionSensor(VoltalisEntity, SensorEntity):
     _attr_translation_key = "device_consumption"
     _unique_id_suffix = "device_consumption"
 
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
+        """Initialize the sensor entity."""
+        super().__init__(entry, device, entry.runtime_data.coordinators.device_consumption)
+
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        data = self.coordinator.data.get(self._device.id)
-        if data is None:
-            _LOGGER.warning("Device %s not found in coordinator data", self._device.id)
+        device_consumption = self._coordinators.device_consumption.data.get(self._device.id)
+        if device_consumption is None:
+            _LOGGER.warning("Consumption data for device %s is None", self._device.id)
             return
 
-        new_value = data.consumption
-        if new_value is None or self.native_value == new_value:
+        new_value = device_consumption
+        if self.native_value == new_value:
             return
 
         self._attr_native_value = new_value
@@ -42,5 +47,5 @@ class VoltalisDeviceConsumptionSensor(VoltalisEntity, SensorEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
-        return data.consumption is not None
+    def _is_available_from_data(self, data: float) -> bool:
+        return True

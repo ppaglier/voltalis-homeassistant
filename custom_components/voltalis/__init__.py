@@ -7,8 +7,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.voltalis.const import DOMAIN
-from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry, VoltalisConfigEntryData
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinator
+from custom_components.voltalis.lib.domain.config_entry_data import (
+    VoltalisConfigEntry,
+    VoltalisConfigEntryData,
+    VoltalisCoordinators,
+)
+from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinator
+from custom_components.voltalis.lib.domain.coordinators.device_consumption import VoltalisDeviceConsumptionCoordinator
+from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 from custom_components.voltalis.lib.infrastructure.repositories.voltalis_repository_voltalis_api import (
@@ -51,14 +57,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 
     voltalis_repository = VoltalisRepositoryVoltalisApi(http_client=voltalis_client)
 
-    coordinator = VoltalisCoordinator(hass, voltalis_repository, date_provider, entry=entry)
+    coordinators = VoltalisCoordinators(
+        device=VoltalisDeviceCoordinator(
+            hass=hass,
+            voltalis_repository=voltalis_repository,
+            entry=entry,
+        ),
+        device_health=VoltalisDeviceHealthCoordinator(
+            hass=hass,
+            voltalis_repository=voltalis_repository,
+            entry=entry,
+        ),
+        device_consumption=VoltalisDeviceConsumptionCoordinator(
+            hass=hass,
+            voltalis_repository=voltalis_repository,
+            date_provider=date_provider,
+            entry=entry,
+        ),
+    )
 
-    await coordinator.async_config_entry_first_refresh()
+    await coordinators.setup_all()
 
     # ✅ store coordinator for other platforms
     entry.runtime_data = VoltalisConfigEntryData(
         voltalis_client=voltalis_client,
-        coordinator=coordinator,
+        coordinators=coordinators,
     )
 
     # forward setup to sensor platform
@@ -69,6 +92,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 
 async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Unload a config entry."""
+
+    # Stop time tracking for consumption coordinator
+    entry.runtime_data.coordinators.device_consumption.stop_time_tracking()
 
     await entry.runtime_data.voltalis_client.logout()
 

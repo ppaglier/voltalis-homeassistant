@@ -4,14 +4,15 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import callback
 
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
-from custom_components.voltalis.lib.domain.models.device_health import VoltalisHealthStatusEnum
-from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
+from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth, VoltalisHealthStatusEnum
+from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisDeviceConnectedSensor(VoltalisEntity, SensorEntity):
+class VoltalisDeviceConnectedSensor(VoltalisDeviceEntity, SensorEntity):
     """References the connected of a device."""
 
     _attr_device_class = SensorDeviceClass.ENUM
@@ -19,6 +20,10 @@ class VoltalisDeviceConnectedSensor(VoltalisEntity, SensorEntity):
     _attr_options = [option for option in VoltalisHealthStatusEnum]
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _unique_id_suffix = "device_connected"
+
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
+        """Initialize the sensor entity."""
+        super().__init__(entry, device, entry.runtime_data.coordinators.device_health)
 
     @property
     def icon(self) -> str:
@@ -35,16 +40,12 @@ class VoltalisDeviceConnectedSensor(VoltalisEntity, SensorEntity):
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        data = self.coordinator.data.get(self._device.id)
-        if data is None:
-            _LOGGER.warning("Device %s not found in coordinator data", self._device.id)
-            return
-
-        if data.health is None:
+        device_health = self._coordinators.device_health.data.get(self._device.id)
+        if device_health is None:
             _LOGGER.warning("Health data for device %s is None", self._device.id)
             return
 
-        new_value = data.health.status
+        new_value = device_health.status
         if new_value is None or self._attr_native_value == new_value:
             return
 
@@ -54,5 +55,5 @@ class VoltalisDeviceConnectedSensor(VoltalisEntity, SensorEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
-        return data.health is not None
+    def _is_available_from_data(self, data: VoltalisDeviceHealth) -> bool:
+        return True

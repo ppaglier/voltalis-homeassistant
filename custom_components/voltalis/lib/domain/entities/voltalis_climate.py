@@ -21,17 +21,17 @@ from custom_components.voltalis.const import (
     HomeAssistantPresetModeEnum,
 )
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
+from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
     VoltalisDeviceProgTypeEnum,
 )
 from custom_components.voltalis.lib.domain.models.manual_setting import VoltalisManualSettingUpdate
-from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 
-class VoltalisClimate(VoltalisEntity, ClimateEntity):
+class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
     """Climate entity for Voltalis heating devices."""
 
     _attr_temperature_unit = CLIMATE_UNIT
@@ -41,9 +41,9 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     _attr_target_temperature_step = CLIMATE_TEMP_STEP
     _unique_id_suffix = "climate"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDevice) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
         """Initialize the climate entity."""
-        super().__init__(entry, device)
+        super().__init__(entry, device, entry.runtime_data.coordinators.device)
         # We don't set name there because this is only one entity per device
         # and the device name is already used for the main entity.
         self._attr_name = None
@@ -74,10 +74,10 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         self._attr_supported_features = features
 
     @property
-    def _current_device(self) -> VoltalisDevice:
+    def _current_device(self) -> VoltalisDeviceCoordinatorData:
         """Get the current device data from coordinator."""
-        data = self.coordinator.data.get(self._device.id)
-        return data.device if data else self._device
+        device = self._coordinators.device.data.get(self._device.id)
+        return device if device else self._device
 
     # ------------------------------------------------------------------
     # Temperature handling
@@ -200,14 +200,13 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
         device = self._current_device
 
         # Get manual setting ID
-        data = self.coordinator.data.get(device.id)
-        if not data or not data.manual_setting:
-            raise HomeAssistantError(f"No manual setting found for device {device.id}")
+        if not device.manual_setting:
+            raise HomeAssistantError(f"Manual setting not available for device {device.id}")
 
-        manual_setting_id = data.manual_setting.id
+        manual_setting_id = device.manual_setting.id
 
         # Call API
-        await self.coordinator.voltalis_repository.set_manual_setting(manual_setting_id, settings)
+        await self._coordinators.device.set_manual_setting(manual_setting_id, settings)
 
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()
@@ -303,12 +302,8 @@ class VoltalisClimate(VoltalisEntity, ClimateEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
-        return (
-            data.device.programming.is_on is not None
-            and data.device.programming.mode is not None
-            and data.manual_setting is not None
-        )
+    def _is_available_from_data(self, data: VoltalisDevice) -> bool:
+        return data.programming.is_on is not None and data.programming.mode is not None
 
     # ------------------------------------------------------------------
     # Service action methods

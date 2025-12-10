@@ -7,6 +7,8 @@
 [![All downloads][integration-all-downloads-badge]][integration-all-downloads-link]
 [![Latest downloads][integration-latest-downloads-badge]][integration-latest-downloads-link]
 
+**Languages** : [English](README.md) | [Français](README.fr.md)
+
 
 
 

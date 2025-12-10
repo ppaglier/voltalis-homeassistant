@@ -10,10 +10,10 @@ from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.voltalis.const import CLIMATE_DEFAULT_TEMP
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.coordinator import VoltalisCoordinatorData
+from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceModeEnum
 from custom_components.voltalis.lib.domain.models.manual_setting import VoltalisManualSettingUpdate
-from custom_components.voltalis.lib.domain.voltalis_entity import VoltalisEntity
+from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,15 +30,15 @@ class VoltalisDevicePresetSelectOptionsEnum(StrEnum):
     AUTO = "auto"
 
 
-class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
+class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
     """Select entity for Voltalis heating device mode."""
 
     _attr_translation_key = "device_preset"
     _unique_id_suffix = "device_preset"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDevice) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
         """Initialize the program select entity."""
-        super().__init__(entry, device)
+        super().__init__(entry, device, entry.runtime_data.coordinators.device)
 
         self.__has_ecov_mode = VoltalisDeviceModeEnum.ECOV in device.available_modes
         self.__has_on_mode = VoltalisDeviceModeEnum.NORMAL in device.available_modes
@@ -73,10 +73,10 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
         )
 
     @property
-    def _current_device(self) -> VoltalisDevice:
+    def _current_device(self) -> VoltalisDeviceCoordinatorData:
         """Get the current device data from coordinator."""
-        data = self.coordinator.data.get(self._device.id)
-        return data.device if data else self._device
+        device = self._coordinators.device.data.get(self._device.id)
+        return device if device else self._device
 
     @property
     def icon(self) -> str:
@@ -102,11 +102,10 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        data = self.coordinator.data.get(self._device.id)
-        if data is None:
+        device = self._coordinators.device.data.get(self._device.id)
+        if device is None:
             _LOGGER.warning("Device %s not found in coordinator data", self._device.id)
             return
-        device = data.device
 
         def get_current_option() -> str | None:
             # Check if device is off
@@ -156,14 +155,13 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
         device = self._current_device
 
         # Get manual setting ID
-        data = self.coordinator.data.get(device.id)
-        if not data or not data.manual_setting:
-            raise HomeAssistantError("Manual setting not available for this device")
+        if not device.manual_setting:
+            raise HomeAssistantError(f"Manual setting not available for device {device.id}")
 
-        manual_setting_id = data.manual_setting.id
+        manual_setting_id = device.manual_setting.id
 
         # Call API
-        await self.coordinator.voltalis_repository.set_manual_setting(manual_setting_id, settings)
+        await self._coordinators.device.set_manual_setting(manual_setting_id, settings)
 
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()
@@ -223,9 +221,5 @@ class VoltalisDevicePresetSelect(VoltalisEntity, SelectEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisCoordinatorData) -> bool:
-        return (
-            data.device.programming.is_on is not None
-            and data.device.programming.mode is not None
-            and data.manual_setting is not None
-        )
+    def _is_available_from_data(self, data: VoltalisDevice) -> bool:
+        return data.programming.is_on is not None and data.programming.mode is not None
