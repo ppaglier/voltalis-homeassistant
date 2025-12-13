@@ -227,7 +227,7 @@ The integration creates different entities depending on the device type and capa
   - **Device Class**: Energy
   - **State Class**: Total Increasing
   - **Description**: Shows the cumulative energy consumption of the device
-  - **Update Frequency**: Every 1 minute
+  - **Update Frequency**: Every 1 hour
 </details>
 
 <details>
