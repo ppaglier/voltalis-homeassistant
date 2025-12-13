@@ -223,7 +223,7 @@ L'intégration crée différentes entités selon le type d'appareil et ses capac
   - **Classe de périphérique** : Énergie
   - **Classe d'état** : Total croissant
   - **Description** : Affiche la consommation énergétique cumulée de l'appareil
-  - **Fréquence de mise à jour** : Chaque 1 minute
+  - **Fréquence de mise à jour** : Chaque 1 heure
 </details>
 
 <details>
