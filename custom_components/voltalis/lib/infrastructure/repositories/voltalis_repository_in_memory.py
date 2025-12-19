@@ -7,6 +7,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.models.program import VoltalisProgram
 
 
 class VoltalisRepositoryInMemory(VoltalisRepository):
@@ -17,6 +18,7 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
         self.__devices_health: dict[int, VoltalisDeviceHealth] = {}
         self.__devices_consumptions: dict[int, list[tuple[datetime, float]]] = {}
         self.__manual_settings: dict[int, VoltalisManualSetting] = {}
+        self.__programs: dict[int, VoltalisProgram] = {}
 
     def set_devices(self, devices: dict[int, VoltalisDevice]) -> None:
         self.__devices = devices
@@ -29,6 +31,9 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
 
     def set_manual_settings(self, manual_settings: dict[int, VoltalisManualSetting]) -> None:
         self.__manual_settings = manual_settings
+
+    def set_programs(self, programs: dict[int, VoltalisProgram]) -> None:
+        self.__programs = programs
 
     # ------------------------------------------------------------
     # Implementation of VoltalisRepository methods
@@ -57,3 +62,30 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
         existing_setting = self.__manual_settings[manual_setting_id]
         updated_setting = existing_setting.model_copy(update=setting.model_dump(exclude_unset=True))
         self.__manual_settings[manual_setting_id] = updated_setting
+
+    # ------------------------------------------------------------
+    # Programs
+    # ------------------------------------------------------------
+
+    async def get_programs(self) -> dict[int, VoltalisProgram]:
+        return self.__programs
+
+    async def get_user_program(self, program_id: int) -> VoltalisProgram:
+        return self.__programs[program_id]
+
+    async def get_default_programs(self) -> dict[int, VoltalisProgram]:
+        from custom_components.voltalis.lib.domain.models.program import VoltalisProgramTypeEnum
+
+        return {
+            program_id: program
+            for program_id, program in self.__programs.items()
+            if program.program_type == VoltalisProgramTypeEnum.DEFAULT
+        }
+
+    async def set_user_program_state(self, program_id: int, name: str, enabled: bool) -> None:
+        program = self.__programs[program_id]
+        self.__programs[program_id] = program.model_copy(update={"enabled": enabled, "name": name})
+
+    async def set_default_program_state(self, program_id: int, enabled: bool) -> None:
+        program = self.__programs[program_id]
+        self.__programs[program_id] = program.model_copy(update={"enabled": enabled})
