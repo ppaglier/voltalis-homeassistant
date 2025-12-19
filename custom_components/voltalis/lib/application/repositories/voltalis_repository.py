@@ -7,6 +7,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.models.program import VoltalisProgram
 
 
 class VoltalisRepository(ABC):
@@ -39,5 +40,45 @@ class VoltalisRepository(ABC):
         Args:
             manual_setting_id: The ID of the manual setting (not the appliance ID)
             setting: The manual setting update to apply
+        """
+        ...
+
+    # -------------------------------------------------------------------------
+    # Programs
+    # -------------------------------------------------------------------------
+
+    @abstractmethod
+    async def get_programs(self) -> dict[int, VoltalisProgram]:
+        """Get all programs (USER + DEFAULT) from the Voltalis servers"""
+        ...
+
+    @abstractmethod
+    async def get_user_program(self, program_id: int) -> VoltalisProgram:
+        """Get a single user program by ID"""
+        ...
+
+    @abstractmethod
+    async def get_default_programs(self) -> dict[int, VoltalisProgram]:
+        """Get all default programs (quicksettings) from the Voltalis servers"""
+        ...
+
+    @abstractmethod
+    async def set_user_program_state(self, program_id: int, name: str, enabled: bool) -> None:
+        """Set the enabled state of a user program
+
+        Args:
+            program_id: The ID of the program
+            name: The name of the program (required for user programs)
+            enabled: The new enabled state
+        """
+        ...
+
+    @abstractmethod
+    async def set_default_program_state(self, program_id: int, enabled: bool) -> None:
+        """Set the enabled state of a default program
+
+        Args:
+            program_id: The ID of the program
+            enabled: The new enabled state
         """
         ...

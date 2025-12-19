@@ -4,6 +4,7 @@ from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalis
 from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinator
 from custom_components.voltalis.lib.domain.coordinators.device_consumption import VoltalisDeviceConsumptionCoordinator
 from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
+from custom_components.voltalis.lib.domain.coordinators.program import VoltalisProgramCoordinator
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 
@@ -14,6 +15,7 @@ class VoltalisCoordinators(CustomModel):
     device: VoltalisDeviceCoordinator
     device_health: VoltalisDeviceHealthCoordinator
     device_consumption: VoltalisDeviceConsumptionCoordinator
+    program: VoltalisProgramCoordinator
 
     async def setup_all(self) -> None:
         # Do first refresh for regular coordinators
@@ -21,6 +23,7 @@ class VoltalisCoordinators(CustomModel):
             self.device,
             self.device_health,
             self.device_consumption,
+            self.program,
         ]
         for coordinator in arr:
             await coordinator.async_config_entry_first_refresh()

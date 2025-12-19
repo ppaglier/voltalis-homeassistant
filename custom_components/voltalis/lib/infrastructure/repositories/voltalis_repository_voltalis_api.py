@@ -17,6 +17,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.models.program import VoltalisProgram, VoltalisProgramTypeEnum
 
 
 class VoltalisRepositoryVoltalisApi(VoltalisRepository):
@@ -198,3 +199,143 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
         self.__logger.info("Manual setting %s updated for appliance %s", manual_setting_id, setting.id_appliance)
+
+    # -------------------------------------------------------------------------
+    # Programs
+    # -------------------------------------------------------------------------
+
+    async def get_programs(self) -> dict[int, VoltalisProgram]:
+        """Get all programs (USER + DEFAULT) from the Voltalis servers."""
+        programs: dict[int, VoltalisProgram] = {}
+
+        # Fetch USER programs from /programming/program
+        user_programs_response: HttpClientResponse[list[dict]]
+        try:
+            user_programs_response = await self._client.send_request(
+                url="/api/site/{site_id}/programming/program",
+                method="GET",
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API for user programs") from err
+
+        try:
+            for program_json in user_programs_response.data:
+                program = VoltalisProgram(
+                    id=program_json["id"],
+                    name=program_json["name"],
+                    enabled=program_json["enabled"],
+                    program_type=VoltalisProgramTypeEnum.USER,
+                )
+                programs[program.id] = program
+        except (ValidationError, KeyError) as err:
+            self.__logger.error("Error parsing user programs: %s", err)
+            raise VoltalisValidationException(f"Error parsing user programs: {err}") from err
+
+        # Fetch DEFAULT programs from /quicksettings
+        default_programs_response: HttpClientResponse[list[dict]]
+        try:
+            default_programs_response = await self._client.send_request(
+                url="/api/site/{site_id}/quicksettings",
+                method="GET",
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API for default programs") from err
+
+        try:
+            for program_json in default_programs_response.data:
+                program = VoltalisProgram(
+                    id=program_json["id"],
+                    name=program_json["name"],
+                    enabled=program_json["enabled"],
+                    program_type=VoltalisProgramTypeEnum.DEFAULT,
+                )
+                programs[program.id] = program
+        except (ValidationError, KeyError) as err:
+            self.__logger.error("Error parsing default programs: %s", err)
+            raise VoltalisValidationException(f"Error parsing default programs: {err}") from err
+
+        return programs
+
+    async def get_user_program(self, program_id: int) -> VoltalisProgram:
+        """Get a single user program by ID."""
+        program_response: HttpClientResponse[dict]
+        try:
+            program_response = await self._client.send_request(
+                url=f"/api/site/{{site_id}}/programming/program/{program_id}",
+                method="GET",
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException(f"Error fetching user program {program_id}") from err
+
+        try:
+            return VoltalisProgram(
+                id=program_response.data["id"],
+                name=program_response.data["name"],
+                enabled=program_response.data["enabled"],
+                program_type=VoltalisProgramTypeEnum.USER,
+            )
+        except (ValidationError, KeyError) as err:
+            self.__logger.error("Error parsing user program %s: %s", program_id, err)
+            raise VoltalisValidationException(f"Error parsing user program {program_id}: {err}") from err
+
+    async def get_default_programs(self) -> dict[int, VoltalisProgram]:
+        """Get all default programs (quicksettings) from the Voltalis servers."""
+        default_programs_response: HttpClientResponse[list[dict]]
+        try:
+            default_programs_response = await self._client.send_request(
+                url="/api/site/{site_id}/quicksettings",
+                method="GET",
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API for default programs") from err
+
+        programs: dict[int, VoltalisProgram] = {}
+        try:
+            for program_json in default_programs_response.data:
+                program = VoltalisProgram(
+                    id=program_json["id"],
+                    name=program_json["name"],
+                    enabled=program_json["enabled"],
+                    program_type=VoltalisProgramTypeEnum.DEFAULT,
+                )
+                programs[program.id] = program
+        except (ValidationError, KeyError) as err:
+            self.__logger.error("Error parsing default programs: %s", err)
+            raise VoltalisValidationException(f"Error parsing default programs: {err}") from err
+
+        return programs
+
+    async def set_user_program_state(self, program_id: int, name: str, enabled: bool) -> None:
+        """Set the enabled state of a user program."""
+        payload = {
+            "name": name,
+            "enabled": enabled,
+        }
+
+        try:
+            await self._client.send_request(
+                url=f"/api/site/{{site_id}}/programming/program/{program_id}",
+                method="PUT",
+                body=payload,
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException(f"Error updating user program {program_id}") from err
+
+        self.__logger.info("User program %s updated: enabled=%s", program_id, enabled)
+
+    async def set_default_program_state(self, program_id: int, enabled: bool) -> None:
+        """Set the enabled state of a default program."""
+        payload = {
+            "enabled": enabled,
+        }
+
+        try:
+            await self._client.send_request(
+                url=f"/api/site/{{site_id}}/quicksettings/{program_id}/enable",
+                method="PUT",
+                body=payload,
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException(f"Error updating default program {program_id}") from err
+
+        self.__logger.info("Default program %s updated: enabled=%s", program_id, enabled)

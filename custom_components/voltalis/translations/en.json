@@ -84,6 +84,11 @@
           "auto": "Auto"
         }
       }
+    },
+    "switch": {
+      "program": {
+        "name": "Program"
+      }
     }
   },
   "services": {

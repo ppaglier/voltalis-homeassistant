@@ -15,6 +15,7 @@ from custom_components.voltalis.lib.domain.config_entry_data import (
 from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinator
 from custom_components.voltalis.lib.domain.coordinators.device_consumption import VoltalisDeviceConsumptionCoordinator
 from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
+from custom_components.voltalis.lib.domain.coordinators.program import VoltalisProgramCoordinator
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 from custom_components.voltalis.lib.infrastructure.repositories.voltalis_repository_voltalis_api import (
@@ -26,6 +27,7 @@ PLATFORMS = [
     Platform.SELECT,
     Platform.CLIMATE,
     Platform.WATER_HEATER,
+    Platform.SWITCH,
 ]
 
 
@@ -72,6 +74,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
             hass=hass,
             voltalis_repository=voltalis_repository,
             date_provider=date_provider,
+            entry=entry,
+        ),
+        program=VoltalisProgramCoordinator(
+            hass=hass,
+            voltalis_repository=voltalis_repository,
             entry=entry,
         ),
     )
