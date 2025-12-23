@@ -5,7 +5,7 @@ from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.range_model import RangeModel
 
 
-class VoltalisEnergyContractType(StrEnum):
+class VoltalisEnergyContractTypeEnum(StrEnum):
     """Enum to represent the type of Voltalis energy contract"""
 
     BASE = "base"
@@ -30,7 +30,7 @@ class VoltalisEnergyContract(CustomModel):
     company_name: str
     name: str
     subscribed_power: int
-    type: VoltalisEnergyContractType
+    type: VoltalisEnergyContractTypeEnum
 
     prices: VoltalisEnergyContractPrices
 

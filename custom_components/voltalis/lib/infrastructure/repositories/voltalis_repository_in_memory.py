@@ -18,7 +18,7 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
         self.__devices_health: dict[int, VoltalisDeviceHealth] = {}
         self.__devices_consumptions: dict[int, list[tuple[datetime, float]]] = {}
         self.__manual_settings: dict[int, VoltalisManualSetting] = {}
-        self.__energy_contracts: list[VoltalisEnergyContract] = []
+        self.__energy_contracts: dict[int, VoltalisEnergyContract] = {}
 
     def set_devices(self, devices: dict[int, VoltalisDevice]) -> None:
         self.__devices = devices
@@ -32,7 +32,7 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
     def set_manual_settings(self, manual_settings: dict[int, VoltalisManualSetting]) -> None:
         self.__manual_settings = manual_settings
 
-    def set_current_energy_contract(self, energy_contracts: list[VoltalisEnergyContract]) -> None:
+    def set_current_energy_contract(self, energy_contracts: dict[int, VoltalisEnergyContract]) -> None:
         self.__energy_contracts = energy_contracts
 
     # ------------------------------------------------------------
@@ -63,5 +63,5 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
         updated_setting = existing_setting.model_copy(update=setting.model_dump(exclude_unset=True))
         self.__manual_settings[manual_setting_id] = updated_setting
 
-    async def get_energy_contracts(self) -> list[VoltalisEnergyContract]:
+    async def get_energy_contracts(self) -> dict[int, VoltalisEnergyContract]:
         return self.__energy_contracts

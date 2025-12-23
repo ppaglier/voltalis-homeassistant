@@ -1,17 +1,17 @@
 from typing import Any
 
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.voltalis.const import DOMAIN
+from custom_components.voltalis.lib.domain.base_entities.voltalis_base_entity import VoltalisBaseEntity
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
 from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceModulatorTypeEnum, VoltalisDeviceTypeEnum
 
 
-class VoltalisDeviceEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any]]]):
-    """Base class for Voltalis device entities."""
+class VoltalisDeviceEntity(VoltalisBaseEntity):
+    """Base class for Voltalis device entities tied to a specific device."""
 
     _unique_id_suffix: str = ""
 
@@ -21,15 +21,13 @@ class VoltalisDeviceEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, A
         device: VoltalisDeviceCoordinatorData,
         coordinator: BaseVoltalisCoordinator[dict[int, Any]],
     ) -> None:
-        """Initialize the device."""
-        super().__init__(coordinator)
-        self._entry = entry
+        """Initialize the device entity."""
+        super().__init__(entry, coordinator)
 
         if len(self._unique_id_suffix) == 0:
             raise ValueError("Unique ID suffix must be defined in subclass.")
 
         self._device = device
-        self._coordinators = entry.runtime_data.coordinators
 
         unique_id = str(device.id)
         device_name = self.__get_device_name()
@@ -93,9 +91,3 @@ class VoltalisDeviceEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, A
         if data is None:
             return False
         return self.coordinator.last_update_success and self._is_available_from_data(data)
-
-    def _is_available_from_data(self, data: Any) -> bool:
-        """Check if entity is available based on device data.
-        This method should be implemented by subclasses.
-        """
-        raise NotImplementedError()

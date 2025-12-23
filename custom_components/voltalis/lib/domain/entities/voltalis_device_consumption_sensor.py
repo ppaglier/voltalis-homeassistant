@@ -8,9 +8,9 @@ from homeassistant.components.sensor import (
 from homeassistant.const import UnitOfEnergy
 from homeassistant.core import callback
 
+from custom_components.voltalis.lib.domain.base_entities.voltalis_device_entity import VoltalisDeviceEntity
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
-from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
 

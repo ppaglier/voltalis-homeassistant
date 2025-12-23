@@ -16,7 +16,7 @@ from custom_components.voltalis.lib.domain.models.device_health import VoltalisD
 from custom_components.voltalis.lib.domain.models.energy_contract import (
     VoltalisEnergyContract,
     VoltalisEnergyContractPrices,
-    VoltalisEnergyContractType,
+    VoltalisEnergyContractTypeEnum,
 )
 from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
@@ -203,7 +203,7 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
 
         self.__logger.info("Manual setting %s updated for appliance %s", manual_setting_id, setting.id_appliance)
 
-    async def get_energy_contracts(self) -> list[VoltalisEnergyContract]:
+    async def get_energy_contracts(self) -> dict[int, VoltalisEnergyContract]:
         response: HttpClientResponse[list[dict]] = await self._client.send_request(
             url="/api/site/{site_id}/subscriber-contract",
             method="GET",
@@ -218,16 +218,16 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
             self.__logger.exception("Failed to parse subscriber contracts")
             raise VoltalisValidationException("Failed to parse subscriber contracts") from err
 
-        contracts = [
-            VoltalisEnergyContract(
+        contracts = {
+            contract.id: VoltalisEnergyContract(
                 id=contract.id,
                 company_name=contract.company_name,
                 name=contract.name,
                 subscribed_power=contract.subscribed_power,
                 type=(
-                    VoltalisEnergyContractType.BASE
+                    VoltalisEnergyContractTypeEnum.BASE
                     if not contract.is_peak_off_peak_contract
-                    else VoltalisEnergyContractType.PEAK_OFFPEAK
+                    else VoltalisEnergyContractTypeEnum.PEAK_OFFPEAK
                 ),
                 prices=VoltalisEnergyContractPrices(
                     subscription=(
@@ -255,5 +255,5 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
                 ],
             )
             for contract in parsed_contracts
-        ]
+        }
         return contracts

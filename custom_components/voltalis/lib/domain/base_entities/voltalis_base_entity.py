@@ -1,0 +1,30 @@
+from typing import Any
+
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalisCoordinator
+
+
+class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any]]]):
+    """Base class for Voltalis device entities."""
+
+    def __init__(
+        self,
+        entry: VoltalisConfigEntry,
+        coordinator: BaseVoltalisCoordinator[dict[int, Any]],
+    ) -> None:
+        """Initialize the device."""
+        super().__init__(coordinator)
+        self._entry = entry
+
+        self._coordinators = entry.runtime_data.coordinators
+
+    # ------------------------------------------------------------------
+    # Availability handling
+    # ------------------------------------------------------------------
+    def _is_available_from_data(self, data: Any) -> bool:
+        """Check if entity is available based on device data.
+        This method should be implemented by subclasses.
+        """
+        raise NotImplementedError()

@@ -3,6 +3,10 @@ import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from custom_components.voltalis.lib.domain.base_entities.voltalis_device_entity import VoltalisDeviceEntity
+from custom_components.voltalis.lib.domain.base_entities.voltalis_energy_contract_entity import (
+    VoltalisEnergyContractEntity,
+)
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.entities.voltalis_device_connected_sensor import (
     VoltalisDeviceConnectedSensor,
@@ -16,7 +20,9 @@ from custom_components.voltalis.lib.domain.entities.voltalis_device_current_mode
 from custom_components.voltalis.lib.domain.entities.voltalis_device_programming_sensor import (
     VoltalisDeviceProgrammingSensor,
 )
-from custom_components.voltalis.lib.domain.voltalis_device_entity import VoltalisDeviceEntity
+from custom_components.voltalis.lib.domain.entities.voltalis_energy_contract_info_sensor import (
+    VoltalisEnergyContractInfoSensor,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,9 +39,10 @@ async def async_setup_entry(
 
     device_coordinator = entry.runtime_data.coordinators.device
     health_coordinator = entry.runtime_data.coordinators.device_health
+    energy_contract_coordinator = entry.runtime_data.coordinators.energy_contract
 
     if not device_coordinator.data:
-        _LOGGER.warning("No Voltalis data available during setup, waiting for first refresh")
+        _LOGGER.warning("No Device data available during setup, waiting for first refresh")
         await device_coordinator.async_config_entry_first_refresh()
 
     sensors: dict[str, VoltalisDeviceEntity] = {}
@@ -59,6 +66,16 @@ async def async_setup_entry(
         if device.programming.prog_type is not None:
             device_programming_sensor = VoltalisDeviceProgrammingSensor(entry, device)
             sensors[device_programming_sensor.unique_internal_name] = device_programming_sensor
+
+    if not energy_contract_coordinator.data:
+        _LOGGER.warning("No Energy contract data available during setup, waiting for first refresh")
+        await energy_contract_coordinator.async_config_entry_first_refresh()
+
+    energy_contract_sensors: dict[str, VoltalisEnergyContractEntity] = {}
+    for energy_contract in energy_contract_coordinator.data.values():
+        # Main contract info sensor
+        contract_info_sensor = VoltalisEnergyContractInfoSensor(entry, energy_contract)
+        energy_contract_sensors[contract_info_sensor.unique_internal_name] = contract_info_sensor
 
     async_add_entities(sensors.values(), update_before_add=True)
     _LOGGER.info(f"Added {len(sensors)} Voltalis sensor entities: {list(sensors.keys())}")
