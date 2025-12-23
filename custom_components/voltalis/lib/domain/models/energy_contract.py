@@ -8,7 +8,7 @@ from custom_components.voltalis.lib.domain.range_model import RangeModel
 class VoltalisEnergyContractType(StrEnum):
     """Enum to represent the type of Voltalis energy contract"""
 
-    STANDARD = "standard"
+    BASE = "base"
     PEAK_OFFPEAK = "peak_offpeak"
 
 
@@ -27,7 +27,6 @@ class VoltalisEnergyContract(CustomModel):
     """Class to represent a Voltalis energy contract"""
 
     id: int
-    site_id: int
     company_name: str
     name: str
     subscribed_power: int

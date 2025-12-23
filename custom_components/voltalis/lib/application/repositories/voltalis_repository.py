@@ -44,6 +44,6 @@ class VoltalisRepository(ABC):
         ...
 
     @abstractmethod
-    async def get_current_energy_contract(self) -> VoltalisEnergyContract:
-        """Get the current energy contract from the Voltalis servers"""
+    async def get_energy_contracts(self) -> list[VoltalisEnergyContract]:
+        """Get energy contracts from the Voltalis servers"""
         ...
