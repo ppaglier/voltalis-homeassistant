@@ -2,8 +2,8 @@ import logging
 from datetime import datetime
 from typing import Callable
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
-from homeassistant.const import CURRENCY_EURO
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
+from homeassistant.const import CURRENCY_EURO, UnitOfEnergy
 from homeassistant.helpers.event import async_track_time_change
 
 from custom_components.voltalis.lib.application.providers.date_provider import DateProvider
@@ -27,7 +27,8 @@ class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, S
     """Sensor entity for Voltalis energy contract kWh current cost."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_native_unit_of_measurement = CURRENCY_EURO
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"
     _attr_translation_key = "energy_contract_kwh_current_cost"
     _attr_icon = "mdi:currency-eur"
     _unique_id_suffix = "energy_contract_kwh_current_cost"
