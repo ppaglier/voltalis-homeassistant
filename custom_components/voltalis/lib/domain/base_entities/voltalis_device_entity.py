@@ -13,8 +13,6 @@ from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceMo
 class VoltalisDeviceEntity(VoltalisBaseEntity):
     """Base class for Voltalis device entities tied to a specific device."""
 
-    _unique_id_suffix: str = ""
-
     def __init__(
         self,
         entry: VoltalisConfigEntry,
@@ -23,9 +21,6 @@ class VoltalisDeviceEntity(VoltalisBaseEntity):
     ) -> None:
         """Initialize the device entity."""
         super().__init__(entry, coordinator)
-
-        if len(self._unique_id_suffix) == 0:
-            raise ValueError("Unique ID suffix must be defined in subclass.")
 
         self._device = device
 

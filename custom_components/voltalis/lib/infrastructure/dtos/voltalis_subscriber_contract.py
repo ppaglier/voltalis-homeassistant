@@ -14,16 +14,16 @@ class VoltalisSubscriberContractDto(CustomModel):
     """Class to represent a Voltalis subscriber contract DTO"""
 
     id: int
-    company_name: str
+    company_name: str = Field(alias="companyName")
     name: str
-    subscribed_power: int
-    is_peak_off_peak_contract: bool
+    subscribed_power: int = Field(alias="subscribedPower")
+    is_peak_off_peak_contract: bool = Field(alias="isPeakOffPeakContract")
 
-    subscription_base_price: float | None = None
-    subscription_peak_off_peak_base_price: float | None = None
-    kwh_base_price: float | None = None
-    kwh_peak_hour_price: float | None = None
-    kwh_offpeak_hour_price: float | None = None
+    subscription_base_price: float | None = Field(None, alias="subscriptionBasePrice")
+    subscription_peak_off_peak_base_price: float | None = Field(None, alias="subscriptionPeakOffPeakBasePrice")
+    kwh_base_price: float | None = Field(None, alias="kwhBasePrice")
+    kwh_peak_hour_price: float | None = Field(None, alias="kwhPeakHourPrice")
+    kwh_offpeak_hour_price: float | None = Field(None, alias="kwhOffpeakHourPrice")
 
-    peak_hours: list[VoltalisTimeRange]
-    offpeak_hours: list[VoltalisTimeRange]
+    peak_hours: list[VoltalisTimeRange] = Field(alias="peakHours")
+    offpeak_hours: list[VoltalisTimeRange] = Field(alias="offpeakHours")

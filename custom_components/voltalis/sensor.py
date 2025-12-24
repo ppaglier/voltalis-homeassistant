@@ -45,27 +45,27 @@ async def async_setup_entry(
         _LOGGER.warning("No Device data available during setup, waiting for first refresh")
         await device_coordinator.async_config_entry_first_refresh()
 
-    sensors: dict[str, VoltalisDeviceEntity] = {}
+    device_sensors: dict[str, VoltalisDeviceEntity] = {}
 
     for device in device_coordinator.data.values():
         # Create the consumption sensor for each device
         device_consumption_sensor = VoltalisDeviceConsumptionSensor(entry, device)
-        sensors[device_consumption_sensor.unique_internal_name] = device_consumption_sensor
+        device_sensors[device_consumption_sensor.unique_internal_name] = device_consumption_sensor
 
         # Create the connected sensor for each device (if status is available)
         device_health = health_coordinator.data.get(device.id)
         if device_health is not None:
             device_connected_sensor = VoltalisDeviceConnectedSensor(entry, device)
-            sensors[device_connected_sensor.unique_internal_name] = device_connected_sensor
+            device_sensors[device_connected_sensor.unique_internal_name] = device_connected_sensor
 
         if device.programming.mode is not None:
             device_current_mode_sensor = VoltalisDeviceCurrentModeSensor(entry, device)
-            sensors[device_current_mode_sensor.unique_internal_name] = device_current_mode_sensor
+            device_sensors[device_current_mode_sensor.unique_internal_name] = device_current_mode_sensor
 
         # Create the programming sensor for each device (if applicable)
         if device.programming.prog_type is not None:
             device_programming_sensor = VoltalisDeviceProgrammingSensor(entry, device)
-            sensors[device_programming_sensor.unique_internal_name] = device_programming_sensor
+            device_sensors[device_programming_sensor.unique_internal_name] = device_programming_sensor
 
     if not energy_contract_coordinator.data:
         _LOGGER.warning("No Energy contract data available during setup, waiting for first refresh")
@@ -77,5 +77,6 @@ async def async_setup_entry(
         contract_info_sensor = VoltalisEnergyContractInfoSensor(entry, energy_contract)
         energy_contract_sensors[contract_info_sensor.unique_internal_name] = contract_info_sensor
 
-    async_add_entities(sensors.values(), update_before_add=True)
-    _LOGGER.info(f"Added {len(sensors)} Voltalis sensor entities: {list(sensors.keys())}")
+    all_sensors = {**device_sensors, **energy_contract_sensors}
+    async_add_entities(all_sensors.values(), update_before_add=True)
+    _LOGGER.info(f"Added {len(device_sensors)} Voltalis sensor entities: {list(all_sensors.keys())}")

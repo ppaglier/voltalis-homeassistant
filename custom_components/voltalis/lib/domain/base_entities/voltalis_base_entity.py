@@ -9,6 +9,8 @@ from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalis
 class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any]]]):
     """Base class for Voltalis device entities."""
 
+    _unique_id_suffix: str = ""
+
     def __init__(
         self,
         entry: VoltalisConfigEntry,
@@ -17,6 +19,9 @@ class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any
         """Initialize the device."""
         super().__init__(coordinator)
         self._entry = entry
+
+        if len(self._unique_id_suffix) == 0:
+            raise ValueError("Unique ID suffix must be defined in subclass.")
 
         self._coordinators = entry.runtime_data.coordinators
 
