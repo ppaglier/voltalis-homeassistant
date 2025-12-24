@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Callable
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.helpers.event import async_track_time_change
 
 from custom_components.voltalis.lib.application.providers.date_provider import DateProvider
@@ -31,6 +31,7 @@ class EnergyContractCurrentModeEnum(StrEnum):
 class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, SensorEntity):
     """Sensor entity for Voltalis energy contract current mode."""
 
+    _attr_device_class = SensorDeviceClass.ENUM
     _attr_translation_key = "energy_contract_current_mode"
     _attr_options = [option for option in EnergyContractCurrentModeEnum]
     _unique_id_suffix = "energy_contract_current_mode"
