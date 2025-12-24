@@ -231,9 +231,9 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
                 ),
                 prices=VoltalisEnergyContractPrices(
                     subscription=(
-                        contract.subscription_base_price or 0.0
+                        (contract.subscription_base_price or 0.0)
                         if not contract.is_peak_off_peak_contract
-                        else contract.subscription_peak_off_peak_base_price or 0.0
+                        else (contract.subscription_peak_off_peak_base_price or 0.0)
                     ),
                     kwh_base=contract.kwh_base_price,
                     kwh_peak=contract.kwh_peak_hour_price,
