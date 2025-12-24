@@ -11,6 +11,7 @@ from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConf
 from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,
 )
+from custom_components.voltalis.lib.domain.helpers.in_in_time_range import is_in_time_range
 from custom_components.voltalis.lib.domain.models.energy_contract import (
     VoltalisEnergyContract,
     VoltalisEnergyContractTypeEnum,
@@ -68,18 +69,7 @@ class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, Sens
             new_value = EnergyContractCurrentModeEnum.BASE
         else:
             now = self.__date_provider.get_now().time()
-
-            def is_in_time_range(time_range) -> bool:
-                """Return True if now is within the given time range, handling overnight spans."""
-                start = time_range.start
-                end = time_range.end
-                if start <= end:
-                    # Normal range within the same day, e.g. 08:00-12:00
-                    return start <= now <= end
-                # Overnight range crossing midnight, e.g. 22:00-06:00
-                return now >= start or now <= end
-
-            in_off_peak = any(is_in_time_range(time_range) for time_range in energy_contract.offpeak_hours)
+            in_off_peak = any(is_in_time_range(time_range, now) for time_range in energy_contract.offpeak_hours)
             new_value = EnergyContractCurrentModeEnum.OFFPEAK if in_off_peak else EnergyContractCurrentModeEnum.PEAK
 
         if new_value is None or self._attr_native_value == new_value:
