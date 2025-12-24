@@ -262,6 +262,77 @@ L'intégration crée différentes entités selon le type d'appareil et ses capac
   - **Remarque** : Ce capteur est désactivé par défaut. Activez-le dans les paramètres de l'entité si nécessaire.
 </details>
 
+### Capteurs du contrat énergétique
+
+L'intégration fournit également des capteurs liés à votre contrat d'énergie :
+
+<details>
+  <summary>Capteur de puissance souscrite</summary>
+
+  - **ID d'entité** : `sensor.voltalis_energy_contract_subscribed_power`
+  - **Type** : Capteur
+  - **Unité** : kVA (Kilovolt-ampère)
+  - **Classe de périphérique** : Puissance apparente
+  - **Description** : Affiche votre niveau de puissance souscrite depuis votre contrat d'énergie
+  - **Icône** : `mdi:meter-electric`
+  - **Fréquence de mise à jour** : Se met à jour lorsque les données du contrat changent
+</details>
+
+<details>
+  <summary>Capteur du mode actuel du contrat énergétique</summary>
+
+  - **ID d'entité** : `sensor.voltalis_energy_contract_current_mode`
+  - **Type** : Capteur
+  - **États** : `Base`, `Heures pleines`, `Heures creuses`
+  - **Description** : Indique la période tarifaire actuelle de votre contrat d'énergie
+  - **Icône** : Change dynamiquement en fonction du mode actuel
+    - Base : `mdi:sort-calendar-today`
+    - Heures pleines : `mdi:sort-calendar-descending`
+    - Heures creuses : `mdi:sort-calendar-ascending`
+  - **Fréquence de mise à jour** : Chaque 1 minute (bascule automatiquement selon les heures pleines/creuses de votre contrat)
+</details>
+
+<details>
+  <summary>Capteur du coût actuel du kWh</summary>
+
+  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_current_cost`
+  - **Type** : Capteur monétaire
+  - **Unité** : € (Euro)
+  - **Classe de périphérique** : Monétaire
+  - **Description** : Affiche le coût actuel par kWh selon que vous êtes en heures pleines ou creuses (ou tarif de base)
+  - **Icône** : Change dynamiquement en fonction du mode tarifaire actuel
+    - Base : `mdi:gauge`
+    - Heures pleines : `mdi:gauge-full`
+    - Heures creuses : `mdi:gauge-low`
+  - **Fréquence de mise à jour** : Chaque 1 minute (se met à jour automatiquement lors du passage heures pleines/creuses)
+</details>
+
+<details>
+  <summary>Capteur du coût du kWh en heures pleines</summary>
+
+  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_peak_cost`
+  - **Type** : Capteur monétaire
+  - **Unité** : € (Euro)
+  - **Classe de périphérique** : Monétaire
+  - **Description** : Affiche le coût par kWh pendant les heures pleines
+  - **Icône** : `mdi:currency-eur`
+  - **Fréquence de mise à jour** : Se met à jour lorsque les données du contrat changent
+  - **Remarque** : Uniquement disponible pour les contrats heures pleines/creuses
+</details>
+
+<details>
+  <summary>Capteur du coût du kWh en heures creuses</summary>
+
+  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_off_peak_cost`
+  - **Type** : Capteur monétaire
+  - **Unité** : € (Euro)
+  - **Classe de périphérique** : Monétaire
+  - **Description** : Affiche le coût par kWh pendant les heures creuses
+  - **Icône** : `mdi:currency-eur`
+  - **Fréquence de mise à jour** : Se met à jour lorsque les données du contrat changent
+  - **Remarque** : Uniquement disponible pour les contrats heures pleines/creuses
+</details>
+
 ### Entité de sélection
 
 <details>

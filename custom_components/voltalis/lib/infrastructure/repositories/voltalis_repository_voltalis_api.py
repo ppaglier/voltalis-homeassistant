@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 
 from custom_components.voltalis.lib.application.providers.http_client import (
     HttpClient,
@@ -13,9 +13,18 @@ from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.exceptions import VoltalisConnectionException, VoltalisValidationException
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgrammingStatus
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
+from custom_components.voltalis.lib.domain.models.energy_contract import (
+    VoltalisEnergyContract,
+    VoltalisEnergyContractPrices,
+    VoltalisEnergyContractTypeEnum,
+)
 from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
+)
+from custom_components.voltalis.lib.domain.range_model import RangeModel
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_subscriber_contract import (
+    VoltalisSubscriberContractDto,
 )
 
 
@@ -84,8 +93,6 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         return devices_health
 
     async def get_devices_consumptions(self, target_datetime: datetime) -> dict[int, float]:
-        """Get all Voltalis devices consumption."""
-
         class RawDeviceConsumption(CustomModel):
             date: datetime
             consumption: float
@@ -143,7 +150,6 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         }
 
     async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
-        """Get manual settings for all devices."""
         manual_settings_response: HttpClientResponse[list[dict]]
         try:
             manual_settings_response = await self._client.send_request(
@@ -176,8 +182,6 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         return manual_settings
 
     async def set_manual_setting(self, manual_setting_id: int, setting: VoltalisManualSettingUpdate) -> None:
-        """Set manual setting for a device."""
-
         payload = {
             "enabled": setting.enabled,
             "idAppliance": setting.id_appliance,
@@ -198,3 +202,58 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
         self.__logger.info("Manual setting %s updated for appliance %s", manual_setting_id, setting.id_appliance)
+
+    async def get_energy_contracts(self) -> dict[int, VoltalisEnergyContract]:
+        response: HttpClientResponse[list[dict]] = await self._client.send_request(
+            url="/api/site/{site_id}/subscriber-contract",
+            method="GET",
+        )
+
+        if not response.data or len(response.data) == 0:
+            raise VoltalisValidationException("No subscriber contracts found")
+
+        try:
+            parsed_contracts = TypeAdapter(list[VoltalisSubscriberContractDto]).validate_python(response.data)
+        except ValidationError as err:
+            self.__logger.exception("Failed to parse subscriber contracts")
+            raise VoltalisValidationException("Failed to parse subscriber contracts") from err
+
+        contracts = {
+            contract.id: VoltalisEnergyContract(
+                id=contract.id,
+                company_name=contract.company_name,
+                name=contract.name,
+                subscribed_power=contract.subscribed_power,
+                type=(
+                    VoltalisEnergyContractTypeEnum.BASE
+                    if not contract.is_peak_off_peak_contract
+                    else VoltalisEnergyContractTypeEnum.PEAK_OFFPEAK
+                ),
+                prices=VoltalisEnergyContractPrices(
+                    subscription=(
+                        (contract.subscription_base_price or 0.0)
+                        if not contract.is_peak_off_peak_contract
+                        else (contract.subscription_peak_off_peak_base_price or 0.0)
+                    ),
+                    kwh_base=contract.kwh_base_price,
+                    kwh_peak=contract.kwh_peak_hour_price,
+                    kwh_offpeak=contract.kwh_offpeak_hour_price,
+                ),
+                peak_hours=[
+                    RangeModel(
+                        start=datetime.strptime(time_range.from_time, "%H:%M").time(),
+                        end=datetime.strptime(time_range.to_time, "%H:%M").time(),
+                    )
+                    for time_range in contract.peak_hours
+                ],
+                offpeak_hours=[
+                    RangeModel(
+                        start=datetime.strptime(time_range.from_time, "%H:%M").time(),
+                        end=datetime.strptime(time_range.to_time, "%H:%M").time(),
+                    )
+                    for time_range in contract.offpeak_hours
+                ],
+            )
+            for contract in parsed_contracts
+        }
+        return contracts

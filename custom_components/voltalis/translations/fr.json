@@ -60,6 +60,26 @@
           "normal": "Marche",
           "off": "Arrêt"
         }
+      },
+      "energy_contract_subscribed_power": {
+        "name": "Puissance souscrite"
+      },
+      "energy_contract_kwh_current_cost": {
+        "name": "Coût kWh actuel"
+      },
+      "energy_contract_kwh_off_peak_cost": {
+        "name": "Coût kWh heures creuses"
+      },
+      "energy_contract_kwh_peak_cost": {
+        "name": "Coût kWh heures pleines"
+      },
+      "energy_contract_current_mode": {
+        "name": "Mode actuel du contrat énergétique",
+        "state": {
+          "base": "Base",
+          "peak": "Heures pleines",
+          "offpeak": "Heures creuses"
+        }
       }
     },
     "select": {

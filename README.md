@@ -266,6 +266,77 @@ The integration creates different entities depending on the device type and capa
   - **Note**: This sensor is disabled by default. Enable it in the entity settings if needed.
 </details>
 
+### Energy Contract Sensors
+
+The integration also provides sensors related to your energy contract:
+
+<details>
+  <summary>Subscribed Power Sensor</summary>
+
+  - **Entity ID**: `sensor.voltalis_energy_contract_subscribed_power`
+  - **Type**: Sensor
+  - **Unit**: kVA (Kilovolt-ampere)
+  - **Device Class**: Apparent Power
+  - **Description**: Shows your subscribed power level from your energy contract
+  - **Icon**: `mdi:meter-electric`
+  - **Update Frequency**: Updates when contract data changes
+</details>
+
+<details>
+  <summary>Energy Contract Current Mode Sensor</summary>
+
+  - **Entity ID**: `sensor.voltalis_energy_contract_current_mode`
+  - **Type**: Sensor
+  - **States**: `Base`, `Peak`, `Off-Peak`
+  - **Description**: Indicates the current pricing period of your energy contract
+  - **Icon**: Changes dynamically based on the current mode
+    - Base: `mdi:sort-calendar-today`
+    - Peak: `mdi:sort-calendar-descending`
+    - Off-Peak: `mdi:sort-calendar-ascending`
+  - **Update Frequency**: Every 1 minute (automatically switches based on your contract's peak/off-peak hours)
+</details>
+
+<details>
+  <summary>kWh Current Cost Sensor</summary>
+
+  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_current_cost`
+  - **Type**: Monetary sensor
+  - **Unit**: € (Euro)
+  - **Device Class**: Monetary
+  - **Description**: Shows the current cost per kWh based on whether you're in peak or off-peak hours (or base rate)
+  - **Icon**: Changes dynamically based on the current pricing mode
+    - Base: `mdi:gauge`
+    - Peak: `mdi:gauge-full`
+    - Off-Peak: `mdi:gauge-low`
+  - **Update Frequency**: Every 1 minute (updates automatically when switching between peak/off-peak)
+</details>
+
+<details>
+  <summary>kWh Peak Cost Sensor</summary>
+
+  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_peak_cost`
+  - **Type**: Monetary sensor
+  - **Unit**: € (Euro)
+  - **Device Class**: Monetary
+  - **Description**: Shows the cost per kWh during peak hours
+  - **Icon**: `mdi:currency-eur`
+  - **Update Frequency**: Updates when contract data changes
+  - **Note**: Only available for peak/off-peak contracts
+</details>
+
+<details>
+  <summary>kWh Off-Peak Cost Sensor</summary>
+
+  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_off_peak_cost`
+  - **Type**: Monetary sensor
+  - **Unit**: € (Euro)
+  - **Device Class**: Monetary
+  - **Description**: Shows the cost per kWh during off-peak hours
+  - **Icon**: `mdi:currency-eur`
+  - **Update Frequency**: Updates when contract data changes
+  - **Note**: Only available for peak/off-peak contracts
+</details>
+
 ### Select Entity
 
 <details>

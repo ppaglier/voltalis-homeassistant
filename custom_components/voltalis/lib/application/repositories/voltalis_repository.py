@@ -3,6 +3,7 @@ from datetime import datetime
 
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
+from custom_components.voltalis.lib.domain.models.energy_contract import VoltalisEnergyContract
 from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
@@ -40,4 +41,9 @@ class VoltalisRepository(ABC):
             manual_setting_id: The ID of the manual setting (not the appliance ID)
             setting: The manual setting update to apply
         """
+        ...
+
+    @abstractmethod
+    async def get_energy_contracts(self) -> dict[int, VoltalisEnergyContract]:
+        """Get energy contracts from the Voltalis servers"""
         ...
