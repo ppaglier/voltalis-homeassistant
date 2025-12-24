@@ -60,6 +60,26 @@
           "normal": "On",
           "off": "Off"
         }
+      },
+      "energy_contract_subscribed_power": {
+        "name": "Subscribed Power"
+      },
+      "energy_contract_kwh_current_cost": {
+        "name": "kWh Current Cost"
+      },
+      "energy_contract_kwh_offpeak_cost": {
+        "name": "kWh Off-Peak Cost"
+      },
+      "energy_contract_kwh_peak_cost": {
+        "name": "kWh Peak Cost"
+      },
+      "energy_contract_current_mode": {
+        "name": "Energy Contract Current Mode",
+        "state": {
+          "base": "Base",
+          "peak": "Peak",
+          "offpeak": "Off-Peak"
+        }
       }
     },
     "select": {
