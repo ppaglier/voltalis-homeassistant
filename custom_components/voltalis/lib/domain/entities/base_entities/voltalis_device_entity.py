@@ -3,10 +3,10 @@ from typing import Any
 from homeassistant.helpers.entity import DeviceInfo
 
 from custom_components.voltalis.const import DOMAIN
-from custom_components.voltalis.lib.domain.base_entities.voltalis_base_entity import VoltalisBaseEntity
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
+from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
 from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceModulatorTypeEnum, VoltalisDeviceTypeEnum
 
 

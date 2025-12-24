@@ -6,9 +6,9 @@ from enum import StrEnum
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.core import callback
 
-from custom_components.voltalis.lib.domain.base_entities.voltalis_device_entity import VoltalisDeviceEntity
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
+from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_device_entity import VoltalisDeviceEntity
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceModeEnum
 
 _LOGGER = logging.getLogger(__name__)

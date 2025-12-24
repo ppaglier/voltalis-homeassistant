@@ -3,10 +3,10 @@ import logging
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.core import callback
 
-from custom_components.voltalis.lib.domain.base_entities.voltalis_energy_contract_entity import (
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,
 )
-from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.models.energy_contract import VoltalisEnergyContract
 
 _LOGGER = logging.getLogger(__name__)

@@ -3,24 +3,24 @@ import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from custom_components.voltalis.lib.domain.base_entities.voltalis_device_entity import VoltalisDeviceEntity
-from custom_components.voltalis.lib.domain.base_entities.voltalis_energy_contract_entity import (
+from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_device_entity import VoltalisDeviceEntity
+from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,
 )
-from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.entities.voltalis_device_connected_sensor import (
+from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_connected_sensor import (
     VoltalisDeviceConnectedSensor,
 )
-from custom_components.voltalis.lib.domain.entities.voltalis_device_consumption_sensor import (
+from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_consumption_sensor import (
     VoltalisDeviceConsumptionSensor,
 )
-from custom_components.voltalis.lib.domain.entities.voltalis_device_current_mode_sensor import (
+from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_current_mode_sensor import (
     VoltalisDeviceCurrentModeSensor,
 )
-from custom_components.voltalis.lib.domain.entities.voltalis_device_programming_sensor import (
+from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_programming_sensor import (
     VoltalisDeviceProgrammingSensor,
 )
-from custom_components.voltalis.lib.domain.entities.voltalis_energy_contract_info_sensor import (
+from custom_components.voltalis.lib.domain.entities.energy_contract.voltalis_energy_contract_info_sensor import (
     VoltalisEnergyContractInfoSensor,
 )
 
