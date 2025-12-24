@@ -87,6 +87,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
     # ✅ store coordinator for other platforms
     entry.runtime_data = VoltalisConfigEntryData(
         voltalis_client=voltalis_client,
+        date_provider=date_provider,
         coordinators=coordinators,
     )
 

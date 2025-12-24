@@ -1,5 +1,6 @@
 from homeassistant import config_entries
 
+from custom_components.voltalis.lib.application.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinator
 from custom_components.voltalis.lib.domain.coordinators.device_consumption import VoltalisDeviceConsumptionCoordinator
@@ -36,6 +37,7 @@ class VoltalisConfigEntryData(CustomModel):
     """Config entry for the Voltalis data"""
 
     voltalis_client: VoltalisClientAiohttp
+    date_provider: DateProvider
     coordinators: VoltalisCoordinators
 
 

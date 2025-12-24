@@ -27,8 +27,7 @@ class VoltalisEnergyContractCoordinator(BaseVoltalisCoordinator[dict[int, Voltal
             logger=_LOGGER,
             voltalis_repository=voltalis_repository,
             entry=entry,
-            # update_interval=timedelta(days=1),
-            update_interval=timedelta(minutes=1),
+            update_interval=timedelta(days=1),
         )
 
     async def _get_data(self) -> dict[int, VoltalisEnergyContract]:

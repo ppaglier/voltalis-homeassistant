@@ -20,9 +20,22 @@ from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_dev
 from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_programming_sensor import (
     VoltalisDeviceProgrammingSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.voltalis_energy_contract_info_sensor import (
-    VoltalisEnergyContractInfoSensor,
+from custom_components.voltalis.lib.domain.entities.energy_contract.current_mode_sensor import (
+    VoltalisEnergyContractCurrentModeSensor,
 )
+from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_base_cost_sensor import (
+    VoltalisEnergyContractKwhBaseCostSensor,
+)
+from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_offpeak_cost_sensor import (
+    VoltalisEnergyContractKwhOffPeakCostSensor,
+)
+from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_peak_cost_sensor import (
+    VoltalisEnergyContractKwhPeakCostSensor,
+)
+from custom_components.voltalis.lib.domain.entities.energy_contract.subscribed_power_sensor import (
+    VoltalisEnergyContractSubscribedPowerSensor,
+)
+from custom_components.voltalis.lib.domain.models.energy_contract import VoltalisEnergyContractTypeEnum
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,6 +53,7 @@ async def async_setup_entry(
     device_coordinator = entry.runtime_data.coordinators.device
     health_coordinator = entry.runtime_data.coordinators.device_health
     energy_contract_coordinator = entry.runtime_data.coordinators.energy_contract
+    date_provider = entry.runtime_data.date_provider
 
     if not device_coordinator.data:
         _LOGGER.warning("No Device data available during setup, waiting for first refresh")
@@ -73,9 +87,27 @@ async def async_setup_entry(
 
     energy_contract_sensors: dict[str, VoltalisEnergyContractEntity] = {}
     for energy_contract in energy_contract_coordinator.data.values():
-        # Main contract info sensor
-        contract_info_sensor = VoltalisEnergyContractInfoSensor(entry, energy_contract)
-        energy_contract_sensors[contract_info_sensor.unique_internal_name] = contract_info_sensor
+        contract_subscribed_power_sensor = VoltalisEnergyContractSubscribedPowerSensor(entry, energy_contract)
+        energy_contract_sensors[contract_subscribed_power_sensor.unique_internal_name] = (
+            contract_subscribed_power_sensor
+        )
+
+        # Create the kWh base cost sensor for each energy contract
+        if energy_contract.type is VoltalisEnergyContractTypeEnum.BASE:
+            contract_kwh_base_cost_sensor = VoltalisEnergyContractKwhBaseCostSensor(entry, energy_contract)
+            energy_contract_sensors[contract_kwh_base_cost_sensor.unique_internal_name] = contract_kwh_base_cost_sensor
+        else:
+            contract_kwh_peak_cost_sensor = VoltalisEnergyContractKwhPeakCostSensor(entry, energy_contract)
+            energy_contract_sensors[contract_kwh_peak_cost_sensor.unique_internal_name] = contract_kwh_peak_cost_sensor
+            contract_kwh_off_peak_cost_sensor = VoltalisEnergyContractKwhOffPeakCostSensor(entry, energy_contract)
+            energy_contract_sensors[contract_kwh_off_peak_cost_sensor.unique_internal_name] = (
+                contract_kwh_off_peak_cost_sensor
+            )
+
+            contract_current_mode_sensor = VoltalisEnergyContractCurrentModeSensor(
+                entry, energy_contract, date_provider
+            )
+            energy_contract_sensors[contract_current_mode_sensor.unique_internal_name] = contract_current_mode_sensor
 
     all_sensors = {**device_sensors, **energy_contract_sensors}
     async_add_entities(all_sensors.values(), update_before_add=True)

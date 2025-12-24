@@ -1,6 +1,7 @@
 import logging
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.const import CURRENCY_EURO
 from homeassistant.core import callback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
@@ -12,15 +13,17 @@ from custom_components.voltalis.lib.domain.models.energy_contract import Voltali
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisEnergyContractInfoSensor(VoltalisEnergyContractEntity, SensorEntity):
-    """Sensor entity for Voltalis energy contract information."""
+class VoltalisEnergyContractKwhOffPeakCostSensor(VoltalisEnergyContractEntity, SensorEntity):
+    """Sensor entity for Voltalis energy contract kWh off-peak cost."""
 
-    _unique_id_suffix = "energy_contract_info"
-    _attr_translation_key = "energy_contract_info"
-    _attr_icon = "mdi:file-document-outline"
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = CURRENCY_EURO
+    _attr_translation_key = "energy_contract_kwh_offpeak_cost"
+    _attr_icon = "mdi:currency-eur"
+    _unique_id_suffix = "energy_contract_kwh_off_peak_cost"
 
     def __init__(self, entry: VoltalisConfigEntry, energy_contract: VoltalisEnergyContract) -> None:
-        """Initialize the energy contract info sensor."""
+        """Initialize the energy contract kWh off-peak cost sensor."""
         super().__init__(entry, energy_contract, entry.runtime_data.coordinators.energy_contract)
 
     @callback
@@ -32,17 +35,7 @@ class VoltalisEnergyContractInfoSensor(VoltalisEnergyContractEntity, SensorEntit
             _LOGGER.warning("Energy contract with id %s is None", self._energy_contract.id)
             return
 
-        self._attr_extra_state_attributes = {
-            "contract_id": energy_contract.id,
-            "company_name": energy_contract.company_name,
-            "subscribed_power": energy_contract.subscribed_power,
-            "type": energy_contract.type.value,
-            "prices": energy_contract.prices.model_dump_json(),
-            # "peak_hours": energy_contract.peak_hours,
-            # "offpeak_hours": energy_contract.offpeak_hours,
-        }
-
-        new_value = energy_contract.name
+        new_value = energy_contract.prices.kwh_offpeak
         if new_value is None or self._attr_native_value == new_value:
             return
 
@@ -53,4 +46,4 @@ class VoltalisEnergyContractInfoSensor(VoltalisEnergyContractEntity, SensorEntit
     # Availability handling override
     # ------------------------------------------------------------------
     def _is_available_from_data(self, data: VoltalisEnergyContract) -> bool:
-        return True
+        return data.prices.kwh_offpeak is not None
