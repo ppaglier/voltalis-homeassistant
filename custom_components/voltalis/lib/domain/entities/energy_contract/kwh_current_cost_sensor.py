@@ -14,7 +14,7 @@ from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_energ
 from custom_components.voltalis.lib.domain.entities.energy_contract.current_mode_sensor import (
     EnergyContractCurrentModeEnum,
 )
-from custom_components.voltalis.lib.domain.helpers.in_in_time_range import is_in_time_range
+from custom_components.voltalis.lib.domain.helpers.is_in_time_range import is_in_time_range
 from custom_components.voltalis.lib.domain.models.energy_contract import (
     VoltalisEnergyContract,
     VoltalisEnergyContractTypeEnum,

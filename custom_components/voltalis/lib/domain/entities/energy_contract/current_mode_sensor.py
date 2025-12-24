@@ -11,7 +11,7 @@ from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConf
 from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,
 )
-from custom_components.voltalis.lib.domain.helpers.in_in_time_range import is_in_time_range
+from custom_components.voltalis.lib.domain.helpers.is_in_time_range import is_in_time_range
 from custom_components.voltalis.lib.domain.models.energy_contract import (
     VoltalisEnergyContract,
     VoltalisEnergyContractTypeEnum,
