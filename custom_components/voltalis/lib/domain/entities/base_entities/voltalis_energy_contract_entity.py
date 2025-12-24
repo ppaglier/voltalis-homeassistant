@@ -50,7 +50,7 @@ class VoltalisEnergyContractEntity(VoltalisBaseEntity):
         return self._attr_device_info
 
     def __get_energy_contract_model(self) -> str:
-        """Return the translation key for the device model."""
+        """Return a formatted string representing the energy contract model."""
 
         contract_name = self._energy_contract.name
         contract_power = f"{self._energy_contract.subscribed_power} KVA"
