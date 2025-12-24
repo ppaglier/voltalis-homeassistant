@@ -67,7 +67,7 @@
       "energy_contract_kwh_current_cost": {
         "name": "kWh Current Cost"
       },
-      "energy_contract_kwh_offpeak_cost": {
+      "energy_contract_kwh_off_peak_cost": {
         "name": "kWh Off-Peak Cost"
       },
       "energy_contract_kwh_peak_cost": {

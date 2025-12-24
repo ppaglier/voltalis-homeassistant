@@ -18,7 +18,7 @@ class VoltalisEnergyContractKwhOffPeakCostSensor(VoltalisEnergyContractEntity, S
 
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_native_unit_of_measurement = CURRENCY_EURO
-    _attr_translation_key = "energy_contract_kwh_offpeak_cost"
+    _attr_translation_key = "energy_contract_kwh_off_peak_cost"
     _attr_icon = "mdi:currency-eur"
     _unique_id_suffix = "energy_contract_kwh_off_peak_cost"
 
