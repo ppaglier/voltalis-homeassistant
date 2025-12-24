@@ -113,4 +113,4 @@ async def async_setup_entry(
 
     all_sensors = {**device_sensors, **energy_contract_sensors}
     async_add_entities(all_sensors.values(), update_before_add=True)
-    _LOGGER.info(f"Added {len(device_sensors)} Voltalis sensor entities: {list(all_sensors.keys())}")
+    _LOGGER.info(f"Added {len(all_sensors)} Voltalis sensor entities: {list(all_sensors.keys())}")
