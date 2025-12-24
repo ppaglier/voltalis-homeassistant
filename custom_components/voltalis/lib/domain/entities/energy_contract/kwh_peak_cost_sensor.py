@@ -1,7 +1,7 @@
 import logging
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
-from homeassistant.const import CURRENCY_EURO
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
+from homeassistant.const import CURRENCY_EURO, UnitOfEnergy
 from homeassistant.core import callback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
@@ -17,7 +17,8 @@ class VoltalisEnergyContractKwhPeakCostSensor(VoltalisEnergyContractEntity, Sens
     """Sensor entity for Voltalis energy contract kWh peak cost."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_native_unit_of_measurement = CURRENCY_EURO
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"
     _attr_translation_key = "energy_contract_kwh_peak_cost"
     _attr_icon = "mdi:currency-eur"
     _unique_id_suffix = "energy_contract_kwh_peak_cost"
