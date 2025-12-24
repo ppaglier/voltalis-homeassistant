@@ -23,8 +23,8 @@ from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_dev
 from custom_components.voltalis.lib.domain.entities.energy_contract.current_mode_sensor import (
     VoltalisEnergyContractCurrentModeSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_base_cost_sensor import (
-    VoltalisEnergyContractKwhBaseCostSensor,
+from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_current_cost_sensor import (
+    VoltalisEnergyContractKwhCurrentCostSensor,
 )
 from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_offpeak_cost_sensor import (
     VoltalisEnergyContractKwhOffPeakCostSensor,
@@ -92,22 +92,24 @@ async def async_setup_entry(
             contract_subscribed_power_sensor
         )
 
-        # Create the kWh base cost sensor for each energy contract
-        if energy_contract.type is VoltalisEnergyContractTypeEnum.BASE:
-            contract_kwh_base_cost_sensor = VoltalisEnergyContractKwhBaseCostSensor(entry, energy_contract)
-            energy_contract_sensors[contract_kwh_base_cost_sensor.unique_internal_name] = contract_kwh_base_cost_sensor
-        else:
+        contract_current_mode_sensor = VoltalisEnergyContractCurrentModeSensor(entry, energy_contract, date_provider)
+        energy_contract_sensors[contract_current_mode_sensor.unique_internal_name] = contract_current_mode_sensor
+
+        contract_kwh_current_cost_sensor = VoltalisEnergyContractKwhCurrentCostSensor(
+            entry, energy_contract, date_provider
+        )
+        energy_contract_sensors[contract_kwh_current_cost_sensor.unique_internal_name] = (
+            contract_kwh_current_cost_sensor
+        )
+
+        # Create peak/off-peak specific sensors
+        if energy_contract.type is VoltalisEnergyContractTypeEnum.PEAK_OFFPEAK:
             contract_kwh_peak_cost_sensor = VoltalisEnergyContractKwhPeakCostSensor(entry, energy_contract)
             energy_contract_sensors[contract_kwh_peak_cost_sensor.unique_internal_name] = contract_kwh_peak_cost_sensor
             contract_kwh_off_peak_cost_sensor = VoltalisEnergyContractKwhOffPeakCostSensor(entry, energy_contract)
             energy_contract_sensors[contract_kwh_off_peak_cost_sensor.unique_internal_name] = (
                 contract_kwh_off_peak_cost_sensor
             )
-
-            contract_current_mode_sensor = VoltalisEnergyContractCurrentModeSensor(
-                entry, energy_contract, date_provider
-            )
-            energy_contract_sensors[contract_current_mode_sensor.unique_internal_name] = contract_current_mode_sensor
 
     all_sensors = {**device_sensors, **energy_contract_sensors}
     async_add_entities(all_sensors.values(), update_before_add=True)
