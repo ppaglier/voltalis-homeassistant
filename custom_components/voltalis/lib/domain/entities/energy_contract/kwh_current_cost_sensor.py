@@ -77,10 +77,11 @@ class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, S
         elif current_mode == EnergyContractCurrentModeEnum.OFFPEAK:
             new_value = energy_contract.prices.kwh_offpeak
 
+        self.__current_mode = current_mode
+
         if new_value is None or self._attr_native_value == new_value:
             return
 
-        self.__current_mode = current_mode
         self._attr_native_value = new_value
         self.async_write_ha_state()
 
