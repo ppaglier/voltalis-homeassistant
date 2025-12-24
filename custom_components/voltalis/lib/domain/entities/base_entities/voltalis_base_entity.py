@@ -7,7 +7,7 @@ from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalis
 
 
 class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any]]]):
-    """Base class for Voltalis device entities."""
+    """Base class for all Voltalis entities."""
 
     _unique_id_suffix: str = ""
 
@@ -16,7 +16,7 @@ class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any
         entry: VoltalisConfigEntry,
         coordinator: BaseVoltalisCoordinator[dict[int, Any]],
     ) -> None:
-        """Initialize the device."""
+        """Initialize the base entity."""
         super().__init__(coordinator)
         self._entry = entry
 
@@ -29,7 +29,7 @@ class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any
     # Availability handling
     # ------------------------------------------------------------------
     def _is_available_from_data(self, data: Any) -> bool:
-        """Check if entity is available based on device data.
+        """Check if entity is available based on entity data.
         This method should be implemented by subclasses.
         """
         raise NotImplementedError()

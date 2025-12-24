@@ -39,7 +39,7 @@ class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, Sens
         energy_contract: VoltalisEnergyContract,
         date_provider: DateProvider,
     ) -> None:
-        """Initialize the energy contract subscribed power sensor."""
+        """Initialize the energy contract current mode sensor."""
         super().__init__(entry, energy_contract, entry.runtime_data.coordinators.energy_contract)
         self.__date_provider = date_provider
         self.__unsub: Callable | None = None
@@ -68,7 +68,18 @@ class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, Sens
             new_value = EnergyContractCurrentModeEnum.BASE
         else:
             now = self.__date_provider.get_now().time()
-            in_off_peak = any(time_range.start <= now <= time_range.end for time_range in energy_contract.offpeak_hours)
+
+            def is_in_time_range(time_range) -> bool:
+                """Return True if now is within the given time range, handling overnight spans."""
+                start = time_range.start
+                end = time_range.end
+                if start <= end:
+                    # Normal range within the same day, e.g. 08:00-12:00
+                    return start <= now <= end
+                # Overnight range crossing midnight, e.g. 22:00-06:00
+                return now >= start or now <= end
+
+            in_off_peak = any(is_in_time_range(time_range) for time_range in energy_contract.offpeak_hours)
             new_value = EnergyContractCurrentModeEnum.OFFPEAK if in_off_peak else EnergyContractCurrentModeEnum.PEAK
 
         if new_value is None or self._attr_native_value == new_value:
