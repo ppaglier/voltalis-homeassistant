@@ -53,7 +53,7 @@ class VoltalisEnergyContractEntity(VoltalisBaseEntity):
         """Return a formatted string representing the energy contract model."""
 
         contract_name = self._energy_contract.name
-        contract_power = f"{self._energy_contract.subscribed_power} KVA"
+        contract_power = f"{self._energy_contract.subscribed_power} kVA"
         contract_type = self._energy_contract.type.value
 
         return f"{contract_name} | {contract_power} | {contract_type}"
