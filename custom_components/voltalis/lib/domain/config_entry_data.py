@@ -3,7 +3,9 @@ from homeassistant import config_entries
 from custom_components.voltalis.lib.application.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinator
-from custom_components.voltalis.lib.domain.coordinators.device_consumption import VoltalisDeviceConsumptionCoordinator
+from custom_components.voltalis.lib.domain.coordinators.device_daily_consumption import (
+    VoltalisDeviceDailyConsumptionCoordinator,
+)
 from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
 from custom_components.voltalis.lib.domain.coordinators.energy_contract import VoltalisEnergyContractCoordinator
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
@@ -15,7 +17,7 @@ class VoltalisCoordinators(CustomModel):
 
     device: VoltalisDeviceCoordinator
     device_health: VoltalisDeviceHealthCoordinator
-    device_consumption: VoltalisDeviceConsumptionCoordinator
+    device_consumption: VoltalisDeviceDailyConsumptionCoordinator
     energy_contract: VoltalisEnergyContractCoordinator
 
     async def setup_all(self) -> None:

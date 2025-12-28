@@ -9,7 +9,6 @@ from custom_components.voltalis.lib.application.providers.http_client import (
     HttpClientResponse,
 )
 from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
-from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.exceptions import VoltalisConnectionException, VoltalisValidationException
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgrammingStatus
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
@@ -23,9 +22,11 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSettingUpdate,
 )
 from custom_components.voltalis.lib.domain.range_model import RangeModel
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_consumption import VoltalisDeviceConsumptionDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_subscriber_contract import (
     VoltalisSubscriberContractDto,
 )
+from custom_components.voltalis.lib.infrastructure.helpers.get_consumption_for_hour import get_consumption_for_hour
 
 
 class VoltalisRepositoryVoltalisApi(VoltalisRepository):
@@ -92,27 +93,7 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
 
         return devices_health
 
-    async def get_devices_consumptions(self, target_datetime: datetime) -> dict[int, float]:
-        class RawDeviceConsumption(CustomModel):
-            date: datetime
-            consumption: float
-
-        def __get_consumption_for_hour(
-            devices_consumptions: dict[int, list[RawDeviceConsumption]],
-            target_datetime: datetime,
-        ) -> dict[int, RawDeviceConsumption]:
-            target_hour = target_datetime.replace(minute=0, second=0, microsecond=0)
-            result: dict[int, RawDeviceConsumption] = {}
-
-            for device_id, consumptions in devices_consumptions.items():
-                match = next(
-                    (c for c in consumptions if c.date.replace(minute=0, second=0, microsecond=0) == target_hour), None
-                )
-                if match:
-                    result[device_id] = match
-
-            return result
-
+    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         # Fetch the data from the voltalis API
         target_date_str = target_datetime.isoformat("T").split("T")[0]
 
@@ -125,29 +106,29 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         except HttpClientException as err:
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
-        devices_consumptions: dict[int, list[RawDeviceConsumption]] = {}
+        devices_consumptions: dict[int, list[VoltalisDeviceConsumptionDto]] = {}
         try:
             for device_id, device_consumptions in response.data["perAppliance"].items():
-                devices_consumptions[int(device_id)] = [
-                    RawDeviceConsumption(
-                        date=device_consumption["stepTimestampOnSite"],
-                        consumption=device_consumption["totalConsumptionInWh"],
-                    )
-                    for device_consumption in device_consumptions
-                ]
+                devices_consumptions[int(device_id)] = sorted(
+                    [VoltalisDeviceConsumptionDto(**device_consumption) for device_consumption in device_consumptions],
+                    key=lambda x: x.step_timestamp_on_site,
+                )
         except ValidationError as err:
             self.__logger.error("Error parsing consumptions: %s", err)
             raise VoltalisValidationException(*err.args) from err
 
-        filtered_consumptions = __get_consumption_for_hour(
-            devices_consumptions=devices_consumptions,
-            target_datetime=target_datetime,
-        )
-
-        return {
-            device_id: filtered_consumption.consumption
-            for device_id, filtered_consumption in filtered_consumptions.items()
+        consumptions = {
+            device_id: get_consumption_for_hour(
+                consumptions=[
+                    (consumption_record.step_timestamp_on_site, consumption_record.total_consumption_in_wh)
+                    for consumption_record in consumption_records
+                ],
+                target_datetime=target_datetime,
+            )
+            for device_id, consumption_records in devices_consumptions.items()
         }
+
+        return consumptions
 
     async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
         manual_settings_response: HttpClientResponse[list[dict]]

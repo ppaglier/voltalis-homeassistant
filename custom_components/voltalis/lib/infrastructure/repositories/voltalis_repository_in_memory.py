@@ -8,6 +8,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.infrastructure.helpers.get_consumption_for_hour import get_consumption_for_hour
 
 
 class VoltalisRepositoryInMemory(VoltalisRepository):
@@ -45,14 +46,11 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
     async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
         return self.__devices_health
 
-    async def get_devices_consumptions(self, target_datetime: datetime) -> dict[int, float]:
-        consumptions: dict[int, float] = {}
-        for device_id, consumption_records in self.__devices_consumptions.items():
-            for record_datetime, consumption in consumption_records:
-                if record_datetime == target_datetime:
-                    consumptions[device_id] = consumption
-                    break
-
+    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
+        consumptions = {
+            device_id: get_consumption_for_hour(consumptions=consumption_records, target_datetime=target_datetime)
+            for device_id, consumption_records in self.__devices_consumptions.items()
+        }
         return consumptions
 
     async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
