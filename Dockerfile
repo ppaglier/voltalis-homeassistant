@@ -53,6 +53,8 @@ FROM builder-dev AS dev
 
 WORKDIR /app
 
+ENV TZ="Europe/Paris"
+
 # Copy all files of the application
 COPY . .
 
