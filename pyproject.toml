@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voltalis-homeassistant"
-version = "0.3.0-rc.6"
+version = "0.3.0-rc.7"
 description = "Voltalis integration in Home Assistant"
 authors = ["Pierre-Louis Pagliero"]
 license = "MIT"
