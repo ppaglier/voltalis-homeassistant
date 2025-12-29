@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from typing import Callable
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
+from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.const import CURRENCY_EURO, UnitOfEnergy
 from homeassistant.helpers.event import async_track_time_change
 
@@ -26,6 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, SensorEntity):
     """Sensor entity for Voltalis energy contract kWh current cost."""
 
+    _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"
     _attr_translation_key = "energy_contract_kwh_current_cost"
     _attr_icon = "mdi:currency-eur"
@@ -36,18 +37,8 @@ class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, S
         entry: VoltalisConfigEntry,
         energy_contract: VoltalisEnergyContract,
         date_provider: DateProvider,
-        *,
-        with_stats: bool,
     ) -> None:
         """Initialize the energy contract kWh current cost sensor."""
-
-        if with_stats:
-            self._attr_state_class = SensorStateClass.MEASUREMENT
-            self._attr_translation_key = f"{self._attr_translation_key}_with_stats"
-            self._unique_id_suffix = f"{self._unique_id_suffix}_with_stats"
-        else:
-            self._attr_device_class = SensorDeviceClass.MONETARY
-
         super().__init__(entry, energy_contract, entry.runtime_data.coordinators.energy_contract)
         self.__date_provider = date_provider
         self.__current_mode: EnergyContractCurrentModeEnum | None = None

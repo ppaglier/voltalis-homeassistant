@@ -67,8 +67,7 @@ async def async_setup_entry(
         device_sensors.append(VoltalisDeviceDailyConsumptionSensor(entry, device))
 
         # Create the connected sensor for each device (if status is available)
-        device_health = health_coordinator.data.get(device.id)
-        if device_health is not None:
+        if health_coordinator.data.get(device.id) is not None:
             device_sensors.append(VoltalisDeviceConnectedSensor(entry, device))
 
         if device.programming.mode is not None:
@@ -88,18 +87,13 @@ async def async_setup_entry(
         energy_contract_sensors.append(VoltalisEnergyContractCurrentModeSensor(entry, energy_contract, date_provider))
 
         energy_contract_sensors.append(
-            VoltalisEnergyContractKwhCurrentCostSensor(entry, energy_contract, date_provider, with_stats=True)
+            VoltalisEnergyContractKwhCurrentCostSensor(entry, energy_contract, date_provider)
         )
 
         # Create peak/off-peak specific sensors
         if energy_contract.type is VoltalisEnergyContractTypeEnum.PEAK_OFFPEAK:
-            energy_contract_sensors.append(
-                VoltalisEnergyContractKwhPeakCostSensor(entry, energy_contract, with_stats=True)
-            )
-
-            energy_contract_sensors.append(
-                VoltalisEnergyContractKwhOffPeakCostSensor(entry, energy_contract, with_stats=True)
-            )
+            energy_contract_sensors.append(VoltalisEnergyContractKwhPeakCostSensor(entry, energy_contract))
+            energy_contract_sensors.append(VoltalisEnergyContractKwhOffPeakCostSensor(entry, energy_contract))
 
     all_entities: dict[str, VoltalisBaseEntity] = {
         sensor.unique_internal_name: sensor for sensor in (device_sensors + energy_contract_sensors)
