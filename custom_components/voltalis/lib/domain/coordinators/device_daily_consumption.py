@@ -13,8 +13,8 @@ from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalis
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisDeviceConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, float]]):
-    """Coordinator to fetch devices consumptions from Voltalis API at specific hours."""
+class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, float]]):
+    """Coordinator to manage daily device consumption data from Voltalis API."""
 
     # Minutes offset after the hour to launch the update (e.g., 5 = HH:05)
     MINUTE_OFFSET = 5
@@ -47,7 +47,7 @@ class VoltalisDeviceConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, flo
         self.__stop_time_tracking = async_track_time_change(
             self.hass,
             self.__scheduled_update,
-            minute=VoltalisDeviceConsumptionCoordinator.MINUTE_OFFSET,
+            minute=VoltalisDeviceDailyConsumptionCoordinator.MINUTE_OFFSET,
             second=0,
         )
 
@@ -70,5 +70,5 @@ class VoltalisDeviceConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, flo
 
         # We remove 1 hour because we can't fetch data from the current hour
         target_datetime = self.__date_provider.get_now() - timedelta(hours=1)
-        result = await self._voltalis_repository.get_devices_consumptions(target_datetime)
+        result = await self._voltalis_repository.get_devices_daily_consumptions(target_datetime)
         return result

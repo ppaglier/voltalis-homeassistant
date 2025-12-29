@@ -38,8 +38,8 @@
           "comm_error": "Erreur de communication"
         }
       },
-      "device_consumption": {
-        "name": "Consommation"
+      "device_daily_consumption": {
+        "name": "Consommation journalière"
       },
       "device_programming": {
         "name": "Programmation",

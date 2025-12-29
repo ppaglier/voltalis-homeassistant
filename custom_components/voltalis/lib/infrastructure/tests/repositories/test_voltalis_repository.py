@@ -138,10 +138,10 @@ async def test_get_devices_consumptions(fixture: "VoltalisRepositoryFixture") ->
     fixture.given_devices_consumptions(devices_consumptions)
 
     # Act
-    result = await fixture.repository.get_devices_consumptions(target_datetime)
+    result = await fixture.repository.get_devices_daily_consumptions(target_datetime)
 
     # Assert
-    expected_result = {1: 150.75, 2: 75.5}
+    expected_result = {1: 100.5 + 150.75, 2: 50.25 + 75.5}
     fixture.compare_data(result, expected_result)
 
 
@@ -152,17 +152,17 @@ async def test_get_devices_consumptions_no_match(fixture: "VoltalisRepositoryFix
 
     target_datetime = datetime(2024, 11, 24, 12, 0, 0)
     devices_consumptions = {
-        1: [(datetime(2024, 11, 24, 11, 0, 0), 100.5), (datetime(2024, 11, 24, 13, 0, 0), 200.0)],
+        1: [(datetime(2024, 11, 24, 13, 0, 0), 100.5), (datetime(2024, 11, 24, 14, 0, 0), 200.0)],
     }
 
     # Arrange
     fixture.given_devices_consumptions(devices_consumptions)
 
     # Act
-    result = await fixture.repository.get_devices_consumptions(target_datetime)
+    result = await fixture.repository.get_devices_daily_consumptions(target_datetime)
 
     # Assert
-    assert result == {}
+    assert result == {1: 0.0}
 
 
 @pytest.mark.asyncio
