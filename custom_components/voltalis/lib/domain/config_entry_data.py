@@ -17,7 +17,7 @@ class VoltalisCoordinators(CustomModel):
 
     device: VoltalisDeviceCoordinator
     device_health: VoltalisDeviceHealthCoordinator
-    device_consumption: VoltalisDeviceDailyConsumptionCoordinator
+    device_daily_consumption: VoltalisDeviceDailyConsumptionCoordinator
     energy_contract: VoltalisEnergyContractCoordinator
 
     async def setup_all(self) -> None:
@@ -25,14 +25,14 @@ class VoltalisCoordinators(CustomModel):
         arr: list[BaseVoltalisCoordinator] = [
             self.device,
             self.device_health,
-            self.device_consumption,
+            self.device_daily_consumption,
             self.energy_contract,
         ]
         for coordinator in arr:
             await coordinator.async_config_entry_first_refresh()
 
         # For consumption, start time-based scheduling after initial refresh
-        self.device_consumption.start_time_tracking()
+        self.device_daily_consumption.start_time_tracking()
 
 
 class VoltalisConfigEntryData(CustomModel):

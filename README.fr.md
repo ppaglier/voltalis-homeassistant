@@ -217,7 +217,7 @@ L'intégration crée différentes entités selon le type d'appareil et ses capac
 <details>
   <summary>Capteur de consommation énergétique</summary>
 
-  - **ID d'entité** : `sensor.<device_name>_device_consumption`
+  - **ID d'entité** : `sensor.<device_name>_device_daily_consumption`
   - **Type** : Capteur d'énergie
   - **Unité** : Wh (Watt-heures)
   - **Classe de périphérique** : Énergie

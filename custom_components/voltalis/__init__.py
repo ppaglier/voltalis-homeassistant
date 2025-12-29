@@ -71,7 +71,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
             voltalis_repository=voltalis_repository,
             entry=entry,
         ),
-        device_consumption=VoltalisDeviceDailyConsumptionCoordinator(
+        device_daily_consumption=VoltalisDeviceDailyConsumptionCoordinator(
             hass=hass,
             voltalis_repository=voltalis_repository,
             date_provider=date_provider,
@@ -103,7 +103,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) ->
     """Unload a config entry."""
 
     # Stop time tracking for consumption coordinator
-    entry.runtime_data.coordinators.device_consumption.stop_time_tracking()
+    entry.runtime_data.coordinators.device_daily_consumption.stop_time_tracking()
 
     await entry.runtime_data.voltalis_client.logout()
 
