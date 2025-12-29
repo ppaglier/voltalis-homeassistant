@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from custom_components.voltalis.const import DOMAIN
+from custom_components.voltalis.const import CONFIG_SCHEMA, DOMAIN
 from custom_components.voltalis.lib.domain.config_entry_data import (
     VoltalisConfigEntry,
     VoltalisConfigEntryData,
@@ -30,6 +30,8 @@ PLATFORMS = [
     Platform.CLIMATE,
     Platform.WATER_HEATER,
 ]
+
+__all__ = ["CONFIG_SCHEMA"]
 
 
 async def async_setup(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
