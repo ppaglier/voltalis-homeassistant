@@ -41,6 +41,7 @@ async def async_setup_entry(
             climate_entities.append(VoltalisClimate(entry, device))
 
     all_entities: dict[str, VoltalisBaseEntity] = {sensor.unique_internal_name: sensor for sensor in climate_entities}
+    async_add_entities(all_entities.values(), update_before_add=True)
     _LOGGER.info(f"Added {len(all_entities)} Voltalis climate entities: {list(all_entities.keys())}")
 
     # Register service actions
