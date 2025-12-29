@@ -39,7 +39,7 @@
         }
       },
       "device_daily_consumption": {
-        "name": "Daily Consumption",
+        "name": "Daily Consumption"
       },
       "device_programming": {
         "name": "Programming",
