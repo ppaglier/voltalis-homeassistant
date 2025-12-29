@@ -4,6 +4,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
 from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_device_entity import VoltalisDeviceEntity
 from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_preset_select import (
     VoltalisDevicePresetSelect,
@@ -28,12 +29,12 @@ async def async_setup_entry(
         _LOGGER.warning("No Voltalis data available during setup, waiting for first refresh")
         await device_coordinator.async_config_entry_first_refresh()
 
-    selects: dict[str, VoltalisDeviceEntity] = {}
+    select_entities: list[VoltalisDeviceEntity] = []
 
     for device in device_coordinator.data.values():
         # Create the program select entity
-        device_preset_select = VoltalisDevicePresetSelect(entry, device)
-        selects[device_preset_select.unique_internal_name] = device_preset_select
+        select_entities.append(VoltalisDevicePresetSelect(entry, device))
 
-    async_add_entities(selects.values(), update_before_add=True)
-    _LOGGER.info(f"Added {len(selects)} Voltalis select entities: {list(selects.keys())}")
+    all_entities: dict[str, VoltalisBaseEntity] = {sensor.unique_internal_name: sensor for sensor in select_entities}
+    async_add_entities(all_entities.values(), update_before_add=True)
+    _LOGGER.info(f"Added {len(all_entities)} Voltalis select entities: {list(all_entities.keys())}")
