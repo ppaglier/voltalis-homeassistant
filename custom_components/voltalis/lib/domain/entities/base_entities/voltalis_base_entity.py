@@ -25,6 +25,11 @@ class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any
 
         self._coordinators = entry.runtime_data.coordinators
 
+    @property
+    def unique_internal_name(self) -> str:
+        """Return a unique internal name for the entity."""
+        raise NotImplementedError()
+
     # ------------------------------------------------------------------
     # Availability handling
     # ------------------------------------------------------------------
