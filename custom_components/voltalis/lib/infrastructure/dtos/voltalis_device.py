@@ -50,7 +50,7 @@ class VoltalisDeviceDtoProgramming(CustomModel):
     id_manual_setting: int | None = Field(None, alias="idManualSetting")
     is_on: bool | None = Field(None, alias="isOn")
     mode: VoltalisDeviceDtoModeEnum | None = None
-    temperature_target: float | None = None
+    temperature_target: float | None = Field(None, alias="temperatureTarget")
     default_temperature: float | None = Field(None, alias="defaultTemperature")
 
 
@@ -70,8 +70,8 @@ class VoltalisDeviceDto(CustomModel):
         return VoltalisDevice(
             id=self.id,
             name=self.name,
-            type=self.appliance_type.value,
-            modulator_type=self.modulator_type.value,
+            type=self.appliance_type.value.lower(),
+            modulator_type=self.modulator_type.value.lower(),
             available_modes=[mode.value.lower() for mode in self.available_modes],
             programming=VoltalisDeviceProgramming(
                 prog_type=self.programming.prog_type.value.lower(),
