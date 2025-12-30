@@ -267,6 +267,20 @@ L'intégration crée différentes entités selon le type d'appareil et ses capac
 L'intégration fournit également des capteurs liés à votre contrat d'énergie :
 
 <details>
+  <summary>Capteur de consommation en temps réel</summary>
+
+  - **ID d'entité** : `sensor.voltalis_energy_contract_live_consumption`
+  - **Type** : Capteur de puissance
+  - **Unité** : W (Watts)
+  - **Classe de périphérique** : Puissance
+  - **Classe d'état** : Mesure
+  - **Description** : Affiche la consommation totale de puissance en quasi temps réel de tous vos appareils Voltalis
+  - **Icône** : `mdi:flash`
+  - **Fréquence de mise à jour** : Toutes les 10 minutes (à :00, :10, :20, :30, :40, :50 de chaque heure)
+  - **Remarque** : Ce capteur agrège la consommation en temps réel de tous les appareils gérés par Voltalis
+</details>
+
+<details>
   <summary>Capteur de puissance souscrite</summary>
 
   - **ID d'entité** : `sensor.voltalis_energy_contract_subscribed_power`

@@ -271,6 +271,20 @@ The integration creates different entities depending on the device type and capa
 The integration also provides sensors related to your energy contract:
 
 <details>
+  <summary>Live Consumption Sensor</summary>
+
+  - **Entity ID**: `sensor.voltalis_energy_contract_live_consumption`
+  - **Type**: Power sensor
+  - **Unit**: W (Watts)
+  - **Device Class**: Power
+  - **State Class**: Measurement
+  - **Description**: Shows the near real-time total power consumption across all your Voltalis devices
+  - **Icon**: `mdi:flash`
+  - **Update Frequency**: Every 10 minutes (at :00, :10, :20, :30, :40, :50 of each hour)
+  - **Note**: This sensor aggregates the live consumption of all devices managed by Voltalis
+</details>
+
+<details>
   <summary>Subscribed Power Sensor</summary>
 
   - **Entity ID**: `sensor.voltalis_energy_contract_subscribed_power`

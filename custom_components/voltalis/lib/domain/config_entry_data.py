@@ -8,6 +8,7 @@ from custom_components.voltalis.lib.domain.coordinators.device_daily_consumption
 )
 from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
 from custom_components.voltalis.lib.domain.coordinators.energy_contract import VoltalisEnergyContractCoordinator
+from custom_components.voltalis.lib.domain.coordinators.live_consumption import VoltalisLiveConsumptionCoordinator
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 
@@ -18,6 +19,7 @@ class VoltalisCoordinators(CustomModel):
     device: VoltalisDeviceCoordinator
     device_health: VoltalisDeviceHealthCoordinator
     device_daily_consumption: VoltalisDeviceDailyConsumptionCoordinator
+    live_consumption: VoltalisLiveConsumptionCoordinator
     energy_contract: VoltalisEnergyContractCoordinator
 
     async def setup_all(self) -> None:
@@ -26,6 +28,7 @@ class VoltalisCoordinators(CustomModel):
             self.device,
             self.device_health,
             self.device_daily_consumption,
+            self.live_consumption,
             self.energy_contract,
         ]
         for coordinator in arr:
@@ -33,6 +36,12 @@ class VoltalisCoordinators(CustomModel):
 
         # For consumption, start time-based scheduling after initial refresh
         self.device_daily_consumption.start_time_tracking()
+        self.live_consumption.start_time_tracking()
+
+    async def unload_all(self) -> None:
+        # Stop time tracking for consumption coordinators
+        self.device_daily_consumption.stop_time_tracking()
+        self.live_consumption.stop_time_tracking()
 
 
 class VoltalisConfigEntryData(CustomModel):
