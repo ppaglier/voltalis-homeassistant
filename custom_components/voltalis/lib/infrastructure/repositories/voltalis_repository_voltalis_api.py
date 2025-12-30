@@ -10,19 +10,20 @@ from custom_components.voltalis.lib.application.providers.http_client import (
 )
 from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
 from custom_components.voltalis.lib.domain.exceptions import VoltalisConnectionException, VoltalisValidationException
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgrammingStatus
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
-from custom_components.voltalis.lib.domain.models.energy_contract import (
-    VoltalisEnergyContract,
-    VoltalisEnergyContractPrices,
-    VoltalisEnergyContractTypeEnum,
-)
+from custom_components.voltalis.lib.domain.models.energy_contract import VoltalisEnergyContract
 from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.range_model import RangeModel
-from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_consumption import VoltalisDeviceConsumptionDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device import VoltalisDeviceDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_consumption import VoltalisConsumptionDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_health import VoltalisDeviceHealthDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_manual_setting import (
+    VoltalisManualSettingDto,
+    VoltalisManualSettingUpdateDto,
+)
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_subscriber_contract import (
     VoltalisSubscriberContractDto,
 )
@@ -37,59 +38,47 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         self.__logger = logging.getLogger(__name__)
 
     async def get_devices(self) -> dict[int, VoltalisDevice]:
-        devices_response: HttpClientResponse[list[dict]]
+        response: HttpClientResponse[list[dict]]
         try:
-            devices_response = await self._client.send_request(
+            response = await self._client.send_request(
                 url="/api/site/{site_id}/managed-appliance",
                 method="GET",
             )
         except HttpClientException as err:
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
-        devices: dict[int, VoltalisDevice] = {}
+        parsed_devices: list[VoltalisDeviceDto]
         try:
-            for device_document in devices_response.data:
-                device = VoltalisDevice(
-                    id=device_document["id"],
-                    name=device_document["name"],
-                    type=device_document["applianceType"],
-                    modulator_type=device_document["modulatorType"],
-                    available_modes=[mode.lower() for mode in device_document["availableModes"]],
-                    programming=VoltalisDeviceProgrammingStatus(
-                        prog_type=device_document.get("programming", {}).get("progType", "").lower() or None,
-                        id_manual_setting=device_document.get("programming", {}).get("idManualSetting"),
-                        is_on=device_document.get("programming", {}).get("isOn"),
-                        mode=device_document.get("programming", {}).get("mode", "").lower() or None,
-                        temperature_target=device_document.get("programming", {}).get("temperatureTarget"),
-                        default_temperature=device_document.get("programming", {}).get("defaultTemperature"),
-                    ),
-                )
-                devices[device_document["id"]] = device
+            parsed_devices = TypeAdapter(list[VoltalisDeviceDto]).validate_python(response.data)
         except ValidationError as err:
-            self.__logger.error("Error parsing devices: %s", err)
+            self.__logger.error("Error parsing health: %s", err)
             raise VoltalisValidationException(*err.args) from err
+
+        devices = {device.id: device.to_voltalis_device() for device in parsed_devices}
 
         return devices
 
     async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
-        devices_health_response: HttpClientResponse[list[dict]]
+        response: HttpClientResponse[list[dict]]
         try:
-            devices_health_response = await self._client.send_request(
+            response = await self._client.send_request(
                 url="/api/site/{site_id}/autodiag",
                 method="GET",
             )
         except HttpClientException as err:
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
-        devices_health: dict[int, VoltalisDeviceHealth] = {}
+        parsed_devices_health: list[VoltalisDeviceHealthDto]
         try:
-            for device_health_document in devices_health_response.data:
-                devices_health[device_health_document["csApplianceId"]] = VoltalisDeviceHealth(
-                    status=device_health_document["status"].lower(),
-                )
+            parsed_devices_health = TypeAdapter(list[VoltalisDeviceHealthDto]).validate_python(response.data)
         except ValidationError as err:
             self.__logger.error("Error parsing health: %s", err)
             raise VoltalisValidationException(*err.args) from err
+
+        devices_health = {
+            device_health.cs_appliance_id: device_health.to_voltalis_device_health()
+            for device_health in parsed_devices_health
+        }
 
         return devices_health
 
@@ -97,7 +86,7 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         # Fetch the data from the voltalis API
         target_date_str = target_datetime.isoformat("T").split("T")[0]
 
-        response: HttpClientResponse[dict[str, dict[str, list[dict]]]]
+        response: HttpClientResponse[dict]
         try:
             response = await self._client.send_request(
                 url=f"/api/site/{{site_id}}/consumption/day/{target_date_str}/full-data",
@@ -106,72 +95,61 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         except HttpClientException as err:
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
-        devices_consumptions: dict[int, list[VoltalisDeviceConsumptionDto]] = {}
+        parsed_consumption: VoltalisConsumptionDto
         try:
-            for device_id, device_consumptions in response.data["perAppliance"].items():
-                devices_consumptions[int(device_id)] = sorted(
-                    [VoltalisDeviceConsumptionDto(**device_consumption) for device_consumption in device_consumptions],
-                    key=lambda x: x.step_timestamp_on_site,
-                )
+            parsed_consumption = TypeAdapter(VoltalisConsumptionDto).validate_python(response.data)
         except ValidationError as err:
             self.__logger.error("Error parsing consumptions: %s", err)
             raise VoltalisValidationException(*err.args) from err
 
-        consumptions = {
+        devices_consumptions = {
             device_id: get_consumption_for_hour(
                 consumptions=[
                     (consumption_record.step_timestamp_on_site, consumption_record.total_consumption_in_wh)
-                    for consumption_record in consumption_records
+                    for consumption_record in sorted(device_consumptions, key=lambda x: x.step_timestamp_on_site)
                 ],
                 target_datetime=target_datetime,
             )
-            for device_id, consumption_records in devices_consumptions.items()
+            for device_id, device_consumptions in parsed_consumption.per_appliance.items()
         }
 
-        return consumptions
+        return devices_consumptions
 
     async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
-        manual_settings_response: HttpClientResponse[list[dict]]
+        response: HttpClientResponse[list[dict]]
         try:
-            manual_settings_response = await self._client.send_request(
+            response = await self._client.send_request(
                 url="/api/site/{site_id}/manualsetting",
                 method="GET",
             )
         except HttpClientException as err:
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
-        manual_settings: dict[int, VoltalisManualSetting] = {}
+        parsed_manual_settings: list[VoltalisManualSettingDto]
         try:
-            for setting_document in manual_settings_response.data:
-                new_settings = VoltalisManualSetting(
-                    id=setting_document["id"],
-                    enabled=setting_document["enabled"],
-                    id_appliance=setting_document["idAppliance"],
-                    appliance_name=setting_document["applianceName"],
-                    appliance_type=setting_document["applianceType"],
-                    until_further_notice=setting_document["untilFurtherNotice"],
-                    is_on=setting_document["isOn"],
-                    mode=setting_document["mode"].lower(),
-                    end_date=setting_document["endDate"],
-                    temperature_target=setting_document["temperatureTarget"],
-                )
-                manual_settings[setting_document["idAppliance"]] = new_settings
+            parsed_manual_settings = TypeAdapter(list[VoltalisManualSettingDto]).validate_python(response.data)
         except ValidationError as err:
             self.__logger.error("Error parsing manual settings: %s", err)
             raise VoltalisValidationException(*err.args) from err
 
+        manual_settings = {
+            manual_setting.id_appliance: manual_setting.to_voltalis_manual_setting()
+            for manual_setting in parsed_manual_settings
+        }
+
         return manual_settings
 
     async def set_manual_setting(self, manual_setting_id: int, setting: VoltalisManualSettingUpdate) -> None:
-        payload = {
-            "enabled": setting.enabled,
-            "idAppliance": setting.id_appliance,
-            "untilFurtherNotice": setting.until_further_notice,
-            "isOn": setting.is_on,
-            "mode": setting.mode.upper(),
-            "endDate": setting.end_date,
-            "temperatureTarget": setting.temperature_target,
-        }
+        payload = VoltalisManualSettingUpdateDto(
+            id=manual_setting_id,
+            enabled=setting.enabled,
+            id_appliance=setting.id_appliance,
+            until_further_notice=setting.until_further_notice,
+            is_on=setting.is_on,
+            mode=setting.mode.value.upper(),
+            end_date=setting.end_date,
+            temperature_target=setting.temperature_target,
+        ).model_dump(by_alias=True)
 
         try:
             await self._client.send_request(
@@ -193,48 +171,12 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         if not response.data or len(response.data) == 0:
             raise VoltalisValidationException("No subscriber contracts found")
 
+        parsed_contracts: list[VoltalisSubscriberContractDto]
         try:
             parsed_contracts = TypeAdapter(list[VoltalisSubscriberContractDto]).validate_python(response.data)
         except ValidationError as err:
             self.__logger.exception("Failed to parse subscriber contracts")
             raise VoltalisValidationException("Failed to parse subscriber contracts") from err
 
-        contracts = {
-            contract.id: VoltalisEnergyContract(
-                id=contract.id,
-                company_name=contract.company_name,
-                name=contract.name,
-                subscribed_power=contract.subscribed_power,
-                type=(
-                    VoltalisEnergyContractTypeEnum.BASE
-                    if not contract.is_peak_off_peak_contract
-                    else VoltalisEnergyContractTypeEnum.PEAK_OFFPEAK
-                ),
-                prices=VoltalisEnergyContractPrices(
-                    subscription=(
-                        (contract.subscription_base_price or 0.0)
-                        if not contract.is_peak_off_peak_contract
-                        else (contract.subscription_peak_off_peak_base_price or 0.0)
-                    ),
-                    kwh_base=contract.kwh_base_price,
-                    kwh_peak=contract.kwh_peak_hour_price,
-                    kwh_offpeak=contract.kwh_offpeak_hour_price,
-                ),
-                peak_hours=[
-                    RangeModel(
-                        start=datetime.strptime(time_range.from_time, "%H:%M").time(),
-                        end=datetime.strptime(time_range.to_time, "%H:%M").time(),
-                    )
-                    for time_range in contract.peak_hours
-                ],
-                offpeak_hours=[
-                    RangeModel(
-                        start=datetime.strptime(time_range.from_time, "%H:%M").time(),
-                        end=datetime.strptime(time_range.to_time, "%H:%M").time(),
-                    )
-                    for time_range in contract.offpeak_hours
-                ],
-            )
-            for contract in parsed_contracts
-        }
+        contracts = {contract.id: contract.to_voltalis_energy_contract() for contract in parsed_contracts}
         return contracts

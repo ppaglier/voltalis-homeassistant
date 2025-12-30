@@ -7,7 +7,6 @@ from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConf
 from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
 from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
-from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceModulatorTypeEnum, VoltalisDeviceTypeEnum
 
 
 class VoltalisDeviceEntity(VoltalisBaseEntity):
@@ -56,17 +55,8 @@ class VoltalisDeviceEntity(VoltalisBaseEntity):
     def __get_device_model(self) -> str:
         """Return the translation key for the device model."""
 
-        model_keys = {
-            VoltalisDeviceTypeEnum.WATER_HEATER: "water_heater",
-            VoltalisDeviceTypeEnum.HEATER: "heater",
-        }
-        type_keys = {
-            VoltalisDeviceModulatorTypeEnum.VX_WIRE: "wire",
-            VoltalisDeviceModulatorTypeEnum.VX_RELAY: "relay",
-        }
-
-        model = model_keys.get(self._device.type, "unknown")
-        model_type = type_keys.get(self._device.modulator_type, "unknown")
+        model = self._device.type.value
+        model_type = self._device.modulator_type.value
 
         return f"{model}.{model_type}"
 

@@ -8,7 +8,7 @@ from custom_components.voltalis.lib.domain.models.device import (
     VoltalisDevice,
     VoltalisDeviceModeEnum,
     VoltalisDeviceModulatorTypeEnum,
-    VoltalisDeviceProgrammingStatus,
+    VoltalisDeviceProgramming,
     VoltalisDeviceProgTypeEnum,
     VoltalisDeviceTypeEnum,
 )
@@ -41,7 +41,7 @@ async def test_get_devices(fixture: "VoltalisRepositoryFixture") -> None:
             type=VoltalisDeviceTypeEnum.HEATER,
             modulator_type=VoltalisDeviceModulatorTypeEnum.VX_WIRE,
             available_modes=[],
-            programming=VoltalisDeviceProgrammingStatus(
+            programming=VoltalisDeviceProgramming(
                 prog_type=VoltalisDeviceProgTypeEnum.DEFAULT,
             ),
         ),
@@ -51,7 +51,7 @@ async def test_get_devices(fixture: "VoltalisRepositoryFixture") -> None:
             type=VoltalisDeviceTypeEnum.WATER_HEATER,
             modulator_type=VoltalisDeviceModulatorTypeEnum.VX_RELAY,
             available_modes=[],
-            programming=VoltalisDeviceProgrammingStatus(
+            programming=VoltalisDeviceProgramming(
                 prog_type=VoltalisDeviceProgTypeEnum.DEFAULT,
             ),
         ),

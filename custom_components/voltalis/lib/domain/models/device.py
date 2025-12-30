@@ -6,16 +6,16 @@ from custom_components.voltalis.lib.domain.custom_model import CustomModel
 class VoltalisDeviceTypeEnum(StrEnum):
     """Enum for the type field"""
 
-    HEATER = "HEATER"
-    WATER_HEATER = "WATER_HEATER"
-    OTHER = "OTHER"
+    HEATER = "heater"
+    WATER_HEATER = "water_heater"
+    OTHER = "other"
 
 
 class VoltalisDeviceModulatorTypeEnum(StrEnum):
     """Enum for the modulator_type field"""
 
-    VX_WIRE = "VX_WIRE"
-    VX_RELAY = "VX_RELAY"
+    VX_WIRE = "vx_wire"
+    VX_RELAY = "vx_relay"
 
 
 class VoltalisDeviceModeEnum(StrEnum):
@@ -40,7 +40,7 @@ class VoltalisDeviceProgTypeEnum(StrEnum):
     QUICK = "quick"
 
 
-class VoltalisDeviceProgrammingStatus(CustomModel):
+class VoltalisDeviceProgramming(CustomModel):
     """Class to represent the status of a Voltalis device"""
 
     prog_type: VoltalisDeviceProgTypeEnum
@@ -59,4 +59,4 @@ class VoltalisDevice(CustomModel):
     type: VoltalisDeviceTypeEnum
     modulator_type: VoltalisDeviceModulatorTypeEnum
     available_modes: list[VoltalisDeviceModeEnum]
-    programming: VoltalisDeviceProgrammingStatus
+    programming: VoltalisDeviceProgramming
