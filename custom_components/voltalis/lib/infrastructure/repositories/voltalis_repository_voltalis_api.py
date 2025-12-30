@@ -24,6 +24,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
 from custom_components.voltalis.lib.domain.range_model import RangeModel
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_consumption import VoltalisDeviceConsumptionDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_health import VoltalisDeviceHealthDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_manual_setting import VoltalisManualSettingDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_subscriber_contract import (
     VoltalisSubscriberContractDto,
 )
@@ -136,34 +137,35 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         return consumptions
 
     async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
-        manual_settings_response: HttpClientResponse[list[dict]]
+        response: HttpClientResponse[list[dict]]
         try:
-            manual_settings_response = await self._client.send_request(
+            response = await self._client.send_request(
                 url="/api/site/{site_id}/manualsetting",
                 method="GET",
             )
         except HttpClientException as err:
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
-        manual_settings: dict[int, VoltalisManualSetting] = {}
+        parsed_manual_settings: list[VoltalisManualSettingDto]
         try:
-            for setting_document in manual_settings_response.data:
-                new_settings = VoltalisManualSetting(
-                    id=setting_document["id"],
-                    enabled=setting_document["enabled"],
-                    id_appliance=setting_document["idAppliance"],
-                    appliance_name=setting_document["applianceName"],
-                    appliance_type=setting_document["applianceType"],
-                    until_further_notice=setting_document["untilFurtherNotice"],
-                    is_on=setting_document["isOn"],
-                    mode=setting_document["mode"].lower(),
-                    end_date=setting_document["endDate"],
-                    temperature_target=setting_document["temperatureTarget"],
-                )
-                manual_settings[setting_document["idAppliance"]] = new_settings
+            parsed_manual_settings = TypeAdapter(list[VoltalisManualSettingDto]).validate_python(response.data)
         except ValidationError as err:
             self.__logger.error("Error parsing manual settings: %s", err)
             raise VoltalisValidationException(*err.args) from err
+
+        manual_settings = {
+            manual_setting.id_appliance: VoltalisManualSetting(
+                id=manual_setting.id,
+                enabled=manual_setting.enabled,
+                id_appliance=manual_setting.id_appliance,
+                until_further_notice=manual_setting.until_further_notice,
+                is_on=manual_setting.is_on,
+                mode=manual_setting.mode.value.lower(),
+                end_date=manual_setting.end_date,
+                temperature_target=manual_setting.temperature_target,
+            )
+            for manual_setting in parsed_manual_settings
+        }
 
         return manual_settings
 

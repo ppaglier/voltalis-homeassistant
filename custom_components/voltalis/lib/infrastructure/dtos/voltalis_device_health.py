@@ -11,11 +11,11 @@ class VoltalisDeviceHealthDtoStatusEnum(StrEnum):
     OK = "OK"
     NOT_OK = "NOK"
     TEST_IN_PROGRESS = "TEST_IN_PROGRESS"
-    NO_CONSUMPTION = "no_consumption"
-    COMM_ERROR = "comm_error"
+    NO_CONSUMPTION = "NO_CONSUMPTION"
+    COMM_ERROR = "COMM_ERROR"
 
-    NO_CONSUMPTION_CAPS = "NO_CONSUMPTION"
-    COMM_ERROR_CAPS = "COMM_ERROR"
+    NO_CONSUMPTION_NO_CAPS = "no_consumption"
+    COMM_ERROR_NO_CAPS = "comm_error"
 
 
 class VoltalisDeviceHealthDto(CustomModel):
