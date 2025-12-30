@@ -104,12 +104,12 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
             raise VoltalisValidationException(*err.args) from err
 
         self.__logger.info(parsed_realtime_consumption.model_dump_json())
-        total_realtime_consumption = sum(
+        live_consumption = sum(
             consumption_record.total_consumption_in_wh
             for consumption_record in parsed_realtime_consumption.consumptions
         )
 
-        return total_realtime_consumption
+        return live_consumption
 
     async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         # Fetch the data from the voltalis API
