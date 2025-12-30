@@ -33,8 +33,8 @@ from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_offpeak_
 from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_peak_cost_sensor import (
     VoltalisEnergyContractKwhPeakCostSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.realtime_consumption_sensor import (
-    VoltalisEnergyContractRealtimeConsumptionSensor,
+from custom_components.voltalis.lib.domain.entities.energy_contract.live_consumption_sensor import (
+    VoltalisEnergyContractLiveConsumptionSensor,
 )
 from custom_components.voltalis.lib.domain.entities.energy_contract.subscribed_power_sensor import (
     VoltalisEnergyContractSubscribedPowerSensor,
@@ -59,10 +59,6 @@ async def async_setup_entry(
     energy_contract_coordinator = entry.runtime_data.coordinators.energy_contract
     date_provider = entry.runtime_data.date_provider
 
-    if not device_coordinator.data:
-        _LOGGER.warning("No Device data available during setup, waiting for first refresh")
-        await device_coordinator.async_config_entry_first_refresh()
-
     device_sensors: list[VoltalisDeviceEntity] = []
 
     for device in device_coordinator.data.values():
@@ -80,14 +76,10 @@ async def async_setup_entry(
         if device.programming.prog_type is not None:
             device_sensors.append(VoltalisDeviceProgrammingSensor(entry, device))
 
-    if not energy_contract_coordinator.data:
-        _LOGGER.warning("No Energy contract data available during setup, waiting for first refresh")
-        await energy_contract_coordinator.async_config_entry_first_refresh()
-
     energy_contract_sensors: list[VoltalisEnergyContractEntity] = []
     if energy_contract_coordinator.data:
         current_contract = next(iter(energy_contract_coordinator.data.values()))
-        energy_contract_sensors.append(VoltalisEnergyContractRealtimeConsumptionSensor(entry, current_contract))
+        energy_contract_sensors.append(VoltalisEnergyContractLiveConsumptionSensor(entry, current_contract))
 
     for energy_contract in energy_contract_coordinator.data.values():
         energy_contract_sensors.append(VoltalisEnergyContractSubscribedPowerSensor(entry, energy_contract))

@@ -17,6 +17,7 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
     def __init__(self) -> None:
         self.__devices: dict[int, VoltalisDevice] = {}
         self.__devices_health: dict[int, VoltalisDeviceHealth] = {}
+        self.__realtime_consumption: float = 0.0
         self.__devices_consumptions: dict[int, list[tuple[datetime, float]]] = {}
         self.__manual_settings: dict[int, VoltalisManualSetting] = {}
         self.__energy_contracts: dict[int, VoltalisEnergyContract] = {}
@@ -26,6 +27,9 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
 
     def set_devices_health(self, devices_health: dict[int, VoltalisDeviceHealth]) -> None:
         self.__devices_health = devices_health
+
+    def set_realtime_consumption(self, consumption: float) -> None:
+        self.__realtime_consumption = consumption
 
     def set_devices_consumptions(self, devices_consumptions: dict[int, list[tuple[datetime, float]]]) -> None:
         self.__devices_consumptions = devices_consumptions
@@ -45,6 +49,9 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
 
     async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
         return self.__devices_health
+
+    async def get_live_consumption(self) -> float:
+        return self.__realtime_consumption
 
     async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         consumptions = {

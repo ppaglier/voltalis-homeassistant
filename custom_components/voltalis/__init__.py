@@ -17,10 +17,8 @@ from custom_components.voltalis.lib.domain.coordinators.device_daily_consumption
     VoltalisDeviceDailyConsumptionCoordinator,
 )
 from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
-from custom_components.voltalis.lib.domain.coordinators.device_realtime_consumption import (
-    VoltalisDeviceRealtimeConsumptionCoordinator,
-)
 from custom_components.voltalis.lib.domain.coordinators.energy_contract import VoltalisEnergyContractCoordinator
+from custom_components.voltalis.lib.domain.coordinators.live_consumption import VoltalisLiveConsumptionCoordinator
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 from custom_components.voltalis.lib.infrastructure.repositories.voltalis_repository_voltalis_api import (
@@ -82,11 +80,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
             date_provider=date_provider,
             entry=entry,
         ),
-        realtime_consumption=VoltalisDeviceRealtimeConsumptionCoordinator(
+        live_consumption=VoltalisLiveConsumptionCoordinator(
             hass=hass,
             voltalis_repository=voltalis_repository,
             entry=entry,
-            seconds=True,
         ),
         energy_contract=VoltalisEnergyContractCoordinator(
             hass=hass,

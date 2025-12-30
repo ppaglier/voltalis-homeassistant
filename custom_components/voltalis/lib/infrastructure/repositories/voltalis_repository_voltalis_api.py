@@ -24,6 +24,9 @@ from custom_components.voltalis.lib.infrastructure.dtos.voltalis_manual_setting 
     VoltalisManualSettingDto,
     VoltalisManualSettingUpdateDto,
 )
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_realtime_consumption import (
+    VoltalisRealtimeConsumptionDto,
+)
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_subscriber_contract import (
     VoltalisSubscriberContractDto,
 )
@@ -81,6 +84,32 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         }
 
         return devices_health
+
+    async def get_live_consumption(self) -> float:
+        response: HttpClientResponse[dict]
+        try:
+            response = await self._client.send_request(
+                url="/api/site/{site_id}/consumption/realtime",
+                method="GET",
+                query_params={"mode": "TEN_MINUTES", "numPoints": "1"},
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+
+        parsed_realtime_consumption: VoltalisRealtimeConsumptionDto
+        try:
+            parsed_realtime_consumption = TypeAdapter(VoltalisRealtimeConsumptionDto).validate_python(response.data)
+        except ValidationError as err:
+            self.__logger.error("Error parsing realtime consumption: %s", err)
+            raise VoltalisValidationException(*err.args) from err
+
+        self.__logger.info(parsed_realtime_consumption.model_dump_json())
+        total_realtime_consumption = sum(
+            consumption_record.total_consumption_in_wh
+            for consumption_record in parsed_realtime_consumption.consumptions
+        )
+
+        return total_realtime_consumption
 
     async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         # Fetch the data from the voltalis API

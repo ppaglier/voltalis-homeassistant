@@ -25,10 +25,6 @@ async def async_setup_entry(
 
     device_coordinator = entry.runtime_data.coordinators.device
 
-    if not device_coordinator.data:
-        _LOGGER.warning("No Voltalis data available during setup, waiting for first refresh")
-        await device_coordinator.async_config_entry_first_refresh()
-
     select_entities: list[VoltalisDeviceEntity] = []
 
     for device in device_coordinator.data.values():
