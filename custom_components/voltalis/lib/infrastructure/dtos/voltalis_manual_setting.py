@@ -1,6 +1,7 @@
 from pydantic import Field
 
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
+from custom_components.voltalis.lib.domain.models.manual_setting import VoltalisManualSetting
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device import VoltalisDeviceDtoModeEnum
 
 
@@ -20,3 +21,17 @@ class VoltalisManualSettingDto(VoltalisManualSettingUpdateDto):
     """Class to represent manual setting of a Voltalis device DTO"""
 
     id: int
+
+    def to_voltalis_manual_setting(self) -> VoltalisManualSetting:
+        """Convert to domain model"""
+
+        return VoltalisManualSetting(
+            id=self.id,
+            enabled=self.enabled,
+            id_appliance=self.id_appliance,
+            until_further_notice=self.until_further_notice,
+            is_on=self.is_on,
+            mode=self.mode.value.lower(),
+            end_date=self.end_date,
+            temperature_target=self.temperature_target,
+        )

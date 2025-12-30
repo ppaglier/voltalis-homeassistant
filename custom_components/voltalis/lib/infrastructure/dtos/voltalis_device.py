@@ -3,6 +3,7 @@ from enum import StrEnum
 from pydantic import Field
 
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgramming
 
 
 class VoltalisDeviceDtoApplianceTypeEnum(StrEnum):
@@ -62,3 +63,22 @@ class VoltalisDeviceDto(CustomModel):
     modulator_type: VoltalisDeviceDtoModulatorTypeEnum = Field(alias="modulatorType")
     available_modes: list[VoltalisDeviceDtoModeEnum] = Field(alias="availableModes")
     programming: VoltalisDeviceDtoProgramming
+
+    def to_voltalis_device(self) -> VoltalisDevice:
+        """Convert to domain model"""
+
+        return VoltalisDevice(
+            id=self.id,
+            name=self.name,
+            type=self.appliance_type.value,
+            modulator_type=self.modulator_type.value,
+            available_modes=[mode.value.lower() for mode in self.available_modes],
+            programming=VoltalisDeviceProgramming(
+                prog_type=self.programming.prog_type.value.lower(),
+                id_manual_setting=self.programming.id_manual_setting,
+                is_on=self.programming.is_on,
+                mode=self.programming.mode.value.lower() if self.programming.mode else None,
+                temperature_target=self.programming.temperature_target,
+                default_temperature=self.programming.default_temperature,
+            ),
+        )
