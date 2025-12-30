@@ -23,6 +23,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
 )
 from custom_components.voltalis.lib.domain.range_model import RangeModel
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_consumption import VoltalisDeviceConsumptionDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_health import VoltalisDeviceHealthDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_subscriber_contract import (
     VoltalisSubscriberContractDto,
 )
@@ -72,24 +73,28 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         return devices
 
     async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
-        devices_health_response: HttpClientResponse[list[dict]]
+        response: HttpClientResponse[list[dict]]
         try:
-            devices_health_response = await self._client.send_request(
+            response = await self._client.send_request(
                 url="/api/site/{site_id}/autodiag",
                 method="GET",
             )
         except HttpClientException as err:
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
-        devices_health: dict[int, VoltalisDeviceHealth] = {}
+        parsed_devices_health: list[VoltalisDeviceHealthDto]
         try:
-            for device_health_document in devices_health_response.data:
-                devices_health[device_health_document["csApplianceId"]] = VoltalisDeviceHealth(
-                    status=device_health_document["status"].lower(),
-                )
+            parsed_devices_health = TypeAdapter(list[VoltalisDeviceHealthDto]).validate_python(response.data)
         except ValidationError as err:
             self.__logger.error("Error parsing health: %s", err)
             raise VoltalisValidationException(*err.args) from err
+
+        devices_health = {
+            device_health.cs_appliance_id: VoltalisDeviceHealth(
+                status=device_health.status.value.lower(),
+            )
+            for device_health in parsed_devices_health
+        }
 
         return devices_health
 
@@ -193,6 +198,7 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         if not response.data or len(response.data) == 0:
             raise VoltalisValidationException("No subscriber contracts found")
 
+        parsed_contracts: list[VoltalisSubscriberContractDto]
         try:
             parsed_contracts = TypeAdapter(list[VoltalisSubscriberContractDto]).validate_python(response.data)
         except ValidationError as err:
