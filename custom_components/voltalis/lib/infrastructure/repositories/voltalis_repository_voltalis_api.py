@@ -24,7 +24,10 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
 from custom_components.voltalis.lib.domain.range_model import RangeModel
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_consumption import VoltalisDeviceConsumptionDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_health import VoltalisDeviceHealthDto
-from custom_components.voltalis.lib.infrastructure.dtos.voltalis_manual_setting import VoltalisManualSettingDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_manual_setting import (
+    VoltalisManualSettingDto,
+    VoltalisManualSettingUpdateDto,
+)
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_subscriber_contract import (
     VoltalisSubscriberContractDto,
 )
@@ -170,15 +173,16 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         return manual_settings
 
     async def set_manual_setting(self, manual_setting_id: int, setting: VoltalisManualSettingUpdate) -> None:
-        payload = {
-            "enabled": setting.enabled,
-            "idAppliance": setting.id_appliance,
-            "untilFurtherNotice": setting.until_further_notice,
-            "isOn": setting.is_on,
-            "mode": setting.mode.upper(),
-            "endDate": setting.end_date,
-            "temperatureTarget": setting.temperature_target,
-        }
+        payload = VoltalisManualSettingUpdateDto(
+            id=manual_setting_id,
+            enabled=setting.enabled,
+            id_appliance=setting.id_appliance,
+            until_further_notice=setting.until_further_notice,
+            is_on=setting.is_on,
+            mode=setting.mode.value.upper(),
+            end_date=setting.end_date,
+            temperature_target=setting.temperature_target,
+        ).model_dump(by_alias=True)
 
         try:
             await self._client.send_request(
