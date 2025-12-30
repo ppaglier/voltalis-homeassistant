@@ -5,7 +5,7 @@ from pydantic import Field
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 
 
-class VoltalisDeviceDtoTypeEnum(StrEnum):
+class VoltalisDeviceDtoApplianceTypeEnum(StrEnum):
     """Enum for the type field"""
 
     HEATER = "HEATER"
@@ -58,7 +58,7 @@ class VoltalisDeviceDto(CustomModel):
 
     id: int
     name: str
-    type: VoltalisDeviceDtoTypeEnum
+    appliance_type: VoltalisDeviceDtoApplianceTypeEnum = Field(alias="applianceType")
     modulator_type: VoltalisDeviceDtoModulatorTypeEnum = Field(alias="modulatorType")
     available_modes: list[VoltalisDeviceDtoModeEnum] = Field(alias="availableModes")
     programming: VoltalisDeviceDtoProgramming

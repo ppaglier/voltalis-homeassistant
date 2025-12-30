@@ -63,8 +63,8 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
             device.id: VoltalisDevice(
                 id=device.id,
                 name=device.name,
-                type=device.id,
-                modulator_type=device.modulator_type.value.lower(),
+                type=device.appliance_type.value,
+                modulator_type=device.modulator_type.value,
                 available_modes=[mode.value.lower() for mode in device.available_modes],
                 programming=VoltalisDeviceProgramming(
                     prog_type=device.programming.prog_type.value.lower(),

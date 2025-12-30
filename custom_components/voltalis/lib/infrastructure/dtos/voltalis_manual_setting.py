@@ -1,7 +1,7 @@
 from pydantic import Field
 
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceModeEnum
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device import VoltalisDeviceDtoModeEnum
 
 
 class VoltalisManualSettingUpdateDto(CustomModel):
@@ -11,7 +11,7 @@ class VoltalisManualSettingUpdateDto(CustomModel):
     enabled: bool
     until_further_notice: bool = Field(alias="untilFurtherNotice")
     is_on: bool = Field(alias="isOn")
-    mode: VoltalisDeviceModeEnum
+    mode: VoltalisDeviceDtoModeEnum
     end_date: str | None = Field(None, alias="endDate")
     temperature_target: float = Field(alias="temperatureTarget")
 
