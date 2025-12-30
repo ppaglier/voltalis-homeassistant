@@ -17,6 +17,9 @@ from custom_components.voltalis.lib.domain.coordinators.device_daily_consumption
     VoltalisDeviceDailyConsumptionCoordinator,
 )
 from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
+from custom_components.voltalis.lib.domain.coordinators.device_realtime_consumption import (
+    VoltalisDeviceRealtimeConsumptionCoordinator,
+)
 from custom_components.voltalis.lib.domain.coordinators.energy_contract import VoltalisEnergyContractCoordinator
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
@@ -79,6 +82,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
             date_provider=date_provider,
             entry=entry,
         ),
+        realtime_consumption=VoltalisDeviceRealtimeConsumptionCoordinator(
+            hass=hass,
+            voltalis_repository=voltalis_repository,
+            entry=entry,
+            seconds=True,
+        ),
         energy_contract=VoltalisEnergyContractCoordinator(
             hass=hass,
             voltalis_repository=voltalis_repository,
@@ -104,8 +113,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Unload a config entry."""
 
-    # Stop time tracking for consumption coordinator
-    entry.runtime_data.coordinators.device_daily_consumption.stop_time_tracking()
+    await entry.runtime_data.coordinators.unload_all()
 
     await entry.runtime_data.voltalis_client.logout()
 

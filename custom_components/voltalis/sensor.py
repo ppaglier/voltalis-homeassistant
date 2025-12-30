@@ -33,6 +33,9 @@ from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_offpeak_
 from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_peak_cost_sensor import (
     VoltalisEnergyContractKwhPeakCostSensor,
 )
+from custom_components.voltalis.lib.domain.entities.energy_contract.realtime_consumption_sensor import (
+    VoltalisEnergyContractRealtimeConsumptionSensor,
+)
 from custom_components.voltalis.lib.domain.entities.energy_contract.subscribed_power_sensor import (
     VoltalisEnergyContractSubscribedPowerSensor,
 )
@@ -82,6 +85,10 @@ async def async_setup_entry(
         await energy_contract_coordinator.async_config_entry_first_refresh()
 
     energy_contract_sensors: list[VoltalisEnergyContractEntity] = []
+    if energy_contract_coordinator.data:
+        current_contract = next(iter(energy_contract_coordinator.data.values()))
+        energy_contract_sensors.append(VoltalisEnergyContractRealtimeConsumptionSensor(entry, current_contract))
+
     for energy_contract in energy_contract_coordinator.data.values():
         energy_contract_sensors.append(VoltalisEnergyContractSubscribedPowerSensor(entry, energy_contract))
         energy_contract_sensors.append(VoltalisEnergyContractCurrentModeSensor(entry, energy_contract, date_provider))

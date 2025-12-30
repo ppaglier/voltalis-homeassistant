@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity):
-    """References the consumption of a device."""
+    """References the daily consumption of a device."""
 
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
@@ -34,7 +34,7 @@ class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity):
 
         device_daily_consumption = self._coordinators.device_daily_consumption.data.get(self._device.id)
         if device_daily_consumption is None:
-            _LOGGER.warning("Consumption data for device %s is None", self._device.id)
+            _LOGGER.warning("Daily consumption data for device %s is None", self._device.id)
             return
 
         new_value = device_daily_consumption
