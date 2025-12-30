@@ -84,22 +84,22 @@ explicit_package_bases = true
 
 [tool.poetry.dependencies]
 python = ">=3.13.2,<4.0"
-taskipy = "^1.12.2"
-homeassistant = "^2025.10.3"
+taskipy = "^1.14.1"
+homeassistant = "^2025.12.4"
 pydantic = "2.12.2"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.11.2"
-mypy = "^1.8.0"
+ruff = "^0.14.10"
+mypy = "^1.19.1"
 
 
 [tool.poetry.group.test.dependencies]
-pytest = "^8.4.2"
-pytest-cov = "^7.0.0"
-pytest-env = "^1.2.0"
-pytest-homeassistant-custom-component = "^0.13.292"
+pytest = "^9.0.0"
 dictdiffer = "^0.9.0"
+pytest-env = "^1.2.0"
+pytest-cov = "^7.0.0"
+pytest-homeassistant-custom-component = "^0.13.301"
 pytest-aiohttp = "^1.1.0"
 
 
