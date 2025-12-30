@@ -10,7 +10,7 @@ from custom_components.voltalis.lib.application.providers.http_client import (
 )
 from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
 from custom_components.voltalis.lib.domain.exceptions import VoltalisConnectionException, VoltalisValidationException
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgrammingStatus
+from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgramming
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 from custom_components.voltalis.lib.domain.models.energy_contract import (
     VoltalisEnergyContract,
@@ -22,6 +22,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSettingUpdate,
 )
 from custom_components.voltalis.lib.domain.range_model import RangeModel
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device import VoltalisDeviceDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_consumption import VoltalisDeviceConsumptionDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_health import VoltalisDeviceHealthDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_manual_setting import (
@@ -42,37 +43,40 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         self.__logger = logging.getLogger(__name__)
 
     async def get_devices(self) -> dict[int, VoltalisDevice]:
-        devices_response: HttpClientResponse[list[dict]]
+        response: HttpClientResponse[list[dict]]
         try:
-            devices_response = await self._client.send_request(
+            response = await self._client.send_request(
                 url="/api/site/{site_id}/managed-appliance",
                 method="GET",
             )
         except HttpClientException as err:
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
-        devices: dict[int, VoltalisDevice] = {}
+        parsed_devices: list[VoltalisDeviceDto]
         try:
-            for device_document in devices_response.data:
-                device = VoltalisDevice(
-                    id=device_document["id"],
-                    name=device_document["name"],
-                    type=device_document["applianceType"],
-                    modulator_type=device_document["modulatorType"],
-                    available_modes=[mode.lower() for mode in device_document["availableModes"]],
-                    programming=VoltalisDeviceProgrammingStatus(
-                        prog_type=device_document.get("programming", {}).get("progType", "").lower() or None,
-                        id_manual_setting=device_document.get("programming", {}).get("idManualSetting"),
-                        is_on=device_document.get("programming", {}).get("isOn"),
-                        mode=device_document.get("programming", {}).get("mode", "").lower() or None,
-                        temperature_target=device_document.get("programming", {}).get("temperatureTarget"),
-                        default_temperature=device_document.get("programming", {}).get("defaultTemperature"),
-                    ),
-                )
-                devices[device_document["id"]] = device
+            parsed_devices = TypeAdapter(list[VoltalisDeviceDto]).validate_python(response.data)
         except ValidationError as err:
-            self.__logger.error("Error parsing devices: %s", err)
+            self.__logger.error("Error parsing health: %s", err)
             raise VoltalisValidationException(*err.args) from err
+
+        devices = {
+            device.id: VoltalisDevice(
+                id=device.id,
+                name=device.name,
+                type=device.id,
+                modulator_type=device.modulator_type.value.lower(),
+                available_modes=[mode.value.lower() for mode in device.available_modes],
+                programming=VoltalisDeviceProgramming(
+                    prog_type=device.programming.prog_type.value.lower(),
+                    id_manual_setting=device.programming.id_manual_setting,
+                    is_on=device.programming.is_on,
+                    mode=device.programming.mode.value.lower() if device.programming.mode else None,
+                    temperature_target=device.programming.temperature_target,
+                    default_temperature=device.programming.default_temperature,
+                ),
+            )
+            for device in parsed_devices
+        }
 
         return devices
 

@@ -40,7 +40,7 @@ class VoltalisDeviceProgTypeEnum(StrEnum):
     QUICK = "quick"
 
 
-class VoltalisDeviceProgrammingStatus(CustomModel):
+class VoltalisDeviceProgramming(CustomModel):
     """Class to represent the status of a Voltalis device"""
 
     prog_type: VoltalisDeviceProgTypeEnum
@@ -59,4 +59,4 @@ class VoltalisDevice(CustomModel):
     type: VoltalisDeviceTypeEnum
     modulator_type: VoltalisDeviceModulatorTypeEnum
     available_modes: list[VoltalisDeviceModeEnum]
-    programming: VoltalisDeviceProgrammingStatus
+    programming: VoltalisDeviceProgramming
