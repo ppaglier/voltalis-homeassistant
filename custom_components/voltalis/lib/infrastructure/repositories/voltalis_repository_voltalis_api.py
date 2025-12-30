@@ -23,7 +23,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
 )
 from custom_components.voltalis.lib.domain.range_model import RangeModel
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device import VoltalisDeviceDto
-from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_consumption import VoltalisDeviceConsumptionDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_consumption import VoltalisConsumptionDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_device_health import VoltalisDeviceHealthDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_manual_setting import (
     VoltalisManualSettingDto,
@@ -110,7 +110,7 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         # Fetch the data from the voltalis API
         target_date_str = target_datetime.isoformat("T").split("T")[0]
 
-        response: HttpClientResponse[dict[str, dict[str, list[dict]]]]
+        response: HttpClientResponse[dict]
         try:
             response = await self._client.send_request(
                 url=f"/api/site/{{site_id}}/consumption/day/{target_date_str}/full-data",
@@ -119,29 +119,25 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         except HttpClientException as err:
             raise VoltalisConnectionException("Error connecting to Voltalis API") from err
 
-        devices_consumptions: dict[int, list[VoltalisDeviceConsumptionDto]] = {}
+        parsed_consumption: VoltalisConsumptionDto
         try:
-            for device_id, device_consumptions in response.data["perAppliance"].items():
-                devices_consumptions[int(device_id)] = sorted(
-                    [VoltalisDeviceConsumptionDto(**device_consumption) for device_consumption in device_consumptions],
-                    key=lambda x: x.step_timestamp_on_site,
-                )
+            parsed_consumption = TypeAdapter(VoltalisConsumptionDto).validate_python(response.data)
         except ValidationError as err:
             self.__logger.error("Error parsing consumptions: %s", err)
             raise VoltalisValidationException(*err.args) from err
 
-        consumptions = {
+        devices_consumptions = {
             device_id: get_consumption_for_hour(
                 consumptions=[
                     (consumption_record.step_timestamp_on_site, consumption_record.total_consumption_in_wh)
-                    for consumption_record in consumption_records
+                    for consumption_record in sorted(device_consumptions, key=lambda x: x.step_timestamp_on_site)
                 ],
                 target_datetime=target_datetime,
             )
-            for device_id, consumption_records in devices_consumptions.items()
+            for device_id, device_consumptions in parsed_consumption.per_appliance.items()
         }
 
-        return consumptions
+        return devices_consumptions
 
     async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
         response: HttpClientResponse[list[dict]]
