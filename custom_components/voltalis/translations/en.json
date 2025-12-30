@@ -38,6 +38,9 @@
           "comm_error": "Communication error"
         }
       },
+      "live_consumption": {
+        "name": "Live Consumption"
+      },
       "device_daily_consumption": {
         "name": "Daily Consumption"
       },
