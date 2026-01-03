@@ -11,7 +11,7 @@ on:
 
 jobs:
   # https://developers.home-assistant.io/blog/2020/04/16/hassfest
-  validate:
+  validate-hassfest:
     runs-on: ubuntu-latest
     steps:
         - name: Checkout repository
