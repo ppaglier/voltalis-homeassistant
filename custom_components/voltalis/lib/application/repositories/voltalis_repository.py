@@ -8,6 +8,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.models.program import VoltalisProgram
 
 
 class VoltalisRepository(ABC):
@@ -51,4 +52,9 @@ class VoltalisRepository(ABC):
     @abstractmethod
     async def get_energy_contracts(self) -> dict[int, VoltalisEnergyContract]:
         """Get energy contracts from the Voltalis servers"""
+        ...
+
+    @abstractmethod
+    async def get_programs(self) -> dict[int, VoltalisProgram]:
+        """Get programs from the Voltalis servers"""
         ...

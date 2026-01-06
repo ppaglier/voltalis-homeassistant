@@ -8,6 +8,7 @@ from custom_components.voltalis.lib.domain.models.manual_setting import (
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.models.program import VoltalisProgram
 from custom_components.voltalis.lib.infrastructure.helpers.get_consumption_for_hour import get_consumption_for_hour
 
 
@@ -21,6 +22,7 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
         self.__devices_consumptions: dict[int, list[tuple[datetime, float]]] = {}
         self.__manual_settings: dict[int, VoltalisManualSetting] = {}
         self.__energy_contracts: dict[int, VoltalisEnergyContract] = {}
+        self.__programs: dict[int, VoltalisProgram] = {}
 
     def set_devices(self, devices: dict[int, VoltalisDevice]) -> None:
         self.__devices = devices
@@ -39,6 +41,9 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
 
     def set_current_energy_contract(self, energy_contracts: dict[int, VoltalisEnergyContract]) -> None:
         self.__energy_contracts = energy_contracts
+
+    def set_programs(self, programs: dict[int, VoltalisProgram]) -> None:
+        self.__programs = programs
 
     # ------------------------------------------------------------
     # Implementation of VoltalisRepository methods
@@ -70,3 +75,6 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
 
     async def get_energy_contracts(self) -> dict[int, VoltalisEnergyContract]:
         return self.__energy_contracts
+
+    async def get_programs(self) -> dict[int, VoltalisProgram]:
+        return self.__programs
