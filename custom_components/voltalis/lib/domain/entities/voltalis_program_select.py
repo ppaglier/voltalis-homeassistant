@@ -44,19 +44,13 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
     # ------------------------------------------------------------------
     @property
     def available(self) -> bool:
-        """Return True if entity is available.
-
-        We consider an entity available only if:
-        - The last coordinator update succeeded AND
-        - Device data exists for this entity AND
-        - Subclass-specific data (consumption/status) is present.
-        """
+        """Return if entity is available."""
         data = self.coordinator.data
         return data is not None and self.coordinator.last_update_success
 
     @property
     def __programs(self) -> dict[str, VoltalisProgram | None]:
-        """Get the current device data from coordinator."""
+        """Get the available programs mapped by their name."""
         if self._coordinators.programs.data is None:
             return {}
 
@@ -78,7 +72,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
 
     @property
     def _current_program(self) -> VoltalisProgram | None:
-        """Get the current device data from coordinator."""
+        """Get the currently selected program."""
         if self.current_option is None:
             return None
         return self._get_program_by_name(self.current_option)

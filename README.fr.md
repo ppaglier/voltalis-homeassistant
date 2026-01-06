@@ -455,8 +455,6 @@ Cette intégration prend en charge tous les appareils compatibles avec l'écosys
 
 Tous les appareils fournissent une surveillance de la consommation énergétique et de l'état de connexion. Les appareils de chauffage fournissent en plus un contrôle climatique complet avec fonctionnalité de thermostat. Un sélecteur de programme global est également disponible pour contrôler tous les appareils simultanément avec des programmes prédéfinis (Vacances, Absence courte, Boost).
 
-Tous les appareils fournissent une surveillance de la consommation énergétique et de l'état de connexion. Les appareils de chauffage fournissent en outre un contrôle climatique complet avec fonctionnalité de thermostat.
-
 ## Actions de service
 
 L'intégration fournit des actions de service avancées pour les entités climatiques afin d'activer des automatisations sophistiquées :

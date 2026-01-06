@@ -36,7 +36,7 @@ class VoltalisProgramCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisProgr
         new_program: VoltalisProgram | None,
         old_program: VoltalisProgram | None = None,
     ) -> None:
-        """Set manual setting for a device."""
+        """Set the active program."""
 
         if old_program is not None:
             old_program.enabled = False
