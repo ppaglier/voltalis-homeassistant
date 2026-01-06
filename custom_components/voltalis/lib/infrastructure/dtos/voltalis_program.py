@@ -18,7 +18,7 @@ class VoltalisProgramDto(CustomModel):
         mapping = {
             "quicksettings.longleave": "quicksettings-longleave",
             "quicksettings.shortleave": "quicksettings-shortleave",
-            "quicksettings.boost": "quicksettings-boost",
+            "quicksettings.athome": "quicksettings-athome",
         }
 
         if name in mapping:
