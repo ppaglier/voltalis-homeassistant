@@ -78,3 +78,6 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
 
     async def get_programs(self) -> dict[int, VoltalisProgram]:
         return self.__programs
+
+    async def toggle_program(self, program: VoltalisProgram) -> None:
+        self.__programs[program.id].enabled = program.enabled

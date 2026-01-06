@@ -101,6 +101,7 @@
       "program_select": {
         "name": "Programme",
         "state": {
+          "internal_program.none": "Aucun programme",
           "quicksettings.longleave": "Vacances",
           "quicksettings.shortleave": "Absence courte",
           "quicksettings.athome": "Boost"

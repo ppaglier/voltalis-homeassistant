@@ -27,7 +27,10 @@ from custom_components.voltalis.lib.infrastructure.dtos.voltalis_manual_setting 
     VoltalisManualSettingDto,
     VoltalisManualSettingUpdateDto,
 )
-from custom_components.voltalis.lib.infrastructure.dtos.voltalis_program import VoltalisProgramDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_program import (
+    VoltalisProgramDto,
+    VoltalisProgramUpdateDto,
+)
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_realtime_consumption import (
     VoltalisRealtimeConsumptionDto,
 )
@@ -257,3 +260,26 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
                 for program in parsed_user_programs
             },
         }
+
+    async def toggle_program(self, program: VoltalisProgram) -> None:
+        url = (
+            f"/api/site/{{site_id}}/quicksettings/{program.id}/enable"
+            if program.type == VoltalisDeviceProgTypeEnum.QUICK
+            else f"/api/site/{{site_id}}/programming/program/{program.id}"
+        )
+
+        payload = VoltalisProgramUpdateDto(
+            name=program.name,
+            enabled=program.enabled,
+        ).model_dump(by_alias=True, exclude={"name"} if program.type == VoltalisDeviceProgTypeEnum.QUICK else None)
+
+        try:
+            await self._client.send_request(
+                url=url,
+                method="PUT",
+                body=payload,
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+
+        self.__logger.info("Program %s updated to %s", program.id, program.enabled)

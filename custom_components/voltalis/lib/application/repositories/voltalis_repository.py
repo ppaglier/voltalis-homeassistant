@@ -58,3 +58,11 @@ class VoltalisRepository(ABC):
     async def get_programs(self) -> dict[int, VoltalisProgram]:
         """Get programs from the Voltalis servers"""
         ...
+
+    @abstractmethod
+    async def toggle_program(self, program: VoltalisProgram) -> None:
+        """Enable or disable a program on the Voltalis servers
+        Args:
+            program: The program to enable or disable
+        """
+        ...

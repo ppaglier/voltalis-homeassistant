@@ -30,6 +30,22 @@ class VoltalisProgramCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisProgr
             update_interval=timedelta(minutes=1),
         )
 
+    async def set_program(
+        self,
+        *,
+        new_program: VoltalisProgram | None,
+        old_program: VoltalisProgram | None = None,
+    ) -> None:
+        """Set manual setting for a device."""
+
+        if old_program is not None:
+            old_program.enabled = False
+            await self._voltalis_repository.toggle_program(old_program)
+
+        if new_program is not None:
+            new_program.enabled = True
+            await self._voltalis_repository.toggle_program(new_program)
+
     async def _get_data(self) -> dict[int, VoltalisProgram]:
         """Fetch updated data from the Voltalis API."""
 

@@ -19,3 +19,10 @@ class VoltalisProgramDto(CustomModel):
             type=_type,
             enabled=self.enabled,
         )
+
+
+class VoltalisProgramUpdateDto(CustomModel):
+    """Voltalis Program Update DTO."""
+
+    name: str
+    enabled: bool

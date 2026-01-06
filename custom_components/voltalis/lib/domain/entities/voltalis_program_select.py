@@ -1,28 +1,85 @@
 from __future__ import annotations
 
 import logging
-from typing import cast
 
 from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_programs_entity import VoltalisProgramsEntity
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
+from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
 from custom_components.voltalis.lib.domain.models.program import VoltalisProgram
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisProgramSelect(VoltalisProgramsEntity, SelectEntity):
+class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
     """Select entity for Voltalis program."""
 
     _attr_translation_key = "program_select"
     _unique_id_suffix = "program_select"
 
+    __none_program_option = "internal_program.none"
+
     def __init__(self, entry: VoltalisConfigEntry) -> None:
         """Initialize the program select entity."""
+
         super().__init__(entry, entry.runtime_data.coordinators.programs)
+
+        # Unique id for Home Assistant
+        self._attr_unique_id = f"programs_{self._unique_id_suffix}"
+
+    @property
+    def unique_internal_name(self) -> str:
+        """Return a unique internal name for the entity."""
+        return f"programs_{self._attr_unique_id}"
+
+    @property
+    def has_entity_name(self) -> bool:
+        return True
+
+    # ------------------------------------------------------------------
+    # Availability handling
+    # ------------------------------------------------------------------
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available.
+
+        We consider an entity available only if:
+        - The last coordinator update succeeded AND
+        - Device data exists for this entity AND
+        - Subclass-specific data (consumption/status) is present.
+        """
+        data = self.coordinator.data
+        return data is not None and self.coordinator.last_update_success
+
+    @property
+    def __programs(self) -> dict[str, VoltalisProgram | None]:
+        """Get the current device data from coordinator."""
+        if self._coordinators.programs.data is None:
+            return {}
+
+        programs: dict[str, VoltalisProgram | None] = {
+            self.__none_program_option: None,
+        }
+        for program in self._coordinators.programs.data.values():
+            if program.name not in programs:
+                programs[program.name] = program
+
+        return programs
+
+    def _get_program_by_name(self, name: str) -> VoltalisProgram | None:
+        """Get a program by its name."""
+        if name == self.__none_program_option:
+            return None
+
+        return self.__programs.get(name, None)
+
+    @property
+    def _current_program(self) -> VoltalisProgram | None:
+        """Get the current device data from coordinator."""
+        if self.current_option is None:
+            return None
+        return self._get_program_by_name(self.current_option)
 
     @property
     def icon(self) -> str:
@@ -32,25 +89,33 @@ class VoltalisProgramSelect(VoltalisProgramsEntity, SelectEntity):
     @property
     def options(self) -> list[str]:
         """Return the list of available program options."""
-        data = cast(dict[int, VoltalisProgram] | None, self.coordinator.data)
-        if data is None:
-            return []
-        return [program.name for program in data.values()]
+        return list(self.__programs.keys())
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        self._attr_current_option = None
+        enabled_programs = [program for program in self.__programs.values() if program and program.enabled]
+        if len(enabled_programs) > 0:
+            if len(enabled_programs) > 1:
+                _LOGGER.warning("More than one program is enabled (%s)", enabled_programs)
+            self._attr_current_option = enabled_programs[0].name
+        else:
+            self._attr_current_option = self.__none_program_option
         self.async_write_ha_state()
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected program mode."""
 
-        pass
+        old_program = self._current_program
+        new_program = self._get_program_by_name(option)
 
-    # ------------------------------------------------------------------
-    # Availability handling override
-    # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisDevice) -> bool:
-        return True
+        if old_program and new_program and old_program.id == new_program.id:
+            return
+
+        await self._coordinators.programs.set_program(
+            new_program=new_program,
+            old_program=old_program,
+        )
+        self._attr_current_option = new_program.name if new_program else self.__none_program_option
+        await self.coordinator.async_request_refresh()
