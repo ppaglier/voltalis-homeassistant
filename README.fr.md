@@ -60,7 +60,8 @@ Cette intégration fournit un contrôle et une surveillance complets de vos appa
 - **Type de programmation** : Voir la programmation active (Manuel, Par défaut, Utilisateur, Rapide)
 
 ### Contrôles
-- **Sélecteur de préset** : Changez rapidement le mode de l'appareil (Automatique, Confort, Économie, Protection antigel, Température, Activé, Arrêt)
+- **Sélecteur de préset d'appareil** : Changez rapidement le mode d'un appareil individuel (Automatique, Confort, Économie, Protection antigel, Température, Activé, Arrêt)
+- **Sélecteur de programme** : Sélectionnez des programmes globaux qui s'appliquent à tous les appareils (Aucun programme, Vacances, Absence courte, Boost)
 
 ## Installation
 
@@ -347,15 +348,15 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
   - **Remarque** : Uniquement disponible pour les contrats heures pleines/creuses
 </details>
 
-### Entité de sélection
+### Entités de sélection
 
 <details>
-  <summary>Sélecteur de préset</summary>
+  <summary>Sélecteur de préset d'appareil</summary>
 
   - **ID d'entité** : `select.<device_name>_device_preset`
   - **Type** : Sélection
   - **Options** : Automatique, Activé (si disponible), Confort, Économie, Protection antigel, Température, Arrêt
-  - **Description** : Permet de basculer rapidement entre différents modes de fonctionnement
+  - **Description** : Permet de basculer rapidement entre différents modes de fonctionnement pour un appareil individuel
   - **Icône** : Change dynamiquement en fonction du préset sélectionné
   - **Fonctionnalités** :
     - **Automatique** : Retourne l'appareil à la programmation automatique (gérée par Voltalis)
@@ -365,6 +366,17 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
       - ⚠️ **Important** : Avant d'utiliser ce préset, assurez-vous que le thermostat physique de votre radiateur est correctement configuré. Consultez la section [Configuration du contrôle de température](#important--configuration-du-contrôle-de-température) ci-dessus.
     - **Arrêt** : Éteint l'appareil
   - **Fréquence de mise à jour** : Chaque 1 minute
+</details>
+
+<details>
+  <summary>Sélecteur de programme</summary>
+
+  - **ID d'entité** : `select.voltalis_program_select`
+  - **Type** : Sélection
+  - **Description** : Permet de sélectionner des programmes globaux Voltalis qui s'appliquent à tous vos appareils
+  - **Icône** : `mdi:playlist-edit`
+  - **Fréquence de mise à jour** : Se met à jour lors des changements de programme
+  - **Remarque** : Un seul programme global peut être actif à la fois. La sélection d'un programme peut remplacer les paramètres individuels des appareils.
 </details>
 
 ## Dépannage
@@ -435,11 +447,13 @@ Cette intégration communique directement avec l'API Voltalis en utilisant vos i
 Cette intégration prend en charge tous les appareils compatibles avec l'écosystème Voltalis, y compris :
 
 - **Modulateur Voltalis (Fil)** : Modulateurs de chauffage connectés pour radiateurs contrôlés par fil
-  - Fournit : Entité climatique, tous les capteurs, sélecteur de préset
+  - Fournit : Entité climatique, tous les capteurs, sélecteur de préset d'appareil
 - **Modulateur Voltalis (Relais)** : Modulateurs de chauffage connectés pour radiateurs contrôlés par relais
-  - Fournit : Entité climatique, tous les capteurs, sélecteur de préset
+  - Fournit : Entité climatique, tous les capteurs, sélecteur de préset d'appareil
 - **Chauffe-eaux** : Appareils de chauffage d'eau avec modulateurs Voltalis
-  - Fournit : Capteur de consommation, capteur d'état de connexion, sélecteur de préset
+  - Fournit : Entité chauffe-eau, capteur de consommation, capteur d'état de connexion, sélecteur de préset d'appareil
+
+Tous les appareils fournissent une surveillance de la consommation énergétique et de l'état de connexion. Les appareils de chauffage fournissent en plus un contrôle climatique complet avec fonctionnalité de thermostat. Un sélecteur de programme global est également disponible pour contrôler tous les appareils simultanément avec des programmes prédéfinis (Vacances, Absence courte, Boost).
 
 Tous les appareils fournissent une surveillance de la consommation énergétique et de l'état de connexion. Les appareils de chauffage fournissent en outre un contrôle climatique complet avec fonctionnalité de thermostat.
 

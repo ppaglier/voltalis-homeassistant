@@ -64,7 +64,8 @@ This integration provides comprehensive control and monitoring of your Voltalis 
 - **Programming Type**: See which programming is active (Manual, Default, User, Quick)
 
 ### Controls
-- **Preset Selector**: Quickly change device mode (Auto, Comfort, Eco, Frost Protection, Temperature, On, Off)
+- **Device Preset Selector**: Quickly change individual device mode (Auto, Comfort, Eco, Frost Protection, Temperature, On, Off)
+- **Program Selector**: Select global programs that apply to all devices (No Program, Long Leave, Short Leave, Boost)
 
 ## Installation
 
@@ -351,15 +352,15 @@ The integration also provides sensors related to your energy contract:
   - **Note**: Only available for peak/off-peak contracts
 </details>
 
-### Select Entity
+### Select Entities
 
 <details>
-  <summary>Preset Selector</summary>lector</summary>
+  <summary>Device Preset Selector</summary>
 
   - **Entity ID**: `select.<device_name>_device_preset`
   - **Type**: Select
   - **Options**: Auto, On (if available), Comfort, Eco, Frost Protection, Temperature, Off
-  - **Description**: Allows quick switching between different operating modes
+  - **Description**: Allows quick switching between different operating modes for an individual device
   - **Icon**: Changes dynamically based on the selected preset
   - **Features**:
     - **Auto**: Returns device to automatic programming (managed by Voltalis)
@@ -369,6 +370,17 @@ The integration also provides sensors related to your energy contract:
       - ⚠️ **Important**: Before using this preset, ensure your heater's physical thermostat is properly configured. See the [Temperature Control Configuration](#important-temperature-control-configuration) section above.
     - **Off**: Turns the device off
   - **Update Frequency**: Every 1 minute
+</details>
+
+<details>
+  <summary>Program Selector</summary>
+
+  - **Entity ID**: `select.voltalis_program_select`
+  - **Type**: Select
+  - **Description**: Allows selection of global Voltalis programs that apply to all your devices
+  - **Icon**: `mdi:playlist-edit`
+  - **Update Frequency**: Updates when program changes
+  - **Note**: Only one global program can be active at a time. Selecting a program may override individual device settings.
 </details>
 
 ## Troubleshooting
@@ -439,13 +451,13 @@ This integration communicates directly with the Voltalis API using your credenti
 This integration supports all devices that are compatible with the Voltalis ecosystem, including:
 
 - **Voltalis Modulator (Wire)**: Connected heating modulators for wire-controlled heaters
-  - Provides: Climate entity, all sensors, preset selector
+  - Provides: Climate entity, all sensors, device preset selector
 - **Voltalis Modulator (Relay)**: Connected heating modulators for relay-controlled heaters
-  - Provides: Climate entity, all sensors, preset selector
+  - Provides: Climate entity, all sensors, device preset selector
 - **Water Heaters**: Water heating devices with Voltalis modulators
-  - Provides: Consumption sensor, connection status sensor, preset selector
+  - Provides: Water heater entity, consumption sensor, connection status sensor, device preset selector
 
-All devices provide energy consumption and connection status monitoring. Heating devices additionally provide full climate control with thermostat functionality.
+All devices provide energy consumption and connection status monitoring. Heating devices additionally provide full climate control with thermostat functionality. A global program selector is also available to control all devices simultaneously with predefined programs (Long Leave, Short Leave, Boost).
 
 ## Service Actions
 
