@@ -16,6 +16,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
     """Select entity for Voltalis program."""
 
     _attr_translation_key = "program_select"
+    _attr_icon = "mdi:calendar-clock"
     _unique_id_suffix = "program_select"
 
     __none_program_option = "internal_program-none"
@@ -27,6 +28,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
 
         # Unique id for Home Assistant
         self._attr_unique_id = f"programs_{self._unique_id_suffix}"
+        self.unique_id = self._attr_unique_id
 
     @property
     def unique_internal_name(self) -> str:
@@ -80,11 +82,6 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         if self.current_option is None:
             return None
         return self._get_program_by_name(self.current_option)
-
-    @property
-    def icon(self) -> str:
-        """Return the icon to use for this entity."""
-        return "mdi:playlist-edit"
 
     @property
     def options(self) -> list[str]:
