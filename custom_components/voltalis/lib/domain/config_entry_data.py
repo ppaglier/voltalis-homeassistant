@@ -34,6 +34,7 @@ class VoltalisCoordinators(CustomModel):
             self.device_daily_consumption,
             self.live_consumption,
             self.energy_contract,
+            self.programs,
         ]
 
         await asyncio.gather(*(coordinator.async_config_entry_first_refresh() for coordinator in arr))
