@@ -13,9 +13,20 @@ class VoltalisProgramDto(CustomModel):
     def to_voltalis_program(self, _type: VoltalisDeviceProgTypeEnum) -> VoltalisProgram:
         """Convert to domain model"""
 
+        name = self.name
+
+        mapping = {
+            "quicksettings.longleave": "quicksettings-longleave",
+            "quicksettings.shortleave": "quicksettings-shortleave",
+            "quicksettings.boost": "quicksettings-boost",
+        }
+
+        if name in mapping:
+            name = mapping[name]
+
         return VoltalisProgram(
             id=self.id,
-            name=self.name,
+            name=name,
             type=_type,
             enabled=self.enabled,
         )

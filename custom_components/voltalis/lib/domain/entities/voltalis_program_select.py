@@ -18,7 +18,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
     _attr_translation_key = "program_select"
     _unique_id_suffix = "program_select"
 
-    __none_program_option = "internal_program.none"
+    __none_program_option = "internal_program-none"
 
     def __init__(self, entry: VoltalisConfigEntry) -> None:
         """Initialize the program select entity."""

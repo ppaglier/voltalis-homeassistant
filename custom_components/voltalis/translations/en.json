@@ -101,10 +101,10 @@
       "program_select": {
         "name": "Program",
         "state": {
-          "internal_program.none": "No Program",
-          "quicksettings.longleave": "Long Leave",
-          "quicksettings.shortleave": "Short Leave",
-          "quicksettings.athome": "Boost"
+          "internal_program-none": "No Program",
+          "quicksettings-longleave": "Long Leave",
+          "quicksettings-shortleave": "Short Leave",
+          "quicksettings-athome": "Boost"
         }
       }
     },
