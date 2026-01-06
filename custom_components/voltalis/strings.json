@@ -97,6 +97,14 @@
           "normal": "On",
           "off": "Off"
         }
+      },
+      "program_select": {
+        "name": "Program",
+        "state": {
+          "quicksettings.longleave": "Long Leave",
+          "quicksettings.shortleave": "Short Leave",
+          "quicksettings.athome": "Boost"
+        }
       }
     },
     "water_heater": {

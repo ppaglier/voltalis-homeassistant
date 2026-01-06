@@ -1,3 +1,5 @@
+import asyncio
+
 from homeassistant import config_entries
 
 from custom_components.voltalis.lib.application.providers.date_provider import DateProvider
@@ -9,6 +11,7 @@ from custom_components.voltalis.lib.domain.coordinators.device_daily_consumption
 from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
 from custom_components.voltalis.lib.domain.coordinators.energy_contract import VoltalisEnergyContractCoordinator
 from custom_components.voltalis.lib.domain.coordinators.live_consumption import VoltalisLiveConsumptionCoordinator
+from custom_components.voltalis.lib.domain.coordinators.program import VoltalisProgramCoordinator
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 
@@ -21,6 +24,7 @@ class VoltalisCoordinators(CustomModel):
     device_daily_consumption: VoltalisDeviceDailyConsumptionCoordinator
     live_consumption: VoltalisLiveConsumptionCoordinator
     energy_contract: VoltalisEnergyContractCoordinator
+    programs: VoltalisProgramCoordinator
 
     async def setup_all(self) -> None:
         # Do first refresh for regular coordinators
@@ -31,8 +35,8 @@ class VoltalisCoordinators(CustomModel):
             self.live_consumption,
             self.energy_contract,
         ]
-        for coordinator in arr:
-            await coordinator.async_config_entry_first_refresh()
+
+        await asyncio.gather(*(coordinator.async_config_entry_first_refresh() for coordinator in arr))
 
         # For consumption, start time-based scheduling after initial refresh
         self.device_daily_consumption.start_time_tracking()

@@ -107,7 +107,6 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
             self.__logger.error("Error parsing realtime consumption: %s", err)
             raise VoltalisValidationException(*err.args) from err
 
-        self.__logger.info(parsed_realtime_consumption.model_dump_json())
         live_consumption = sum(
             consumption_record.total_consumption_in_wh
             for consumption_record in parsed_realtime_consumption.consumptions

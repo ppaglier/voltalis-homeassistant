@@ -97,6 +97,14 @@
           "normal": "Marche",
           "off": "Arrêt"
         }
+      },
+      "program_select": {
+        "name": "Programme",
+        "state": {
+          "quicksettings.longleave": "Vacances",
+          "quicksettings.shortleave": "Absence courte",
+          "quicksettings.athome": "Boost"
+        }
       }
     },
     "water_heater": {

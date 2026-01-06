@@ -5,10 +5,10 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_device_entity import VoltalisDeviceEntity
 from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_preset_select import (
     VoltalisDevicePresetSelect,
 )
+from custom_components.voltalis.lib.domain.entities.voltalis_program_select import VoltalisProgramSelect
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,11 +25,13 @@ async def async_setup_entry(
 
     device_coordinator = entry.runtime_data.coordinators.device
 
-    select_entities: list[VoltalisDeviceEntity] = []
+    select_entities: list[VoltalisBaseEntity] = []
 
     for device in device_coordinator.data.values():
         # Create the program select entity
         select_entities.append(VoltalisDevicePresetSelect(entry, device))
+
+    select_entities.append(VoltalisProgramSelect(entry))
 
     all_entities: dict[str, VoltalisBaseEntity] = {sensor.unique_internal_name: sensor for sensor in select_entities}
     async_add_entities(all_entities.values(), update_before_add=True)
