@@ -377,7 +377,7 @@ The integration also provides sensors related to your energy contract:
 
   - **Entity ID**: `select.voltalis_program_select`
   - **Type**: Select
-  - **Description**: Allows selection of global Voltalis programs that apply to all your devices
+  - **Description**: Allows you to select global programs that apply to all devices (No program, Vacation, Short absence, Boost, or other programs created in the Voltalis application)
   - **Icon**: `mdi:playlist-edit`
   - **Update Frequency**: Updates when program changes
   - **Note**: Only one global program can be active at a time. Selecting a program may override individual device settings.
@@ -457,7 +457,7 @@ This integration supports all devices that are compatible with the Voltalis ecos
 - **Water Heaters**: Water heating devices with Voltalis modulators
   - Provides: Water heater entity, consumption sensor, connection status sensor, device preset selector
 
-All devices provide energy consumption and connection status monitoring. Heating devices additionally provide full climate control with thermostat functionality. A global program selector is also available to control all devices simultaneously with predefined programs (Long Leave, Short Leave, Boost).
+All devices provide energy consumption and connection status monitoring. Heating devices additionally provide full climate control with thermostat functionality. A global program selector is also available to control all devices simultaneously with predefined programs (No program, Vacation, Short absence, Boost, or other programs created in the Voltalis application).
 
 ## Service Actions
 

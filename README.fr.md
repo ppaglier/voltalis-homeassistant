@@ -373,7 +373,7 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
 
   - **ID d'entité** : `select.voltalis_program_select`
   - **Type** : Sélection
-  - **Description** : Permet de sélectionner des programmes globaux Voltalis qui s'appliquent à tous vos appareils
+  - **Description** : Permet de sélectionner des programmes globaux qui s'appliquent à tous les appareils (Aucun programme, Vacances, Absence courte, Boost, ou autres programmes créés dans l'application Voltalis)
   - **Icône** : `mdi:playlist-edit`
   - **Fréquence de mise à jour** : Se met à jour lors des changements de programme
   - **Remarque** : Un seul programme global peut être actif à la fois. La sélection d'un programme peut remplacer les paramètres individuels des appareils.
@@ -453,7 +453,7 @@ Cette intégration prend en charge tous les appareils compatibles avec l'écosys
 - **Chauffe-eaux** : Appareils de chauffage d'eau avec modulateurs Voltalis
   - Fournit : Entité chauffe-eau, capteur de consommation, capteur d'état de connexion, sélecteur de préset d'appareil
 
-Tous les appareils fournissent une surveillance de la consommation énergétique et de l'état de connexion. Les appareils de chauffage fournissent en plus un contrôle climatique complet avec fonctionnalité de thermostat. Un sélecteur de programme global est également disponible pour contrôler tous les appareils simultanément avec des programmes prédéfinis (Vacances, Absence courte, Boost).
+Tous les appareils fournissent une surveillance de la consommation énergétique et de l'état de connexion. Les appareils de chauffage fournissent en plus un contrôle climatique complet avec fonctionnalité de thermostat. Un sélecteur de programme global est également disponible pour contrôler tous les appareils simultanément avec des programmes prédéfinis (Vacances, Absence courte, Boost, ou autres programmes créés dans l'application Voltalis).
 
 ## Actions de service
 
