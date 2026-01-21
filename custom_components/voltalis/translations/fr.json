@@ -44,6 +44,9 @@
       "device_daily_consumption": {
         "name": "Consommation journalière"
       },
+      "device_daily_consumption_2": {
+        "name": "Consommation journalière 2"
+      },
       "device_programming": {
         "name": "Programmation",
         "state": {

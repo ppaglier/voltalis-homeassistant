@@ -21,7 +21,7 @@ class VoltalisDeviceDailyConsumption2Sensor(VoltalisDeviceEntity, SensorEntity):
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
-    _attr_translation_key = "device_daily_consumption"
+    _attr_translation_key = "device_daily_consumption_2"
     _unique_id_suffix = "device_daily_consumption_2"
 
     def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
