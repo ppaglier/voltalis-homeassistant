@@ -1,12 +1,12 @@
+import asyncio
 import logging
-from datetime import timedelta
 from typing import cast
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from custom_components.voltalis.lib.application.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
-from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.lib.domain.models.device import VoltalisDevice
 
@@ -22,7 +22,7 @@ class VoltalisDeviceDailyConsumptionCoordinator2(BaseVoltalisCoordinator[dict[in
         hass: HomeAssistant,
         voltalis_repository: VoltalisRepository,
         date_provider: DateProvider,
-        entry: "VoltalisConfigEntry",
+        entry: ConfigEntry,
     ) -> None:
         # No automatic update_interval - updates only triggered by time tracker
         super().__init__(
@@ -38,8 +38,11 @@ class VoltalisDeviceDailyConsumptionCoordinator2(BaseVoltalisCoordinator[dict[in
     async def _get_data(self) -> dict[int, float]:
         """Fetch updated data from the Voltalis API."""
 
-        # We remove 1 hour because we can't fetch data from the current hour
-        target_datetime = self.__date_provider.get_now() - timedelta(hours=1)
-        devices = cast(dict[int, VoltalisDevice], self._entry.runtime_data.coordinators.device.data)
+        target_datetime = self.__date_provider.get_now()
+        devices = cast(dict[int, VoltalisDevice] | None, self._entry.runtime_data.coordinators.device.data)
+        # Retry once after a short delay if devices are not yet available
+        if devices is None:
+            await asyncio.sleep(5)
+            return await self._get_data()
         result = await self._voltalis_repository.get_devices_daily_consumptions_2(target_datetime, devices)
         return result

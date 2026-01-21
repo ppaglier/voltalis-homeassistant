@@ -1,12 +1,14 @@
 import logging
 from abc import abstractmethod
 from datetime import timedelta
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from homeassistant import config_entries
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
+if TYPE_CHECKING:
+    from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 
 from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
 from custom_components.voltalis.lib.domain.exceptions import (
@@ -29,7 +31,7 @@ class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
         hass: HomeAssistant,
         logger: logging.Logger,
         voltalis_repository: VoltalisRepository,
-        entry: ConfigEntry,  # ConfigEntry reference used for reauth triggering
+        entry: "VoltalisConfigEntry",  # ConfigEntry reference used for reauth triggering
         update_interval: timedelta | None = None,
     ) -> None:
         super().__init__(
