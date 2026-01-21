@@ -16,6 +16,9 @@ from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDe
 from custom_components.voltalis.lib.domain.coordinators.device_daily_consumption import (
     VoltalisDeviceDailyConsumptionCoordinator,
 )
+from custom_components.voltalis.lib.domain.coordinators.device_daily_consumption_2 import (
+    VoltalisDeviceDailyConsumptionCoordinator2,
+)
 from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
 from custom_components.voltalis.lib.domain.coordinators.energy_contract import VoltalisEnergyContractCoordinator
 from custom_components.voltalis.lib.domain.coordinators.live_consumption import VoltalisLiveConsumptionCoordinator
@@ -81,6 +84,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
             date_provider=date_provider,
             entry=entry,
         ),
+        device_daily_consumption2=VoltalisDeviceDailyConsumptionCoordinator2(
+            hass=hass,
+            voltalis_repository=voltalis_repository,
+            date_provider=date_provider,
+            entry=entry,
+        ),
         live_consumption=VoltalisLiveConsumptionCoordinator(
             hass=hass,
             voltalis_repository=voltalis_repository,
@@ -98,14 +107,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
         ),
     )
 
-    await coordinators.setup_all()
-
     # ✅ store coordinator for other platforms
     entry.runtime_data = VoltalisConfigEntryData(
         voltalis_client=voltalis_client,
         date_provider=date_provider,
         coordinators=coordinators,
     )
+
+    await coordinators.setup_all()
 
     # forward setup to sensor platform
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
