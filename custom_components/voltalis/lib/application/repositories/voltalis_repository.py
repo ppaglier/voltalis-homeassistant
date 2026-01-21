@@ -30,6 +30,15 @@ class VoltalisRepository(ABC):
         ...
 
     @abstractmethod
+    async def get_devices_daily_consumptions_2(
+        self,
+        target_datetime: datetime,
+        devices: dict[int, VoltalisDevice],
+    ) -> dict[int, float]:
+        """Get devices daily consumptions from the Voltalis servers for a specific datetime"""
+        ...
+
+    @abstractmethod
     async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         """Get devices daily consumptions from the Voltalis servers for a specific datetime"""
         ...

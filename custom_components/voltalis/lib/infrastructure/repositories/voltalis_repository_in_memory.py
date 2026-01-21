@@ -58,6 +58,11 @@ class VoltalisRepositoryInMemory(VoltalisRepository):
     async def get_live_consumption(self) -> float:
         return self.__live_consumption
 
+    async def get_devices_daily_consumptions_2(
+        self, target_datetime: datetime, devices: dict[int, VoltalisDevice]
+    ) -> dict[int, float]:
+        raise NotImplementedError("This method is not implemented in the in-memory repository.")
+
     async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         consumptions = {
             device_id: get_consumption_for_hour(consumptions=consumption_records, target_datetime=target_datetime)

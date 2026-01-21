@@ -12,7 +12,11 @@ from custom_components.voltalis.lib.application.providers.http_client import (
 )
 from custom_components.voltalis.lib.application.repositories.voltalis_repository import VoltalisRepository
 from custom_components.voltalis.lib.domain.exceptions import VoltalisConnectionException, VoltalisValidationException
-from custom_components.voltalis.lib.domain.models.device import VoltalisDevice, VoltalisDeviceProgTypeEnum
+from custom_components.voltalis.lib.domain.models.device import (
+    VoltalisDevice,
+    VoltalisDeviceProgTypeEnum,
+    VoltalisDeviceTypeEnum,
+)
 from custom_components.voltalis.lib.domain.models.device_health import VoltalisDeviceHealth
 from custom_components.voltalis.lib.domain.models.energy_contract import VoltalisEnergyContract
 from custom_components.voltalis.lib.domain.models.manual_setting import (
@@ -116,6 +120,56 @@ class VoltalisRepositoryVoltalisApi(VoltalisRepository):
         )
 
         return live_consumption
+
+    async def get_devices_daily_consumptions_2(
+        self, target_datetime: datetime, devices_mapping: dict[int, VoltalisDevice]
+    ) -> dict[int, float]:
+        # Fetch the data from the voltalis API
+        target_date_str = target_datetime.isoformat("T").split("T")[0]
+
+        response: HttpClientResponse[dict]
+        try:
+            response = await self._client.send_request(
+                url=f"/api/site/{{site_id}}/consumption/day/{target_date_str}/full-data",
+                method="GET",
+            )
+        except HttpClientException as err:
+            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+
+        parsed_consumption: VoltalisConsumptionDto
+        try:
+            parsed_consumption = TypeAdapter(VoltalisConsumptionDto).validate_python(response.data)
+        except ValidationError as err:
+            self.__logger.error("Error parsing consumptions: %s", err)
+            raise VoltalisValidationException(*err.args) from err
+
+        mapping = {
+            "conso.category.heater": VoltalisDeviceTypeEnum.HEATER,
+            "conso.category.waterheating": VoltalisDeviceTypeEnum.WATER_HEATER,
+            "conso.category.other": VoltalisDeviceTypeEnum.OTHER,
+        }
+
+        devices_consumptions: dict[int, float] = {}
+        for category in parsed_consumption.breakdown.categories:
+            device_type = mapping.get(category.name, None)
+            # Skip categories that do not map to a device type
+            if device_type is None:
+                continue
+
+            for sub_category in category.subcategories:
+                device = next(
+                    (
+                        dev
+                        for dev in devices_mapping.values()
+                        if dev.type == device_type and dev.name == sub_category.name
+                    ),
+                    None,
+                )
+                if device is None:
+                    continue
+                devices_consumptions[device.id] = sub_category.total_consumption_in_wh
+
+        return devices_consumptions
 
     async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
         # Fetch the data from the voltalis API

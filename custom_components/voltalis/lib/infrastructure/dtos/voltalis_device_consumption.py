@@ -12,7 +12,28 @@ class VoltalisConsumptionDtoDevice(CustomModel):
     total_consumption_in_wh: float = Field(alias="totalConsumptionInWh")
 
 
+class VoltalisConsumptionDtoBreakdownCategorySubCategory(CustomModel):
+    """Docstring pour VoltalisConsumptionDtoBreakdownCategorySubCategory"""
+
+    name: str
+    total_consumption_in_wh: float = Field(alias="totalConsumptionInWh")
+
+
+class VoltalisConsumptionDtoBreakdownCategory(CustomModel):
+    """Docstring pour VoltalisConsumptionDtoBreakdownCategory"""
+
+    name: str
+    subcategories: list[VoltalisConsumptionDtoBreakdownCategorySubCategory]
+
+
+class VoltalisConsumptionBreakdownDto(CustomModel):
+    """Docstring pour VoltalisConsumptionBreakdownDto"""
+
+    categories: list[VoltalisConsumptionDtoBreakdownCategory]
+
+
 class VoltalisConsumptionDto(CustomModel):
     """Docstring pour VoltalisConsumption"""
 
+    breakdown: VoltalisConsumptionBreakdownDto
     per_appliance: dict[int, list[VoltalisConsumptionDtoDevice]] = Field(alias="perAppliance")
