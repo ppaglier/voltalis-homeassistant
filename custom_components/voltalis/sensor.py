@@ -15,9 +15,6 @@ from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_dev
 from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_current_mode_sensor import (
     VoltalisDeviceCurrentModeSensor,
 )
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_daily_consumption_2_sensor import (
-    VoltalisDeviceDailyConsumption2Sensor,
-)
 from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_daily_consumption_sensor import (
     VoltalisDeviceDailyConsumptionSensor,
 )
@@ -67,7 +64,6 @@ async def async_setup_entry(
     for device in device_coordinator.data.values():
         # Create the consumption sensor for each device
         device_sensors.append(VoltalisDeviceDailyConsumptionSensor(entry, device))
-        device_sensors.append(VoltalisDeviceDailyConsumption2Sensor(entry, device))
 
         # Create the connected sensor for each device (if status is available)
         if health_coordinator.data.get(device.id) is not None:

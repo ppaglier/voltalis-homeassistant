@@ -8,9 +8,6 @@ from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDe
 from custom_components.voltalis.lib.domain.coordinators.device_daily_consumption import (
     VoltalisDeviceDailyConsumptionCoordinator,
 )
-from custom_components.voltalis.lib.domain.coordinators.device_daily_consumption_2 import (
-    VoltalisDeviceDailyConsumptionCoordinator2,
-)
 from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
 from custom_components.voltalis.lib.domain.coordinators.energy_contract import VoltalisEnergyContractCoordinator
 from custom_components.voltalis.lib.domain.coordinators.live_consumption import VoltalisLiveConsumptionCoordinator
@@ -25,7 +22,6 @@ class VoltalisCoordinators(CustomModel):
     device: VoltalisDeviceCoordinator
     device_health: VoltalisDeviceHealthCoordinator
     device_daily_consumption: VoltalisDeviceDailyConsumptionCoordinator
-    device_daily_consumption2: VoltalisDeviceDailyConsumptionCoordinator2
     live_consumption: VoltalisLiveConsumptionCoordinator
     energy_contract: VoltalisEnergyContractCoordinator
     programs: VoltalisProgramCoordinator
@@ -36,7 +32,6 @@ class VoltalisCoordinators(CustomModel):
             self.device,
             self.device_health,
             self.device_daily_consumption,
-            self.device_daily_consumption2,
             self.live_consumption,
             self.energy_contract,
             self.programs,

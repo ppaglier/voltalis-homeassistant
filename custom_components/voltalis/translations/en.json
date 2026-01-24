@@ -44,9 +44,6 @@
       "device_daily_consumption": {
         "name": "Daily Consumption"
       },
-      "device_daily_consumption_2": {
-        "name": "Daily Consumption 2"
-      },
       "device_programming": {
         "name": "Programming",
         "state": {
