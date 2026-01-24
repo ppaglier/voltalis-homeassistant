@@ -32,7 +32,7 @@ class VoltalisDeviceDailyConsumption2Sensor(VoltalisDeviceEntity, SensorEntity):
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        device_daily_consumption = self._coordinators.device_daily_consumption2.data.get(self._device.id)
+        device_daily_consumption = self._coordinators.device_daily_consumption.data.get(self._device.id)
         if device_daily_consumption is None:
             _LOGGER.warning("Daily consumption data for device %s is None", self._device.id)
             return
