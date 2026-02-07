@@ -27,6 +27,12 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
         """Initialize the program select entity."""
         super().__init__(entry, device, entry.runtime_data.coordinators.device)
 
+        self.__on_mode = (
+            VoltalisDeviceModeEnum.NORMAL
+            if VoltalisDeviceModeEnum.NORMAL in device.available_modes
+            else VoltalisDeviceModeEnum.CONFORT
+        )
+
     @property
     def _current_device(self) -> VoltalisDeviceCoordinatorData:
         """Get the current device data from coordinator."""
@@ -46,7 +52,7 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
-        await self.__set_manual_mode(is_on=True, mode=VoltalisDeviceModeEnum.CONFORT)
+        await self.__set_manual_mode(is_on=True, mode=self.__on_mode)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the entity off."""
@@ -112,7 +118,7 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
         device = self._current_device
 
         # Determine the mode to use
-        target_mode = VoltalisDeviceModeEnum.ECO  # Default fallback
+        target_mode = self.__on_mode  # Default fallback
         if mode is not None:
             # Force the specified mode (e.g., CONFORT when turning on)
             target_mode = mode
