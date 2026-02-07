@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, time
 
 from pydantic import Field
 
@@ -14,8 +14,8 @@ from custom_components.voltalis.lib.domain.range_model import RangeModel
 class VoltalisTimeRange(CustomModel):
     """Class to represent time ranges for peak/offpeak hours"""
 
-    from_time: str = Field(alias="from")
-    to_time: str = Field(alias="to")
+    from_time: time = Field(alias="from")
+    to_time: time = Field(alias="to")
 
 
 class VoltalisSubscriberContractDto(CustomModel):
@@ -62,17 +62,9 @@ class VoltalisSubscriberContractDto(CustomModel):
                 kwh_offpeak=self.kwh_offpeak_hour_price,
             ),
             peak_hours=[
-                RangeModel(
-                    start=datetime.strptime(time_range.from_time, "%H:%M").time(),
-                    end=datetime.strptime(time_range.to_time, "%H:%M").time(),
-                )
-                for time_range in self.peak_hours
+                RangeModel(start=time_range.from_time, end=time_range.to_time) for time_range in self.peak_hours
             ],
             offpeak_hours=[
-                RangeModel(
-                    start=datetime.strptime(time_range.from_time, "%H:%M").time(),
-                    end=datetime.strptime(time_range.to_time, "%H:%M").time(),
-                )
-                for time_range in self.offpeak_hours
+                RangeModel(start=time_range.from_time, end=time_range.to_time) for time_range in self.offpeak_hours
             ],
         )
