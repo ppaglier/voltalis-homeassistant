@@ -1,4 +1,4 @@
-from datetime import time
+from datetime import date, time
 from enum import StrEnum
 
 from custom_components.voltalis.lib.domain.custom_model import CustomModel
@@ -27,10 +27,12 @@ class VoltalisEnergyContract(CustomModel):
     """Class to represent a Voltalis energy contract"""
 
     id: int
+    contract_id: int
     company_name: str
     name: str
     subscribed_power: int
     type: VoltalisEnergyContractTypeEnum
+    end_date: date | None = None
 
     prices: VoltalisEnergyContractPrices
 

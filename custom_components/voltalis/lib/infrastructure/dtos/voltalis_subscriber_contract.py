@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import Field
 
@@ -22,10 +22,12 @@ class VoltalisSubscriberContractDto(CustomModel):
     """Class to represent a Voltalis subscriber contract DTO"""
 
     id: int
+    api_contract_id: int = Field(alias="apiContractId")
     company_name: str = Field(alias="companyName")
     name: str
     subscribed_power: int = Field(alias="subscribedPower")
     is_peak_off_peak_contract: bool = Field(alias="isPeakOffPeakContract")
+    end_date: date | None = Field(None, alias="endDate")
 
     subscription_base_price: float | None = Field(None, alias="subscriptionBasePrice")
     subscription_peak_off_peak_base_price: float | None = Field(None, alias="subscriptionPeakOffPeakBasePrice")
@@ -39,9 +41,11 @@ class VoltalisSubscriberContractDto(CustomModel):
     def to_voltalis_energy_contract(self) -> VoltalisEnergyContract:
         return VoltalisEnergyContract(
             id=self.id,
+            contract_id=self.api_contract_id,
             company_name=self.company_name,
             name=self.name,
             subscribed_power=self.subscribed_power,
+            end_date=self.end_date,
             type=(
                 VoltalisEnergyContractTypeEnum.BASE
                 if not self.is_peak_off_peak_contract
