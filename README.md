@@ -66,7 +66,6 @@ This integration provides comprehensive control and monitoring of your Voltalis 
 ### Controls
 - **Device Preset Selector**: Quickly change individual device mode (Auto, Comfort, Eco, Frost Protection, Temperature, On, Off)
 - **Program Selector**: Select global programs that apply to all devices (No Program, Long Leave, Short Leave, Boost)
-- **Device Switch**: Turn devices on (in Comfort mode) or off
 
 ## Installation
 
@@ -382,25 +381,6 @@ The integration also provides sensors related to your energy contract:
   - **Icon**: `mdi:playlist-edit`
   - **Update Frequency**: Updates when program changes
   - **Note**: Only one global program can be active at a time. Selecting a program may override individual device settings.
-</details>
-
-### Switch Entities
-
-<details>
-  <summary>Device Switch</summary>
-
-  - **Entity ID**: `switch.<device_name>_device_switch`
-  - **Type**: Switch
-  - **Description**: Simple on/off control for the device
-  - **Features**:
-    - **Turn On**: Activates the device in manual mode with Comfort mode for immediate heating
-    - **Turn Off**: Deactivates the device in manual mode while maintaining the current mode settings
-    - Provides quick heating control - turning on always uses Comfort mode for maximum heat
-  - **Use Cases**:
-    - Quick on/off control in automations
-    - Simple device power management
-    - Integration with voice assistants ("Turn on the bedroom heater")
-  - **Update Frequency**: Every 1 minute
 </details>
 
 ## Troubleshooting
