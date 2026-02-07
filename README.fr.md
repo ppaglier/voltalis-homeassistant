@@ -62,7 +62,6 @@ Cette intégration fournit un contrôle et une surveillance complets de vos appa
 ### Contrôles
 - **Sélecteur de préset d'appareil** : Changez rapidement le mode d'un appareil individuel (Automatique, Confort, Économie, Protection antigel, Température, Activé, Arrêt)
 - **Sélecteur de programme** : Sélectionnez des programmes globaux qui s'appliquent à tous les appareils (Aucun programme, Vacances, Absence courte, Boost)
-- **Interrupteur d'appareil** : Activez les appareils (en mode Confort) ou désactivez-les
 
 ## Installation
 
@@ -378,25 +377,6 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
   - **Icône** : `mdi:playlist-edit`
   - **Fréquence de mise à jour** : Se met à jour lors des changements de programme
   - **Remarque** : Un seul programme global peut être actif à la fois. La sélection d'un programme peut remplacer les paramètres individuels des appareils.
-</details>
-
-### Entités interrupteur
-
-<details>
-  <summary>Interrupteur d'appareil</summary>
-
-  - **ID d'entité** : `switch.<device_name>_device_switch`
-  - **Type** : Interrupteur
-  - **Description** : Contrôle simple marche/arrêt pour l'appareil
-  - **Fonctionnalités** :
-    - **Activer** : Active l'appareil en mode manuel avec le mode Confort pour un chauffage immédiat
-    - **Désactiver** : Désactive l'appareil en mode manuel tout en conservant les paramètres de mode actuels
-    - Fournit un contrôle rapide du chauffage - l'activation utilise toujours le mode Confort pour un chauffage maximal
-  - **Cas d'utilisation** :
-    - Contrôle rapide marche/arrêt dans les automatisations
-    - Gestion simple de l'alimentation des appareils
-    - Intégration avec les assistants vocaux (« Allume le radiateur de la chambre »)
-  - **Fréquence de mise à jour** : Chaque 1 minute
 </details>
 
 ## Dépannage

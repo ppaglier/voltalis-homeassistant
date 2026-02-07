@@ -216,26 +216,25 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         mode: VoltalisDeviceModeEnum,
         specified_temperature: float | None = None,
     ) -> float:
-        """Determine the appropriate temperature based on mode and device programming."""
+        """Determine the appropriate temperature based on mode and specified temperature."""
+        device = self._current_device
 
         if specified_temperature is not None:
             return specified_temperature
 
-        device = self._current_device
-
-        # Use device programming temperature if available
-        if device.programming.temperature_target:
-            return device.programming.temperature_target
-
-        # Use default temperature from device programming
-        if device.programming.default_temperature:
-            return device.programming.default_temperature
+        # Use device programming or defaults
+        # TODO : Test de l'importance de la température envoyée dans les modes autres que TEMPERATURE
+        # TODO : Sinon établir un tableau de températures par défaut / voir demandé à l'utilisateur pendant la config
+        if device.programming:
+            if device.programming.temperature_target is not None:
+                return device.programming.temperature_target
+            if device.programming.default_temperature is not None:
+                return device.programming.default_temperature
 
         # Fallbacks based on mode
         if mode == VoltalisDeviceModeEnum.CONFORT:
             return CLIMATE_COMFORT_TEMP
 
-        # Fallback to constant
         return CLIMATE_DEFAULT_TEMP
 
     async def __set_manual_mode(
