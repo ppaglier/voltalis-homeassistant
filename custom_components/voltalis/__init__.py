@@ -91,6 +91,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
             hass=hass,
             voltalis_repository=voltalis_repository,
             entry=entry,
+            date_provider=date_provider,
         ),
         programs=VoltalisProgramCoordinator(
             hass=hass,

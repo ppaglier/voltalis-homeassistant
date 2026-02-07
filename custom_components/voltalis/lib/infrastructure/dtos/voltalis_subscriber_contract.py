@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, time
 
 from pydantic import Field
 
@@ -14,18 +14,20 @@ from custom_components.voltalis.lib.domain.range_model import RangeModel
 class VoltalisTimeRange(CustomModel):
     """Class to represent time ranges for peak/offpeak hours"""
 
-    from_time: str = Field(alias="from")
-    to_time: str = Field(alias="to")
+    from_time: time = Field(alias="from")
+    to_time: time = Field(alias="to")
 
 
 class VoltalisSubscriberContractDto(CustomModel):
     """Class to represent a Voltalis subscriber contract DTO"""
 
     id: int
+    api_contract_id: int = Field(alias="apiContractId")
     company_name: str = Field(alias="companyName")
     name: str
     subscribed_power: int = Field(alias="subscribedPower")
     is_peak_off_peak_contract: bool = Field(alias="isPeakOffPeakContract")
+    end_date: date | None = Field(None, alias="endDate")
 
     subscription_base_price: float | None = Field(None, alias="subscriptionBasePrice")
     subscription_peak_off_peak_base_price: float | None = Field(None, alias="subscriptionPeakOffPeakBasePrice")
@@ -39,9 +41,11 @@ class VoltalisSubscriberContractDto(CustomModel):
     def to_voltalis_energy_contract(self) -> VoltalisEnergyContract:
         return VoltalisEnergyContract(
             id=self.id,
+            contract_id=self.api_contract_id,
             company_name=self.company_name,
             name=self.name,
             subscribed_power=self.subscribed_power,
+            end_date=self.end_date,
             type=(
                 VoltalisEnergyContractTypeEnum.BASE
                 if not self.is_peak_off_peak_contract
@@ -58,17 +62,9 @@ class VoltalisSubscriberContractDto(CustomModel):
                 kwh_offpeak=self.kwh_offpeak_hour_price,
             ),
             peak_hours=[
-                RangeModel(
-                    start=datetime.strptime(time_range.from_time, "%H:%M").time(),
-                    end=datetime.strptime(time_range.to_time, "%H:%M").time(),
-                )
-                for time_range in self.peak_hours
+                RangeModel(start=time_range.from_time, end=time_range.to_time) for time_range in self.peak_hours
             ],
             offpeak_hours=[
-                RangeModel(
-                    start=datetime.strptime(time_range.from_time, "%H:%M").time(),
-                    end=datetime.strptime(time_range.to_time, "%H:%M").time(),
-                )
-                for time_range in self.offpeak_hours
+                RangeModel(start=time_range.from_time, end=time_range.to_time) for time_range in self.offpeak_hours
             ],
         )

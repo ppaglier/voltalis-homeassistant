@@ -77,22 +77,20 @@ async def async_setup_entry(
             device_sensors.append(VoltalisDeviceProgrammingSensor(entry, device))
 
     energy_contract_sensors: list[VoltalisEnergyContractEntity] = []
-    if energy_contract_coordinator.data:
-        current_contract = next(iter(energy_contract_coordinator.data.values()))
+    current_contract = energy_contract_coordinator.get_current_energy_contract()
+    if current_contract is not None:
         energy_contract_sensors.append(VoltalisEnergyContractLiveConsumptionSensor(entry, current_contract))
-
-    for energy_contract in energy_contract_coordinator.data.values():
-        energy_contract_sensors.append(VoltalisEnergyContractSubscribedPowerSensor(entry, energy_contract))
-        energy_contract_sensors.append(VoltalisEnergyContractCurrentModeSensor(entry, energy_contract, date_provider))
+        energy_contract_sensors.append(VoltalisEnergyContractSubscribedPowerSensor(entry, current_contract))
+        energy_contract_sensors.append(VoltalisEnergyContractCurrentModeSensor(entry, current_contract, date_provider))
 
         energy_contract_sensors.append(
-            VoltalisEnergyContractKwhCurrentCostSensor(entry, energy_contract, date_provider)
+            VoltalisEnergyContractKwhCurrentCostSensor(entry, current_contract, date_provider)
         )
 
         # Create peak/off-peak specific sensors
-        if energy_contract.type is VoltalisEnergyContractTypeEnum.PEAK_OFFPEAK:
-            energy_contract_sensors.append(VoltalisEnergyContractKwhPeakCostSensor(entry, energy_contract))
-            energy_contract_sensors.append(VoltalisEnergyContractKwhOffPeakCostSensor(entry, energy_contract))
+        if current_contract.type is VoltalisEnergyContractTypeEnum.PEAK_OFFPEAK:
+            energy_contract_sensors.append(VoltalisEnergyContractKwhPeakCostSensor(entry, current_contract))
+            energy_contract_sensors.append(VoltalisEnergyContractKwhOffPeakCostSensor(entry, current_contract))
 
     all_entities: dict[str, VoltalisBaseEntity] = {
         sensor.unique_internal_name: sensor for sensor in (device_sensors + energy_contract_sensors)
