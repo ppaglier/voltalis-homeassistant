@@ -90,7 +90,7 @@ pydantic = "^2.12.2"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.14.11"
+ruff = "^0.15.0"
 mypy = "^1.19.1"
 
 
