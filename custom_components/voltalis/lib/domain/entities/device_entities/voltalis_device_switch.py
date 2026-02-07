@@ -46,7 +46,7 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
-        await self.__set_manual_mode(is_on=True)
+        await self.__set_manual_mode(is_on=True, mode=VoltalisDeviceModeEnum.CONFORT)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the entity off."""
@@ -99,14 +99,25 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
         # Fallback to constant
         return CLIMATE_DEFAULT_TEMP
 
-    async def __set_manual_mode(self, is_on: bool) -> None:
-        """Set manual mode for the device."""
+    async def __set_manual_mode(
+        self,
+        is_on: bool,
+        mode: VoltalisDeviceModeEnum | None = None,
+    ) -> None:
+        """Set manual mode for the device.
+
+        When turning on, forces comfort mode for immediate heating.
+        When turning off, maintains current mode.
+        """
         device = self._current_device
 
         # Determine the mode to use
-        target_mode = VoltalisDeviceModeEnum.ECO
-        if device.programming.mode:
-            # Keep current mode
+        target_mode = VoltalisDeviceModeEnum.ECO  # Default fallback
+        if mode is not None:
+            # Force the specified mode (e.g., CONFORT when turning on)
+            target_mode = mode
+        elif device.programming.mode:
+            # Keep current mode when no mode specified
             target_mode = device.programming.mode
 
         # Determine target temperature
@@ -114,7 +125,7 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
 
         await self.__update_manual_settings(
             VoltalisManualSettingUpdate(
-                enabled=True,  # Enable manual mode
+                enabled=True,  # Always enable manual mode for switch control
                 id_appliance=device.id,
                 until_further_notice=True,
                 is_on=is_on,
