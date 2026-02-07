@@ -108,6 +108,11 @@
         }
       }
     },
+    "switch": {
+      "device_switch": {
+        "name": "Interrupteur de l'appareil"
+      }
+    },
     "water_heater": {
       "water_heater": {
         "state": {

@@ -8,7 +8,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.voltalis.const import CLIMATE_DEFAULT_TEMP
+from custom_components.voltalis.const import CLIMATE_COMFORT_TEMP, CLIMATE_DEFAULT_TEMP
 from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinatorData
 from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_device_entity import VoltalisDeviceEntity
@@ -168,13 +168,15 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
 
     def __get_appropriate_temperature(
         self,
+        mode: VoltalisDeviceModeEnum,
         specified_temperature: float | None = None,
     ) -> float:
         """Determine the appropriate temperature based on mode and device programming."""
-        device = self._current_device
 
         if specified_temperature is not None:
             return specified_temperature
+
+        device = self._current_device
 
         # Use device programming temperature if available
         if device.programming.temperature_target:
@@ -183,6 +185,10 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
         # Use default temperature from device programming
         if device.programming.default_temperature:
             return device.programming.default_temperature
+
+        # Fallbacks based on mode
+        if mode == VoltalisDeviceModeEnum.CONFORT:
+            return CLIMATE_COMFORT_TEMP
 
         # Fallback to constant
         return CLIMATE_DEFAULT_TEMP
@@ -204,7 +210,7 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
             target_mode = device.programming.mode
 
         # Determine target temperature
-        target_temp = self.__get_appropriate_temperature()
+        target_temp = self.__get_appropriate_temperature(target_mode)
 
         await self.__update_manual_settings(
             VoltalisManualSettingUpdate(

@@ -108,6 +108,11 @@
         }
       }
     },
+    "switch": {
+      "device_switch": {
+        "name": "Device switch"
+      }
+    },
     "water_heater": {
       "water_heater": {
         "state": {
