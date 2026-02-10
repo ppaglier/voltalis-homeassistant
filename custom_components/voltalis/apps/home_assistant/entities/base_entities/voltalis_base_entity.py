@@ -1,0 +1,40 @@
+from typing import Any
+
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+
+
+class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any]]]):
+    """Base class for all Voltalis entities."""
+
+    _unique_id_suffix: str = ""
+
+    def __init__(
+        self,
+        entry: VoltalisConfigEntry,
+        coordinator: BaseVoltalisCoordinator[dict[int, Any]],
+    ) -> None:
+        """Initialize the base entity."""
+        super().__init__(coordinator)
+        self._entry = entry
+
+        if len(self._unique_id_suffix) == 0:
+            raise ValueError("Unique ID suffix must be defined in subclass.")
+
+        self._coordinators = entry.runtime_data.coordinators
+
+    @property
+    def unique_internal_name(self) -> str:
+        """Return a unique internal name for the entity."""
+        raise NotImplementedError()
+
+    # ------------------------------------------------------------------
+    # Availability handling
+    # ------------------------------------------------------------------
+    def _is_available_from_data(self, data: Any) -> bool:
+        """Check if entity is available based on entity data.
+        This method should be implemented by subclasses.
+        """
+        raise NotImplementedError()

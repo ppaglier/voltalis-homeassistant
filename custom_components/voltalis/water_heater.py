@@ -5,11 +5,17 @@ import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_device_entity import VoltalisDeviceEntity
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_water_heater import VoltalisWaterHeater
-from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceTypeEnum
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
+    VoltalisBaseEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
+    VoltalisDeviceEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_water_heater import (
+    VoltalisWaterHeater,
+)
+from custom_components.voltalis.lib.domain.devices_management.device.device_enum import VoltalisDeviceTypeEnum
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@ from typing import Any, TypeVar
 
 from aiohttp import ClientConnectorError, ClientError, ClientResponse, ClientResponseError, ClientSession
 
-from custom_components.voltalis.lib.application.providers.http_client import (
+from custom_components.voltalis.lib.domain.shared.providers.http_client import (
     HttpClient,
     HttpClientException,
     HttpClientResponse,

@@ -6,8 +6,8 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.voltalis.const import DOMAIN
-from custom_components.voltalis.lib.application.providers.http_client import HttpClientException
-from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException
+from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
+from custom_components.voltalis.lib.domain.shared.providers.http_client import HttpClientException
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 
 

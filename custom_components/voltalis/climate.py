@@ -8,11 +8,15 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_device_entity import VoltalisDeviceEntity
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_climate import VoltalisClimate
-from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceTypeEnum
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
+    VoltalisBaseEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
+    VoltalisDeviceEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_climate import VoltalisClimate
+from custom_components.voltalis.lib.domain.devices_management.device.device_enum import VoltalisDeviceTypeEnum
 
 _LOGGER = logging.getLogger(__name__)
 

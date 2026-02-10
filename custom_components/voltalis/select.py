@@ -3,12 +3,14 @@ import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_preset_select import (
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
+    VoltalisBaseEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_preset_select import (
     VoltalisDevicePresetSelect,
 )
-from custom_components.voltalis.lib.domain.entities.voltalis_program_select import VoltalisProgramSelect
+from custom_components.voltalis.apps.home_assistant.entities.voltalis_program_select import VoltalisProgramSelect
 
 _LOGGER = logging.getLogger(__name__)
 

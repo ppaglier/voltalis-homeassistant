@@ -3,43 +3,47 @@ import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_device_entity import VoltalisDeviceEntity
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_energy_contract_entity import (
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
+    VoltalisBaseEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
+    VoltalisDeviceEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,
 )
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_connected_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_connected_sensor import (
     VoltalisDeviceConnectedSensor,
 )
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_current_mode_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_current_mode_sensor import (  # noqa: E501
     VoltalisDeviceCurrentModeSensor,
 )
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_daily_consumption_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_daily_consumption_sensor import (  # noqa: E501
     VoltalisDeviceDailyConsumptionSensor,
 )
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_programming_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_programming_sensor import (
     VoltalisDeviceProgrammingSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.current_mode_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.current_mode_sensor import (
     VoltalisEnergyContractCurrentModeSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_current_cost_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.kwh_current_cost_sensor import (
     VoltalisEnergyContractKwhCurrentCostSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_offpeak_cost_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.kwh_offpeak_cost_sensor import (
     VoltalisEnergyContractKwhOffPeakCostSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_peak_cost_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.kwh_peak_cost_sensor import (
     VoltalisEnergyContractKwhPeakCostSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.live_consumption_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.live_consumption_sensor import (
     VoltalisEnergyContractLiveConsumptionSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.subscribed_power_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.subscribed_power_sensor import (
     VoltalisEnergyContractSubscribedPowerSensor,
 )
-from custom_components.voltalis.lib.domain.models.energy_contract import VoltalisEnergyContractTypeEnum
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import VoltalisEnergyContractTypeEnum
 
 _LOGGER = logging.getLogger(__name__)
 
