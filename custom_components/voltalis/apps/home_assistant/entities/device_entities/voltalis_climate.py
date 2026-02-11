@@ -7,7 +7,7 @@ from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import ClimateEntityFeature, HVACAction, HVACMode
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceDto
+from custom_components.voltalis.apps.home_assistant.coordinators.device import DeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
 )
@@ -43,7 +43,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
     _attr_target_temperature_step = CLIMATE_TEMP_STEP
     _unique_id_suffix = "climate"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceDto) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: DeviceDto) -> None:
         """Initialize the climate entity."""
         super().__init__(entry, device, entry.runtime_data.voltalis_home_assistant_module.device_coordinator)
         # We don't set name there because this is only one entity per device
@@ -76,7 +76,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         self._attr_supported_features = features
 
     @property
-    def _current_device(self) -> VoltalisDeviceDto:
+    def _current_device(self) -> DeviceDto:
         """Get the current device data from coordinator."""
         device = self._voltalis_module.device_coordinator.data.get(self._device.id)
         return device if device else self._device

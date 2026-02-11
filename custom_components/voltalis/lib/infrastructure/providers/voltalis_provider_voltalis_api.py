@@ -76,7 +76,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             self.__logger.error("Error parsing health: %s", err)
             raise VoltalisValidationException(*err.args) from err
 
-        devices = {device.id: device.to_voltalis_device() for device in parsed_devices}
+        devices = {device.id: device.to_device() for device in parsed_devices}
 
         return devices
 
@@ -98,8 +98,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             raise VoltalisValidationException(*err.args) from err
 
         devices_health = {
-            device_health.cs_appliance_id: device_health.to_voltalis_device_health()
-            for device_health in parsed_devices_health
+            device_health.cs_appliance_id: device_health.to_device_health() for device_health in parsed_devices_health
         }
 
         return devices_health
@@ -182,8 +181,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             raise VoltalisValidationException(*err.args) from err
 
         manual_settings = {
-            manual_setting.id_appliance: manual_setting.to_voltalis_manual_setting()
-            for manual_setting in parsed_manual_settings
+            manual_setting.id_appliance: manual_setting.to_manual_setting() for manual_setting in parsed_manual_settings
         }
 
         return manual_settings
@@ -227,7 +225,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             self.__logger.exception("Failed to parse subscriber contracts")
             raise VoltalisValidationException("Failed to parse subscriber contracts") from err
 
-        contracts = {contract.id: contract.to_voltalis_energy_contract() for contract in parsed_contracts}
+        contracts = {contract.id: contract.to_energy_contract() for contract in parsed_contracts}
         return contracts
 
     async def get_programs(self) -> dict[int, Program]:
@@ -265,8 +263,8 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
         # /api/site/{{site_id}}/quicksettings/{program_id}/enable
 
         return {
-            **{program.id: program.to_voltalis_program(ProgramTypeEnum.QUICK) for program in parsed_quick_programs},
-            **{program.id: program.to_voltalis_program(ProgramTypeEnum.USER) for program in parsed_user_programs},
+            **{program.id: program.to_program(ProgramTypeEnum.QUICK) for program in parsed_quick_programs},
+            **{program.id: program.to_program(ProgramTypeEnum.USER) for program in parsed_user_programs},
         }
 
     async def toggle_program(self, program: Program) -> None:

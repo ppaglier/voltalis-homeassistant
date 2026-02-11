@@ -10,7 +10,7 @@ class VoltalisProgramDto(CustomModel):
     enabled: bool
     name: str
 
-    def to_voltalis_program(self, _type: ProgramTypeEnum) -> Program:
+    def to_program(self, _type: ProgramTypeEnum) -> Program:
         """Convert to domain model"""
 
         name = self.name

@@ -22,7 +22,7 @@ class VoltalisManualSettingDto(VoltalisManualSettingUpdateDto):
 
     id: int
 
-    def to_voltalis_manual_setting(self) -> ManualSetting:
+    def to_manual_setting(self) -> ManualSetting:
         """Convert to domain model"""
 
         return ManualSetting(

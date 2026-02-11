@@ -38,7 +38,7 @@ class VoltalisSubscriberContractDto(CustomModel):
     peak_hours: list[VoltalisTimeRange] = Field(alias="peakHours")
     offpeak_hours: list[VoltalisTimeRange] = Field(alias="offpeakHours")
 
-    def to_voltalis_energy_contract(self) -> EnergyContract:
+    def to_energy_contract(self) -> EnergyContract:
         return EnergyContract(
             id=self.id,
             contract_id=self.api_contract_id,

@@ -67,7 +67,7 @@ class VoltalisDeviceDto(CustomModel):
     available_modes: list[VoltalisDeviceDtoModeEnum] = Field(alias="availableModes")
     programming: VoltalisDeviceDtoProgramming
 
-    def to_voltalis_device(self) -> Device:
+    def to_device(self) -> Device:
         """Convert to domain model"""
 
         return Device(

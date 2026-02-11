@@ -7,7 +7,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceDto
+from custom_components.voltalis.apps.home_assistant.coordinators.device import DeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
 )
@@ -36,7 +36,7 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
     _attr_translation_key = "device_preset"
     _unique_id_suffix = "device_preset"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceDto) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: DeviceDto) -> None:
         """Initialize the program select entity."""
         super().__init__(entry, device, entry.runtime_data.voltalis_home_assistant_module.device_coordinator)
 
@@ -73,7 +73,7 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
         )
 
     @property
-    def _current_device(self) -> VoltalisDeviceDto:
+    def _current_device(self) -> DeviceDto:
         """Get the current device data from coordinator."""
         device = self._voltalis_module.device_coordinator.data.get(self._device.id)
         return device if device else self._device

@@ -2,7 +2,7 @@ from custom_components.voltalis.lib.domain.devices_management.climate.manual_set
 from custom_components.voltalis.lib.domain.devices_management.device.device import Device
 
 
-class VoltalisDeviceDto(Device):
+class DeviceDto(Device):
     """Data class to hold device information."""
 
     manual_setting: ManualSetting | None = None
