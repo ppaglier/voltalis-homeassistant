@@ -1,5 +1,5 @@
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.voltalis_program import VoltalisProgram
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
 
 
 class GetProgramsHandler:
@@ -10,10 +10,10 @@ class GetProgramsHandler:
         *,
         voltalis_provider: VoltalisProvider,
     ):
-        self._voltalis_provider = voltalis_provider
+        self.__voltalis_provider = voltalis_provider
 
-    async def handle(self) -> dict[int, VoltalisProgram]:
+    async def handle(self) -> dict[int, Program]:
         """Handle the request to get the programs."""
 
-        result = await self._voltalis_provider.get_programs()
+        result = await self.__voltalis_provider.get_programs()
         return result

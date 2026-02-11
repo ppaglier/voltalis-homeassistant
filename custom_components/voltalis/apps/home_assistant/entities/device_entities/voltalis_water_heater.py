@@ -7,16 +7,18 @@ from typing import Any
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityFeature
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceCoordinatorData
+from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.const import CLIMATE_UNIT
-from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import VoltalisManualSettingUpdate
-from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import VoltalisDeviceModeEnum
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program_enum import VoltalisDeviceProgTypeEnum
+from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import ManualSettingUpdate
+from custom_components.voltalis.lib.domain.devices_management.device.device import Device
+from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import (
+    ProgramTypeEnum,
+)
 
 
 class VoltalisWaterHeaterOperationsEnum(StrEnum):
@@ -42,9 +44,9 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     _attr_translation_key = "water_heater"
     _unique_id_suffix = "water_heater"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceDto) -> None:
         """Initialize the water heater entity."""
-        super().__init__(entry, device, entry.runtime_data.coordinators.device)
+        super().__init__(entry, device, entry.runtime_data.voltalis_home_assistant_module.device_coordinator)
         # We don't set name there because this is only one entity per device
         # and the device name is already used for the main entity.
         self._attr_name = None
@@ -60,9 +62,9 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
         self.__before_away_mode_operation: VoltalisWaterHeaterOperationsEnum | None = None
 
     @property
-    def _current_device(self) -> VoltalisDeviceCoordinatorData:
+    def _current_device(self) -> VoltalisDeviceDto:
         """Get the current device data from coordinator."""
-        device = self._coordinators.device.data.get(self._device.id)
+        device = self._voltalis_module.device_coordinator.data.get(self._device.id)
         return device if device else self._device
 
     @property
@@ -91,7 +93,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
 
         # Check programming type to determine mode
         prog_type = device.programming.prog_type
-        if prog_type == VoltalisDeviceProgTypeEnum.MANUAL:
+        if prog_type == ProgramTypeEnum.MANUAL:
             return VoltalisWaterHeaterOperationsEnum.ON
 
         # DEFAULT or USER planning means AUTO mode
@@ -144,7 +146,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     # Internal helper methods
     # ------------------------------------------------------------------
 
-    async def __update_manual_settings(self, settings: VoltalisManualSettingUpdate) -> None:
+    async def __update_manual_settings(self, settings: ManualSettingUpdate) -> None:
         """Update manual settings for the device."""
         device = self._current_device
 
@@ -155,7 +157,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
         manual_setting_id = device.manual_setting.id
 
         # Call API
-        await self._coordinators.device.set_manual_setting(manual_setting_id, settings)
+        await self._voltalis_module.device_coordinator.set_manual_setting(manual_setting_id, settings)
 
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()
@@ -165,12 +167,12 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
         device = self._current_device
 
         await self.__update_manual_settings(
-            VoltalisManualSettingUpdate(
+            ManualSettingUpdate(
                 enabled=True,  # Enable manual mode
                 id_appliance=device.id,
                 until_further_notice=True,
                 is_on=is_on,
-                mode=VoltalisDeviceModeEnum.NORMAL,
+                mode=DeviceModeEnum.NORMAL,
                 end_date=None,
                 temperature_target=device.programming.default_temperature,
             )
@@ -181,7 +183,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
         device = self._current_device
 
         # Get current settings
-        target_mode = VoltalisDeviceModeEnum.AUTO
+        target_mode = DeviceModeEnum.AUTO
         target_temp = None
 
         if device.programming:
@@ -193,7 +195,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
         end_date = datetime.now().isoformat()
 
         await self.__update_manual_settings(
-            VoltalisManualSettingUpdate(
+            ManualSettingUpdate(
                 enabled=False,  # Disable manual mode
                 id_appliance=device.id,
                 until_further_notice=False,
@@ -207,5 +209,5 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisDevice) -> bool:
+    def _is_available_from_data(self, data: Device) -> bool:
         return data.programming.is_on is not None and data.programming.mode is not None

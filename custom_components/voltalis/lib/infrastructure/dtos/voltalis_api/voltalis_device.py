@@ -3,8 +3,8 @@ from enum import StrEnum
 from pydantic import Field
 
 from custom_components.voltalis.lib.domain.devices_management.device.device import (
-    VoltalisDevice,
-    VoltalisDeviceProgramming,
+    Device,
+    DeviceProgramming,
 )
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
@@ -67,16 +67,16 @@ class VoltalisDeviceDto(CustomModel):
     available_modes: list[VoltalisDeviceDtoModeEnum] = Field(alias="availableModes")
     programming: VoltalisDeviceDtoProgramming
 
-    def to_voltalis_device(self) -> VoltalisDevice:
+    def to_voltalis_device(self) -> Device:
         """Convert to domain model"""
 
-        return VoltalisDevice(
+        return Device(
             id=self.id,
             name=self.name,
             type=self.appliance_type.value.lower(),
             modulator_type=self.modulator_type.value.lower(),
             available_modes=[mode.value.lower() for mode in self.available_modes],
-            programming=VoltalisDeviceProgramming(
+            programming=DeviceProgramming(
                 prog_type=self.programming.prog_type.value.lower(),
                 id_manual_setting=self.programming.id_manual_setting,
                 is_on=self.programming.is_on,

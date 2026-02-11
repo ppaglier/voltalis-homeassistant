@@ -3,9 +3,9 @@ from datetime import date, time
 from pydantic import Field
 
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import (
-    VoltalisEnergyContract,
-    VoltalisEnergyContractPrices,
-    VoltalisEnergyContractTypeEnum,
+    EnergyContract,
+    EnergyContractPrices,
+    EnergyContractTypeEnum,
 )
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.shared.range_model import RangeModel
@@ -38,8 +38,8 @@ class VoltalisSubscriberContractDto(CustomModel):
     peak_hours: list[VoltalisTimeRange] = Field(alias="peakHours")
     offpeak_hours: list[VoltalisTimeRange] = Field(alias="offpeakHours")
 
-    def to_voltalis_energy_contract(self) -> VoltalisEnergyContract:
-        return VoltalisEnergyContract(
+    def to_voltalis_energy_contract(self) -> EnergyContract:
+        return EnergyContract(
             id=self.id,
             contract_id=self.api_contract_id,
             company_name=self.company_name,
@@ -47,11 +47,11 @@ class VoltalisSubscriberContractDto(CustomModel):
             subscribed_power=self.subscribed_power,
             end_date=self.end_date,
             type=(
-                VoltalisEnergyContractTypeEnum.BASE
+                EnergyContractTypeEnum.BASE
                 if not self.is_peak_off_peak_contract
-                else VoltalisEnergyContractTypeEnum.PEAK_OFFPEAK
+                else EnergyContractTypeEnum.PEAK_OFFPEAK
             ),
-            prices=VoltalisEnergyContractPrices(
+            prices=EnergyContractPrices(
                 subscription=(
                     (self.subscription_base_price or 0.0)
                     if not self.is_peak_off_peak_contract

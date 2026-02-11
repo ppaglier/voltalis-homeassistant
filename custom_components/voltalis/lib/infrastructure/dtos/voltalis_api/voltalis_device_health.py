@@ -2,7 +2,7 @@ from enum import StrEnum
 
 from pydantic import Field
 
-from custom_components.voltalis.lib.domain.devices_management.health.device_health import VoltalisDeviceHealth
+from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
 
@@ -25,9 +25,9 @@ class VoltalisDeviceHealthDto(CustomModel):
     cs_appliance_id: int = Field(alias="csApplianceId")
     status: VoltalisDeviceHealthDtoStatusEnum
 
-    def to_voltalis_device_health(self) -> VoltalisDeviceHealth:
+    def to_voltalis_device_health(self) -> DeviceHealth:
         """Convert to domain model"""
 
-        return VoltalisDeviceHealth(
+        return DeviceHealth(
             status=self.status.value.lower(),
         )

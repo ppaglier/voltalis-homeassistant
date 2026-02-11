@@ -1,8 +1,8 @@
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import VoltalisDeviceModeEnum
+from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
 
-class VoltalisManualSetting(CustomModel):
+class ManualSetting(CustomModel):
     """Class to represent manual setting of a Voltalis device"""
 
     id: int
@@ -10,18 +10,18 @@ class VoltalisManualSetting(CustomModel):
     id_appliance: int
     until_further_notice: bool
     is_on: bool
-    mode: VoltalisDeviceModeEnum
+    mode: DeviceModeEnum
     end_date: str | None = None
     temperature_target: float
 
 
-class VoltalisManualSettingUpdate(CustomModel):
+class ManualSettingUpdate(CustomModel):
     """Class to represent manual setting update request"""
 
     enabled: bool
     id_appliance: int
     until_further_notice: bool
     is_on: bool
-    mode: VoltalisDeviceModeEnum
+    mode: DeviceModeEnum
     end_date: str | None = None
     temperature_target: float

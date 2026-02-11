@@ -1,19 +1,12 @@
 from datetime import date, time
-from enum import StrEnum
 
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.shared.range_model import RangeModel
 
 
-class VoltalisEnergyContractTypeEnum(StrEnum):
-    """Enum to represent the type of Voltalis energy contract"""
-
-    BASE = "base"
-    PEAK_OFFPEAK = "peak_offpeak"
-
-
-class VoltalisEnergyContractPrices(CustomModel):
-    """Class to represent the prices of a Voltalis energy contract"""
+class EnergyContractPrices(CustomModel):
+    """Class to represent the prices of an energy contract"""
 
     subscription: float
 
@@ -23,18 +16,18 @@ class VoltalisEnergyContractPrices(CustomModel):
     kwh_offpeak: float | None = None
 
 
-class VoltalisEnergyContract(CustomModel):
-    """Class to represent a Voltalis energy contract"""
+class EnergyContract(CustomModel):
+    """Class to represent an energy contract"""
 
     id: int
     contract_id: int
     company_name: str
     name: str
     subscribed_power: int
-    type: VoltalisEnergyContractTypeEnum
+    type: EnergyContractTypeEnum
     end_date: date | None = None
 
-    prices: VoltalisEnergyContractPrices
+    prices: EnergyContractPrices
 
     peak_hours: list[RangeModel[time]]
     offpeak_hours: list[RangeModel[time]]

@@ -18,12 +18,11 @@ class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any
     ) -> None:
         """Initialize the base entity."""
         super().__init__(coordinator)
+        self._voltalis_module = entry.runtime_data.voltalis_home_assistant_module
         self._entry = entry
 
         if len(self._unique_id_suffix) == 0:
             raise ValueError("Unique ID suffix must be defined in subclass.")
-
-        self._coordinators = entry.runtime_data.coordinators
 
     @property
     def unique_internal_name(self) -> str:

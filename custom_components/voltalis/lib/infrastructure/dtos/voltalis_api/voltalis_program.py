@@ -1,6 +1,6 @@
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program import VoltalisProgram
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program_enum import VoltalisDeviceProgTypeEnum
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import ProgramTypeEnum
 
 
 class VoltalisProgramDto(CustomModel):
@@ -10,7 +10,7 @@ class VoltalisProgramDto(CustomModel):
     enabled: bool
     name: str
 
-    def to_voltalis_program(self, _type: VoltalisDeviceProgTypeEnum) -> VoltalisProgram:
+    def to_voltalis_program(self, _type: ProgramTypeEnum) -> Program:
         """Convert to domain model"""
 
         name = self.name
@@ -24,7 +24,7 @@ class VoltalisProgramDto(CustomModel):
         if name in mapping:
             name = mapping[name]
 
-        return VoltalisProgram(
+        return Program(
             id=self.id,
             name=name,
             type=_type,

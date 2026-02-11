@@ -3,12 +3,12 @@ from typing import Any
 from homeassistant.helpers.entity import DeviceInfo
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
-from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceCoordinatorData
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
     VoltalisBaseEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.const import DOMAIN
+from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import VoltalisDeviceDto
 
 
 class VoltalisDeviceEntity(VoltalisBaseEntity):
@@ -17,7 +17,7 @@ class VoltalisDeviceEntity(VoltalisBaseEntity):
     def __init__(
         self,
         entry: VoltalisConfigEntry,
-        device: VoltalisDeviceCoordinatorData,
+        device: VoltalisDeviceDto,
         coordinator: BaseVoltalisCoordinator[dict[int, Any]],
     ) -> None:
         """Initialize the device entity."""

@@ -1,5 +1,3 @@
-import logging
-
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -12,9 +10,7 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisEnergyContractEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import VoltalisEnergyContract
-
-_LOGGER = logging.getLogger(__name__)
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 
 
 class VoltalisEnergyContractLiveConsumptionSensor(VoltalisEnergyContractEntity, SensorEntity):
@@ -26,20 +22,22 @@ class VoltalisEnergyContractLiveConsumptionSensor(VoltalisEnergyContractEntity, 
     _attr_translation_key = "live_consumption"
     _unique_id_suffix = "live_consumption"
 
-    def __init__(self, entry: VoltalisConfigEntry, energy_contract: VoltalisEnergyContract) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, energy_contract: EnergyContract) -> None:
         """Initialize the sensor entity."""
-        super().__init__(entry, energy_contract, entry.runtime_data.coordinators.live_consumption)
+        super().__init__(
+            entry, energy_contract, entry.runtime_data.voltalis_home_assistant_module.live_consumption_coordinator
+        )
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        data = self._coordinators.live_consumption.data.get(0, None)
+        data = self._voltalis_module.live_consumption_coordinator.data.get(0, None)
         if data is None:
-            _LOGGER.warning("Live consumption data is None")
+            self._voltalis_module.logger.warning("Live consumption data is None")
             return
 
-        new_value = data.daily_consumption
+        new_value = data.consumption
         if self.native_value == new_value:
             return
 

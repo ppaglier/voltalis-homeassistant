@@ -7,7 +7,7 @@ from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import ClimateEntityFeature, HVACAction, HVACMode
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceCoordinatorData
+from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
 )
@@ -25,10 +25,12 @@ from custom_components.voltalis.const import (
     VOLTALIS_TO_HA_MODES,
     HomeAssistantPresetModeEnum,
 )
-from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import VoltalisManualSettingUpdate
-from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import VoltalisDeviceModeEnum
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program_enum import VoltalisDeviceProgTypeEnum
+from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import ManualSettingUpdate
+from custom_components.voltalis.lib.domain.devices_management.device.device import Device
+from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import (
+    ProgramTypeEnum,
+)
 
 
 class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
@@ -41,9 +43,9 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
     _attr_target_temperature_step = CLIMATE_TEMP_STEP
     _unique_id_suffix = "climate"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceDto) -> None:
         """Initialize the climate entity."""
-        super().__init__(entry, device, entry.runtime_data.coordinators.device)
+        super().__init__(entry, device, entry.runtime_data.voltalis_home_assistant_module.device_coordinator)
         # We don't set name there because this is only one entity per device
         # and the device name is already used for the main entity.
         self._attr_name = None
@@ -68,15 +70,15 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
             features |= ClimateEntityFeature.PRESET_MODE
 
         # Only add temperature control if device supports TEMPERATURE mode
-        if VoltalisDeviceModeEnum.TEMPERATURE in self._device.available_modes:
+        if DeviceModeEnum.TEMPERATURE in self._device.available_modes:
             features |= ClimateEntityFeature.TARGET_TEMPERATURE
 
         self._attr_supported_features = features
 
     @property
-    def _current_device(self) -> VoltalisDeviceCoordinatorData:
+    def _current_device(self) -> VoltalisDeviceDto:
         """Get the current device data from coordinator."""
-        device = self._coordinators.device.data.get(self._device.id)
+        device = self._voltalis_module.device_coordinator.data.get(self._device.id)
         return device if device else self._device
 
     # ------------------------------------------------------------------
@@ -112,7 +114,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         # When setting temperature, use TEMPERATURE mode
         await self.__set_manual_mode(
             is_on=True,
-            mode=VoltalisDeviceModeEnum.TEMPERATURE,
+            mode=DeviceModeEnum.TEMPERATURE,
             temperature=temperature,
         )
 
@@ -129,7 +131,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
 
         # Check programming type to determine mode
         prog_type = device.programming.prog_type
-        if prog_type == VoltalisDeviceProgTypeEnum.MANUAL:
+        if prog_type == ProgramTypeEnum.MANUAL:
             return HVACMode.HEAT
 
         # DEFAULT or USER planning means AUTO mode
@@ -143,7 +145,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         # Determine action based on programming status
         if device.programming.is_on:
             # Device is on but not actively heating
-            if device.programming.mode == VoltalisDeviceModeEnum.HORS_GEL:
+            if device.programming.mode == DeviceModeEnum.HORS_GEL:
                 return HVACAction.IDLE
             return HVACAction.HEATING
         return HVACAction.OFF
@@ -194,7 +196,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
     # Internal helper methods
     # ------------------------------------------------------------------
 
-    async def __update_manual_settings(self, settings: VoltalisManualSettingUpdate) -> None:
+    async def __update_manual_settings(self, settings: ManualSettingUpdate) -> None:
         """Update manual settings for the device."""
 
         device = self._current_device
@@ -206,14 +208,14 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         manual_setting_id = device.manual_setting.id
 
         # Call API
-        await self._coordinators.device.set_manual_setting(manual_setting_id, settings)
+        await self._voltalis_module.device_coordinator.set_manual_setting(manual_setting_id, settings)
 
         # Refresh coordinator data
         await self.coordinator.async_request_refresh()
 
     def __get_appropriate_temperature(
         self,
-        mode: VoltalisDeviceModeEnum,
+        mode: DeviceModeEnum,
         specified_temperature: float | None = None,
     ) -> float:
         """Determine the appropriate temperature based on mode and device programming."""
@@ -232,7 +234,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
             return device.programming.default_temperature
 
         # Fallbacks based on mode
-        if mode == VoltalisDeviceModeEnum.CONFORT:
+        if mode == DeviceModeEnum.CONFORT:
             return CLIMATE_COMFORT_TEMP
 
         # Fallback to constant
@@ -241,14 +243,14 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
     async def __set_manual_mode(
         self,
         is_on: bool,
-        mode: VoltalisDeviceModeEnum | None = None,
+        mode: DeviceModeEnum | None = None,
         temperature: float | None = None,
     ) -> None:
         """Set manual mode for the device."""
         device = self._current_device
 
         # Determine the mode to use
-        target_mode = VoltalisDeviceModeEnum.ECO
+        target_mode = DeviceModeEnum.ECO
         if mode is not None:
             target_mode = mode
         elif device.programming.mode:
@@ -259,7 +261,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         target_temp = self.__get_appropriate_temperature(target_mode, temperature)
 
         await self.__update_manual_settings(
-            VoltalisManualSettingUpdate(
+            ManualSettingUpdate(
                 enabled=True,  # Enable manual mode
                 id_appliance=device.id,
                 until_further_notice=True,
@@ -275,7 +277,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         device = self._current_device
 
         # Get current manual setting or create default
-        target_mode = VoltalisDeviceModeEnum.ECO
+        target_mode = DeviceModeEnum.ECO
         target_temp = CLIMATE_DEFAULT_TEMP
 
         if device.programming:
@@ -289,7 +291,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         end_date = datetime.now().isoformat()
 
         await self.__update_manual_settings(
-            VoltalisManualSettingUpdate(
+            ManualSettingUpdate(
                 enabled=False,  # Disable manual mode
                 id_appliance=device.id,
                 until_further_notice=False,
@@ -303,7 +305,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisDevice) -> bool:
+    def _is_available_from_data(self, data: Device) -> bool:
         return data.programming.is_on is not None and data.programming.mode is not None
 
     # ------------------------------------------------------------------
@@ -321,7 +323,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         # Determine the mode to use
         if temperature is not None:
             # Use TEMPERATURE mode if temperature is specified
-            target_mode = VoltalisDeviceModeEnum.TEMPERATURE
+            target_mode = DeviceModeEnum.TEMPERATURE
             target_temp = temperature
         elif preset_mode is not None:
             # Use the specified preset mode
@@ -336,7 +338,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
             if device.programming.mode:
                 target_mode = device.programming.mode
             else:
-                target_mode = VoltalisDeviceModeEnum.ECO
+                target_mode = DeviceModeEnum.ECO
 
             # Use current or default temperature
             target_temp = self.__get_appropriate_temperature(target_mode)
@@ -345,7 +347,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         end_date = None if duration_hours is None else (datetime.now() + timedelta(hours=duration_hours)).isoformat()
 
         await self.__update_manual_settings(
-            VoltalisManualSettingUpdate(
+            ManualSettingUpdate(
                 enabled=True,
                 id_appliance=device.id,
                 until_further_notice=duration_hours is None,
@@ -370,10 +372,10 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
 
         # Determine target temperature and mode
         target_temp = temperature
-        target_mode = VoltalisDeviceModeEnum.TEMPERATURE
+        target_mode = DeviceModeEnum.TEMPERATURE
         if target_temp is None:
             # Use COMFORT mode for boost
-            target_mode = VoltalisDeviceModeEnum.CONFORT
+            target_mode = DeviceModeEnum.CONFORT
             target_temp = CLIMATE_COMFORT_TEMP
             # Get temperature from device or use default comfort temperature
             if device.programming.default_temperature:
@@ -385,7 +387,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         end_date = (datetime.now() + timedelta(hours=duration_hours)).isoformat()
 
         await self.__update_manual_settings(
-            VoltalisManualSettingUpdate(
+            ManualSettingUpdate(
                 enabled=True,
                 id_appliance=device.id,
                 until_further_notice=False,

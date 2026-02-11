@@ -5,26 +5,26 @@ from typing import TypeAlias
 import pytest
 
 from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import (
-    VoltalisManualSetting,
-    VoltalisManualSettingUpdate,
+    ManualSetting,
+    ManualSettingUpdate,
 )
 from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
-    VoltalisDeviceConsumption,
+    DeviceConsumption,
 )
 from custom_components.voltalis.lib.domain.devices_management.device.device import (
-    VoltalisDevice,
-    VoltalisDeviceProgramming,
+    Device,
+    DeviceProgramming,
 )
 from custom_components.voltalis.lib.domain.devices_management.device.device_enum import (
-    VoltalisDeviceModeEnum,
-    VoltalisDeviceModulatorTypeEnum,
-    VoltalisDeviceTypeEnum,
+    DeviceModeEnum,
+    DeviceModulatorTypeEnum,
+    DeviceTypeEnum,
 )
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import (
-    VoltalisDeviceHealth,
-    VoltalisHealthStatusEnum,
+    DeviceHealth,
+    DeviceHealthStatusEnum,
 )
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program_enum import VoltalisDeviceProgTypeEnum
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_stub import (
     VoltalisProviderStub,
 )
@@ -40,24 +40,24 @@ async def test_get_devices(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices method."""
 
     devices = {
-        1: VoltalisDevice(
+        1: Device(
             id=1,
             name="Device 1",
-            type=VoltalisDeviceTypeEnum.HEATER,
-            modulator_type=VoltalisDeviceModulatorTypeEnum.VX_WIRE,
+            type=DeviceTypeEnum.HEATER,
+            modulator_type=DeviceModulatorTypeEnum.VX_WIRE,
             available_modes=[],
-            programming=VoltalisDeviceProgramming(
-                prog_type=VoltalisDeviceProgTypeEnum.DEFAULT,
+            programming=DeviceProgramming(
+                prog_type=ProgramTypeEnum.DEFAULT,
             ),
         ),
-        2: VoltalisDevice(
+        2: Device(
             id=2,
             name="Device 2",
-            type=VoltalisDeviceTypeEnum.WATER_HEATER,
-            modulator_type=VoltalisDeviceModulatorTypeEnum.VX_RELAY,
+            type=DeviceTypeEnum.WATER_HEATER,
+            modulator_type=DeviceModulatorTypeEnum.VX_RELAY,
             available_modes=[],
-            programming=VoltalisDeviceProgramming(
-                prog_type=VoltalisDeviceProgTypeEnum.DEFAULT,
+            programming=DeviceProgramming(
+                prog_type=ProgramTypeEnum.DEFAULT,
             ),
         ),
     }
@@ -94,8 +94,8 @@ async def test_get_devices_health(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices_health method."""
 
     devices_health = {
-        1: VoltalisDeviceHealth(status=VoltalisHealthStatusEnum.OK),
-        2: VoltalisDeviceHealth(status=VoltalisHealthStatusEnum.NOT_OK),
+        1: DeviceHealth(status=DeviceHealthStatusEnum.OK),
+        2: DeviceHealth(status=DeviceHealthStatusEnum.NOT_OK),
     }
 
     # Arrange
@@ -147,8 +147,8 @@ async def test_get_devices_consumptions(fixture: "VoltalisProviderFixture") -> N
 
     # Assert
     expected_result = {
-        1: VoltalisDeviceConsumption(daily_consumption=100.5 + 150.75),
-        2: VoltalisDeviceConsumption(daily_consumption=50.25 + 75.5),
+        1: DeviceConsumption(daily_consumption=100.5 + 150.75),
+        2: DeviceConsumption(daily_consumption=50.25 + 75.5),
     }
     fixture.compare_data(result, expected_result)
 
@@ -170,7 +170,7 @@ async def test_get_devices_consumptions_no_match(fixture: "VoltalisProviderFixtu
     result = await fixture.provider.get_devices_daily_consumptions(target_datetime)
 
     # Assert
-    assert result == {1: VoltalisDeviceConsumption(daily_consumption=0.0)}
+    assert result == {1: DeviceConsumption(daily_consumption=0.0)}
 
 
 @pytest.mark.asyncio
@@ -179,22 +179,22 @@ async def test_get_manual_settings(fixture: "VoltalisProviderFixture") -> None:
     """Test get_manual_settings method."""
 
     manual_settings = {
-        1: VoltalisManualSetting(
+        1: ManualSetting(
             id=1,
             enabled=True,
             id_appliance=10,
             until_further_notice=True,
             is_on=True,
-            mode=VoltalisDeviceModeEnum.CONFORT,
+            mode=DeviceModeEnum.CONFORT,
             temperature_target=21.5,
         ),
-        2: VoltalisManualSetting(
+        2: ManualSetting(
             id=2,
             enabled=False,
             id_appliance=20,
             until_further_notice=False,
             is_on=False,
-            mode=VoltalisDeviceModeEnum.ECO,
+            mode=DeviceModeEnum.ECO,
             end_date="2024-12-31",
             temperature_target=19.0,
         ),
@@ -232,23 +232,23 @@ async def test_set_manual_setting(fixture: "VoltalisProviderFixture") -> None:
     """Test set_manual_setting method."""
 
     manual_settings = {
-        1: VoltalisManualSetting(
+        1: ManualSetting(
             id=1,
             enabled=True,
             id_appliance=10,
             until_further_notice=True,
             is_on=True,
-            mode=VoltalisDeviceModeEnum.CONFORT,
+            mode=DeviceModeEnum.CONFORT,
             temperature_target=21.5,
         ),
     }
 
-    update = VoltalisManualSettingUpdate(
+    update = ManualSettingUpdate(
         enabled=True,
         id_appliance=10,
         until_further_notice=False,
         is_on=True,
-        mode=VoltalisDeviceModeEnum.ECO,
+        mode=DeviceModeEnum.ECO,
         end_date="2024-12-31",
         temperature_target=19.0,
     )
@@ -261,13 +261,13 @@ async def test_set_manual_setting(fixture: "VoltalisProviderFixture") -> None:
 
     # Assert
     result = await fixture.provider.get_manual_settings()
-    expected = VoltalisManualSetting(
+    expected = ManualSetting(
         id=1,
         enabled=True,
         id_appliance=10,
         until_further_notice=False,
         is_on=True,
-        mode=VoltalisDeviceModeEnum.ECO,
+        mode=DeviceModeEnum.ECO,
         end_date="2024-12-31",
         temperature_target=19.0,
     )
@@ -328,7 +328,7 @@ class VoltalisProviderFixture(BaseFixture):
     # --------------------------------------
     # Arrange
     # --------------------------------------
-    def given_devices(self, devices: dict[int, VoltalisDevice]) -> None:
+    def given_devices(self, devices: dict[int, Device]) -> None:
         """Set existing devices in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
             self.provider.set_devices(devices)
@@ -340,7 +340,7 @@ class VoltalisProviderFixture(BaseFixture):
 
         raise ValueError("Unknown provider type")
 
-    def given_devices_health(self, devices_health: dict[int, VoltalisDeviceHealth]) -> None:
+    def given_devices_health(self, devices_health: dict[int, DeviceHealth]) -> None:
         """Set existing devices health in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
             self.provider.set_devices_health(devices_health)
@@ -364,7 +364,7 @@ class VoltalisProviderFixture(BaseFixture):
 
         raise ValueError("Unknown provider type")
 
-    def given_manual_settings(self, manual_settings: dict[int, VoltalisManualSetting]) -> None:
+    def given_manual_settings(self, manual_settings: dict[int, ManualSetting]) -> None:
         """Set existing manual settings in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
             self.provider.set_manual_settings(manual_settings)

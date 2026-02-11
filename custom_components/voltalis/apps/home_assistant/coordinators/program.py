@@ -1,29 +1,29 @@
 from datetime import timedelta
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
-from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.voltalis_program import VoltalisProgram
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
 
 
-class VoltalisProgramCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisProgram]]):
+class VoltalisProgramCoordinator(BaseVoltalisCoordinator[dict[int, Program]]):
     """Coordinator to fetch programs from Voltalis API."""
 
     def __init__(
         self,
         *,
-        voltalis_module: VoltalisHomeAssistantModule,
+        entry: VoltalisConfigEntry,
     ) -> None:
         super().__init__(
             "Voltalis Program",
-            voltalis_module=voltalis_module,
+            entry=entry,
             update_interval=timedelta(minutes=1),
         )
 
     async def set_program(
         self,
         *,
-        new_program: VoltalisProgram | None,
-        old_program: VoltalisProgram | None = None,
+        new_program: Program | None,
+        old_program: Program | None = None,
     ) -> None:
         """Set the active program."""
 
@@ -32,7 +32,7 @@ class VoltalisProgramCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisProgr
             old_program=old_program,
         )
 
-    async def _get_data(self) -> dict[int, VoltalisProgram]:
+    async def _get_data(self) -> dict[int, Program]:
         """Fetch updated data from the Voltalis API."""
 
         # Fetch programs

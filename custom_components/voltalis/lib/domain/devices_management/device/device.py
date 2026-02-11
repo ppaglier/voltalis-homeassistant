@@ -1,29 +1,31 @@
 from custom_components.voltalis.lib.domain.devices_management.device.device_enum import (
-    VoltalisDeviceModeEnum,
-    VoltalisDeviceModulatorTypeEnum,
-    VoltalisDeviceTypeEnum,
+    DeviceModeEnum,
+    DeviceModulatorTypeEnum,
+    DeviceTypeEnum,
 )
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program_enum import VoltalisDeviceProgTypeEnum
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import (
+    ProgramTypeEnum,
+)
 
 
-class VoltalisDeviceProgramming(CustomModel):
+class DeviceProgramming(CustomModel):
     """Class to represent the status of a Voltalis device"""
 
-    prog_type: VoltalisDeviceProgTypeEnum
+    prog_type: ProgramTypeEnum
     id_manual_setting: int | None = None
     is_on: bool | None = None
-    mode: VoltalisDeviceModeEnum | None = None
+    mode: DeviceModeEnum | None = None
     temperature_target: float | None = None
     default_temperature: float | None = None
 
 
-class VoltalisDevice(CustomModel):
+class Device(CustomModel):
     """Class to represent Voltalis devices"""
 
     id: int
     name: str
-    type: VoltalisDeviceTypeEnum
-    modulator_type: VoltalisDeviceModulatorTypeEnum
-    available_modes: list[VoltalisDeviceModeEnum]
-    programming: VoltalisDeviceProgramming
+    type: DeviceTypeEnum
+    modulator_type: DeviceModulatorTypeEnum
+    available_modes: list[DeviceModeEnum]
+    programming: DeviceProgramming

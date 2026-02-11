@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from enum import StrEnum
 from typing import Callable
@@ -11,13 +10,10 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import (
-    VoltalisEnergyContract,
-    VoltalisEnergyContractTypeEnum,
+    EnergyContract,
+    EnergyContractTypeEnum,
 )
 from custom_components.voltalis.lib.domain.energy_contracts.helpers.is_in_time_range import is_in_time_range
-from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
-
-_LOGGER = logging.getLogger(__name__)
 
 
 class EnergyContractCurrentModeEnum(StrEnum):
@@ -39,12 +35,13 @@ class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, Sens
     def __init__(
         self,
         entry: VoltalisConfigEntry,
-        energy_contract: VoltalisEnergyContract,
-        date_provider: DateProvider,
+        energy_contract: EnergyContract,
     ) -> None:
         """Initialize the energy contract current mode sensor."""
-        super().__init__(entry, energy_contract, entry.runtime_data.coordinators.energy_contract)
-        self.__date_provider = date_provider
+        super().__init__(
+            entry, energy_contract, entry.runtime_data.voltalis_home_assistant_module.energy_contract_coordinator
+        )
+        self.__date_provider = self._voltalis_module.date_provider
         self.__unsub: Callable | None = None
 
     @property
@@ -61,13 +58,13 @@ class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, Sens
         return "mdi:calendar-blank-outline"
 
     async def __update(self, _: datetime) -> None:
-        energy_contract = self._coordinators.energy_contract.data.get(self._energy_contract.id)
+        energy_contract = self._voltalis_module.energy_contract_coordinator.data.get(self._energy_contract.id)
         if energy_contract is None:
-            _LOGGER.warning("Energy contract with id %s is None", self._energy_contract.id)
+            self._voltalis_module.logger.warning("Energy contract with id %s is None", self._energy_contract.id)
             return
 
         new_value: EnergyContractCurrentModeEnum | None = None
-        if energy_contract.type == VoltalisEnergyContractTypeEnum.BASE:
+        if energy_contract.type == EnergyContractTypeEnum.BASE:
             new_value = EnergyContractCurrentModeEnum.BASE
         else:
             now = self.__date_provider.get_now().time()
@@ -98,5 +95,5 @@ class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, Sens
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisEnergyContract) -> bool:
+    def _is_available_from_data(self, data: EnergyContract) -> bool:
         return data.subscribed_power is not None

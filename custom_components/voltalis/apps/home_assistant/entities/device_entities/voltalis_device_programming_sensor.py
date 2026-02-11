@@ -1,20 +1,18 @@
 from __future__ import annotations
 
-import logging
-
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import callback
 
-from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceCoordinatorData
+from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program_enum import VoltalisDeviceProgTypeEnum
-
-_LOGGER = logging.getLogger(__name__)
+from custom_components.voltalis.lib.domain.devices_management.device.device import Device
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import (
+    ProgramTypeEnum,
+)
 
 
 class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):
@@ -22,25 +20,25 @@ class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_translation_key = "device_programming"
-    _attr_options = [option for option in VoltalisDeviceProgTypeEnum]
+    _attr_options = [option for option in ProgramTypeEnum]
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_entity_registry_enabled_default = False
     _unique_id_suffix = "device_programming"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceDto) -> None:
         """Initialize the sensor entity."""
-        super().__init__(entry, device, entry.runtime_data.coordinators.device)
+        super().__init__(entry, device, entry.runtime_data.voltalis_home_assistant_module.device_coordinator)
 
     @property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
         if self.native_value is None:
             return "mdi:calendar-minus"
-        if self.native_value == VoltalisDeviceProgTypeEnum.USER:
+        if self.native_value == ProgramTypeEnum.USER:
             return "mdi:calendar-account-outline"
-        if self.native_value == VoltalisDeviceProgTypeEnum.MANUAL:
+        if self.native_value == ProgramTypeEnum.MANUAL:
             return "mdi:calendar-edit-outline"
-        if self.native_value == VoltalisDeviceProgTypeEnum.QUICK:
+        if self.native_value == ProgramTypeEnum.QUICK:
             return "mdi:calendar-clock-outline"
         return "mdi:calendar-blank-outline"
 
@@ -48,9 +46,9 @@ class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        device = self._coordinators.device.data.get(self._device.id)
+        device = self._voltalis_module.device_coordinator.data.get(self._device.id)
         if device is None:
-            _LOGGER.warning("Device %s not found in coordinator data", self._device.id)
+            self._voltalis_module.logger.warning("Device %s not found in coordinator data", self._device.id)
             return
 
         new_value = str(device.programming.prog_type)
@@ -63,5 +61,5 @@ class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisDevice) -> bool:
+    def _is_available_from_data(self, data: Device) -> bool:
         return data.programming.prog_type is not None

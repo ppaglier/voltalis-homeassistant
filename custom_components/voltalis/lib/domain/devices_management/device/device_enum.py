@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 
-class VoltalisDeviceTypeEnum(StrEnum):
+class DeviceTypeEnum(StrEnum):
     """Enum for the type field"""
 
     HEATER = "heater"
@@ -9,14 +9,14 @@ class VoltalisDeviceTypeEnum(StrEnum):
     OTHER = "other"
 
 
-class VoltalisDeviceModulatorTypeEnum(StrEnum):
+class DeviceModulatorTypeEnum(StrEnum):
     """Enum for the modulator_type field"""
 
     VX_WIRE = "vx_wire"
     VX_RELAY = "vx_relay"
 
 
-class VoltalisDeviceModeEnum(StrEnum):
+class DeviceModeEnum(StrEnum):
     """Enum for the available_modes field"""
 
     ECO = "eco"

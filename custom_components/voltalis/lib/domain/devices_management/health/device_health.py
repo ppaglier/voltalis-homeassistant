@@ -3,7 +3,7 @@ from enum import StrEnum
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
 
-class VoltalisHealthStatusEnum(StrEnum):
+class DeviceHealthStatusEnum(StrEnum):
     """Enum for the type field"""
 
     OK = "ok"
@@ -13,7 +13,7 @@ class VoltalisHealthStatusEnum(StrEnum):
     COMM_ERROR = "comm_error"
 
 
-class VoltalisDeviceHealth(CustomModel):
+class DeviceHealth(CustomModel):
     """Class to represent Voltalis devices health"""
 
-    status: VoltalisHealthStatusEnum
+    status: DeviceHealthStatusEnum

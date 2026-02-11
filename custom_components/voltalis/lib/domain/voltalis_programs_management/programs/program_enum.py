@@ -1,8 +1,8 @@
 from enum import StrEnum
 
 
-class VoltalisDeviceProgTypeEnum(StrEnum):
-    """Enum for the type field"""
+class ProgramTypeEnum(StrEnum):
+    """Enum to represent the type of program"""
 
     MANUAL = "manual"
     DEFAULT = "default"

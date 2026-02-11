@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import logging
-
 from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
 
@@ -9,9 +7,7 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisBaseEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program import VoltalisProgram
-
-_LOGGER = logging.getLogger(__name__)
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
 
 
 class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
@@ -26,7 +22,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
     def __init__(self, entry: VoltalisConfigEntry) -> None:
         """Initialize the program select entity."""
 
-        super().__init__(entry, entry.runtime_data.coordinators.programs)
+        super().__init__(entry, entry.runtime_data.voltalis_home_assistant_module.programs_coordinator)
 
         # Unique id for Home Assistant
         self._attr_unique_id = f"programs_{self._unique_id_suffix}"
@@ -51,21 +47,22 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         return data is not None and self.coordinator.last_update_success
 
     @property
-    def __programs(self) -> dict[str, VoltalisProgram | None]:
+    def __programs(self) -> dict[str, Program | None]:
         """Get the available programs mapped by their name."""
-        if self._coordinators.programs.data is None:
+        data = self._voltalis_module.programs_coordinator.data
+        if data is None:
             return {}
 
-        programs: dict[str, VoltalisProgram | None] = {
+        programs: dict[str, Program | None] = {
             self.__none_program_option: None,
         }
-        for program in self._coordinators.programs.data.values():
+        for program in data.values():
             if program.name not in programs:
                 programs[program.name] = program
 
         return programs
 
-    def _get_program_by_name(self, name: str) -> VoltalisProgram | None:
+    def _get_program_by_name(self, name: str) -> Program | None:
         """Get a program by its name."""
         if name == self.__none_program_option:
             return None
@@ -73,7 +70,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         return self.__programs.get(name, None)
 
     @property
-    def _current_program(self) -> VoltalisProgram | None:
+    def _current_program(self) -> Program | None:
         """Get the currently selected program."""
         if self.current_option is None:
             return None
@@ -91,7 +88,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         enabled_programs = [program for program in self.__programs.values() if program and program.enabled]
         if len(enabled_programs) > 0:
             if len(enabled_programs) > 1:
-                _LOGGER.warning("More than one program is enabled (%s)", enabled_programs)
+                self._voltalis_module.logger.warning("More than one program is enabled (%s)", enabled_programs)
             self._attr_current_option = enabled_programs[0].name
         else:
             self._attr_current_option = self.__none_program_option
@@ -106,7 +103,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         if old_program and new_program and old_program.id == new_program.id:
             return
 
-        await self._coordinators.programs.set_program(
+        await self._voltalis_module.programs_coordinator.set_program(
             new_program=new_program,
             old_program=old_program,
         )

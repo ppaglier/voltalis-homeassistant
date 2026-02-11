@@ -5,7 +5,7 @@ from typing import TypeVar
 from homeassistant import config_entries
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.shared.exceptions import (
     VoltalisAuthenticationException,
     VoltalisConnectionException,
@@ -23,9 +23,10 @@ class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
         self,
         name: str,
         *,
-        voltalis_module: VoltalisHomeAssistantModule,
+        entry: VoltalisConfigEntry,
         update_interval: timedelta | None = None,
     ) -> None:
+        voltalis_module = entry.runtime_data.voltalis_home_assistant_module
         super().__init__(
             hass=voltalis_module.hass,
             logger=voltalis_module.logger,

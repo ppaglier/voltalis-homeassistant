@@ -6,7 +6,7 @@ from homeassistant.components.climate import PRESET_AWAY, PRESET_COMFORT, PRESET
 from homeassistant.const import UnitOfTemperature
 from homeassistant.helpers import config_validation as cv
 
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import VoltalisDeviceModeEnum
+from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
 
 DOMAIN = "voltalis"
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -38,17 +38,17 @@ class HomeAssistantPresetModeEnum(StrEnum):
 
 # Presets (Ordered to match typical user expectations)
 VOLTALIS_TO_HA_MODES = {
-    VoltalisDeviceModeEnum.CONFORT: HomeAssistantPresetModeEnum.COMFORT,
-    VoltalisDeviceModeEnum.ECO: HomeAssistantPresetModeEnum.ECO,
-    VoltalisDeviceModeEnum.ECOV: HomeAssistantPresetModeEnum.ECO,
-    VoltalisDeviceModeEnum.HORS_GEL: HomeAssistantPresetModeEnum.AWAY,
-    VoltalisDeviceModeEnum.NORMAL: HomeAssistantPresetModeEnum.NONE,
-    VoltalisDeviceModeEnum.TEMPERATURE: HomeAssistantPresetModeEnum.NONE,
+    DeviceModeEnum.CONFORT: HomeAssistantPresetModeEnum.COMFORT,
+    DeviceModeEnum.ECO: HomeAssistantPresetModeEnum.ECO,
+    DeviceModeEnum.ECOV: HomeAssistantPresetModeEnum.ECO,
+    DeviceModeEnum.HORS_GEL: HomeAssistantPresetModeEnum.AWAY,
+    DeviceModeEnum.NORMAL: HomeAssistantPresetModeEnum.NONE,
+    DeviceModeEnum.TEMPERATURE: HomeAssistantPresetModeEnum.NONE,
 }
 
 HA_TO_VOLTALIS_MODES = {
-    HomeAssistantPresetModeEnum.COMFORT: VoltalisDeviceModeEnum.CONFORT,
-    HomeAssistantPresetModeEnum.ECO: VoltalisDeviceModeEnum.ECO,
-    HomeAssistantPresetModeEnum.AWAY: VoltalisDeviceModeEnum.HORS_GEL,
-    HomeAssistantPresetModeEnum.NONE: VoltalisDeviceModeEnum.NORMAL,
+    HomeAssistantPresetModeEnum.COMFORT: DeviceModeEnum.CONFORT,
+    HomeAssistantPresetModeEnum.ECO: DeviceModeEnum.ECO,
+    HomeAssistantPresetModeEnum.AWAY: DeviceModeEnum.HORS_GEL,
+    HomeAssistantPresetModeEnum.NONE: DeviceModeEnum.NORMAL,
 }

@@ -1,5 +1,3 @@
-import logging
-
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import UnitOfApparentPower
 from homeassistant.core import callback
@@ -8,9 +6,7 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisEnergyContractEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import VoltalisEnergyContract
-
-_LOGGER = logging.getLogger(__name__)
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 
 
 class VoltalisEnergyContractSubscribedPowerSensor(VoltalisEnergyContractEntity, SensorEntity):
@@ -22,17 +18,19 @@ class VoltalisEnergyContractSubscribedPowerSensor(VoltalisEnergyContractEntity, 
     _attr_icon = "mdi:meter-electric"
     _unique_id_suffix = "energy_contract_subscribed_power"
 
-    def __init__(self, entry: VoltalisConfigEntry, energy_contract: VoltalisEnergyContract) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, energy_contract: EnergyContract) -> None:
         """Initialize the energy contract subscribed power sensor."""
-        super().__init__(entry, energy_contract, entry.runtime_data.coordinators.energy_contract)
+        super().__init__(
+            entry, energy_contract, entry.runtime_data.voltalis_home_assistant_module.energy_contract_coordinator
+        )
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        energy_contract = self._coordinators.energy_contract.data.get(self._energy_contract.id)
+        energy_contract = self._voltalis_module.energy_contract_coordinator.data.get(self._energy_contract.id)
         if energy_contract is None:
-            _LOGGER.warning("Energy contract with id %s is None", self._energy_contract.id)
+            self._voltalis_module.logger.warning("Energy contract with id %s is None", self._energy_contract.id)
             return
 
         new_value = energy_contract.subscribed_power
@@ -45,5 +43,5 @@ class VoltalisEnergyContractSubscribedPowerSensor(VoltalisEnergyContractEntity, 
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    def _is_available_from_data(self, data: VoltalisEnergyContract) -> bool:
+    def _is_available_from_data(self, data: EnergyContract) -> bool:
         return data.subscribed_power is not None

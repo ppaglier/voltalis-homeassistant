@@ -1,4 +1,4 @@
-from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import VoltalisLiveConsumption
+from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
 
 
@@ -10,10 +10,10 @@ class GetLiveConsumptionHandler:
         *,
         voltalis_provider: VoltalisProvider,
     ):
-        self._voltalis_provider = voltalis_provider
+        self.__voltalis_provider = voltalis_provider
 
-    async def handle(self) -> VoltalisLiveConsumption:
+    async def handle(self) -> LiveConsumption:
         """Handle the request to get the live consumption."""
 
-        result = await self._voltalis_provider.get_live_consumption()
+        result = await self.__voltalis_provider.get_live_consumption()
         return result

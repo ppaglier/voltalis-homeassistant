@@ -1,30 +1,27 @@
 from __future__ import annotations
 
-import logging
 from enum import StrEnum
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.core import callback
 
-from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceCoordinatorData
+from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import VoltalisDeviceModeEnum
-
-_LOGGER = logging.getLogger(__name__)
+from custom_components.voltalis.lib.domain.devices_management.device.device import Device
+from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
 
 
 class VoltalisDeviceCurrentModeEnum(StrEnum):
     """Voltalis device preset select options."""
 
-    COMFORT = VoltalisDeviceModeEnum.CONFORT.value
-    ECO = VoltalisDeviceModeEnum.ECO.value
-    FROST_PROTECTION = VoltalisDeviceModeEnum.HORS_GEL.value
-    TEMPERATURE = VoltalisDeviceModeEnum.TEMPERATURE.value
-    ON = VoltalisDeviceModeEnum.NORMAL.value
+    COMFORT = DeviceModeEnum.CONFORT.value
+    ECO = DeviceModeEnum.ECO.value
+    FROST_PROTECTION = DeviceModeEnum.HORS_GEL.value
+    TEMPERATURE = DeviceModeEnum.TEMPERATURE.value
+    ON = DeviceModeEnum.NORMAL.value
     OFF = "off"
 
 
@@ -36,9 +33,9 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
     _attr_translation_key = "device_current_mode"
     _unique_id_suffix = "device_current_mode"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceCoordinatorData) -> None:
+    def __init__(self, entry: VoltalisConfigEntry, device: VoltalisDeviceDto) -> None:
         """Initialize the sensor entity."""
-        super().__init__(entry, device, entry.runtime_data.coordinators.device)
+        super().__init__(entry, device, entry.runtime_data.voltalis_home_assistant_module.device_coordinator)
 
     @property
     def icon(self) -> str:
@@ -63,9 +60,9 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        device = self._coordinators.device.data.get(self._device.id)
+        device = self._voltalis_module.device_coordinator.data.get(self._device.id)
         if device is None:
-            _LOGGER.warning("Device %s not found in coordinator data", self._device.id)
+            self._voltalis_module.logger.warning("Device %s not found in coordinator data", self._device.id)
             return
 
         def get_current_option() -> str | None:
@@ -76,12 +73,12 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
             # Get current mode
             current_mode = device.programming.mode
             # Handle ECOV mode
-            if current_mode == VoltalisDeviceModeEnum.ECOV:
+            if current_mode == DeviceModeEnum.ECOV:
                 return VoltalisDeviceCurrentModeEnum.ECO
             return current_mode
 
         self._attr_native_value = get_current_option()
         self.async_write_ha_state()
 
-    def _is_available_from_data(self, data: VoltalisDevice) -> bool:
+    def _is_available_from_data(self, data: Device) -> bool:
         return data.programming.mode is not None

@@ -1,5 +1,3 @@
-import logging
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -10,8 +8,6 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_switch import (
     VoltalisDeviceSwitch,
 )
-
-_LOGGER = logging.getLogger(__name__)
 
 # Limit parallel updates (the DataUpdateCoordinator already centralizes calls)
 PARALLEL_UPDATES = 1
@@ -24,7 +20,8 @@ async def async_setup_entry(
 ) -> None:
     """Set up Voltalis switch entities from a config entry."""
 
-    device_coordinator = entry.runtime_data.coordinators.device
+    voltalis_home_assistant_module = entry.runtime_data.voltalis_home_assistant_module
+    device_coordinator = voltalis_home_assistant_module.device_coordinator
 
     switch_entities: list[VoltalisBaseEntity] = []
 
@@ -34,4 +31,6 @@ async def async_setup_entry(
 
     all_entities: dict[str, VoltalisBaseEntity] = {sensor.unique_internal_name: sensor for sensor in switch_entities}
     async_add_entities(all_entities.values(), update_before_add=True)
-    _LOGGER.info(f"Added {len(all_entities)} Voltalis switch entities: {list(all_entities.keys())}")
+    voltalis_home_assistant_module.logger.info(
+        f"Added {len(all_entities)} Voltalis switch entities: {list(all_entities.keys())}"
+    )

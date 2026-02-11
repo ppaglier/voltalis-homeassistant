@@ -6,16 +6,16 @@ from typing import cast
 from pydantic import TypeAdapter, ValidationError
 
 from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import (
-    VoltalisManualSetting,
-    VoltalisManualSettingUpdate,
+    ManualSetting,
+    ManualSettingUpdate,
 )
 from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
-    VoltalisDeviceConsumption,
+    DeviceConsumption,
 )
-from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
-from custom_components.voltalis.lib.domain.devices_management.health.device_health import VoltalisDeviceHealth
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import VoltalisEnergyContract
-from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import VoltalisLiveConsumption
+from custom_components.voltalis.lib.domain.devices_management.device.device import Device
+from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
+from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
 from custom_components.voltalis.lib.domain.shared.exceptions import (
     VoltalisConnectionException,
     VoltalisValidationException,
@@ -26,8 +26,8 @@ from custom_components.voltalis.lib.domain.shared.providers.http_client import (
     HttpClientResponse,
 )
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program import VoltalisProgram
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program_enum import VoltalisDeviceProgTypeEnum
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device import VoltalisDeviceDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device_consumption import (
     VoltalisConsumptionDto,
@@ -59,7 +59,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
         self._client = http_client
         self.__logger = logging.getLogger(__name__)
 
-    async def get_devices(self) -> dict[int, VoltalisDevice]:
+    async def get_devices(self) -> dict[int, Device]:
         response: HttpClientResponse[list[dict]]
         try:
             response = await self._client.send_request(
@@ -80,7 +80,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         return devices
 
-    async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
+    async def get_devices_health(self) -> dict[int, DeviceHealth]:
         response: HttpClientResponse[list[dict]]
         try:
             response = await self._client.send_request(
@@ -104,7 +104,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         return devices_health
 
-    async def get_live_consumption(self) -> VoltalisLiveConsumption:
+    async def get_live_consumption(self) -> LiveConsumption:
         response: HttpClientResponse[dict]
         try:
             response = await self._client.send_request(
@@ -127,9 +127,9 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             for consumption_record in parsed_realtime_consumption.consumptions
         )
 
-        return VoltalisLiveConsumption(consumption=live_consumption)
+        return LiveConsumption(consumption=live_consumption)
 
-    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, VoltalisDeviceConsumption]:
+    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, DeviceConsumption]:
         # Fetch the data from the voltalis API
         target_date_str = target_datetime.isoformat("T").split("T")[0]
 
@@ -150,7 +150,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             raise VoltalisValidationException(*err.args) from err
 
         devices_consumptions = {
-            device_id: VoltalisDeviceConsumption(
+            device_id: DeviceConsumption(
                 daily_consumption=get_consumption_for_hour(
                     consumptions=[
                         (consumption_record.step_timestamp_on_site, consumption_record.total_consumption_in_wh)
@@ -164,7 +164,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         return devices_consumptions
 
-    async def get_manual_settings(self) -> dict[int, VoltalisManualSetting]:
+    async def get_manual_settings(self) -> dict[int, ManualSetting]:
         response: HttpClientResponse[list[dict]]
         try:
             response = await self._client.send_request(
@@ -188,7 +188,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         return manual_settings
 
-    async def set_manual_setting(self, manual_setting_id: int, setting: VoltalisManualSettingUpdate) -> None:
+    async def set_manual_setting(self, manual_setting_id: int, setting: ManualSettingUpdate) -> None:
         payload = VoltalisManualSettingUpdateDto(
             id=manual_setting_id,
             enabled=setting.enabled,
@@ -211,7 +211,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         self.__logger.info("Manual setting %s updated for appliance %s", manual_setting_id, setting.id_appliance)
 
-    async def get_energy_contracts(self) -> dict[int, VoltalisEnergyContract]:
+    async def get_energy_contracts(self) -> dict[int, EnergyContract]:
         response: HttpClientResponse[list[dict]] = await self._client.send_request(
             url="/api/site/{site_id}/subscriber-contract",
             method="GET",
@@ -230,7 +230,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
         contracts = {contract.id: contract.to_voltalis_energy_contract() for contract in parsed_contracts}
         return contracts
 
-    async def get_programs(self) -> dict[int, VoltalisProgram]:
+    async def get_programs(self) -> dict[int, Program]:
         quick_programs_response: HttpClientResponse[list[dict]]
         user_programs_response: HttpClientResponse[list[dict]]
         try:
@@ -265,27 +265,21 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
         # /api/site/{{site_id}}/quicksettings/{program_id}/enable
 
         return {
-            **{
-                program.id: program.to_voltalis_program(VoltalisDeviceProgTypeEnum.QUICK)
-                for program in parsed_quick_programs
-            },
-            **{
-                program.id: program.to_voltalis_program(VoltalisDeviceProgTypeEnum.USER)
-                for program in parsed_user_programs
-            },
+            **{program.id: program.to_voltalis_program(ProgramTypeEnum.QUICK) for program in parsed_quick_programs},
+            **{program.id: program.to_voltalis_program(ProgramTypeEnum.USER) for program in parsed_user_programs},
         }
 
-    async def toggle_program(self, program: VoltalisProgram) -> None:
+    async def toggle_program(self, program: Program) -> None:
         url = (
             f"/api/site/{{site_id}}/quicksettings/{program.id}/enable"
-            if program.type == VoltalisDeviceProgTypeEnum.QUICK
+            if program.type == ProgramTypeEnum.QUICK
             else f"/api/site/{{site_id}}/programming/program/{program.id}"
         )
 
         payload = VoltalisProgramUpdateDto(
             name=program.name,
             enabled=program.enabled,
-        ).model_dump(by_alias=True, exclude={"name"} if program.type == VoltalisDeviceProgTypeEnum.QUICK else None)
+        ).model_dump(by_alias=True, exclude={"name"} if program.type == ProgramTypeEnum.QUICK else None)
 
         try:
             await self._client.send_request(

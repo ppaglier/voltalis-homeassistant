@@ -1,55 +1,33 @@
 from datetime import timedelta
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
-from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import VoltalisDeviceDto
 from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import (
-    VoltalisManualSetting,
-    VoltalisManualSettingUpdate,
+    ManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import VoltalisDeviceTypeEnum
 
 
-class VoltalisDeviceCoordinatorData(VoltalisDevice):
-    """Data class to hold device information."""
-
-    manual_setting: VoltalisManualSetting | None = None
-
-
-class VoltalisDeviceCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisDeviceCoordinatorData]]):
+class VoltalisDeviceCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisDeviceDto]]):
     """Coordinator to fetch devices from Voltalis API."""
 
     def __init__(
         self,
         *,
-        voltalis_module: VoltalisHomeAssistantModule,
+        entry: VoltalisConfigEntry,
     ) -> None:
         super().__init__(
             "Voltalis Device",
-            voltalis_module=voltalis_module,
+            entry=entry,
             update_interval=timedelta(minutes=1),
         )
 
-    async def set_manual_setting(self, manual_setting_id: int, settings: VoltalisManualSettingUpdate) -> None:
+    async def set_manual_setting(self, manual_setting_id: int, settings: ManualSettingUpdate) -> None:
         """Set manual setting for a device."""
         await self._voltalis_module.voltalis_provider.set_manual_setting(manual_setting_id, settings)
 
-    async def _get_data(self) -> dict[int, VoltalisDeviceCoordinatorData]:
+    async def _get_data(self) -> dict[int, VoltalisDeviceDto]:
         """Fetch updated data from the Voltalis API."""
 
-        # Fetch devices and manual settings
-        devices = await self._voltalis_module.voltalis_provider.get_devices()
-        devices_manual_settings = await self._voltalis_module.voltalis_provider.get_manual_settings()
-
-        result: dict[int, VoltalisDeviceCoordinatorData] = {}
-        for device_id, device in devices.items():
-            if device.type not in [VoltalisDeviceTypeEnum.HEATER, VoltalisDeviceTypeEnum.WATER_HEATER]:
-                self.logger.debug(f"Skipping unsupported device type: {device.type}")
-                continue
-
-            result[device_id] = VoltalisDeviceCoordinatorData(
-                **device.model_dump(),
-                manual_setting=devices_manual_settings.get(device_id),
-            )
-
+        result = await self._voltalis_module.get_devices_handler.handle()
         return result

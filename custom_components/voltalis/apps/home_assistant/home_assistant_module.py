@@ -1,13 +1,26 @@
+import asyncio
 import logging
 
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
+from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceCoordinator
+from custom_components.voltalis.apps.home_assistant.coordinators.device_daily_consumption import (
+    VoltalisDeviceDailyConsumptionCoordinator,
+)
+from custom_components.voltalis.apps.home_assistant.coordinators.device_health import VoltalisDeviceHealthCoordinator
+from custom_components.voltalis.apps.home_assistant.coordinators.device_realtime_consumption import (
+    VoltalisLiveConsumptionCoordinator,
+)
+from custom_components.voltalis.apps.home_assistant.coordinators.energy_contract import (
+    VoltalisEnergyContractCoordinator,
+)
+from custom_components.voltalis.apps.home_assistant.coordinators.program import VoltalisProgramCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import (
     VoltalisConfigEntry,
     VoltalisConfigEntryData,
-    VoltalisCoordinators,
 )
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
@@ -42,7 +55,7 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         # Initialize the module
         self._voltalis_client = VoltalisClientAiohttp(session=async_get_clientsession(hass))
 
-        logger = logging.getLogger(__name__)
+        logger = logging.getLogger("voltalis-home_assistant")
         logger.setLevel(logging.DEBUG)
 
         super().__init__(
@@ -52,9 +65,14 @@ class VoltalisHomeAssistantModule(VoltalisModule):
             voltalis_provider=VoltalisProviderVoltalisApi(http_client=self._voltalis_client),
         )
 
+        self.setup_handlers()
+
         # Initialize the Home Assistant specific setup
         self.hass = hass
         self.entry = entry
+
+        # ✅ store config entry data with reference to the module and coordinators
+        self.entry.runtime_data = VoltalisConfigEntryData(voltalis_home_assistant_module=self)
 
         self.hass.data.setdefault(DOMAIN, {})
 
@@ -66,35 +84,52 @@ class VoltalisHomeAssistantModule(VoltalisModule):
             password=password,
         )
 
-        self._coordinators = VoltalisCoordinators(
-            hass=self.hass,
-            entry=self.entry,
-            voltalis_provider=self.voltalis_provider,
-            date_provider=self.date_provider,
-        )
-
-        # ✅ store coordinator for other platforms
-        self.entry.runtime_data = VoltalisConfigEntryData(
-            date_provider=self.date_provider,
-            coordinators=self._coordinators,
-            home_assistant_module=self,
-        )
-
-        await self._coordinators.setup_all()
+        await self.__load_coordinators()
 
         # forward setup to sensor platform
         await self.hass.config_entries.async_forward_entry_setups(self.entry, self.PLATFORMS)
-
-        self.setup_handlers()
 
         return True
 
     async def async_unload_entry(self) -> bool:
         """Unload the module."""
 
-        await self._coordinators.unload_all()
+        await self.__unload_coordinators()
 
         await self._voltalis_client.logout()
 
         unload_ok = await self.hass.config_entries.async_unload_platforms(self.entry, self.PLATFORMS)
         return unload_ok
+
+    async def __load_coordinators(self) -> None:
+        """Set up all coordinators."""
+
+        self.device_coordinator = VoltalisDeviceCoordinator(entry=self.entry)
+        self.device_health_coordinator = VoltalisDeviceHealthCoordinator(entry=self.entry)
+        self.device_daily_consumption_coordinator = VoltalisDeviceDailyConsumptionCoordinator(entry=self.entry)
+        self.live_consumption_coordinator = VoltalisLiveConsumptionCoordinator(entry=self.entry)
+        self.energy_contract_coordinator = VoltalisEnergyContractCoordinator(entry=self.entry)
+        self.programs_coordinator = VoltalisProgramCoordinator(entry=self.entry)
+
+        # Do first refresh for regular coordinators
+        arr: list[BaseVoltalisCoordinator] = [
+            self.device_coordinator,
+            self.device_health_coordinator,
+            self.device_daily_consumption_coordinator,
+            self.live_consumption_coordinator,
+            self.energy_contract_coordinator,
+            self.programs_coordinator,
+        ]
+
+        await asyncio.gather(*(coordinator.async_config_entry_first_refresh() for coordinator in arr))
+
+        # For consumption, start time-based scheduling after initial refresh
+        self.device_daily_consumption_coordinator.start_time_tracking()
+        self.live_consumption_coordinator.start_time_tracking()
+
+    async def __unload_coordinators(self) -> None:
+        """Unload all coordinators."""
+
+        # Stop time tracking for consumption coordinators
+        self.device_daily_consumption_coordinator.stop_time_tracking()
+        self.live_consumption_coordinator.stop_time_tracking()

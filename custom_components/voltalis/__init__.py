@@ -30,4 +30,4 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
 async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Unload a config entry."""
 
-    return await entry.runtime_data.home_assistant_module.async_unload_entry()
+    return await entry.runtime_data.voltalis_home_assistant_module.async_unload_entry()

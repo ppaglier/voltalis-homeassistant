@@ -5,13 +5,13 @@ from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_time_change
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
-from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
-    VoltalisDeviceConsumption,
+    DeviceConsumption,
 )
 
 
-class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisDeviceConsumption]]):
+class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, DeviceConsumption]]):
     """Coordinator to manage daily device consumption data from Voltalis API."""
 
     # Minutes offset after the hour to launch the update (e.g., 5 = HH:05)
@@ -20,12 +20,12 @@ class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int
     def __init__(
         self,
         *,
-        voltalis_module: VoltalisHomeAssistantModule,
+        entry: VoltalisConfigEntry,
     ) -> None:
         # No automatic update_interval - updates only triggered by time tracker
         super().__init__(
             "Voltalis Device Daily Consumption",
-            voltalis_module=voltalis_module,
+            entry=entry,
         )
 
         self.__stop_time_tracking: Callable[[], None] | None = None
@@ -56,7 +56,7 @@ class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int
         # Request a refresh (will call _async_update_data)
         self.hass.async_create_task(self.async_request_refresh())
 
-    async def _get_data(self) -> dict[int, VoltalisDeviceConsumption]:
+    async def _get_data(self) -> dict[int, DeviceConsumption]:
         """Fetch updated data from the Voltalis API."""
 
         data = await self._voltalis_module.get_devices_daily_consumption_handler.handle()
