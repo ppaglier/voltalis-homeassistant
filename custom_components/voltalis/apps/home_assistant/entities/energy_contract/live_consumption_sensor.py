@@ -34,12 +34,12 @@ class VoltalisEnergyContractLiveConsumptionSensor(VoltalisEnergyContractEntity, 
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        live_consumption = self._coordinators.live_consumption.data.get(0, None)
-        if live_consumption is None:
+        data = self._coordinators.live_consumption.data.get(0, None)
+        if data is None:
             _LOGGER.warning("Live consumption data is None")
             return
 
-        new_value = live_consumption
+        new_value = data.consumption
         if self.native_value == new_value:
             return
 

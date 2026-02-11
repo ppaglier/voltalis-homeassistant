@@ -14,6 +14,6 @@ class VoltalisHealthStatusEnum(StrEnum):
 
 
 class VoltalisDeviceHealth(CustomModel):
-    """Class to represent Voltalis devices"""
+    """Class to represent Voltalis devices health"""
 
     status: VoltalisHealthStatusEnum

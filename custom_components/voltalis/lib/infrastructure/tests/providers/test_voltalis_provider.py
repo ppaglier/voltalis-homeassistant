@@ -8,6 +8,9 @@ from custom_components.voltalis.lib.domain.devices_management.climate.manual_set
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
+    VoltalisDeviceConsumption,
+)
 from custom_components.voltalis.lib.domain.devices_management.device.device import (
     VoltalisDevice,
     VoltalisDeviceProgramming,
@@ -143,7 +146,10 @@ async def test_get_devices_consumptions(fixture: "VoltalisProviderFixture") -> N
     result = await fixture.provider.get_devices_daily_consumptions(target_datetime)
 
     # Assert
-    expected_result = {1: 100.5 + 150.75, 2: 50.25 + 75.5}
+    expected_result = {
+        1: VoltalisDeviceConsumption(consumption=100.5 + 150.75),
+        2: VoltalisDeviceConsumption(consumption=50.25 + 75.5),
+    }
     fixture.compare_data(result, expected_result)
 
 
@@ -164,7 +170,7 @@ async def test_get_devices_consumptions_no_match(fixture: "VoltalisProviderFixtu
     result = await fixture.provider.get_devices_daily_consumptions(target_datetime)
 
     # Assert
-    assert result == {1: 0.0}
+    assert result == {1: VoltalisDeviceConsumption(consumption=0.0)}
 
 
 @pytest.mark.asyncio

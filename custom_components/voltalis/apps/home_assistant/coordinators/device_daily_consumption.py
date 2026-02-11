@@ -7,13 +7,16 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_change
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
+from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
+    VoltalisDeviceConsumption,
+)
 from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, float]]):
+class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisDeviceConsumption]]):
     """Coordinator to manage daily device consumption data from Voltalis API."""
 
     # Minutes offset after the hour to launch the update (e.g., 5 = HH:05)
@@ -65,7 +68,7 @@ class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int
         # Request a refresh (will call _async_update_data)
         self.hass.async_create_task(self.async_request_refresh())
 
-    async def _get_data(self) -> dict[int, float]:
+    async def _get_data(self) -> dict[int, VoltalisDeviceConsumption]:
         """Fetch updated data from the Voltalis API."""
 
         # We remove 1 hour because we can't fetch data from the current hour

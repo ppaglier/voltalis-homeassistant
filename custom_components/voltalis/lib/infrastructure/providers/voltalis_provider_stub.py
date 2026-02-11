@@ -4,6 +4,9 @@ from custom_components.voltalis.lib.domain.devices_management.climate.manual_set
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
+    VoltalisDeviceConsumption,
+)
 from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import VoltalisDeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import VoltalisEnergyContract
@@ -18,7 +21,7 @@ class VoltalisProviderStub(VoltalisProvider):
     def __init__(self) -> None:
         self.__devices: dict[int, VoltalisDevice] = {}
         self.__devices_health: dict[int, VoltalisDeviceHealth] = {}
-        self.__live_consumption: float = 0.0
+        self.__live_consumption = VoltalisDeviceConsumption(consumption=0.0)
         self.__devices_consumptions: dict[int, list[tuple[datetime, float]]] = {}
         self.__manual_settings: dict[int, VoltalisManualSetting] = {}
         self.__energy_contracts: dict[int, VoltalisEnergyContract] = {}
@@ -30,7 +33,7 @@ class VoltalisProviderStub(VoltalisProvider):
     def set_devices_health(self, devices_health: dict[int, VoltalisDeviceHealth]) -> None:
         self.__devices_health = devices_health
 
-    def set_live_consumption(self, consumption: float) -> None:
+    def set_live_consumption(self, consumption: VoltalisDeviceConsumption) -> None:
         self.__live_consumption = consumption
 
     def set_devices_consumptions(self, devices_consumptions: dict[int, list[tuple[datetime, float]]]) -> None:
@@ -55,12 +58,14 @@ class VoltalisProviderStub(VoltalisProvider):
     async def get_devices_health(self) -> dict[int, VoltalisDeviceHealth]:
         return self.__devices_health
 
-    async def get_live_consumption(self) -> float:
+    async def get_live_consumption(self) -> VoltalisDeviceConsumption:
         return self.__live_consumption
 
-    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
+    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, VoltalisDeviceConsumption]:
         consumptions = {
-            device_id: get_consumption_for_hour(consumptions=consumption_records, target_datetime=target_datetime)
+            device_id: VoltalisDeviceConsumption(
+                consumption=get_consumption_for_hour(consumptions=consumption_records, target_datetime=target_datetime)
+            )
             for device_id, consumption_records in self.__devices_consumptions.items()
         }
         return consumptions

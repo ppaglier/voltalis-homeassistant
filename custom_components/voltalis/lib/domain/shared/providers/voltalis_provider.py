@@ -5,6 +5,9 @@ from custom_components.voltalis.lib.domain.devices_management.climate.manual_set
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
+    VoltalisDeviceConsumption,
+)
 from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import VoltalisDeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import VoltalisEnergyContract
@@ -25,12 +28,12 @@ class VoltalisProvider(ABC):
         ...
 
     @abstractmethod
-    async def get_live_consumption(self) -> float:
+    async def get_live_consumption(self) -> VoltalisDeviceConsumption:
         """Get real-time consumption from the Voltalis servers"""
         ...
 
     @abstractmethod
-    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
+    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, VoltalisDeviceConsumption]:
         """Get devices daily consumptions from the Voltalis servers for a specific datetime"""
         ...
 

@@ -9,6 +9,9 @@ from custom_components.voltalis.lib.domain.devices_management.climate.manual_set
     VoltalisManualSetting,
     VoltalisManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
+    VoltalisDeviceConsumption,
+)
 from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import VoltalisDeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import VoltalisEnergyContract
@@ -100,7 +103,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         return devices_health
 
-    async def get_live_consumption(self) -> float:
+    async def get_live_consumption(self) -> VoltalisDeviceConsumption:
         response: HttpClientResponse[dict]
         try:
             response = await self._client.send_request(
@@ -123,9 +126,9 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             for consumption_record in parsed_realtime_consumption.consumptions
         )
 
-        return live_consumption
+        return VoltalisDeviceConsumption(consumption=live_consumption)
 
-    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, float]:
+    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, VoltalisDeviceConsumption]:
         # Fetch the data from the voltalis API
         target_date_str = target_datetime.isoformat("T").split("T")[0]
 
@@ -146,12 +149,14 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             raise VoltalisValidationException(*err.args) from err
 
         devices_consumptions = {
-            device_id: get_consumption_for_hour(
-                consumptions=[
-                    (consumption_record.step_timestamp_on_site, consumption_record.total_consumption_in_wh)
-                    for consumption_record in sorted(device_consumptions, key=lambda x: x.step_timestamp_on_site)
-                ],
-                target_datetime=target_datetime,
+            device_id: VoltalisDeviceConsumption(
+                consumption=get_consumption_for_hour(
+                    consumptions=[
+                        (consumption_record.step_timestamp_on_site, consumption_record.total_consumption_in_wh)
+                        for consumption_record in sorted(device_consumptions, key=lambda x: x.step_timestamp_on_site)
+                    ],
+                    target_datetime=target_datetime,
+                )
             )
             for device_id, device_consumptions in parsed_consumption.per_appliance.items()
         }
