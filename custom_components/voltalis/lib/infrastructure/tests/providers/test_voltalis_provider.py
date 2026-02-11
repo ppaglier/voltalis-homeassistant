@@ -147,8 +147,8 @@ async def test_get_devices_consumptions(fixture: "VoltalisProviderFixture") -> N
 
     # Assert
     expected_result = {
-        1: VoltalisDeviceConsumption(consumption=100.5 + 150.75),
-        2: VoltalisDeviceConsumption(consumption=50.25 + 75.5),
+        1: VoltalisDeviceConsumption(daily_consumption=100.5 + 150.75),
+        2: VoltalisDeviceConsumption(daily_consumption=50.25 + 75.5),
     }
     fixture.compare_data(result, expected_result)
 
@@ -170,7 +170,7 @@ async def test_get_devices_consumptions_no_match(fixture: "VoltalisProviderFixtu
     result = await fixture.provider.get_devices_daily_consumptions(target_datetime)
 
     # Assert
-    assert result == {1: VoltalisDeviceConsumption(consumption=0.0)}
+    assert result == {1: VoltalisDeviceConsumption(daily_consumption=0.0)}
 
 
 @pytest.mark.asyncio

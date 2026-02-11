@@ -53,13 +53,13 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         )
 
         # Initialize the Home Assistant specific setup
-        self._hass = hass
-        self._entry = entry
+        self.hass = hass
+        self.entry = entry
 
-        self._hass.data.setdefault(DOMAIN, {})
+        self.hass.data.setdefault(DOMAIN, {})
 
-        username = self._entry.data["username"]
-        password = self._entry.data["password"]
+        username = self.entry.data["username"]
+        password = self.entry.data["password"]
 
         await self._voltalis_client.login(
             username=username,
@@ -67,15 +67,15 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         )
 
         self._coordinators = VoltalisCoordinators(
-            hass=self._hass,
-            entry=self._entry,
-            voltalis_provider=self._voltalis_provider,
-            date_provider=self._date_provider,
+            hass=self.hass,
+            entry=self.entry,
+            voltalis_provider=self.voltalis_provider,
+            date_provider=self.date_provider,
         )
 
         # ✅ store coordinator for other platforms
-        self._entry.runtime_data = VoltalisConfigEntryData(
-            date_provider=self._date_provider,
+        self.entry.runtime_data = VoltalisConfigEntryData(
+            date_provider=self.date_provider,
             coordinators=self._coordinators,
             home_assistant_module=self,
         )
@@ -83,7 +83,9 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         await self._coordinators.setup_all()
 
         # forward setup to sensor platform
-        await self._hass.config_entries.async_forward_entry_setups(self._entry, self.PLATFORMS)
+        await self.hass.config_entries.async_forward_entry_setups(self.entry, self.PLATFORMS)
+
+        self.setup_handlers()
 
         return True
 
@@ -94,5 +96,5 @@ class VoltalisHomeAssistantModule(VoltalisModule):
 
         await self._voltalis_client.logout()
 
-        unload_ok = await self._hass.config_entries.async_unload_platforms(self._entry, self.PLATFORMS)
+        unload_ok = await self.hass.config_entries.async_unload_platforms(self.entry, self.PLATFORMS)
         return unload_ok

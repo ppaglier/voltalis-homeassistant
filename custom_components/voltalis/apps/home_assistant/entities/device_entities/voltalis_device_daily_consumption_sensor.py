@@ -39,7 +39,7 @@ class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity):
             _LOGGER.warning("Daily consumption data for device %s is None", self._device.id)
             return
 
-        new_value = data.consumption
+        new_value = data.daily_consumption
         if self.native_value == new_value:
             return
 

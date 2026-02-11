@@ -1,19 +1,14 @@
-import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Callable
 
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_time_change
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
+from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
 from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
     VoltalisDeviceConsumption,
 )
-from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
-from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
-
-_LOGGER = logging.getLogger(__name__)
 
 
 class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, VoltalisDeviceConsumption]]):
@@ -25,21 +20,14 @@ class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int
     def __init__(
         self,
         *,
-        hass: HomeAssistant,
-        voltalis_provider: VoltalisProvider,
-        date_provider: DateProvider,
-        entry: ConfigEntry,
+        voltalis_module: VoltalisHomeAssistantModule,
     ) -> None:
         # No automatic update_interval - updates only triggered by time tracker
         super().__init__(
             "Voltalis Device Daily Consumption",
-            hass=hass,
-            logger=_LOGGER,
-            voltalis_provider=voltalis_provider,
-            entry=entry,
+            voltalis_module=voltalis_module,
         )
 
-        self.__date_provider = date_provider
         self.__stop_time_tracking: Callable[[], None] | None = None
 
     def start_time_tracking(self) -> None:
@@ -71,7 +59,5 @@ class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int
     async def _get_data(self) -> dict[int, VoltalisDeviceConsumption]:
         """Fetch updated data from the Voltalis API."""
 
-        # We remove 1 hour because we can't fetch data from the current hour
-        target_datetime = self.__date_provider.get_now() - timedelta(hours=1)
-        result = await self._voltalis_provider.get_devices_daily_consumptions(target_datetime)
-        return result
+        data = await self._voltalis_module.get_devices_daily_consumption_handler.handle()
+        return data

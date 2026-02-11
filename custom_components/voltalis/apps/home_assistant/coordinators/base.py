@@ -1,20 +1,17 @@
-import logging
 from abc import abstractmethod
 from datetime import timedelta
 from typing import TypeVar
 
 from homeassistant import config_entries
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
+from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
 from custom_components.voltalis.lib.domain.shared.exceptions import (
     VoltalisAuthenticationException,
     VoltalisConnectionException,
     VoltalisException,
     VoltalisValidationException,
 )
-from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
 
 TData = TypeVar("TData")
 
@@ -26,20 +23,16 @@ class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
         self,
         name: str,
         *,
-        hass: HomeAssistant,
-        logger: logging.Logger,
-        voltalis_provider: VoltalisProvider,
-        entry: ConfigEntry,  # ConfigEntry reference used for reauth triggering
+        voltalis_module: VoltalisHomeAssistantModule,
         update_interval: timedelta | None = None,
     ) -> None:
         super().__init__(
-            hass,
-            logger=logger,
+            hass=voltalis_module.hass,
+            logger=voltalis_module.logger,
             name=name,
             update_interval=update_interval,
         )
-        self._voltalis_provider = voltalis_provider
-        self._entry = entry
+        self._voltalis_module = voltalis_module
         self._was_unavailable = False  # Track previous availability state for one-shot logging
 
     def _handle_update_error(self, err: Exception) -> Exception:
@@ -55,12 +48,12 @@ class BaseVoltalisCoordinator(DataUpdateCoordinator[TData]):
                 self.logger.error("Voltalis authentication failed: %s", err)
                 self.hass.async_create_task(
                     self.hass.config_entries.flow.async_init(
-                        self._entry.domain,
+                        self._voltalis_module.entry.domain,
                         context={
                             "source": config_entries.SOURCE_REAUTH,
-                            "entry_id": self._entry.entry_id,
+                            "entry_id": self._voltalis_module.entry.entry_id,
                         },
-                        data=self._entry.data,
+                        data=self._voltalis_module.entry.data,
                     )
                 )
 

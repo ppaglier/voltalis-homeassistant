@@ -39,7 +39,7 @@ class VoltalisEnergyContractLiveConsumptionSensor(VoltalisEnergyContractEntity, 
             _LOGGER.warning("Live consumption data is None")
             return
 
-        new_value = data.consumption
+        new_value = data.daily_consumption
         if self.native_value == new_value:
             return
 

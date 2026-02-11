@@ -15,6 +15,7 @@ from custom_components.voltalis.lib.domain.devices_management.consumption.device
 from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import VoltalisDeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import VoltalisEnergyContract
+from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import VoltalisLiveConsumption
 from custom_components.voltalis.lib.domain.shared.exceptions import (
     VoltalisConnectionException,
     VoltalisValidationException,
@@ -103,7 +104,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         return devices_health
 
-    async def get_live_consumption(self) -> VoltalisDeviceConsumption:
+    async def get_live_consumption(self) -> VoltalisLiveConsumption:
         response: HttpClientResponse[dict]
         try:
             response = await self._client.send_request(
@@ -126,7 +127,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             for consumption_record in parsed_realtime_consumption.consumptions
         )
 
-        return VoltalisDeviceConsumption(consumption=live_consumption)
+        return VoltalisLiveConsumption(consumption=live_consumption)
 
     async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, VoltalisDeviceConsumption]:
         # Fetch the data from the voltalis API
@@ -150,7 +151,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         devices_consumptions = {
             device_id: VoltalisDeviceConsumption(
-                consumption=get_consumption_for_hour(
+                daily_consumption=get_consumption_for_hour(
                     consumptions=[
                         (consumption_record.step_timestamp_on_site, consumption_record.total_consumption_in_wh)
                         for consumption_record in sorted(device_consumptions, key=lambda x: x.step_timestamp_on_site)

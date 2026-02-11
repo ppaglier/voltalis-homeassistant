@@ -4,4 +4,4 @@ from custom_components.voltalis.lib.domain.shared.custom_model import CustomMode
 class VoltalisDeviceConsumption(CustomModel):
     """Class to represent Voltalis devices consumption"""
 
-    consumption: float
+    daily_consumption: float

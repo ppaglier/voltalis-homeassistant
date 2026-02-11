@@ -11,7 +11,8 @@ from custom_components.voltalis.lib.domain.devices_management.consumption.device
 from custom_components.voltalis.lib.domain.devices_management.device.device import VoltalisDevice
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import VoltalisDeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import VoltalisEnergyContract
-from custom_components.voltalis.lib.domain.voltalis_programs.voltalis_program import VoltalisProgram
+from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import VoltalisLiveConsumption
+from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.voltalis_program import VoltalisProgram
 
 
 class VoltalisProvider(ABC):
@@ -28,7 +29,7 @@ class VoltalisProvider(ABC):
         ...
 
     @abstractmethod
-    async def get_live_consumption(self) -> VoltalisDeviceConsumption:
+    async def get_live_consumption(self) -> VoltalisLiveConsumption:
         """Get real-time consumption from the Voltalis servers"""
         ...
 
