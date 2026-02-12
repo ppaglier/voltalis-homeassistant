@@ -94,7 +94,7 @@
           "hors_gel": "Frost protection",
           "temperature": "Temperature",
           "auto": "Auto",
-          "normal": "On",
+          "on": "On",
           "off": "Off"
         }
       },

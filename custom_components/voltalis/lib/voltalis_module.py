@@ -1,11 +1,26 @@
 from logging import Logger
 
+from custom_components.voltalis.lib.application.devices_management.handlers.disable_manual_mode_handler import (
+    DisableManualModeHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.get_device_current_preset_handler import (
+    GetDeviceCurrentPresetHandler,
+)
 from custom_components.voltalis.lib.application.devices_management.handlers.get_devices import GetDevicesHandler
 from custom_components.voltalis.lib.application.devices_management.handlers.get_devices_daily_consumption_handler import (  # noqa: E501
     GetDevicesDailyConsumptionHandler,
 )
 from custom_components.voltalis.lib.application.devices_management.handlers.get_devices_health_handler import (
     GetDevicesHealthHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.set_device_preset_handler import (
+    SetDevicePresetHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.set_device_temperature_handler import (
+    SetDeviceTemperatureHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.turn_off_device_handler import (
+    TurnOffDeviceHandler,
 )
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_current_energy_contract_handler import (
     GetCurrentEnergyContractHandler,
@@ -56,6 +71,28 @@ class VoltalisModule:
             voltalis_provider=self.voltalis_provider,
         )
         self.get_devices_daily_consumption_handler = GetDevicesDailyConsumptionHandler(
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+
+        self.get_device_current_preset_handler = GetDeviceCurrentPresetHandler()
+        self.set_device_preset_handler = SetDevicePresetHandler(
+            logger=self.logger,
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+        self.set_device_temperature_handler = SetDeviceTemperatureHandler(
+            logger=self.logger,
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+        self.disable_manual_mode_handler = DisableManualModeHandler(
+            logger=self.logger,
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+        self.turn_off_device_handler = TurnOffDeviceHandler(
+            logger=self.logger,
             date_provider=self.date_provider,
             voltalis_provider=self.voltalis_provider,
         )

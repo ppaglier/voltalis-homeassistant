@@ -11,8 +11,15 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisDeviceEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.const import CLIMATE_COMFORT_TEMP, CLIMATE_DEFAULT_TEMP
-from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import ManualSettingUpdate
+from custom_components.voltalis.lib.application.devices_management.commands.set_device_temperature_command import (
+    SetDeviceTemperatureCommand,
+)
+from custom_components.voltalis.lib.application.devices_management.commands.turn_off_device_command import (
+    TurnOffDeviceCommand,
+)
+from custom_components.voltalis.lib.application.devices_management.helpers.get_appropriate_temperature import (
+    get_appropriate_temperature,
+)
 from custom_components.voltalis.lib.domain.devices_management.device.device import Device
 from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
 
@@ -50,60 +57,33 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
-        await self.__set_manual_mode(is_on=True, mode=self.__on_mode)
+        await self.__set_mode(is_on=True, mode=self.__on_mode)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the entity off."""
-        await self.__set_manual_mode(is_on=False)
+        await self.__set_mode(is_on=False)
 
     # ------------------------------------------------------------------
     # Internal helper methods
     # ------------------------------------------------------------------
 
-    async def __update_manual_settings(self, settings: ManualSettingUpdate) -> None:
-        """Update manual settings for the device."""
-        device = self._current_device
+    def __get_appropriate_mode(self, device: DeviceDto, is_on: bool) -> DeviceModeEnum:
+        """Determine the appropriate mode based on desired on/off state and device programming."""
 
-        # Get manual setting ID
-        if not device.manual_setting:
-            raise HomeAssistantError(f"Manual setting not available for device {device.id}")
+        # If turning on, prefer comfort mode if available
+        if is_on:
+            if DeviceModeEnum.CONFORT in device.available_modes:
+                return DeviceModeEnum.CONFORT
+            return self.__on_mode  # Fallback to default on mode
 
-        manual_setting_id = device.manual_setting.id
+        # If turning off, keep current mode if possible
+        if device.programming.mode and device.programming.mode in device.available_modes:
+            return device.programming.mode
 
-        # Call API
-        await self._voltalis_module.device_coordinator.set_manual_setting(manual_setting_id, settings)
+        # Fallback to default on mode when turning off (to ensure proper temperature selection)
+        return self.__on_mode
 
-        # Refresh coordinator data
-        await self.coordinator.async_request_refresh()
-
-    def __get_appropriate_temperature(
-        self,
-        mode: DeviceModeEnum,
-        specified_temperature: float | None = None,
-    ) -> float:
-        """Determine the appropriate temperature based on mode and device programming."""
-
-        if specified_temperature is not None:
-            return specified_temperature
-
-        device = self._current_device
-
-        # Use device programming temperature if available
-        if device.programming.temperature_target:
-            return device.programming.temperature_target
-
-        # Use default temperature from device programming
-        if device.programming.default_temperature:
-            return device.programming.default_temperature
-
-        # Fallbacks based on mode
-        if mode == DeviceModeEnum.CONFORT:
-            return CLIMATE_COMFORT_TEMP
-
-        # Fallback to constant
-        return CLIMATE_DEFAULT_TEMP
-
-    async def __set_manual_mode(
+    async def __set_mode(
         self,
         is_on: bool,
         mode: DeviceModeEnum | None = None,
@@ -115,29 +95,41 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
         """
         device = self._current_device
 
-        # Determine the mode to use
-        target_mode = self.__on_mode  # Default fallback
-        if mode is not None:
-            # Force the specified mode (e.g., CONFORT when turning on)
-            target_mode = mode
-        elif device.programming.mode:
-            # Keep current mode when no mode specified
-            target_mode = device.programming.mode
+        # Get manual setting ID
+        if not device.manual_setting:
+            raise HomeAssistantError(f"Manual setting not available for device {device.id}")
+
+        # Determine target mode
+        target_mode = self.__get_appropriate_mode(device, is_on) if mode is None else mode
 
         # Determine target temperature
-        target_temp = self.__get_appropriate_temperature(target_mode)
+        target_temp = get_appropriate_temperature(device, target_mode)
 
-        await self.__update_manual_settings(
-            ManualSettingUpdate(
-                enabled=True,  # Always enable manual mode for switch control
-                id_appliance=device.id,
-                until_further_notice=True,
-                is_on=is_on,
+        if not is_on:
+            await self._voltalis_module.turn_off_device_handler.handle(
+                TurnOffDeviceCommand(
+                    manual_setting_id=device.manual_setting.id,
+                    device_id=device.id,
+                    temperature=target_temp,
+                    fallback_mode=target_mode,
+                    fallback_temperature=target_temp,
+                    duration_hours=None,  # Indefinite until user turns it back on
+                )
+            )
+            return
+
+        await self._voltalis_module.set_device_temperature_handler.handle(
+            SetDeviceTemperatureCommand(
+                manual_setting_id=device.manual_setting.id,
+                device_id=device.id,
                 mode=target_mode,
-                end_date=None,
-                temperature_target=target_temp,
+                temperature=target_temp,
+                duration_hours=None,  # Indefinite until user turns it back off
             )
         )
+
+        # Refresh coordinator data
+        await self.coordinator.async_request_refresh()
 
     # ------------------------------------------------------------------
     # Availability handling override

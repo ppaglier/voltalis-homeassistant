@@ -94,7 +94,7 @@
           "hors_gel": "Hors-gel",
           "temperature": "Température",
           "auto": "Auto",
-          "normal": "Marche",
+          "on": "Marche",
           "off": "Arrêt"
         }
       },
