@@ -12,11 +12,13 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.apps.home_assistant.entities.energy_contract.current_mode_sensor import (
     EnergyContractCurrentModeEnum,
 )
+from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_mode_query import (
+    GetEnergyContractCurrentModeQuery,
+)
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import (
     EnergyContract,
     EnergyContractTypeEnum,
 )
-from custom_components.voltalis.lib.domain.energy_contracts.helpers.is_in_time_range import is_in_time_range
 
 
 class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, SensorEntity):
@@ -58,21 +60,20 @@ class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, S
             self._voltalis_module.logger.warning("Energy contract with id %s is None", self._energy_contract.id)
             return
 
-        current_mode: EnergyContractCurrentModeEnum | None = None
-        if energy_contract.type == EnergyContractTypeEnum.BASE:
-            current_mode = EnergyContractCurrentModeEnum.BASE
-        else:
-            now = self.__date_provider.get_now().time()
-            in_off_peak = any(is_in_time_range(time_range, now) for time_range in energy_contract.offpeak_hours)
-            current_mode = EnergyContractCurrentModeEnum.OFFPEAK if in_off_peak else EnergyContractCurrentModeEnum.PEAK
+        current_mode = await self._voltalis_module.get_energy_contract_current_mode_handler.handle(
+            GetEnergyContractCurrentModeQuery(type=energy_contract.type, offpeak_hours=energy_contract.offpeak_hours)
+        )
 
-        new_value: float | None = None
-        if current_mode == EnergyContractCurrentModeEnum.BASE:
-            new_value = energy_contract.prices.kwh_base
-        elif current_mode == EnergyContractCurrentModeEnum.PEAK:
-            new_value = energy_contract.prices.kwh_peak
-        elif current_mode == EnergyContractCurrentModeEnum.OFFPEAK:
-            new_value = energy_contract.prices.kwh_offpeak
+        match current_mode:
+            case EnergyContractCurrentModeEnum.BASE:
+                new_value = energy_contract.prices.kwh_base
+            case EnergyContractCurrentModeEnum.PEAK:
+                new_value = energy_contract.prices.kwh_peak
+            case EnergyContractCurrentModeEnum.OFFPEAK:
+                new_value = energy_contract.prices.kwh_offpeak
+            case _:
+                self._voltalis_module.logger.error("Unknown energy contract current mode: %s", current_mode)
+                new_value = None
 
         self.__current_mode = current_mode
 
