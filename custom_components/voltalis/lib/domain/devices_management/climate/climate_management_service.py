@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from logging import Logger
 
 from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import ManualSettingUpdate
@@ -81,7 +81,7 @@ class ClimateManagementService:
             fallback_temperature: The temperature to use as fallback (default: 16.0°C)
         """
 
-        end_date = datetime.now().isoformat()
+        end_date = self.__date_provider.get_now().isoformat()
 
         setting = ManualSettingUpdate(
             enabled=False,

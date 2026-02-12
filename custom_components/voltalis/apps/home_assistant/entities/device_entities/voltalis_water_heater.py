@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
-from enum import StrEnum
 from typing import Any
 
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityFeature
@@ -13,20 +11,16 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.const import CLIMATE_UNIT
-from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import ManualSettingUpdate
-from custom_components.voltalis.lib.domain.devices_management.device.device import Device
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import (
-    ProgramTypeEnum,
+from custom_components.voltalis.lib.application.devices_management.commands.set_water_heater_operation_command import (
+    SetWaterHeaterOperationCommand,
 )
-
-
-class VoltalisWaterHeaterOperationsEnum(StrEnum):
-    """Enum for water heater operation modes."""
-
-    ON = "on"
-    OFF = "off"
-    AUTO = "auto"
+from custom_components.voltalis.lib.application.devices_management.queries.get_water_heater_current_operation_query import (  # noqa: E501
+    GetWaterHeaterCurrentOperationQuery,
+)
+from custom_components.voltalis.lib.domain.devices_management.device.device import Device
+from custom_components.voltalis.lib.domain.devices_management.water_heaters.water_heater_operations_enum import (
+    WaterHeaterOperationsEnum,
+)
 
 
 class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
@@ -57,9 +51,9 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
             | WaterHeaterEntityFeature.OPERATION_MODE
             | WaterHeaterEntityFeature.AWAY_MODE
         )
-        self._attr_operation_list = [operation for operation in VoltalisWaterHeaterOperationsEnum]
+        self._attr_operation_list = [operation for operation in WaterHeaterOperationsEnum]
         self._attr_is_away_mode_on = False
-        self.__before_away_mode_operation: VoltalisWaterHeaterOperationsEnum | None = None
+        self.__before_away_mode_operation: WaterHeaterOperationsEnum | None = None
 
     @property
     def _current_device(self) -> DeviceDto:
@@ -72,11 +66,11 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
         """Return the icon to use for this entity."""
         current = self.current_operation
         if current is not None:
-            if current == VoltalisWaterHeaterOperationsEnum.ON:
+            if current == WaterHeaterOperationsEnum.ON:
                 return "mdi:water-boiler"
-            if current == VoltalisWaterHeaterOperationsEnum.OFF:
+            if current == WaterHeaterOperationsEnum.OFF:
                 return "mdi:water-boiler-off"
-            if current == VoltalisWaterHeaterOperationsEnum.AUTO:
+            if current == WaterHeaterOperationsEnum.AUTO:
                 return "mdi:water-boiler-auto"
         return "mdi:water-boiler-alert"
 
@@ -85,35 +79,35 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     # ------------------------------------------------------------------
 
     @property
-    def current_operation(self) -> VoltalisWaterHeaterOperationsEnum | None:
+    def current_operation(self) -> WaterHeaterOperationsEnum | None:
         """Return current operation mode: on, off, or auto."""
         device = self._current_device
-        if not device.programming or not device.programming.is_on:
-            return VoltalisWaterHeaterOperationsEnum.OFF
 
-        # Check programming type to determine mode
-        prog_type = device.programming.prog_type
-        if prog_type == ProgramTypeEnum.MANUAL:
-            return VoltalisWaterHeaterOperationsEnum.ON
-
-        # DEFAULT or USER planning means AUTO mode
-        return VoltalisWaterHeaterOperationsEnum.AUTO
+        return self._voltalis_module.get_water_heater_current_operation_handler.handle(
+            GetWaterHeaterCurrentOperationQuery(
+                is_on=device.programming.is_on,
+                prog_type=device.programming.prog_type,
+            )
+        )
 
     async def async_set_operation_mode(self, operation_mode: str) -> None:
         """Set new operation mode: on, off, or auto."""
 
         self._attr_is_away_mode_on = False
 
-        if operation_mode == VoltalisWaterHeaterOperationsEnum.ON:
-            await self.async_turn_on()
-            return
-        if operation_mode == VoltalisWaterHeaterOperationsEnum.OFF:
-            await self.async_turn_off()
-            return
-        if operation_mode == VoltalisWaterHeaterOperationsEnum.AUTO:
-            await self.__disable_manual_mode()
-            return
-        raise HomeAssistantError(f"Invalid operation mode: {operation_mode}")
+        device = self._current_device
+        if not device.manual_setting:
+            raise HomeAssistantError(f"Manual setting not available for device {device.id}")
+
+        await self._voltalis_module.set_water_heater_operation_handler.handle(
+            SetWaterHeaterOperationCommand(
+                device=device,
+                manual_setting_id=device.manual_setting.id,
+                operation_mode=WaterHeaterOperationsEnum(operation_mode),
+            )
+        )
+
+        await self.coordinator.async_request_refresh()
 
     # ------------------------------------------------------------------
     # Away mode handling
@@ -122,12 +116,12 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     async def async_turn_away_mode_on(self) -> None:
         """Enable away mode by turning off the water heater."""
         self.__before_away_mode_operation = self.current_operation
-        await self.async_turn_off()
+        await self.async_set_operation_mode(WaterHeaterOperationsEnum.OFF)
         self._attr_is_away_mode_on = True
 
     async def async_turn_away_mode_off(self) -> None:
         """Disable away mode by returning to automatic operation."""
-        await self.async_set_operation_mode(self.__before_away_mode_operation or VoltalisWaterHeaterOperationsEnum.AUTO)
+        await self.async_set_operation_mode(self.__before_away_mode_operation or WaterHeaterOperationsEnum.AUTO)
         self._attr_is_away_mode_on = False
 
     # ------------------------------------------------------------------
@@ -136,75 +130,11 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the water heater on."""
-        await self.__set_manual_mode(is_on=True)
+        await self.async_set_operation_mode(WaterHeaterOperationsEnum.ON)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the water heater off."""
-        await self.__set_manual_mode(is_on=False)
-
-    # ------------------------------------------------------------------
-    # Internal helper methods
-    # ------------------------------------------------------------------
-
-    async def __update_manual_settings(self, settings: ManualSettingUpdate) -> None:
-        """Update manual settings for the device."""
-        device = self._current_device
-
-        # Get manual setting ID
-        if not device.manual_setting:
-            raise HomeAssistantError(f"Manual setting not available for device {device.id}")
-
-        manual_setting_id = device.manual_setting.id
-
-        # Call API
-        await self._voltalis_module.device_coordinator.set_manual_setting(manual_setting_id, settings)
-
-        # Refresh coordinator data
-        await self.coordinator.async_request_refresh()
-
-    async def __set_manual_mode(self, is_on: bool) -> None:
-        """Set manual mode for the device (simple ON/OFF relay)."""
-        device = self._current_device
-
-        await self.__update_manual_settings(
-            ManualSettingUpdate(
-                enabled=True,  # Enable manual mode
-                id_appliance=device.id,
-                until_further_notice=True,
-                is_on=is_on,
-                mode=DeviceModeEnum.NORMAL,
-                end_date=None,
-                temperature_target=device.programming.default_temperature,
-            )
-        )
-
-    async def __disable_manual_mode(self) -> None:
-        """Disable manual mode to return to automatic planning."""
-        device = self._current_device
-
-        # Get current settings
-        target_mode = DeviceModeEnum.AUTO
-        target_temp = None
-
-        if device.programming:
-            if device.programming.mode:
-                target_mode = device.programming.mode
-            if device.programming.default_temperature:
-                target_temp = device.programming.default_temperature
-
-        end_date = datetime.now().isoformat()
-
-        await self.__update_manual_settings(
-            ManualSettingUpdate(
-                enabled=False,  # Disable manual mode
-                id_appliance=device.id,
-                until_further_notice=False,
-                is_on=True,
-                mode=target_mode,
-                end_date=end_date,
-                temperature_target=target_temp,
-            )
-        )
+        await self.async_set_operation_mode(WaterHeaterOperationsEnum.OFF)
 
     # ------------------------------------------------------------------
     # Availability handling override

@@ -13,11 +13,17 @@ from custom_components.voltalis.lib.application.devices_management.handlers.get_
 from custom_components.voltalis.lib.application.devices_management.handlers.get_devices_health_handler import (
     GetDevicesHealthHandler,
 )
+from custom_components.voltalis.lib.application.devices_management.handlers.get_water_heater_current_operation_handler import (  # noqa: E501
+    GetWaterHeaterCurrentOperationHandler,
+)
 from custom_components.voltalis.lib.application.devices_management.handlers.set_device_preset_handler import (
     SetDevicePresetHandler,
 )
 from custom_components.voltalis.lib.application.devices_management.handlers.set_device_temperature_handler import (
     SetDeviceTemperatureHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.set_water_heater_operation_handler import (
+    SetWaterHeaterOperationHandler,
 )
 from custom_components.voltalis.lib.application.devices_management.handlers.turn_off_device_handler import (
     TurnOffDeviceHandler,
@@ -81,6 +87,14 @@ class VoltalisModule:
             date_provider=self.date_provider,
             voltalis_provider=self.voltalis_provider,
         )
+
+        self.get_water_heater_current_operation_handler = GetWaterHeaterCurrentOperationHandler()
+        self.set_water_heater_operation_handler = SetWaterHeaterOperationHandler(
+            logger=self.logger,
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+
         self.set_device_temperature_handler = SetDeviceTemperatureHandler(
             logger=self.logger,
             date_provider=self.date_provider,

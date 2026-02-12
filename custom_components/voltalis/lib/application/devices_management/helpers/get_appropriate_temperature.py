@@ -7,6 +7,8 @@ def get_appropriate_temperature(
     device: DeviceDto,
     mode: DeviceModeEnum,
     specified_temperature: float | None = None,
+    comfort_temperature: float = CLIMATE_COMFORT_TEMP,
+    default_temperature: float = CLIMATE_DEFAULT_TEMP,
 ) -> float:
     """Determine the appropriate temperature based on mode and device programming."""
 
@@ -23,7 +25,7 @@ def get_appropriate_temperature(
 
     # Fallbacks based on mode
     if mode == DeviceModeEnum.CONFORT:
-        return CLIMATE_COMFORT_TEMP
+        return comfort_temperature
 
     # Fallback to constant
-    return CLIMATE_DEFAULT_TEMP
+    return default_temperature
