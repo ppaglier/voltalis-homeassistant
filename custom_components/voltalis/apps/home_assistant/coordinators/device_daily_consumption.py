@@ -6,7 +6,7 @@ from homeassistant.helpers.event import async_track_time_change
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
+from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
     DeviceConsumption,
 )
 

@@ -3,6 +3,9 @@ from logging import Logger
 from custom_components.voltalis.lib.application.devices_management.handlers.disable_manual_mode_handler import (
     DisableManualModeHandler,
 )
+from custom_components.voltalis.lib.application.devices_management.handlers.get_device_current_mode_handler import (
+    GetDeviceCurrentModeHandler,
+)
 from custom_components.voltalis.lib.application.devices_management.handlers.get_device_current_preset_handler import (
     GetDeviceCurrentPresetHandler,
 )
@@ -30,6 +33,9 @@ from custom_components.voltalis.lib.application.devices_management.handlers.turn
 )
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_current_energy_contract_handler import (
     GetCurrentEnergyContractHandler,
+)
+from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_current_kwh_cost_handler import (  # noqa: E501
+    GetEnergyContractCurrentKwhCostHandler,
 )
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_current_mode_handler import (  # noqa: E501
     GetEnergyContractCurrentModeHandler,
@@ -81,19 +87,9 @@ class VoltalisModule:
             voltalis_provider=self.voltalis_provider,
         )
 
-        self.get_device_current_preset_handler = GetDeviceCurrentPresetHandler()
-        self.set_device_preset_handler = SetDevicePresetHandler(
-            logger=self.logger,
-            date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
-        )
+        # Device modes
 
-        self.get_water_heater_current_operation_handler = GetWaterHeaterCurrentOperationHandler()
-        self.set_water_heater_operation_handler = SetWaterHeaterOperationHandler(
-            logger=self.logger,
-            date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
-        )
+        self.get_device_current_mode_handler = GetDeviceCurrentModeHandler()
 
         self.set_device_temperature_handler = SetDeviceTemperatureHandler(
             logger=self.logger,
@@ -111,6 +107,24 @@ class VoltalisModule:
             voltalis_provider=self.voltalis_provider,
         )
 
+        # Device presets
+
+        self.get_device_current_preset_handler = GetDeviceCurrentPresetHandler()
+        self.set_device_preset_handler = SetDevicePresetHandler(
+            logger=self.logger,
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+
+        # Water heater operations
+
+        self.get_water_heater_current_operation_handler = GetWaterHeaterCurrentOperationHandler()
+        self.set_water_heater_operation_handler = SetWaterHeaterOperationHandler(
+            logger=self.logger,
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+
         # energy contracts
         self.get_current_energy_contract_handler = GetCurrentEnergyContractHandler(
             date_provider=self.date_provider,
@@ -118,6 +132,9 @@ class VoltalisModule:
         )
         self.get_energy_contract_current_mode_handler = GetEnergyContractCurrentModeHandler(
             date_provider=self.date_provider,
+        )
+        self.get_energy_contract_current_kwh_cost_handler = GetEnergyContractCurrentKwhCostHandler(
+            logger=self.logger,
         )
         self.get_live_consumption_handler = GetLiveConsumptionHandler(
             voltalis_provider=self.voltalis_provider,

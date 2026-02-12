@@ -9,8 +9,8 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisEnergyContractEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_current_mode_handler import (  # noqa: E501
-    EnergyContractCurrentModeEnum,
+from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_kwh_cost_query import (  # noqa: E501
+    GetEnergyContractCurrentKwCostQuery,
 )
 from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_mode_query import (
     GetEnergyContractCurrentModeQuery,
@@ -18,6 +18,9 @@ from custom_components.voltalis.lib.application.energy_contracts.queries.get_ene
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import (
     EnergyContract,
     EnergyContractTypeEnum,
+)
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_mode_enum import (
+    EnergyContractCurrentModeEnum,
 )
 
 
@@ -64,16 +67,14 @@ class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, S
             GetEnergyContractCurrentModeQuery(type=energy_contract.type, offpeak_hours=energy_contract.offpeak_hours)
         )
 
-        match current_mode:
-            case EnergyContractCurrentModeEnum.BASE:
-                new_value = energy_contract.prices.kwh_base
-            case EnergyContractCurrentModeEnum.PEAK:
-                new_value = energy_contract.prices.kwh_peak
-            case EnergyContractCurrentModeEnum.OFFPEAK:
-                new_value = energy_contract.prices.kwh_offpeak
-            case _:
-                self._voltalis_module.logger.error("Unknown energy contract current mode: %s", current_mode)
-                new_value = None
+        new_value = await self._voltalis_module.get_energy_contract_current_kwh_cost_handler.handle(
+            GetEnergyContractCurrentKwCostQuery(
+                current_mode=current_mode,
+                base_kwh_cost=energy_contract.prices.kwh_base,
+                peak_kwh_cost=energy_contract.prices.kwh_peak,
+                offpeak_kwh_cost=energy_contract.prices.kwh_offpeak,
+            )
+        )
 
         self.__current_mode = current_mode
 

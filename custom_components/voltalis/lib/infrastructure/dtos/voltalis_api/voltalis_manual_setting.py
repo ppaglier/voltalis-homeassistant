@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import ManualSetting
+from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import ManualSetting
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device import VoltalisDeviceDtoModeEnum
 

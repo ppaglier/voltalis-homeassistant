@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from enum import StrEnum
-
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.core import callback
 
@@ -10,26 +8,20 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisDeviceEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.devices_management.device.device import Device
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
-
-
-class VoltalisDeviceCurrentModeEnum(StrEnum):
-    """Voltalis device preset select options."""
-
-    COMFORT = DeviceModeEnum.CONFORT.value
-    ECO = DeviceModeEnum.ECO.value
-    FROST_PROTECTION = DeviceModeEnum.HORS_GEL.value
-    TEMPERATURE = DeviceModeEnum.TEMPERATURE.value
-    ON = DeviceModeEnum.NORMAL.value
-    OFF = "off"
+from custom_components.voltalis.lib.application.devices_management.handlers.get_device_current_mode_handler import (
+    DeviceCurrentModeEnum,
+)
+from custom_components.voltalis.lib.application.devices_management.queries.get_device_current_mode_query import (
+    GetDeviceCurrentModeQuery,
+)
+from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 
 
 class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
     """Select entity for Voltalis heating device mode."""
 
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_options = [option for option in VoltalisDeviceCurrentModeEnum]
+    _attr_options = [option for option in DeviceCurrentModeEnum]
     _attr_translation_key = "device_current_mode"
     _unique_id_suffix = "device_current_mode"
 
@@ -42,17 +34,17 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
         """Return the icon to use for this entity."""
         current = self.native_value
         if current is not None:
-            if current == VoltalisDeviceCurrentModeEnum.COMFORT:
+            if current == DeviceCurrentModeEnum.COMFORT:
                 return "mdi:home-thermometer"
-            if current == VoltalisDeviceCurrentModeEnum.ECO:
+            if current == DeviceCurrentModeEnum.ECO:
                 return "mdi:leaf"
-            if current == VoltalisDeviceCurrentModeEnum.FROST_PROTECTION:
+            if current == DeviceCurrentModeEnum.FROST_PROTECTION:
                 return "mdi:snowflake-alert"
-            if current == VoltalisDeviceCurrentModeEnum.TEMPERATURE:
+            if current == DeviceCurrentModeEnum.TEMPERATURE:
                 return "mdi:thermometer"
-            if current == VoltalisDeviceCurrentModeEnum.ON:
+            if current == DeviceCurrentModeEnum.ON:
                 return "mdi:flash-outline"
-            if current == VoltalisDeviceCurrentModeEnum.OFF:
+            if current == DeviceCurrentModeEnum.OFF:
                 return "mdi:power"
         return "mdi:eye-off"
 
@@ -65,19 +57,12 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
             self._voltalis_module.logger.warning("Device %s not found in coordinator data", self._device.id)
             return
 
-        def get_current_option() -> str | None:
-            # Check if device is off
-            if device.programming.is_on is False:
-                return VoltalisDeviceCurrentModeEnum.OFF
-
-            # Get current mode
-            current_mode = device.programming.mode
-            # Handle ECOV mode
-            if current_mode == DeviceModeEnum.ECOV:
-                return VoltalisDeviceCurrentModeEnum.ECO
-            return current_mode
-
-        self._attr_native_value = get_current_option()
+        self._attr_native_value = self._voltalis_module.get_device_current_mode_handler.handle(
+            GetDeviceCurrentModeQuery(
+                is_on=device.programming.is_on,
+                mode=device.programming.mode,
+            )
+        )
         self.async_write_ha_state()
 
     def _is_available_from_data(self, data: Device) -> bool:

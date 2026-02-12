@@ -17,9 +17,9 @@ from custom_components.voltalis.lib.application.devices_management.commands.set_
 from custom_components.voltalis.lib.application.devices_management.queries.get_water_heater_current_operation_query import (  # noqa: E501
     GetWaterHeaterCurrentOperationQuery,
 )
-from custom_components.voltalis.lib.domain.devices_management.device.device import Device
-from custom_components.voltalis.lib.domain.devices_management.water_heaters.water_heater_operations_enum import (
-    WaterHeaterOperationsEnum,
+from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
+from custom_components.voltalis.lib.domain.devices_management.water_heaters.water_heater_current_operations_enum import (  # noqa: E501
+    WaterHeaterCurrentOperationEnum,
 )
 
 
@@ -51,9 +51,9 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
             | WaterHeaterEntityFeature.OPERATION_MODE
             | WaterHeaterEntityFeature.AWAY_MODE
         )
-        self._attr_operation_list = [operation for operation in WaterHeaterOperationsEnum]
+        self._attr_operation_list = [operation for operation in WaterHeaterCurrentOperationEnum]
         self._attr_is_away_mode_on = False
-        self.__before_away_mode_operation: WaterHeaterOperationsEnum | None = None
+        self.__before_away_mode_operation: WaterHeaterCurrentOperationEnum | None = None
 
     @property
     def _current_device(self) -> DeviceDto:
@@ -66,11 +66,11 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
         """Return the icon to use for this entity."""
         current = self.current_operation
         if current is not None:
-            if current == WaterHeaterOperationsEnum.ON:
+            if current == WaterHeaterCurrentOperationEnum.ON:
                 return "mdi:water-boiler"
-            if current == WaterHeaterOperationsEnum.OFF:
+            if current == WaterHeaterCurrentOperationEnum.OFF:
                 return "mdi:water-boiler-off"
-            if current == WaterHeaterOperationsEnum.AUTO:
+            if current == WaterHeaterCurrentOperationEnum.AUTO:
                 return "mdi:water-boiler-auto"
         return "mdi:water-boiler-alert"
 
@@ -79,7 +79,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     # ------------------------------------------------------------------
 
     @property
-    def current_operation(self) -> WaterHeaterOperationsEnum | None:
+    def current_operation(self) -> WaterHeaterCurrentOperationEnum | None:
         """Return current operation mode: on, off, or auto."""
         device = self._current_device
 
@@ -103,7 +103,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
             SetWaterHeaterOperationCommand(
                 device=device,
                 manual_setting_id=device.manual_setting.id,
-                operation_mode=WaterHeaterOperationsEnum(operation_mode),
+                operation_mode=WaterHeaterCurrentOperationEnum(operation_mode),
             )
         )
 
@@ -116,12 +116,12 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     async def async_turn_away_mode_on(self) -> None:
         """Enable away mode by turning off the water heater."""
         self.__before_away_mode_operation = self.current_operation
-        await self.async_set_operation_mode(WaterHeaterOperationsEnum.OFF)
+        await self.async_set_operation_mode(WaterHeaterCurrentOperationEnum.OFF)
         self._attr_is_away_mode_on = True
 
     async def async_turn_away_mode_off(self) -> None:
         """Disable away mode by returning to automatic operation."""
-        await self.async_set_operation_mode(self.__before_away_mode_operation or WaterHeaterOperationsEnum.AUTO)
+        await self.async_set_operation_mode(self.__before_away_mode_operation or WaterHeaterCurrentOperationEnum.AUTO)
         self._attr_is_away_mode_on = False
 
     # ------------------------------------------------------------------
@@ -130,11 +130,11 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the water heater on."""
-        await self.async_set_operation_mode(WaterHeaterOperationsEnum.ON)
+        await self.async_set_operation_mode(WaterHeaterCurrentOperationEnum.ON)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the water heater off."""
-        await self.async_set_operation_mode(WaterHeaterOperationsEnum.OFF)
+        await self.async_set_operation_mode(WaterHeaterCurrentOperationEnum.OFF)
 
     # ------------------------------------------------------------------
     # Availability handling override

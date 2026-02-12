@@ -1,8 +1,8 @@
 from datetime import timedelta
 from logging import Logger
 
-from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import ManualSettingUpdate
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
+from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import ManualSettingUpdate
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
 

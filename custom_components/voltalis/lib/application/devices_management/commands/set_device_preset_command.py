@@ -1,5 +1,7 @@
 from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
-from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DevicePresetEnum
+from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
+    DeviceCurrentPresetEnum,
+)
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
 
@@ -16,7 +18,7 @@ class SetDevicePresetCommand(CustomModel):
 
     manual_setting_id: int
     device: DeviceDto
-    preset: DevicePresetEnum
+    preset: DeviceCurrentPresetEnum
     temperature: float | None = None
     duration_hours: int | None = None
     has_ecov_mode: bool = False

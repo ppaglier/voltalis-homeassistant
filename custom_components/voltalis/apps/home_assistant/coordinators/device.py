@@ -3,7 +3,7 @@ from datetime import timedelta
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
-from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import (
+from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import (
     ManualSettingUpdate,
 )
 

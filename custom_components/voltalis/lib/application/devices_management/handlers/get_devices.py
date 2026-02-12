@@ -1,7 +1,7 @@
 from logging import Logger
 
 from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceTypeEnum
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceTypeEnum
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
 
 

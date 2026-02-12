@@ -1,6 +1,6 @@
 from custom_components.voltalis.const import CLIMATE_COMFORT_TEMP, CLIMATE_DEFAULT_TEMP
 from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 
 
 def get_appropriate_temperature(

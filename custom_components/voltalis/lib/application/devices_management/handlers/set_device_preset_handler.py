@@ -6,11 +6,13 @@ from custom_components.voltalis.lib.application.devices_management.commands.set_
 from custom_components.voltalis.lib.application.devices_management.helpers.get_appropriate_temperature import (
     get_appropriate_temperature,
 )
-from custom_components.voltalis.lib.domain.devices_management.climate.climate_management_service import (
+from custom_components.voltalis.lib.domain.devices_management.climates.climate_management_service import (
     ClimateManagementService,
 )
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DevicePresetEnum
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
+from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
+    DeviceCurrentPresetEnum,
+)
 from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
 
@@ -35,7 +37,7 @@ class SetDevicePresetHandler:
         """Handle the request to set a preset for a device."""
 
         # Handle AUTO preset - disable manual mode
-        if command.preset == DevicePresetEnum.AUTO:
+        if command.preset == DeviceCurrentPresetEnum.AUTO:
             await self.__climate_service.disable_manual_mode(
                 manual_setting_id=command.manual_setting_id,
                 device_id=command.device.id,
@@ -44,7 +46,7 @@ class SetDevicePresetHandler:
             return
 
         # Handle OFF preset
-        if command.preset == DevicePresetEnum.OFF:
+        if command.preset == DeviceCurrentPresetEnum.OFF:
             await self.__climate_service.turn_off(
                 manual_setting_id=command.manual_setting_id,
                 device_id=command.device.id,
@@ -53,17 +55,17 @@ class SetDevicePresetHandler:
             )
             return
 
-        if command.has_ecov_mode and command.preset == DevicePresetEnum.ECO:
+        if command.has_ecov_mode and command.preset == DeviceCurrentPresetEnum.ECO:
             mode = DeviceModeEnum.ECOV
-        elif command.has_on_mode and command.preset == DevicePresetEnum.ON:
+        elif command.has_on_mode and command.preset == DeviceCurrentPresetEnum.ON:
             mode = DeviceModeEnum.NORMAL
         else:
             # Handle other presets (COMFORT, ECO, FROST_PROTECTION)
             mode_mapping = {
-                DevicePresetEnum.COMFORT: DeviceModeEnum.CONFORT,
-                DevicePresetEnum.ECO: DeviceModeEnum.ECO,
-                DevicePresetEnum.FROST_PROTECTION: DeviceModeEnum.HORS_GEL,
-                DevicePresetEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
+                DeviceCurrentPresetEnum.COMFORT: DeviceModeEnum.CONFORT,
+                DeviceCurrentPresetEnum.ECO: DeviceModeEnum.ECO,
+                DeviceCurrentPresetEnum.FROST_PROTECTION: DeviceModeEnum.HORS_GEL,
+                DeviceCurrentPresetEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
             }
             mode = mode_mapping.get(command.preset, DeviceModeEnum.OFF)  # Default to OFF if preset is unrecognized
 

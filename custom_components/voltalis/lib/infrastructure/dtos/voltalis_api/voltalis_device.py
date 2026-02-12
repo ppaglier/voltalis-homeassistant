@@ -2,7 +2,7 @@ from enum import StrEnum
 
 from pydantic import Field
 
-from custom_components.voltalis.lib.domain.devices_management.device.device import (
+from custom_components.voltalis.lib.domain.devices_management.devices.device import (
     Device,
     DeviceProgramming,
 )

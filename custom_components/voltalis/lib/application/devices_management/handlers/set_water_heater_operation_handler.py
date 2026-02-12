@@ -6,12 +6,12 @@ from custom_components.voltalis.lib.application.devices_management.commands.set_
 from custom_components.voltalis.lib.application.devices_management.helpers.get_appropriate_temperature import (
     get_appropriate_temperature,
 )
-from custom_components.voltalis.lib.domain.devices_management.climate.climate_management_service import (
+from custom_components.voltalis.lib.domain.devices_management.climates.climate_management_service import (
     ClimateManagementService,
 )
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.devices_management.water_heaters.water_heater_operations_enum import (
-    WaterHeaterOperationsEnum,
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
+from custom_components.voltalis.lib.domain.devices_management.water_heaters.water_heater_current_operations_enum import (  # noqa: E501
+    WaterHeaterCurrentOperationEnum,
 )
 from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
@@ -39,13 +39,13 @@ class SetWaterHeaterOperationHandler:
     async def handle(self, command: SetWaterHeaterOperationCommand) -> None:
 
         match command.operation_mode:
-            case WaterHeaterOperationsEnum.ON:
+            case WaterHeaterCurrentOperationEnum.ON:
                 await self.__turn_on(command)
                 return
-            case WaterHeaterOperationsEnum.OFF:
+            case WaterHeaterCurrentOperationEnum.OFF:
                 await self.__turn_off(command)
                 return
-            case WaterHeaterOperationsEnum.AUTO:
+            case WaterHeaterCurrentOperationEnum.AUTO:
                 await self.__turn_auto_mode(command)
                 return
             case _:

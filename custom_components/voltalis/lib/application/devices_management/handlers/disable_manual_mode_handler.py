@@ -3,7 +3,7 @@ from logging import Logger
 from custom_components.voltalis.lib.application.devices_management.commands.disable_manual_mode_command import (
     DisableManualModeCommand,
 )
-from custom_components.voltalis.lib.domain.devices_management.climate.climate_management_service import (
+from custom_components.voltalis.lib.domain.devices_management.climates.climate_management_service import (
     ClimateManagementService,
 )
 from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider

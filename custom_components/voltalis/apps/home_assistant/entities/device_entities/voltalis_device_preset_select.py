@@ -15,9 +15,11 @@ from custom_components.voltalis.lib.application.devices_management.commands.set_
 from custom_components.voltalis.lib.application.devices_management.queries.get_device_current_preset_query import (
     GetDeviceCurrentPresetQuery,
 )
-from custom_components.voltalis.lib.domain.devices_management.device.device import Device
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DevicePresetEnum
+from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
+from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
+    DeviceCurrentPresetEnum,
+)
 
 
 class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
@@ -35,29 +37,29 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
 
         # Build options modes from available modes
         options: list[str] = []
-        for voltalis_mode in DevicePresetEnum:
+        for voltalis_mode in DeviceCurrentPresetEnum:
             # Skip AUTO | ON | NONE mode here, will add it after the loop
             if voltalis_mode in [
-                DevicePresetEnum.AUTO,
-                DevicePresetEnum.ON,
-                DevicePresetEnum.OFF,
+                DeviceCurrentPresetEnum.AUTO,
+                DeviceCurrentPresetEnum.ON,
+                DeviceCurrentPresetEnum.OFF,
             ]:
                 continue
 
             if voltalis_mode not in device.available_modes:
                 # Special handling for ECOV mode
-                if (self.__has_ecov_mode and voltalis_mode != DevicePresetEnum.ECO) or not self.__has_ecov_mode:
+                if (self.__has_ecov_mode and voltalis_mode != DeviceCurrentPresetEnum.ECO) or not self.__has_ecov_mode:
                     continue
-                voltalis_mode = DevicePresetEnum.ECO
+                voltalis_mode = DeviceCurrentPresetEnum.ECO
 
             if voltalis_mode not in options:
                 options.append(voltalis_mode)
 
         self._attr_options = (
-            [DevicePresetEnum.AUTO]
-            + ([DevicePresetEnum.ON] if self.__has_on_mode else [])
+            [DeviceCurrentPresetEnum.AUTO]
+            + ([DeviceCurrentPresetEnum.ON] if self.__has_on_mode else [])
             + options
-            + [DevicePresetEnum.OFF]
+            + [DeviceCurrentPresetEnum.OFF]
         )
 
     @property
@@ -71,19 +73,19 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
         """Return the icon to use for this entity."""
         current = self.current_option
         if current is not None:
-            if current == DevicePresetEnum.COMFORT:
+            if current == DeviceCurrentPresetEnum.COMFORT:
                 return "mdi:home-thermometer"
-            if current == DevicePresetEnum.ECO:
+            if current == DeviceCurrentPresetEnum.ECO:
                 return "mdi:leaf"
-            if current == DevicePresetEnum.FROST_PROTECTION:
+            if current == DeviceCurrentPresetEnum.FROST_PROTECTION:
                 return "mdi:snowflake-alert"
-            if current == DevicePresetEnum.TEMPERATURE:
+            if current == DeviceCurrentPresetEnum.TEMPERATURE:
                 return "mdi:thermometer"
-            if current == DevicePresetEnum.ON:
+            if current == DeviceCurrentPresetEnum.ON:
                 return "mdi:flash-outline"
-            if current == DevicePresetEnum.OFF:
+            if current == DeviceCurrentPresetEnum.OFF:
                 return "mdi:power"
-            if current == DevicePresetEnum.AUTO:
+            if current == DeviceCurrentPresetEnum.AUTO:
                 return "mdi:autorenew"
         return "mdi:playlist-edit"
 
@@ -119,7 +121,7 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
             SetDevicePresetCommand(
                 manual_setting_id=device.manual_setting.id,
                 device=device,
-                preset=DevicePresetEnum(option),
+                preset=DeviceCurrentPresetEnum(option),
                 duration_hours=None,  # Indefinite until user changes it again
                 has_ecov_mode=self.__has_ecov_mode,
                 has_on_mode=self.__has_on_mode,

@@ -1,4 +1,4 @@
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import (
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import (
     DeviceModeEnum,
     DeviceModulatorTypeEnum,
     DeviceTypeEnum,

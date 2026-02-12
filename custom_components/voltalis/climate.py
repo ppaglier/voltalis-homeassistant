@@ -14,7 +14,7 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_climate import VoltalisClimate
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceTypeEnum
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceTypeEnum
 
 # Limit parallel updates (the DataUpdateCoordinator already centralizes calls)
 PARALLEL_UPDATES = 1

@@ -13,7 +13,7 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_water_heater import (
     VoltalisWaterHeater,
 )
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import DeviceTypeEnum
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceTypeEnum
 
 # Limit parallel updates (the DataUpdateCoordinator already centralizes calls)
 PARALLEL_UPDATES = 1

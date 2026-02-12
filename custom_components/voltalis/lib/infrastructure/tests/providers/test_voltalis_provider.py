@@ -4,18 +4,18 @@ from typing import TypeAlias
 
 import pytest
 
-from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import (
+from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import (
     ManualSetting,
     ManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
+from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
     DeviceConsumption,
 )
-from custom_components.voltalis.lib.domain.devices_management.device.device import (
+from custom_components.voltalis.lib.domain.devices_management.devices.device import (
     Device,
     DeviceProgramming,
 )
-from custom_components.voltalis.lib.domain.devices_management.device.device_enum import (
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import (
     DeviceModeEnum,
     DeviceModulatorTypeEnum,
     DeviceTypeEnum,

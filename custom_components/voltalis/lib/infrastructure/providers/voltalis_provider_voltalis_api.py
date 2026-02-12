@@ -5,14 +5,14 @@ from typing import cast
 
 from pydantic import TypeAdapter, ValidationError
 
-from custom_components.voltalis.lib.domain.devices_management.climate.manual_setting import (
+from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import (
     ManualSetting,
     ManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
+from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
     DeviceConsumption,
 )
-from custom_components.voltalis.lib.domain.devices_management.device.device import Device
+from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption

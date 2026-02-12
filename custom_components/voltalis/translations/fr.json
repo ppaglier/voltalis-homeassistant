@@ -56,11 +56,11 @@
       "device_current_mode": {
         "name": "Mode actuel",
         "state": {
-          "confort": "Confort",
+          "comfort": "Confort",
           "eco": "Éco",
-          "hors_gel": "Hors-gel",
+          "frost_protection": "Hors-gel",
           "temperature": "Température",
-          "normal": "Marche",
+          "on": "Marche",
           "off": "Arrêt"
         }
       },
@@ -89,9 +89,9 @@
       "device_preset": {
         "name": "Préréglage",
         "state": {
-          "confort": "Confort",
+          "comfort": "Confort",
           "eco": "Éco",
-          "hors_gel": "Hors-gel",
+          "frost_protection": "Hors-gel",
           "temperature": "Température",
           "auto": "Auto",
           "on": "Marche",

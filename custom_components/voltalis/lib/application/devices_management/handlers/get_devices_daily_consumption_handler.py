@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from custom_components.voltalis.lib.domain.devices_management.consumption.device_consumption import (
+from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
     DeviceConsumption,
 )
 from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
