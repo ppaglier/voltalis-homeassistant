@@ -1,12 +1,20 @@
-from custom_components.voltalis.apps.home_assistant.entities.energy_contract.current_mode_sensor import (
-    EnergyContractCurrentModeEnum,
-)
+from datetime import time
+from enum import StrEnum
+
 from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_mode_query import (
     GetEnergyContractCurrentModeQuery,
 )
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
-from custom_components.voltalis.lib.domain.energy_contracts.helpers.is_in_time_range import is_in_time_range
 from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
+from custom_components.voltalis.lib.domain.shared.range_model import RangeModel
+
+
+class EnergyContractCurrentModeEnum(StrEnum):
+    """Voltalis energy contract current mode options."""
+
+    BASE = "base"
+    PEAK = "peak"
+    OFFPEAK = "offpeak"
 
 
 class GetEnergyContractCurrentModeHandler:
@@ -26,9 +34,19 @@ class GetEnergyContractCurrentModeHandler:
             return EnergyContractCurrentModeEnum.BASE
 
         now = self.__date_provider.get_now().time()
-        in_off_peak = any(is_in_time_range(time_range, now) for time_range in query.offpeak_hours)
+        in_off_peak = any(self.__is_in_time_range(time_range, now) for time_range in query.offpeak_hours)
 
         if in_off_peak:
             return EnergyContractCurrentModeEnum.OFFPEAK
 
         return EnergyContractCurrentModeEnum.PEAK
+
+    def __is_in_time_range(self, time_range: RangeModel[time], now: time) -> bool:
+        """Return True if now is within the given time range, handling overnight spans."""
+        start = time_range.start
+        end = time_range.end
+        if start <= end:
+            # Normal range within the same day, e.g. 08:00-12:00
+            return start <= now <= end
+        # Overnight range crossing midnight, e.g. 22:00-06:00
+        return now >= start or now <= end

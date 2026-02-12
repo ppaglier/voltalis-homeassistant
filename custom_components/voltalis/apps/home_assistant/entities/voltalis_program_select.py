@@ -103,9 +103,10 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         if old_program and new_program and old_program.id == new_program.id:
             return
 
-        await self._voltalis_module.programs_coordinator.set_program(
+        await self._voltalis_module.set_current_program_handler.handle(
             new_program=new_program,
             old_program=old_program,
         )
+
         self._attr_current_option = new_program.name if new_program else self.__none_program_option
         await self.coordinator.async_request_refresh()

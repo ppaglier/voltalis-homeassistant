@@ -19,19 +19,6 @@ class VoltalisProgramCoordinator(BaseVoltalisCoordinator[dict[int, Program]]):
             update_interval=timedelta(minutes=1),
         )
 
-    async def set_program(
-        self,
-        *,
-        new_program: Program | None,
-        old_program: Program | None = None,
-    ) -> None:
-        """Set the active program."""
-
-        await self._voltalis_module.set_current_program_handler.handle(
-            new_program=new_program,
-            old_program=old_program,
-        )
-
     async def _get_data(self) -> dict[int, Program]:
         """Fetch updated data from the Voltalis API."""
 

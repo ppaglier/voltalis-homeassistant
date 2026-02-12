@@ -9,7 +9,7 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisEnergyContractEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.apps.home_assistant.entities.energy_contract.current_mode_sensor import (
+from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_current_mode_handler import (  # noqa: E501
     EnergyContractCurrentModeEnum,
 )
 from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_mode_query import (
