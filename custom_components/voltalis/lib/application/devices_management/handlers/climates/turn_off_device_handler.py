@@ -3,6 +3,9 @@ from logging import Logger
 from custom_components.voltalis.lib.application.devices_management.commands.turn_off_device_command import (
     TurnOffDeviceCommand,
 )
+from custom_components.voltalis.lib.application.devices_management.helpers.get_appropriate_temperature import (
+    get_appropriate_temperature,
+)
 from custom_components.voltalis.lib.domain.devices_management.climates.climate_management_service import (
     ClimateManagementService,
 )
@@ -29,10 +32,16 @@ class TurnOffDeviceHandler:
     async def handle(self, command: TurnOffDeviceCommand) -> None:
         """Handle the request to turn off a device for a specified duration."""
 
+        target_temp = get_appropriate_temperature(
+            device=command.device,
+            mode=command.fallback_mode,
+            specified_temperature=command.fallback_temperature,
+        )
+
         await self.__climate_service.turn_off(
             manual_setting_id=command.manual_setting_id,
-            device_id=command.device_id,
-            fallback_temperature=command.fallback_temperature,
+            device_id=command.device.id,
+            fallback_temperature=target_temp,
             fallback_mode=command.fallback_mode,
             duration_hours=command.duration_hours,
         )

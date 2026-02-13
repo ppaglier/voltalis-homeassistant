@@ -1,14 +1,16 @@
 from enum import StrEnum
 
+from homeassistant.components.climate import PRESET_AWAY, PRESET_COMFORT, PRESET_ECO, PRESET_NONE
+
 
 class DeviceCurrentPresetEnum(StrEnum):
     """Preset modes for climate devices."""
 
-    COMFORT = "comfort"
-    ECO = "eco"
-    FROST_PROTECTION = "frost_protection"
+    COMFORT = PRESET_COMFORT
+    ECO = PRESET_ECO
+    AWAY = PRESET_AWAY
     TEMPERATURE = "temperature"
 
-    AUTO = "auto"
     ON = "on"
-    OFF = "off"
+    OFF = PRESET_NONE
+    AUTO = "auto"

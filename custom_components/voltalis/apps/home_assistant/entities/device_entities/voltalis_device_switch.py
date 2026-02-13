@@ -17,9 +17,6 @@ from custom_components.voltalis.lib.application.devices_management.commands.set_
 from custom_components.voltalis.lib.application.devices_management.commands.turn_off_device_command import (
     TurnOffDeviceCommand,
 )
-from custom_components.voltalis.lib.application.devices_management.helpers.get_appropriate_temperature import (
-    get_appropriate_temperature,
-)
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 
@@ -102,17 +99,12 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
         # Determine target mode
         target_mode = self.__get_appropriate_mode(device, is_on) if mode is None else mode
 
-        # Determine target temperature
-        target_temp = get_appropriate_temperature(device, target_mode)
-
         if not is_on:
             await self._voltalis_module.turn_off_device_handler.handle(
                 TurnOffDeviceCommand(
                     manual_setting_id=device.manual_setting.id,
-                    device_id=device.id,
-                    temperature=target_temp,
+                    device=device,
                     fallback_mode=target_mode,
-                    fallback_temperature=target_temp,
                     duration_hours=None,  # Indefinite until user turns it back on
                 )
             )
@@ -121,9 +113,8 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
         await self._voltalis_module.set_device_temperature_handler.handle(
             SetDeviceTemperatureCommand(
                 manual_setting_id=device.manual_setting.id,
-                device_id=device.id,
+                device=device,
                 mode=target_mode,
-                temperature=target_temp,
                 duration_hours=None,  # Indefinite until user turns it back off
             )
         )

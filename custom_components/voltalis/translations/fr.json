@@ -58,10 +58,10 @@
         "state": {
           "comfort": "Confort",
           "eco": "Éco",
-          "frost_protection": "Hors-gel",
+          "away": "Absence/Hors-gel",
           "temperature": "Température",
           "on": "Marche",
-          "off": "Arrêt"
+          "none": "Arrêt"
         }
       },
       "energy_contract_subscribed_power": {
@@ -91,11 +91,11 @@
         "state": {
           "comfort": "Confort",
           "eco": "Éco",
-          "frost_protection": "Hors-gel",
+          "away": "Absence/Hors-gel",
           "temperature": "Température",
-          "auto": "Auto",
           "on": "Marche",
-          "off": "Arrêt"
+          "none": "Arrêt",
+          "auto": "Auto"
         }
       },
       "program_select": {

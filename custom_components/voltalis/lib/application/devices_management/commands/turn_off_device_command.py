@@ -1,3 +1,4 @@
+from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
@@ -13,7 +14,7 @@ class TurnOffDeviceCommand(CustomModel):
     """
 
     manual_setting_id: int
-    device_id: int
+    device: DeviceDto
     fallback_mode: DeviceModeEnum = DeviceModeEnum.ECO
-    fallback_temperature: float = 16.0
+    fallback_temperature: float | None = None
     duration_hours: int | None = None

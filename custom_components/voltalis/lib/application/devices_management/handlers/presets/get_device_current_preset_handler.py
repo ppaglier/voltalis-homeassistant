@@ -28,7 +28,7 @@ class GetDeviceCurrentPresetHandler:
             DeviceModeEnum.CONFORT: DeviceCurrentPresetEnum.COMFORT,
             DeviceModeEnum.ECO: DeviceCurrentPresetEnum.ECO,
             DeviceModeEnum.ECOV: DeviceCurrentPresetEnum.ECO,
-            DeviceModeEnum.HORS_GEL: DeviceCurrentPresetEnum.FROST_PROTECTION,
+            DeviceModeEnum.HORS_GEL: DeviceCurrentPresetEnum.AWAY,
             DeviceModeEnum.TEMPERATURE: DeviceCurrentPresetEnum.TEMPERATURE,
             DeviceModeEnum.NORMAL: DeviceCurrentPresetEnum.ON,
         }

@@ -58,10 +58,10 @@
         "state": {
           "comfort": "Comfort",
           "eco": "Eco",
-          "frost_protection": "Frost protection",
+          "away": "Away/Frost protection",
           "temperature": "Temperature",
           "on": "On",
-          "off": "Off"
+          "none": "Off"
         }
       },
       "energy_contract_subscribed_power": {
@@ -91,11 +91,11 @@
         "state": {
           "comfort": "Comfort",
           "eco": "Eco",
-          "frost_protection": "Frost protection",
+          "away": "Away/Frost protection",
           "temperature": "Temperature",
-          "auto": "Auto",
           "on": "On",
-          "off": "Off"
+          "none": "Off",
+          "auto": "Auto"
         }
       },
       "program_select": {

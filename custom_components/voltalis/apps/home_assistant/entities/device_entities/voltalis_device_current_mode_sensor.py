@@ -8,7 +8,7 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisDeviceEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.application.devices_management.handlers.get_device_current_mode_handler import (
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_device_current_mode_handler import (  # noqa: E501
     DeviceCurrentModeEnum,
 )
 from custom_components.voltalis.lib.application.devices_management.queries.get_device_current_mode_query import (
@@ -38,7 +38,7 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
                 return "mdi:home-thermometer"
             if current == DeviceCurrentModeEnum.ECO:
                 return "mdi:leaf"
-            if current == DeviceCurrentModeEnum.FROST_PROTECTION:
+            if current == DeviceCurrentModeEnum.AWAY:
                 return "mdi:snowflake-alert"
             if current == DeviceCurrentModeEnum.TEMPERATURE:
                 return "mdi:thermometer"

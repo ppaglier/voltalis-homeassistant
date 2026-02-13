@@ -1,35 +1,41 @@
 from logging import Logger
 
-from custom_components.voltalis.lib.application.devices_management.handlers.disable_manual_mode_handler import (
+from custom_components.voltalis.lib.application.devices_management.handlers.climates.disable_manual_mode_handler import (  # noqa: E501
     DisableManualModeHandler,
 )
-from custom_components.voltalis.lib.application.devices_management.handlers.get_device_current_mode_handler import (
-    GetDeviceCurrentModeHandler,
+from custom_components.voltalis.lib.application.devices_management.handlers.climates.get_climate_current_action_handler import (  # noqa: E501
+    GetClimateCurrentActionHandler,
 )
-from custom_components.voltalis.lib.application.devices_management.handlers.get_device_current_preset_handler import (
-    GetDeviceCurrentPresetHandler,
+from custom_components.voltalis.lib.application.devices_management.handlers.climates.set_climate_action_handler import (
+    SetClimateActionHandler,
 )
-from custom_components.voltalis.lib.application.devices_management.handlers.get_devices import GetDevicesHandler
-from custom_components.voltalis.lib.application.devices_management.handlers.get_devices_daily_consumption_handler import (  # noqa: E501
-    GetDevicesDailyConsumptionHandler,
-)
-from custom_components.voltalis.lib.application.devices_management.handlers.get_devices_health_handler import (
-    GetDevicesHealthHandler,
-)
-from custom_components.voltalis.lib.application.devices_management.handlers.get_water_heater_current_operation_handler import (  # noqa: E501
-    GetWaterHeaterCurrentOperationHandler,
-)
-from custom_components.voltalis.lib.application.devices_management.handlers.set_device_preset_handler import (
-    SetDevicePresetHandler,
-)
-from custom_components.voltalis.lib.application.devices_management.handlers.set_device_temperature_handler import (
+from custom_components.voltalis.lib.application.devices_management.handlers.climates.set_device_temperature_handler import (  # noqa: E501
     SetDeviceTemperatureHandler,
 )
-from custom_components.voltalis.lib.application.devices_management.handlers.set_water_heater_operation_handler import (
-    SetWaterHeaterOperationHandler,
-)
-from custom_components.voltalis.lib.application.devices_management.handlers.turn_off_device_handler import (
+from custom_components.voltalis.lib.application.devices_management.handlers.climates.turn_off_device_handler import (
     TurnOffDeviceHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_device_current_mode_handler import (  # noqa: E501
+    GetDeviceCurrentModeHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices import GetDevicesHandler
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_daily_consumption_handler import (  # noqa: E501
+    GetDevicesDailyConsumptionHandler,
+)  # noqa: E501
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_health_handler import (
+    GetDevicesHealthHandler,
+)  # noqa: E501
+from custom_components.voltalis.lib.application.devices_management.handlers.presets.get_device_current_preset_handler import (  # noqa: E501
+    GetDeviceCurrentPresetHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.presets.set_device_preset_handler import (
+    SetDevicePresetHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.water_heaters.get_water_heater_current_operation_handler import (  # noqa: E501
+    GetWaterHeaterCurrentOperationHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.water_heaters.set_water_heater_operation_handler import (  # noqa: E501
+    SetWaterHeaterOperationHandler,
 )
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_current_energy_contract_handler import (
     GetCurrentEnergyContractHandler,
@@ -87,26 +93,6 @@ class VoltalisModule:
             voltalis_provider=self.voltalis_provider,
         )
 
-        # Device modes
-
-        self.get_device_current_mode_handler = GetDeviceCurrentModeHandler()
-
-        self.set_device_temperature_handler = SetDeviceTemperatureHandler(
-            logger=self.logger,
-            date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
-        )
-        self.disable_manual_mode_handler = DisableManualModeHandler(
-            logger=self.logger,
-            date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
-        )
-        self.turn_off_device_handler = TurnOffDeviceHandler(
-            logger=self.logger,
-            date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
-        )
-
         # Device presets
 
         self.get_device_current_preset_handler = GetDeviceCurrentPresetHandler()
@@ -116,10 +102,38 @@ class VoltalisModule:
             voltalis_provider=self.voltalis_provider,
         )
 
-        # Water heater operations
+        # Device water heater operations
 
         self.get_water_heater_current_operation_handler = GetWaterHeaterCurrentOperationHandler()
         self.set_water_heater_operation_handler = SetWaterHeaterOperationHandler(
+            logger=self.logger,
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+
+        # Device climate management
+
+        self.get_device_current_mode_handler = GetDeviceCurrentModeHandler()
+
+        self.get_climate_current_action_handler = GetClimateCurrentActionHandler()
+        self.set_climate_action_handler = SetClimateActionHandler(
+            logger=self.logger,
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+
+        self.turn_off_device_handler = TurnOffDeviceHandler(
+            logger=self.logger,
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+
+        self.set_device_temperature_handler = SetDeviceTemperatureHandler(
+            logger=self.logger,
+            date_provider=self.date_provider,
+            voltalis_provider=self.voltalis_provider,
+        )
+        self.disable_manual_mode_handler = DisableManualModeHandler(
             logger=self.logger,
             date_provider=self.date_provider,
             voltalis_provider=self.voltalis_provider,

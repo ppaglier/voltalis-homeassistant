@@ -77,7 +77,7 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
                 return "mdi:home-thermometer"
             if current == DeviceCurrentPresetEnum.ECO:
                 return "mdi:leaf"
-            if current == DeviceCurrentPresetEnum.FROST_PROTECTION:
+            if current == DeviceCurrentPresetEnum.AWAY:
                 return "mdi:snowflake-alert"
             if current == DeviceCurrentPresetEnum.TEMPERATURE:
                 return "mdi:thermometer"

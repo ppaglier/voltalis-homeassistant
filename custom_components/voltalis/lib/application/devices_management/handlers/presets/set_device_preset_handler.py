@@ -64,7 +64,7 @@ class SetDevicePresetHandler:
             mode_mapping = {
                 DeviceCurrentPresetEnum.COMFORT: DeviceModeEnum.CONFORT,
                 DeviceCurrentPresetEnum.ECO: DeviceModeEnum.ECO,
-                DeviceCurrentPresetEnum.FROST_PROTECTION: DeviceModeEnum.HORS_GEL,
+                DeviceCurrentPresetEnum.AWAY: DeviceModeEnum.HORS_GEL,
                 DeviceCurrentPresetEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
             }
             mode = mode_mapping.get(command.preset, DeviceModeEnum.OFF)  # Default to OFF if preset is unrecognized
