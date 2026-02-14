@@ -84,7 +84,7 @@ class VoltalisModule:
         # Providers
         self.date_provider = date_provider
         self.logger = logger
-        self.voltalis_provider = voltalis_provider
+        self.__voltalis_provider = voltalis_provider
 
     def setup_handlers(self) -> None:
         """Setup the handlers."""
@@ -92,14 +92,14 @@ class VoltalisModule:
         # Devices management
         self.get_devices_handler = GetDevicesHandler(
             logger=self.logger,
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
         self.get_devices_health_handler = GetDevicesHealthHandler(
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
         self.get_devices_daily_consumption_handler = GetDevicesDailyConsumptionHandler(
             date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
         self.get_device_mode_handler = GetDeviceModeHandler()
 
@@ -110,7 +110,7 @@ class VoltalisModule:
         self.set_device_preset_handler = SetDevicePresetHandler(
             logger=self.logger,
             date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
 
         # Device water heater operations
@@ -119,7 +119,7 @@ class VoltalisModule:
         self.set_water_heater_operation_handler = SetWaterHeaterOperationHandler(
             logger=self.logger,
             date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
 
         # Device climate management
@@ -132,30 +132,30 @@ class VoltalisModule:
         self.set_climate_action_handler = SetClimateActionHandler(
             logger=self.logger,
             date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
 
         self.turn_off_device_handler = TurnOffDeviceHandler(
             logger=self.logger,
             date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
 
         self.set_device_temperature_handler = SetDeviceTemperatureHandler(
             logger=self.logger,
             date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
         self.disable_manual_mode_handler = DisableManualModeHandler(
             logger=self.logger,
             date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
 
         # energy contracts
         self.get_current_energy_contract_handler = GetCurrentEnergyContractHandler(
             date_provider=self.date_provider,
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
         self.get_energy_contract_current_mode_handler = GetEnergyContractCurrentModeHandler(
             date_provider=self.date_provider,
@@ -164,13 +164,13 @@ class VoltalisModule:
             logger=self.logger,
         )
         self.get_live_consumption_handler = GetLiveConsumptionHandler(
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
 
         # programs management
         self.get_programs_handler = GetProgramsHandler(
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
         self.set_program_handler = SetProgramHandler(
-            voltalis_provider=self.voltalis_provider,
+            voltalis_provider=self.__voltalis_provider,
         )
