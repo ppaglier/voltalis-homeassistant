@@ -9,6 +9,6 @@ class GetEnergyContractCurrentKwCostQuery(CustomModel):
 
     current_mode: EnergyContractCurrentModeEnum
 
-    base_kwh_cost: float
-    peak_kwh_cost: float
-    offpeak_kwh_cost: float
+    base_kwh_cost: float | None
+    peak_kwh_cost: float | None
+    offpeak_kwh_cost: float | None

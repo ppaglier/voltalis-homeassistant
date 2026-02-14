@@ -6,6 +6,12 @@ from custom_components.voltalis.lib.application.devices_management.handlers.clim
 from custom_components.voltalis.lib.application.devices_management.handlers.climates.get_climate_action_handler import (  # noqa: E501
     GetClimateActionHandler,
 )
+from custom_components.voltalis.lib.application.devices_management.handlers.climates.get_climate_mode_handler import (
+    GetClimateModeHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.climates.get_climate_presets_handler import (  # noqa: E501
+    GetClimatePresetsHandler,
+)
 from custom_components.voltalis.lib.application.devices_management.handlers.climates.set_climate_action_handler import (
     SetClimateActionHandler,
 )
@@ -95,6 +101,7 @@ class VoltalisModule:
             date_provider=self.date_provider,
             voltalis_provider=self.voltalis_provider,
         )
+        self.get_device_mode_handler = GetDeviceModeHandler()
 
         # Device presets
 
@@ -117,7 +124,9 @@ class VoltalisModule:
 
         # Device climate management
 
-        self.get_device_mode_handler = GetDeviceModeHandler()
+        self.get_climate_presets_handler = GetClimatePresetsHandler()
+
+        self.get_climate_mode_handler = GetClimateModeHandler()
 
         self.get_climate_action_handler = GetClimateActionHandler()
         self.set_climate_action_handler = SetClimateActionHandler(

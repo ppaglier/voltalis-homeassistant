@@ -1,5 +1,5 @@
 from custom_components.voltalis.lib.application.devices_management.dtos.get_device_presets_dto import (
-    GetDevicePresetsDTO,
+    GetDevicePresetsDto,
 )
 from custom_components.voltalis.lib.application.devices_management.queries.get_device_presets_query import (
     GetDevicePresetsQuery,
@@ -13,8 +13,19 @@ from custom_components.voltalis.lib.domain.devices_management.presets.device_cur
 class GetDevicePresetsHandler:
     """Handler to get the possible presets of a device."""
 
-    def handle(self, query: GetDevicePresetsQuery) -> GetDevicePresetsDTO:
+    def handle(self, query: GetDevicePresetsQuery) -> GetDevicePresetsDto:
         """Handle the query to get the possible presets of a device."""
+
+        preset_mapping = {
+            DeviceModeEnum.CONFORT: DeviceCurrentPresetEnum.COMFORT,
+            DeviceModeEnum.ECO: DeviceCurrentPresetEnum.ECO,
+            DeviceModeEnum.ECOV: DeviceCurrentPresetEnum.ECO,
+            DeviceModeEnum.HORS_GEL: DeviceCurrentPresetEnum.AWAY,
+            DeviceModeEnum.TEMPERATURE: DeviceCurrentPresetEnum.TEMPERATURE,
+            DeviceModeEnum.NORMAL: DeviceCurrentPresetEnum.ON,
+        }
+
+        available_presets = set(preset_mapping[mode] for mode in query.available_modes if mode in preset_mapping)
 
         has_ecov_mode = DeviceModeEnum.ECOV in query.available_modes
         has_on_mode = DeviceModeEnum.NORMAL in query.available_modes
@@ -30,7 +41,7 @@ class GetDevicePresetsHandler:
             ]:
                 continue
 
-            if voltalis_mode not in query.available_modes:
+            if voltalis_mode not in available_presets:
                 # Special handling for ECOV mode
                 if (has_ecov_mode and voltalis_mode != DeviceCurrentPresetEnum.ECO) or not has_ecov_mode:
                     continue
@@ -39,7 +50,7 @@ class GetDevicePresetsHandler:
             if voltalis_mode not in possible_presets:
                 possible_presets.append(voltalis_mode)
 
-        return GetDevicePresetsDTO(
+        return GetDevicePresetsDto(
             presets=[
                 DeviceCurrentPresetEnum.AUTO,
                 *([DeviceCurrentPresetEnum.ON] if has_on_mode else []),

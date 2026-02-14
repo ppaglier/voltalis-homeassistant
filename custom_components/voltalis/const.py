@@ -1,12 +1,7 @@
 """Constants for the Voltalis integration."""
 
-from enum import StrEnum
-
-from homeassistant.components.climate import PRESET_AWAY, PRESET_COMFORT, PRESET_ECO, PRESET_HOME, PRESET_NONE
 from homeassistant.const import UnitOfTemperature
 from homeassistant.helpers import config_validation as cv
-
-from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 
 DOMAIN = "voltalis"
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -24,31 +19,3 @@ CLIMATE_DEFAULT_TEMP = 18.0
 CLIMATE_COMFORT_TEMP = 21.0
 CLIMATE_BOOST_TEMP_INCREASE = 2.0
 CLIMATE_BOOST_DURATION = 2.0  # in hours
-
-
-class HomeAssistantPresetModeEnum(StrEnum):
-    """Home Assistant presets that will be used for Voltalis devices."""
-
-    ECO = PRESET_ECO
-    COMFORT = PRESET_COMFORT
-    HOME = PRESET_HOME
-    AWAY = PRESET_AWAY
-    NONE = PRESET_NONE
-
-
-# Presets (Ordered to match typical user expectations)
-VOLTALIS_TO_HA_MODES = {
-    DeviceModeEnum.CONFORT: HomeAssistantPresetModeEnum.COMFORT,
-    DeviceModeEnum.ECO: HomeAssistantPresetModeEnum.ECO,
-    DeviceModeEnum.ECOV: HomeAssistantPresetModeEnum.ECO,
-    DeviceModeEnum.HORS_GEL: HomeAssistantPresetModeEnum.AWAY,
-    DeviceModeEnum.NORMAL: HomeAssistantPresetModeEnum.NONE,
-    DeviceModeEnum.TEMPERATURE: HomeAssistantPresetModeEnum.NONE,
-}
-
-HA_TO_VOLTALIS_MODES = {
-    HomeAssistantPresetModeEnum.COMFORT: DeviceModeEnum.CONFORT,
-    HomeAssistantPresetModeEnum.ECO: DeviceModeEnum.ECO,
-    HomeAssistantPresetModeEnum.AWAY: DeviceModeEnum.HORS_GEL,
-    HomeAssistantPresetModeEnum.NONE: DeviceModeEnum.NORMAL,
-}
