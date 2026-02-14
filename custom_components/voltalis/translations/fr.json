@@ -31,12 +31,14 @@
       "init": {
         "title": "Options",
         "data": {
+          "log_level": "Niveau de log",
           "climate_min_temp": "Température minimale",
           "climate_max_temp": "Température maximale",
           "climate_default_temp": "Température par défaut",
           "climate_comfort_temp": "Température de confort"
         },
         "data_description": {
+          "log_level": "Niveau de verbosité des logs de l'intégration.",
           "climate_min_temp": "Température cible minimale pour les entités climate (Celsius).",
           "climate_max_temp": "Température cible maximale pour les entités climate (Celsius).",
           "climate_default_temp": "Température cible par défaut utilisée en repli (Celsius).",

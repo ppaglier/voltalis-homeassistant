@@ -15,7 +15,10 @@ from custom_components.voltalis.const import (
     CONF_CLIMATE_DEFAULT_TEMP,
     CONF_CLIMATE_MAX_TEMP,
     CONF_CLIMATE_MIN_TEMP,
+    CONF_LOG_LEVEL,
     DOMAIN,
+    LOG_LEVEL_DEFAULT,
+    LogLevelEnum,
 )
 from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
 from custom_components.voltalis.lib.domain.shared.providers.http_client import HttpClientException
@@ -217,6 +220,10 @@ class VoltalisOptionsFlowHandler(config_entries.OptionsFlow):
 
         data_schema = vol.Schema(
             {
+                vol.Optional(
+                    CONF_LOG_LEVEL,
+                    default=self._config_entry.options.get(CONF_LOG_LEVEL, LOG_LEVEL_DEFAULT),
+                ): vol.In([option.value for option in LogLevelEnum]),
                 vol.Optional(
                     CONF_CLIMATE_MIN_TEMP,
                     default=self._config_entry.options.get(CONF_CLIMATE_MIN_TEMP, CLIMATE_MIN_TEMP),
