@@ -26,6 +26,25 @@
       "reconfigure_successful": "Configuration updated successfully"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options",
+        "data": {
+          "climate_min_temp": "Minimum temperature",
+          "climate_max_temp": "Maximum temperature",
+          "climate_default_temp": "Default temperature",
+          "climate_comfort_temp": "Comfort temperature"
+        },
+        "data_description": {
+          "climate_min_temp": "Minimum target temperature for climate entities (Celsius).",
+          "climate_max_temp": "Maximum target temperature for climate entities (Celsius).",
+          "climate_default_temp": "Default target temperature used as fallback (Celsius).",
+          "climate_comfort_temp": "Comfort target temperature used as fallback (Celsius)."
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "device_connected": {

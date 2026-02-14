@@ -14,12 +14,12 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.const import (
     CLIMATE_BOOST_DURATION,
     CLIMATE_BOOST_TEMP_INCREASE,
-    CLIMATE_COMFORT_TEMP,
-    CLIMATE_DEFAULT_TEMP,
-    CLIMATE_MAX_TEMP,
-    CLIMATE_MIN_TEMP,
     CLIMATE_TEMP_STEP,
     CLIMATE_UNIT,
+    CONF_CLIMATE_COMFORT_TEMP,
+    CONF_CLIMATE_DEFAULT_TEMP,
+    CONF_CLIMATE_MAX_TEMP,
+    CONF_CLIMATE_MIN_TEMP,
 )
 from custom_components.voltalis.lib.application.devices_management.commands.disable_manual_mode_command import (
     DisableManualModeCommand,
@@ -63,8 +63,6 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
 
     _attr_temperature_unit = CLIMATE_UNIT
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO]
-    _attr_min_temp = CLIMATE_MIN_TEMP
-    _attr_max_temp = CLIMATE_MAX_TEMP
     _attr_target_temperature_step = CLIMATE_TEMP_STEP
     _unique_id_suffix = "climate"
 
@@ -74,6 +72,10 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         # We don't set name there because this is only one entity per device
         # and the device name is already used for the main entity.
         self._attr_name = None
+        self._attr_min_temp = entry.options[CONF_CLIMATE_MIN_TEMP]
+        self._attr_max_temp = entry.options[CONF_CLIMATE_MAX_TEMP]
+        self.__default_temp_option = entry.options[CONF_CLIMATE_DEFAULT_TEMP]
+        self.__comfort_temp_option = entry.options[CONF_CLIMATE_COMFORT_TEMP]
 
         result = self._voltalis_module.get_climate_presets_handler.handle(
             GetClimatePresetsQuery(
@@ -315,7 +317,13 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
             # Use TEMPERATURE mode if temperature is specified
             target_mode = DeviceModeEnum.TEMPERATURE
 
-        target_temp = get_appropriate_temperature(device, target_mode, temperature)
+        target_temp = get_appropriate_temperature(
+            device,
+            target_mode,
+            temperature,
+            comfort_temperature=self.__comfort_temp_option,
+            default_temperature=self.__default_temp_option,
+        )
 
         await self._voltalis_module.set_device_temperature_handler.handle(
             SetDeviceTemperatureCommand(
@@ -344,7 +352,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
                 fallback_mode=device.programming.mode or DeviceModeEnum.ECO,
                 fallback_temperature=device.programming.temperature_target
                 or device.programming.default_temperature
-                or CLIMATE_DEFAULT_TEMP,
+                or self.__default_temp_option,
             )
         )
 
@@ -360,7 +368,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
             raise HomeAssistantError(f"Device {device.id} does not support manual settings")
 
         target_mode = DeviceModeEnum.CONFORT
-        target_temp = CLIMATE_COMFORT_TEMP + CLIMATE_BOOST_TEMP_INCREASE
+        target_temp = self.__comfort_temp_option + CLIMATE_BOOST_TEMP_INCREASE
 
         # If the device isn't in temperature mode, we can boost by increasing the target temperature above comfort temp
         if self.preset_mode == DeviceCurrentPresetEnum.OFF and device.programming.temperature_target:

@@ -6,6 +6,11 @@ from homeassistant.helpers import config_validation as cv
 DOMAIN = "voltalis"
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
+CONF_CLIMATE_MIN_TEMP = "climate_min_temp"
+CONF_CLIMATE_MAX_TEMP = "climate_max_temp"
+CONF_CLIMATE_DEFAULT_TEMP = "climate_default_temp"
+CONF_CLIMATE_COMFORT_TEMP = "climate_comfort_temp"
+
 VOLTALIS_API_BASE_URL = "https://api.myvoltalis.com"
 VOLTALIS_API_LOGIN_ROUTE = "/auth/login"
 

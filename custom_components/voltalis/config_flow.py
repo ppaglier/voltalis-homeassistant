@@ -2,10 +2,21 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from custom_components.voltalis.const import DOMAIN
+from custom_components.voltalis.const import (
+    CLIMATE_COMFORT_TEMP,
+    CLIMATE_DEFAULT_TEMP,
+    CLIMATE_MAX_TEMP,
+    CLIMATE_MIN_TEMP,
+    CONF_CLIMATE_COMFORT_TEMP,
+    CONF_CLIMATE_DEFAULT_TEMP,
+    CONF_CLIMATE_MAX_TEMP,
+    CONF_CLIMATE_MIN_TEMP,
+    DOMAIN,
+)
 from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
 from custom_components.voltalis.lib.domain.shared.providers.http_client import HttpClientException
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
@@ -186,3 +197,43 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=data_schema,
             errors=errors,
         )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
+        return VoltalisOptionsFlowHandler(config_entry)
+
+
+class VoltalisOptionsFlowHandler(config_entries.OptionsFlow):
+    """Options flow for Voltalis."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        self._config_entry = config_entry
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> config_entries.ConfigFlowResult:
+        """Handle options flow."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        data_schema = vol.Schema(
+            {
+                vol.Optional(
+                    CONF_CLIMATE_MIN_TEMP,
+                    default=self._config_entry.options.get(CONF_CLIMATE_MIN_TEMP, CLIMATE_MIN_TEMP),
+                ): vol.Coerce(float),
+                vol.Optional(
+                    CONF_CLIMATE_MAX_TEMP,
+                    default=self._config_entry.options.get(CONF_CLIMATE_MAX_TEMP, CLIMATE_MAX_TEMP),
+                ): vol.Coerce(float),
+                vol.Optional(
+                    CONF_CLIMATE_DEFAULT_TEMP,
+                    default=self._config_entry.options.get(CONF_CLIMATE_DEFAULT_TEMP, CLIMATE_DEFAULT_TEMP),
+                ): vol.Coerce(float),
+                vol.Optional(
+                    CONF_CLIMATE_COMFORT_TEMP,
+                    default=self._config_entry.options.get(CONF_CLIMATE_COMFORT_TEMP, CLIMATE_COMFORT_TEMP),
+                ): vol.Coerce(float),
+            }
+        )
+
+        return self.async_show_form(step_id="init", data_schema=data_schema)
