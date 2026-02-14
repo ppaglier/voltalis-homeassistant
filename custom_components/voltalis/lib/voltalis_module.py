@@ -1,9 +1,5 @@
 from logging import Logger
 
-from custom_components.voltalis.lib.application.devices_management.handlers.presets._handler import (  # noqa: E501
-    GetDevicePresetHandler,
-)
-
 from custom_components.voltalis.lib.application.devices_management.handlers.climates.disable_manual_mode_handler import (  # noqa: E501
     DisableManualModeHandler,
 )
@@ -29,6 +25,12 @@ from custom_components.voltalis.lib.application.devices_management.handlers.devi
 from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_health_handler import (
     GetDevicesHealthHandler,
 )  # noqa: E501
+from custom_components.voltalis.lib.application.devices_management.handlers.presets.get_device_preset_handler import (
+    GetDevicePresetHandler,
+)
+from custom_components.voltalis.lib.application.devices_management.handlers.presets.get_device_presets_handler import (
+    GetDevicePresetsHandler,
+)
 from custom_components.voltalis.lib.application.devices_management.handlers.presets.set_device_preset_handler import (
     SetDevicePresetHandler,
 )
@@ -96,7 +98,8 @@ class VoltalisModule:
 
         # Device presets
 
-        self._handler = GetDevicePresetHandler()
+        self.get_device_presets_handler = GetDevicePresetsHandler()
+        self.get_device_preset_handler = GetDevicePresetHandler()
         self.set_device_preset_handler = SetDevicePresetHandler(
             logger=self.logger,
             date_provider=self.date_provider,

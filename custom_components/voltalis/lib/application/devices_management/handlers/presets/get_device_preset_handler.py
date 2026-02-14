@@ -8,10 +8,10 @@ from custom_components.voltalis.lib.domain.devices_management.presets.device_cur
 
 
 class GetDevicePresetHandler:
-    """Handler to get the health of the devices."""
+    """Handler to get the current preset of a device."""
 
     def handle(self, query: GetDevicePresetQuery) -> DeviceCurrentPresetEnum | None:
-        """Handle the request to get the health of the devices."""
+        """Get the current preset of the device based on its mode and programming state."""
 
         # Check if device is off
         if query.is_on is False:
