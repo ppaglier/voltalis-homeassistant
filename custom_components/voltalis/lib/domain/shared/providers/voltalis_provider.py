@@ -12,7 +12,7 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device imp
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
+from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 
 
 class VoltalisProvider(ABC):

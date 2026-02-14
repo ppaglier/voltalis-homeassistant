@@ -10,7 +10,7 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import (
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import (
     ProgramTypeEnum,
 )
 

@@ -1,6 +1,6 @@
+from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import ProgramTypeEnum
 
 
 class VoltalisProgramDto(CustomModel):

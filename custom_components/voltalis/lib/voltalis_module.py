@@ -1,10 +1,14 @@
 from logging import Logger
 
+from custom_components.voltalis.lib.application.devices_management.handlers.presets._handler import (  # noqa: E501
+    GetDevicePresetHandler,
+)
+
 from custom_components.voltalis.lib.application.devices_management.handlers.climates.disable_manual_mode_handler import (  # noqa: E501
     DisableManualModeHandler,
 )
-from custom_components.voltalis.lib.application.devices_management.handlers.climates.get_climate_current_action_handler import (  # noqa: E501
-    GetClimateCurrentActionHandler,
+from custom_components.voltalis.lib.application.devices_management.handlers.climates.get_climate_action_handler import (  # noqa: E501
+    GetClimateActionHandler,
 )
 from custom_components.voltalis.lib.application.devices_management.handlers.climates.set_climate_action_handler import (
     SetClimateActionHandler,
@@ -15,8 +19,8 @@ from custom_components.voltalis.lib.application.devices_management.handlers.clim
 from custom_components.voltalis.lib.application.devices_management.handlers.climates.turn_off_device_handler import (
     TurnOffDeviceHandler,
 )
-from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_device_current_mode_handler import (  # noqa: E501
-    GetDeviceCurrentModeHandler,
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_device_mode_handler import (  # noqa: E501
+    GetDeviceModeHandler,
 )
 from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices import GetDevicesHandler
 from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_daily_consumption_handler import (  # noqa: E501
@@ -25,9 +29,6 @@ from custom_components.voltalis.lib.application.devices_management.handlers.devi
 from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_health_handler import (
     GetDevicesHealthHandler,
 )  # noqa: E501
-from custom_components.voltalis.lib.application.devices_management.handlers.presets.get_device_current_preset_handler import (  # noqa: E501
-    GetDeviceCurrentPresetHandler,
-)
 from custom_components.voltalis.lib.application.devices_management.handlers.presets.set_device_preset_handler import (
     SetDevicePresetHandler,
 )
@@ -49,11 +50,11 @@ from custom_components.voltalis.lib.application.energy_contracts.handlers.get_en
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_live_consumption_handler import (
     GetLiveConsumptionHandler,
 )
-from custom_components.voltalis.lib.application.voltalis_programs_management.handlers.get_programs_handler import (
+from custom_components.voltalis.lib.application.programs_management.handlers.get_programs_handler import (
     GetProgramsHandler,
 )
-from custom_components.voltalis.lib.application.voltalis_programs_management.handlers.set_current_program_handler import (  # noqa: E501
-    SetCurrentProgramHandler,
+from custom_components.voltalis.lib.application.programs_management.handlers.set_program_handler import (  # noqa: E501
+    SetProgramHandler,
 )
 from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
@@ -95,7 +96,7 @@ class VoltalisModule:
 
         # Device presets
 
-        self.get_device_current_preset_handler = GetDeviceCurrentPresetHandler()
+        self._handler = GetDevicePresetHandler()
         self.set_device_preset_handler = SetDevicePresetHandler(
             logger=self.logger,
             date_provider=self.date_provider,
@@ -113,9 +114,9 @@ class VoltalisModule:
 
         # Device climate management
 
-        self.get_device_current_mode_handler = GetDeviceCurrentModeHandler()
+        self.get_device_mode_handler = GetDeviceModeHandler()
 
-        self.get_climate_current_action_handler = GetClimateCurrentActionHandler()
+        self.get_climate_action_handler = GetClimateActionHandler()
         self.set_climate_action_handler = SetClimateActionHandler(
             logger=self.logger,
             date_provider=self.date_provider,
@@ -158,6 +159,6 @@ class VoltalisModule:
         self.get_programs_handler = GetProgramsHandler(
             voltalis_provider=self.voltalis_provider,
         )
-        self.set_current_program_handler = SetCurrentProgramHandler(
+        self.set_program_handler = SetProgramHandler(
             voltalis_provider=self.voltalis_provider,
         )

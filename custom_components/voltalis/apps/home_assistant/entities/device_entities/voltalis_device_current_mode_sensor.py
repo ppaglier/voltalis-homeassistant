@@ -8,11 +8,11 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisDeviceEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_device_current_mode_handler import (  # noqa: E501
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_device_mode_handler import (  # noqa: E501
     DeviceCurrentModeEnum,
 )
-from custom_components.voltalis.lib.application.devices_management.queries.get_device_current_mode_query import (
-    GetDeviceCurrentModeQuery,
+from custom_components.voltalis.lib.application.devices_management.queries.get_device_mode_query import (
+    GetDeviceModeQuery,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 
@@ -57,8 +57,8 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
             self._voltalis_module.logger.warning("Device %s not found in coordinator data", self._device.id)
             return
 
-        self._attr_native_value = self._voltalis_module.get_device_current_mode_handler.handle(
-            GetDeviceCurrentModeQuery(
+        self._attr_native_value = self._voltalis_module.get_device_mode_handler.handle(
+            GetDeviceModeQuery(
                 is_on=device.programming.is_on,
                 mode=device.programming.mode,
             )

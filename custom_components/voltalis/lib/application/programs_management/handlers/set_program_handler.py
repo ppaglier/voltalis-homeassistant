@@ -1,9 +1,9 @@
+from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
 
 
-class SetCurrentProgramHandler:
-    """Handler to set the current program."""
+class SetProgramHandler:
+    """Handler to set the program."""
 
     def __init__(
         self,
@@ -18,7 +18,7 @@ class SetCurrentProgramHandler:
         new_program: Program | None,
         old_program: Program | None = None,
     ) -> None:
-        """Handle the request to set the current program."""
+        """Handle the request to set the program."""
 
         if old_program is not None:
             old_program.enabled = False

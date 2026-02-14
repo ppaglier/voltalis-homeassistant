@@ -2,7 +2,7 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device_enu
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
 
-class GetDeviceCurrentPresetQuery(CustomModel):
+class GetDevicePresetQuery(CustomModel):
     """Query to get the current preset of devices."""
 
     is_on: bool

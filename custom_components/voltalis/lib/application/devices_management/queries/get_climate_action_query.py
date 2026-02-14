@@ -2,7 +2,7 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device_enu
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
 
-class GetClimateCurrentActionQuery(CustomModel):
+class GetClimateActionQuery(CustomModel):
     """Query to get the current action of a climate device."""
 
     is_on: bool

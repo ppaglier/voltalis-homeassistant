@@ -7,7 +7,7 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisBaseEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
+from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 
 
 class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
@@ -103,7 +103,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         if old_program and new_program and old_program.id == new_program.id:
             return
 
-        await self._voltalis_module.set_current_program_handler.handle(
+        await self._voltalis_module.set_program_handler.handle(
             new_program=new_program,
             old_program=old_program,
         )

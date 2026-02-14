@@ -1,5 +1,5 @@
+from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
 
 
 class GetProgramsHandler:

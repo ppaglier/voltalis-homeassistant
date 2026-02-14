@@ -16,6 +16,8 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device imp
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
+from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.domain.shared.exceptions import (
     VoltalisConnectionException,
     VoltalisValidationException,
@@ -26,8 +28,6 @@ from custom_components.voltalis.lib.domain.shared.providers.http_client import (
     HttpClientResponse,
 )
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device import VoltalisDeviceDto
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device_consumption import (
     VoltalisConsumptionDto,

@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program import Program
+from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 
 
 class VoltalisProgramCoordinator(BaseVoltalisCoordinator[dict[int, Program]]):

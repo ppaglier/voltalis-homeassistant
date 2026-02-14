@@ -12,8 +12,8 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.lib.application.devices_management.commands.set_device_preset_command import (
     SetDevicePresetCommand,
 )
-from custom_components.voltalis.lib.application.devices_management.queries.get_device_current_preset_query import (
-    GetDeviceCurrentPresetQuery,
+from custom_components.voltalis.lib.application.devices_management.queries.get_device_preset_query import (
+    GetDevicePresetQuery,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
@@ -97,8 +97,8 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
             self._voltalis_module.logger.warning("Device %s not found in coordinator data", self._device.id)
             return
 
-        current_preset = self._voltalis_module.get_device_current_preset_handler.handle(
-            GetDeviceCurrentPresetQuery(
+        current_preset = self._voltalis_module._handler.handle(
+            GetDevicePresetQuery(
                 is_on=device.programming.is_on,
                 id_manual_setting=device.programming.id_manual_setting,
                 mode=device.programming.mode,

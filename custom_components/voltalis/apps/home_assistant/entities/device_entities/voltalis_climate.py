@@ -34,8 +34,8 @@ from custom_components.voltalis.lib.application.devices_management.commands.turn
 from custom_components.voltalis.lib.application.devices_management.helpers.get_appropriate_temperature import (
     get_appropriate_temperature,
 )
-from custom_components.voltalis.lib.application.devices_management.queries.get_climate_current_action_query import (
-    GetClimateCurrentActionQuery,
+from custom_components.voltalis.lib.application.devices_management.queries.get_climate_action_query import (
+    GetClimateActionQuery,
 )
 from custom_components.voltalis.lib.application.devices_management.queries.set_climate_action_command import (
     SetClimateActionCommand,
@@ -43,7 +43,7 @@ from custom_components.voltalis.lib.application.devices_management.queries.set_c
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import ManualSettingUpdate
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import (
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import (
     ProgramTypeEnum,
 )
 
@@ -166,8 +166,8 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         """Return current HVAC action."""
         device = self._current_device
 
-        return self._voltalis_module.get_climate_current_action_handler.handle(
-            GetClimateCurrentActionQuery(
+        return self._voltalis_module.get_climate_action_handler.handle(
+            GetClimateActionQuery(
                 is_on=device.programming.is_on,
                 mode=device.programming.mode,
             )

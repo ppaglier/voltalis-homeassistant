@@ -1,15 +1,15 @@
 from homeassistant.components.climate.const import HVACAction
 
-from custom_components.voltalis.lib.application.devices_management.queries.get_climate_current_action_query import (
-    GetClimateCurrentActionQuery,
+from custom_components.voltalis.lib.application.devices_management.queries.get_climate_action_query import (
+    GetClimateActionQuery,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 
 
-class GetClimateCurrentActionHandler:
+class GetClimateActionHandler:
     """Handler to get the current action of a climate device."""
 
-    def handle(self, query: GetClimateCurrentActionQuery) -> HVACAction:
+    def handle(self, query: GetClimateActionQuery) -> HVACAction:
         """Handle the query to get the current action of a climate device."""
 
         # Check if device is off

@@ -4,7 +4,7 @@ from custom_components.voltalis.lib.application.devices_management.queries.get_w
 from custom_components.voltalis.lib.domain.devices_management.water_heaters.water_heater_current_operations_enum import (  # noqa: E501
     WaterHeaterCurrentOperationEnum,
 )
-from custom_components.voltalis.lib.domain.voltalis_programs_management.programs.program_enum import ProgramTypeEnum
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 
 
 class GetWaterHeaterCurrentOperationHandler:

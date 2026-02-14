@@ -1,5 +1,5 @@
-from custom_components.voltalis.lib.application.devices_management.queries.get_device_current_preset_query import (
-    GetDeviceCurrentPresetQuery,
+from custom_components.voltalis.lib.application.devices_management.queries.get_device_preset_query import (
+    GetDevicePresetQuery,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
@@ -7,10 +7,10 @@ from custom_components.voltalis.lib.domain.devices_management.presets.device_cur
 )
 
 
-class GetDeviceCurrentPresetHandler:
+class GetDevicePresetHandler:
     """Handler to get the health of the devices."""
 
-    def handle(self, query: GetDeviceCurrentPresetQuery) -> DeviceCurrentPresetEnum | None:
+    def handle(self, query: GetDevicePresetQuery) -> DeviceCurrentPresetEnum | None:
         """Handle the request to get the health of the devices."""
 
         # Check if device is off
