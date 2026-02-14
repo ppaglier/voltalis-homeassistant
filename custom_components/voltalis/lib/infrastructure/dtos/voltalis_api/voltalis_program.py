@@ -19,6 +19,7 @@ class VoltalisProgramDto(CustomModel):
             "quicksettings.longleave": "quicksettings-longleave",
             "quicksettings.shortleave": "quicksettings-shortleave",
             "quicksettings.athome": "quicksettings-athome",
+            "program.default": "program-default",
         }
 
         if name in mapping:

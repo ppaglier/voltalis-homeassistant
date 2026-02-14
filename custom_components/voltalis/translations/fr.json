@@ -125,7 +125,8 @@
           "internal_program-none": "Aucun programme",
           "quicksettings-longleave": "Vacances",
           "quicksettings-shortleave": "Absence courte",
-          "quicksettings-athome": "Boost"
+          "quicksettings-athome": "Boost",
+          "program-default": "Programme prédéfini"
         }
       }
     },
