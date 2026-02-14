@@ -133,12 +133,6 @@ class ClimateManagementService:
 
         await self.__voltalis_provider.set_manual_setting(manual_setting_id, setting)
 
-        self.__logger.info(
-            "Device %s turned off, duration=%s hours",
-            device_id,
-            duration_hours or "indefinite",
-        )
-
     def __calculate_end_date(self, duration_hours: int | None) -> tuple[str | None, bool]:
         """Calculate end date and until_further_notice flag based on duration.
 

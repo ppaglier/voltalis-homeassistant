@@ -54,11 +54,11 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
-        await self.__set_mode(is_on=True, mode=self.__on_mode)
+        await self.__toggle(is_on=True)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the entity off."""
-        await self.__set_mode(is_on=False)
+        await self.__toggle(is_on=False)
 
     # ------------------------------------------------------------------
     # Internal helper methods
@@ -69,9 +69,7 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
 
         # If turning on, prefer comfort mode if available
         if is_on:
-            if DeviceModeEnum.CONFORT in device.available_modes:
-                return DeviceModeEnum.CONFORT
-            return self.__on_mode  # Fallback to default on mode
+            return self.__on_mode
 
         # If turning off, keep current mode if possible
         if device.programming.mode and device.programming.mode in device.available_modes:
@@ -80,11 +78,7 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
         # Fallback to default on mode when turning off (to ensure proper temperature selection)
         return self.__on_mode
 
-    async def __set_mode(
-        self,
-        is_on: bool,
-        mode: DeviceModeEnum | None = None,
-    ) -> None:
+    async def __toggle(self, is_on: bool) -> None:
         """Set manual mode for the device.
 
         When turning on, forces comfort mode for immediate heating.
@@ -97,7 +91,7 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
             raise HomeAssistantError(f"Manual setting not available for device {device.id}")
 
         # Determine target mode
-        target_mode = self.__get_appropriate_mode(device, is_on) if mode is None else mode
+        target_mode = self.__get_appropriate_mode(device, is_on)
 
         if not is_on:
             await self._voltalis_module.turn_off_device_handler.handle(
