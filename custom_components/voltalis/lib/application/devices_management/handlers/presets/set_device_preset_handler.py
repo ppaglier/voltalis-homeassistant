@@ -36,8 +36,13 @@ class SetDevicePresetHandler:
     async def handle(self, command: SetDevicePresetCommand) -> None:
         """Handle the request to set a preset for a device."""
 
+        command_preset = command.preset
+        # Prevent setting OFF preset if device is not a climate (because climate presets aren't using the real presets)
+        if command_preset == DeviceCurrentPresetEnum.OFF and command.climate_mode:
+            command_preset = DeviceCurrentPresetEnum.TEMPERATURE
+
         # Handle AUTO preset - disable manual mode
-        if command.preset == DeviceCurrentPresetEnum.AUTO:
+        if command_preset == DeviceCurrentPresetEnum.AUTO:
             await self.__climate_service.disable_manual_mode(
                 manual_setting_id=command.manual_setting_id,
                 device_id=command.device.id,
@@ -46,7 +51,7 @@ class SetDevicePresetHandler:
             return
 
         # Handle OFF preset
-        if command.preset == DeviceCurrentPresetEnum.OFF:
+        if command_preset == DeviceCurrentPresetEnum.OFF:
             await self.__climate_service.turn_off(
                 manual_setting_id=command.manual_setting_id,
                 device_id=command.device.id,
@@ -55,9 +60,9 @@ class SetDevicePresetHandler:
             )
             return
 
-        if command.has_ecov_mode and command.preset == DeviceCurrentPresetEnum.ECO:
+        if command.has_ecov_mode and command_preset == DeviceCurrentPresetEnum.ECO:
             mode = DeviceModeEnum.ECOV
-        elif command.has_on_mode and command.preset == DeviceCurrentPresetEnum.ON:
+        elif command.has_on_mode and command_preset == DeviceCurrentPresetEnum.ON:
             mode = DeviceModeEnum.NORMAL
         else:
             # Handle other presets (COMFORT, ECO, FROST_PROTECTION)
@@ -67,7 +72,7 @@ class SetDevicePresetHandler:
                 DeviceCurrentPresetEnum.AWAY: DeviceModeEnum.HORS_GEL,
                 DeviceCurrentPresetEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
             }
-            mode = mode_mapping.get(command.preset, DeviceModeEnum.OFF)  # Default to OFF if preset is unrecognized
+            mode = mode_mapping.get(command_preset, DeviceModeEnum.OFF)  # Default to OFF if preset is unrecognized
 
         temperature = get_appropriate_temperature(command.device, mode, command.temperature)
 

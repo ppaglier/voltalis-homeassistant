@@ -248,6 +248,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
                 is_on=device.programming.is_on,
                 id_manual_setting=device.manual_setting.id,
                 mode=device.programming.mode,
+                climate_mode=True,
             )
         )
 
@@ -264,6 +265,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
                 device=device,
                 preset=DeviceCurrentPresetEnum(preset_mode),
                 has_ecov_mode=self.__has_ecov_mode,
+                climate_mode=True,
             )
         )
 

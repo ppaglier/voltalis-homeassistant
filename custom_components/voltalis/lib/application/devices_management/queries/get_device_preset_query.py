@@ -8,3 +8,4 @@ class GetDevicePresetQuery(CustomModel):
     is_on: bool
     id_manual_setting: int | None = None
     mode: DeviceModeEnum | None = None
+    climate_mode: bool = False

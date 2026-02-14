@@ -24,6 +24,11 @@ class GetDevicePresetHandler:
         if query.mode is None:
             return None
 
+        query_mode = query.mode
+        if query_mode == DeviceModeEnum.TEMPERATURE and query.climate_mode:
+            # For climate devices in TEMPERATURE mode, we consider the preset to be OFF
+            return DeviceCurrentPresetEnum.OFF
+
         mode_mapping = {
             DeviceModeEnum.CONFORT: DeviceCurrentPresetEnum.COMFORT,
             DeviceModeEnum.ECO: DeviceCurrentPresetEnum.ECO,

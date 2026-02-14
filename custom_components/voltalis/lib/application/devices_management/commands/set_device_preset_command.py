@@ -23,3 +23,4 @@ class SetDevicePresetCommand(CustomModel):
     duration_hours: int | None = None
     has_ecov_mode: bool = False
     has_on_mode: bool = False
+    climate_mode: bool = False
