@@ -22,7 +22,7 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
     VoltalisConfigEntry,
     VoltalisConfigEntryData,
 )
-from custom_components.voltalis.const import CONF_LOG_LEVEL, DOMAIN, LogLevelEnum
+from custom_components.voltalis.const import CONF_LOG_LEVEL, DEFAULT_LOG_LEVEL, DOMAIN, LogLevelEnum
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_voltalis_api import (
@@ -57,7 +57,7 @@ class VoltalisHomeAssistantModule(VoltalisModule):
 
         logger = logging.getLogger("voltalis-home_assistant")
 
-        log_level: LogLevelEnum = entry.options[CONF_LOG_LEVEL]
+        log_level: LogLevelEnum = entry.options.get(CONF_LOG_LEVEL, DEFAULT_LOG_LEVEL)
         log_level_mapping = {
             LogLevelEnum.DEBUG: logging.DEBUG,
             LogLevelEnum.INFO: logging.INFO,

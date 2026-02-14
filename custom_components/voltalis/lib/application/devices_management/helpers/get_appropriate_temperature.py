@@ -1,4 +1,4 @@
-from custom_components.voltalis.const import CLIMATE_COMFORT_TEMP, CLIMATE_DEFAULT_TEMP
+from custom_components.voltalis.const import DEFAULT_CLIMATE_COMFORT_TEMP, DEFAULT_CLIMATE_DEFAULT_TEMP
 from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 
@@ -7,8 +7,8 @@ def get_appropriate_temperature(
     device: DeviceDto,
     mode: DeviceModeEnum,
     specified_temperature: float | None = None,
-    comfort_temperature: float = CLIMATE_COMFORT_TEMP,
-    default_temperature: float = CLIMATE_DEFAULT_TEMP,
+    comfort_temperature: float = DEFAULT_CLIMATE_COMFORT_TEMP,
+    default_temperature: float = DEFAULT_CLIMATE_DEFAULT_TEMP,
 ) -> float:
     """Determine the appropriate temperature based on mode and device programming."""
 

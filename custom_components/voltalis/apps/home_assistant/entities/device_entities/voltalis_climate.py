@@ -20,6 +20,10 @@ from custom_components.voltalis.const import (
     CONF_CLIMATE_DEFAULT_TEMP,
     CONF_CLIMATE_MAX_TEMP,
     CONF_CLIMATE_MIN_TEMP,
+    DEFAULT_CLIMATE_COMFORT_TEMP,
+    DEFAULT_CLIMATE_DEFAULT_TEMP,
+    DEFAULT_CLIMATE_MAX_TEMP,
+    DEFAULT_CLIMATE_MIN_TEMP,
 )
 from custom_components.voltalis.lib.application.devices_management.commands.disable_manual_mode_command import (
     DisableManualModeCommand,
@@ -72,10 +76,10 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         # We don't set name there because this is only one entity per device
         # and the device name is already used for the main entity.
         self._attr_name = None
-        self._attr_min_temp = entry.options[CONF_CLIMATE_MIN_TEMP]
-        self._attr_max_temp = entry.options[CONF_CLIMATE_MAX_TEMP]
-        self.__default_temp_option = entry.options[CONF_CLIMATE_DEFAULT_TEMP]
-        self.__comfort_temp_option = entry.options[CONF_CLIMATE_COMFORT_TEMP]
+        self._attr_min_temp = entry.options.get(CONF_CLIMATE_MIN_TEMP, DEFAULT_CLIMATE_MIN_TEMP)
+        self._attr_max_temp = entry.options.get(CONF_CLIMATE_MAX_TEMP, DEFAULT_CLIMATE_MAX_TEMP)
+        self.__default_temp_option = entry.options.get(CONF_CLIMATE_DEFAULT_TEMP, DEFAULT_CLIMATE_DEFAULT_TEMP)
+        self.__comfort_temp_option = entry.options.get(CONF_CLIMATE_COMFORT_TEMP, DEFAULT_CLIMATE_COMFORT_TEMP)
 
         result = self._voltalis_module.get_climate_presets_handler.handle(
             GetClimatePresetsQuery(

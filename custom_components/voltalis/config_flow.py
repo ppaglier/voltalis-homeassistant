@@ -7,17 +7,17 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.voltalis.const import (
-    CLIMATE_COMFORT_TEMP,
-    CLIMATE_DEFAULT_TEMP,
-    CLIMATE_MAX_TEMP,
-    CLIMATE_MIN_TEMP,
     CONF_CLIMATE_COMFORT_TEMP,
     CONF_CLIMATE_DEFAULT_TEMP,
     CONF_CLIMATE_MAX_TEMP,
     CONF_CLIMATE_MIN_TEMP,
     CONF_LOG_LEVEL,
+    DEFAULT_CLIMATE_COMFORT_TEMP,
+    DEFAULT_CLIMATE_DEFAULT_TEMP,
+    DEFAULT_CLIMATE_MAX_TEMP,
+    DEFAULT_CLIMATE_MIN_TEMP,
+    DEFAULT_LOG_LEVEL,
     DOMAIN,
-    LOG_LEVEL_DEFAULT,
     LogLevelEnum,
 )
 from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
@@ -222,23 +222,23 @@ class VoltalisOptionsFlowHandler(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     CONF_LOG_LEVEL,
-                    default=self._config_entry.options.get(CONF_LOG_LEVEL, LOG_LEVEL_DEFAULT),
+                    default=self._config_entry.options.get(CONF_LOG_LEVEL, DEFAULT_LOG_LEVEL),
                 ): vol.In([option.value for option in LogLevelEnum]),
                 vol.Optional(
                     CONF_CLIMATE_MIN_TEMP,
-                    default=self._config_entry.options.get(CONF_CLIMATE_MIN_TEMP, CLIMATE_MIN_TEMP),
+                    default=self._config_entry.options.get(CONF_CLIMATE_MIN_TEMP, DEFAULT_CLIMATE_MIN_TEMP),
                 ): vol.Coerce(float),
                 vol.Optional(
                     CONF_CLIMATE_MAX_TEMP,
-                    default=self._config_entry.options.get(CONF_CLIMATE_MAX_TEMP, CLIMATE_MAX_TEMP),
+                    default=self._config_entry.options.get(CONF_CLIMATE_MAX_TEMP, DEFAULT_CLIMATE_MAX_TEMP),
                 ): vol.Coerce(float),
                 vol.Optional(
                     CONF_CLIMATE_DEFAULT_TEMP,
-                    default=self._config_entry.options.get(CONF_CLIMATE_DEFAULT_TEMP, CLIMATE_DEFAULT_TEMP),
+                    default=self._config_entry.options.get(CONF_CLIMATE_DEFAULT_TEMP, DEFAULT_CLIMATE_DEFAULT_TEMP),
                 ): vol.Coerce(float),
                 vol.Optional(
                     CONF_CLIMATE_COMFORT_TEMP,
-                    default=self._config_entry.options.get(CONF_CLIMATE_COMFORT_TEMP, CLIMATE_COMFORT_TEMP),
+                    default=self._config_entry.options.get(CONF_CLIMATE_COMFORT_TEMP, DEFAULT_CLIMATE_COMFORT_TEMP),
                 ): vol.Coerce(float),
             }
         )
