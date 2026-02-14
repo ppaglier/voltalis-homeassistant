@@ -21,4 +21,6 @@ class GetEnergyContractCurrentModeHandler:
     async def handle(self, query: GetEnergyContractCurrentModeQuery) -> EnergyContractCurrentModeEnum:
         """Handle the request to get the current mode of the energy contract."""
 
-        return self.__energy_contract_service.get_current_mode(type=query.type, offpeak_hours=query.offpeak_hours)
+        return self.__energy_contract_service.get_current_mode(
+            contract_type=query.type, offpeak_hours=query.offpeak_hours
+        )

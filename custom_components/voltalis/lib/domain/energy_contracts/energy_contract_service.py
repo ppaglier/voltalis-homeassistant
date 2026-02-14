@@ -21,12 +21,12 @@ class EnergyContractService:
     def get_current_mode(
         self,
         *,
-        type: EnergyContractTypeEnum,
+        contract_type: EnergyContractTypeEnum,
         offpeak_hours: list[RangeModel[time]],
     ) -> EnergyContractCurrentModeEnum:
         """Get the current mode of the energy contract."""
 
-        if type == EnergyContractTypeEnum.BASE:
+        if contract_type == EnergyContractTypeEnum.BASE:
             return EnergyContractCurrentModeEnum.BASE
 
         now = self.__date_provider.get_now().time()
