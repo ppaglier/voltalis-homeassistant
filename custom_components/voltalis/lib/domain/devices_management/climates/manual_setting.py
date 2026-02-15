@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
@@ -11,7 +13,7 @@ class ManualSetting(CustomModel):
     until_further_notice: bool
     is_on: bool
     mode: DeviceModeEnum
-    end_date: str | None = None
+    end_date: datetime | None = None
     temperature_target: float
 
 
@@ -23,5 +25,5 @@ class ManualSettingUpdate(CustomModel):
     until_further_notice: bool
     is_on: bool
     mode: DeviceModeEnum
-    end_date: str | None = None
+    end_date: datetime | None = None
     temperature_target: float

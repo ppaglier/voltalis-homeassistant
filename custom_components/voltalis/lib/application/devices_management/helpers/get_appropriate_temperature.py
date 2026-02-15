@@ -20,11 +20,11 @@ def get_appropriate_temperature(
 
     if use_device_programming:
         # Use device programming temperature if available
-        if device.programming.temperature_target:
+        if device.programming.temperature_target is not None:
             return device.programming.temperature_target
 
         # Use default temperature from device programming
-        if device.programming.default_temperature:
+        if device.programming.default_temperature is not None:
             return device.programming.default_temperature
 
     mode_mapping = {

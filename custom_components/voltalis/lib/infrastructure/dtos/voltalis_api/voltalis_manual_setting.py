@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import Field
 
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import ManualSetting
@@ -13,7 +15,7 @@ class VoltalisManualSettingUpdateDto(CustomModel):
     until_further_notice: bool = Field(alias="untilFurtherNotice")
     is_on: bool = Field(alias="isOn")
     mode: VoltalisDeviceDtoModeEnum
-    end_date: str | None = Field(None, alias="endDate")
+    end_date: datetime | None = Field(None, alias="endDate")
     temperature_target: float = Field(alias="temperatureTarget")
 
 

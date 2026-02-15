@@ -25,8 +25,6 @@ set_manual_mode:
               label: "None"
             - value: "comfort"
               label: "Comfort"
-            - value: "home"
-              label: "Home"
     temperature:
       name: Temperature
       description: The target temperature in Celsius. If set, the device will use temperature mode.

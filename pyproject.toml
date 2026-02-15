@@ -14,6 +14,7 @@ packages = [{ include = "custom_components" }]
 "format" = { cmd = "ruff format --check", help = "Check formatter accross the project" }
 "format:fix" = { cmd = "ruff format", help = "Check formatter accross the project & autofix errors" }
 "typecheck" = { cmd = "mypy custom_components", help = "Check typing accross the project" }
+"test:unit" = { cmd = "pytest -m unit", help = "Runs all unit tests" }
 "test:integration" = { cmd = "pytest -m integration", help = "Runs all integration tests" }
 "test:e2e" = { cmd = "pytest -m e2e", help = "Runs all e2e tests" }
 "test:all" = { cmd = "pytest", help = "Runs all tests" }
@@ -25,6 +26,7 @@ packages = [{ include = "custom_components" }]
 cache_dir = ".venv/.pytest_cache"
 addopts = "--strict-markers --ignore=.venv --import-mode=importlib"
 markers = [
+    "unit: units tests",
     "integration: integration tests",
     "e2e: end to end tests",
 ]

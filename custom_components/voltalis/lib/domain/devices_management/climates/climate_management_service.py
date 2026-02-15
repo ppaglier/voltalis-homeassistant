@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from logging import Logger
 
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import ManualSettingUpdate
@@ -81,7 +81,7 @@ class ClimateManagementService:
             fallback_temperature: The temperature to use as fallback (default: 16.0°C)
         """
 
-        end_date = self.__date_provider.get_now().isoformat()
+        end_date = self.__date_provider.get_now()
 
         setting = ManualSettingUpdate(
             enabled=False,
@@ -133,7 +133,7 @@ class ClimateManagementService:
 
         await self.__voltalis_provider.set_manual_setting(manual_setting_id, setting)
 
-    def __calculate_end_date(self, duration_hours: int | None) -> tuple[str | None, bool]:
+    def __calculate_end_date(self, duration_hours: int | None) -> tuple[datetime | None, bool]:
         """Calculate end date and until_further_notice flag based on duration.
 
         Args:
@@ -147,5 +147,5 @@ class ClimateManagementService:
             return None, True
 
         now = self.__date_provider.get_now()
-        end_date = (now + timedelta(hours=duration_hours)).isoformat()
+        end_date = now + timedelta(hours=duration_hours)
         return end_date, False

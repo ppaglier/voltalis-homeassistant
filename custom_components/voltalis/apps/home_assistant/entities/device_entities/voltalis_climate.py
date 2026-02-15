@@ -260,6 +260,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
                     temperature=temperature,
                     preset=preset_mode,
                     has_ecov_mode=self.__has_ecov_mode,
+                    duration_hours=duration_hours,
                 )
             )
 
@@ -307,7 +308,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         target_temp = self._voltalis_module.config.default_comfort_temp + CLIMATE_BOOST_TEMP_INCREASE
 
         # If the device isn't in temperature mode, we can boost by increasing the target temperature above comfort temp
-        if self.preset_mode == DeviceCurrentPresetEnum.OFF and device.programming.temperature_target:
+        if self.preset_mode == DeviceCurrentPresetEnum.OFF and device.programming.temperature_target is not None:
             target_temp = device.programming.temperature_target + CLIMATE_BOOST_TEMP_INCREASE
 
         # Determine the mode to use
