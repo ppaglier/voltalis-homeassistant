@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 from custom_components.voltalis.lib.application.devices_management.commands.disable_manual_mode_command import (
@@ -19,7 +21,8 @@ async def test_disable_manual_mode(fixture: DeviceManagementFixture) -> None:
     """Test the disable manual mode handler."""
 
     # Given
-    now = fixture.date_provider.get_now()
+    now = datetime(2024, 1, 4, 7, 0, 0)
+    fixture.given_now(now)
     device = DeviceBuilder().with_id(1).build()
     fixture.given_devices({device.id: device})
     manual_setting_builder = (
@@ -75,6 +78,8 @@ async def test_disable_manual_mode_with_already_disabled_manual_setting(fixture:
     """Test the disable manual mode handler when the manual setting is already disabled."""
 
     # Given
+    now = datetime(2024, 1, 4, 7, 0, 0)
+    fixture.given_now(now)
     device = DeviceBuilder().with_id(1).build()
     fixture.given_devices({device.id: device})
     manual_setting_builder = (
@@ -84,7 +89,7 @@ async def test_disable_manual_mode_with_already_disabled_manual_setting(fixture:
         .with_until_further_notice(False)
         .with_is_on(True)
         .with_mode(DeviceModeEnum.OFF)
-        .with_end_date(fixture.date_provider.get_now())
+        .with_end_date(now)
         .with_temperature_target(0.0)
     )
     manual_setting = manual_setting_builder.build()
@@ -107,7 +112,8 @@ async def test_disable_manual_mode_with_fallback_mode(fixture: DeviceManagementF
     """Test the disable manual mode handler when the device is in fallback mode."""
 
     # Given
-    now = fixture.date_provider.get_now()
+    now = datetime(2024, 1, 4, 7, 0, 0)
+    fixture.given_now(now)
     device = DeviceBuilder().with_id(1).build()
     fixture.given_devices({device.id: device})
     manual_setting_builder = (
@@ -148,7 +154,8 @@ async def test_disable_manual_mode_with_fallback_temperature(fixture: DeviceMana
     """Test the disable manual mode handler when a fallback temperature is provided."""
 
     # Given
-    now = fixture.date_provider.get_now()
+    now = datetime(2024, 1, 4, 7, 0, 0)
+    fixture.given_now(now)
     device = DeviceBuilder().with_id(1).build()
     fixture.given_devices({device.id: device})
     manual_setting_builder = (

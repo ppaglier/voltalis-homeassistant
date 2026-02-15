@@ -1,6 +1,6 @@
 from logging import Logger
 
-from homeassistant.components.climate.const import HVACMode
+from homeassistant.components.climate.const import HVACAction
 
 from custom_components.voltalis.lib.application.devices_management.helpers.get_appropriate_temperature import (
     get_appropriate_temperature,
@@ -61,21 +61,21 @@ class SetClimateActionHandler:
         )
 
         match command.action:
-            case HVACMode.OFF:
+            case HVACAction.OFF:
                 await self.__climate_service.turn_off(
                     manual_setting_id=command.device.manual_setting.id,
                     device_id=command.device.id,
                     fallback_mode=target_mode,
                     fallback_temperature=target_temp,
                 )
-            case HVACMode.HEAT:
+            case HVACAction.HEATING:
                 await self.__climate_service.set_manual_mode(
                     manual_setting_id=command.device.manual_setting.id,
                     device_id=command.device.id,
                     mode=target_mode,
                     temperature_target=target_temp,
                 )
-            case HVACMode.AUTO:
+            case HVACAction.IDLE:
                 await self.__climate_service.disable_manual_mode(
                     manual_setting_id=command.device.manual_setting.id,
                     device_id=command.device.id,

@@ -169,10 +169,16 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new HVAC mode."""
 
+        mode_to_action = {
+            HVACMode.OFF: HVACAction.OFF,
+            HVACMode.HEAT: HVACAction.HEATING,
+            HVACMode.AUTO: HVACAction.IDLE,
+        }
+
         await self._voltalis_module.set_climate_action_handler.handle(
             SetClimateActionCommand(
                 device=self._current_device,
-                action=hvac_mode,
+                action=mode_to_action[hvac_mode],
             )
         )
 
