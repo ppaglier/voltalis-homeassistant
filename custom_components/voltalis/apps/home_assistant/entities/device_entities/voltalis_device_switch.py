@@ -4,7 +4,6 @@ from typing import Any
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import callback
-from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.voltalis.apps.home_assistant.coordinators.device import DeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
@@ -64,41 +63,17 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
     # Internal helper methods
     # ------------------------------------------------------------------
 
-    def __get_appropriate_mode(self, device: DeviceDto, is_on: bool) -> DeviceModeEnum:
-        """Determine the appropriate mode based on desired on/off state and device programming."""
-
-        # If turning on, prefer comfort mode if available
-        if is_on:
-            return self.__on_mode
-
-        # If turning off, keep current mode if possible
-        if device.programming.mode and device.programming.mode in device.available_modes:
-            return device.programming.mode
-
-        # Fallback to default on mode when turning off (to ensure proper temperature selection)
-        return self.__on_mode
-
     async def __toggle(self, is_on: bool) -> None:
         """Set manual mode for the device.
 
         When turning on, forces comfort mode for immediate heating.
         When turning off, maintains current mode.
         """
-        device = self._current_device
-
-        # Get manual setting ID
-        if not device.manual_setting:
-            raise HomeAssistantError(f"Manual setting not available for device {device.id}")
-
-        # Determine target mode
-        target_mode = self.__get_appropriate_mode(device, is_on)
 
         if not is_on:
             await self._voltalis_module.turn_off_device_handler.handle(
                 TurnOffDeviceCommand(
-                    manual_setting_id=device.manual_setting.id,
-                    device=device,
-                    fallback_mode=target_mode,
+                    device=self._current_device,
                     duration_hours=None,  # Indefinite until user turns it back on
                 )
             )
@@ -106,9 +81,8 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
 
         await self._voltalis_module.set_device_temperature_handler.handle(
             SetDeviceTemperatureCommand(
-                manual_setting_id=device.manual_setting.id,
-                device=device,
-                mode=target_mode,
+                device=self._current_device,
+                mode=self.__on_mode,
                 duration_hours=None,  # Indefinite until user turns it back off
             )
         )

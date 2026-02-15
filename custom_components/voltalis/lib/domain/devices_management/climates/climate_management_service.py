@@ -114,8 +114,8 @@ class ClimateManagementService:
         Args:
             manual_setting_id: The ID of the manual setting to update
             device_id: The ID of the device (appliance)
-            fallback_mode: The mode to use as fallback when turning off (default: ECO)
-            fallback_temperature: The temperature to use as fallback when turning off (default: 19.0°C)
+            fallback_mode: The mode to use as fallback when turning off
+            fallback_temperature: The temperature to use as fallback when turning off
             duration_hours: Duration in hours (None = indefinite)
         """
 

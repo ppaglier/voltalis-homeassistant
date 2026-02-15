@@ -25,12 +25,20 @@ class SetClimateActionHandler:
         logger: Logger,
         date_provider: DateProvider,
         voltalis_provider: VoltalisProvider,
+        default_temperature: float,
+        default_away_temperature: float,
+        default_eco_temperature: float,
+        default_comfort_temperature: float,
     ):
         self.__climate_service = ClimateManagementService(
             logger=logger,
             date_provider=date_provider,
             voltalis_provider=voltalis_provider,
         )
+        self.__default_temperature = default_temperature
+        self.__default_away_temperature = default_away_temperature
+        self.__default_eco_temperature = default_eco_temperature
+        self.__default_comfort_temperature = default_comfort_temperature
 
     async def handle(
         self,
@@ -38,28 +46,38 @@ class SetClimateActionHandler:
     ) -> None:
         """Handle the request to set climate action for a device."""
 
+        if command.device.manual_setting is None:
+            raise ValueError(f"Device {command.device.id} does not support manual settings")
+
         target_mode = command.device.programming.mode or DeviceModeEnum.ECO
 
-        target_temp = get_appropriate_temperature(command.device, target_mode)
+        target_temp = get_appropriate_temperature(
+            command.device,
+            target_mode,
+            default_temperature=self.__default_temperature,
+            default_away_temperature=self.__default_away_temperature,
+            default_eco_temperature=self.__default_eco_temperature,
+            default_comfort_temperature=self.__default_comfort_temperature,
+        )
 
         match command.action:
             case HVACMode.OFF:
                 await self.__climate_service.turn_off(
-                    manual_setting_id=command.manual_setting_id,
+                    manual_setting_id=command.device.manual_setting.id,
                     device_id=command.device.id,
                     fallback_mode=target_mode,
                     fallback_temperature=target_temp,
                 )
             case HVACMode.HEAT:
                 await self.__climate_service.set_manual_mode(
-                    manual_setting_id=command.manual_setting_id,
+                    manual_setting_id=command.device.manual_setting.id,
                     device_id=command.device.id,
                     mode=target_mode,
                     temperature_target=target_temp,
                 )
             case HVACMode.AUTO:
                 await self.__climate_service.disable_manual_mode(
-                    manual_setting_id=command.manual_setting_id,
+                    manual_setting_id=command.device.manual_setting.id,
                     device_id=command.device.id,
                     fallback_mode=target_mode,
                     fallback_temperature=target_temp,

@@ -9,14 +9,12 @@ class SetDevicePresetCommand(CustomModel):
     """Command to set a preset mode for a climate device.
 
     Attributes:
-        manual_setting_id: The ID of the manual setting to update
         device_id: The ID of the device (appliance)
         preset: The preset to apply (auto, comfort, eco, frost_protection, off)
         temperature: The target temperature to use (only for TEMPERATURE preset)
         duration_hours: Duration in hours (None = indefinite)
     """
 
-    manual_setting_id: int
     device: DeviceDto
     preset: DeviceCurrentPresetEnum
     temperature: float | None = None

@@ -64,8 +64,22 @@ from custom_components.voltalis.lib.application.programs_management.handlers.get
 from custom_components.voltalis.lib.application.programs_management.handlers.set_program_handler import (  # noqa: E501
     SetProgramHandler,
 )
+from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
+
+
+class VoltalisModuleConfig(CustomModel):
+    """Config for the voltalis module."""
+
+    climate_min_temp: float
+    climate_max_temp: float
+
+    default_temperature: float
+    default_away_temp: float
+    default_eco_temp: float
+    default_comfort_temp: float
+    default_water_heater_temp: float
 
 
 class VoltalisModule:
@@ -78,6 +92,8 @@ class VoltalisModule:
         date_provider: DateProvider,
         logger: Logger,
         voltalis_provider: VoltalisProvider,
+        # Config
+        config: VoltalisModuleConfig,
     ) -> None:
         """Initialize the the voltalis module."""
 
@@ -85,6 +101,9 @@ class VoltalisModule:
         self.date_provider = date_provider
         self.logger = logger
         self.__voltalis_provider = voltalis_provider
+
+        # Config
+        self.config = config
 
     def setup_handlers(self) -> None:
         """Setup the handlers."""
@@ -111,6 +130,10 @@ class VoltalisModule:
             logger=self.logger,
             date_provider=self.date_provider,
             voltalis_provider=self.__voltalis_provider,
+            default_temperature=self.config.default_temperature,
+            default_away_temperature=self.config.default_away_temp,
+            default_eco_temperature=self.config.default_eco_temp,
+            default_comfort_temperature=self.config.default_comfort_temp,
         )
 
         # Device water heater operations
@@ -120,6 +143,7 @@ class VoltalisModule:
             logger=self.logger,
             date_provider=self.date_provider,
             voltalis_provider=self.__voltalis_provider,
+            default_water_heater_temp=self.config.default_water_heater_temp,
         )
 
         # Device climate management
@@ -133,23 +157,39 @@ class VoltalisModule:
             logger=self.logger,
             date_provider=self.date_provider,
             voltalis_provider=self.__voltalis_provider,
+            default_temperature=self.config.default_temperature,
+            default_away_temperature=self.config.default_away_temp,
+            default_eco_temperature=self.config.default_eco_temp,
+            default_comfort_temperature=self.config.default_comfort_temp,
         )
 
         self.turn_off_device_handler = TurnOffDeviceHandler(
             logger=self.logger,
             date_provider=self.date_provider,
             voltalis_provider=self.__voltalis_provider,
+            default_temperature=self.config.default_temperature,
+            default_away_temperature=self.config.default_away_temp,
+            default_eco_temperature=self.config.default_eco_temp,
+            default_comfort_temperature=self.config.default_comfort_temp,
         )
 
         self.set_device_temperature_handler = SetDeviceTemperatureHandler(
             logger=self.logger,
             date_provider=self.date_provider,
             voltalis_provider=self.__voltalis_provider,
+            default_temperature=self.config.default_temperature,
+            default_away_temperature=self.config.default_away_temp,
+            default_eco_temperature=self.config.default_eco_temp,
+            default_comfort_temperature=self.config.default_comfort_temp,
         )
         self.disable_manual_mode_handler = DisableManualModeHandler(
             logger=self.logger,
             date_provider=self.date_provider,
             voltalis_provider=self.__voltalis_provider,
+            default_temperature=self.config.default_temperature,
+            default_away_temp=self.config.default_away_temp,
+            default_eco_temp=self.config.default_eco_temp,
+            default_comfort_temp=self.config.default_comfort_temp,
         )
 
         # energy contracts

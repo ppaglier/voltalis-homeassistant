@@ -7,6 +7,5 @@ from custom_components.voltalis.lib.domain.shared.custom_model import CustomMode
 class SetClimateActionCommand(CustomModel):
     """Command to set climate action for a device."""
 
-    manual_setting_id: int
     device: DeviceDto
     action: HVACAction

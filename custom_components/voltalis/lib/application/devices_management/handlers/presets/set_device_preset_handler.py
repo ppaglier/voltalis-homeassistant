@@ -26,15 +26,26 @@ class SetDevicePresetHandler:
         logger: Logger,
         date_provider: DateProvider,
         voltalis_provider: VoltalisProvider,
+        default_temperature: float,
+        default_away_temperature: float,
+        default_eco_temperature: float,
+        default_comfort_temperature: float,
     ):
         self.__climate_service = ClimateManagementService(
             logger=logger,
             date_provider=date_provider,
             voltalis_provider=voltalis_provider,
         )
+        self.__default_temperature = default_temperature
+        self.__default_away_temperature = default_away_temperature
+        self.__default_eco_temperature = default_eco_temperature
+        self.__default_comfort_temperature = default_comfort_temperature
 
     async def handle(self, command: SetDevicePresetCommand) -> None:
         """Handle the request to set a preset for a device."""
+
+        if command.device.manual_setting is None:
+            raise ValueError(f"Device {command.device.id} does not support manual settings")
 
         command_preset = command.preset
         # Prevent setting OFF preset if device is not a climate (because climate presets aren't using the real presets)
@@ -44,7 +55,7 @@ class SetDevicePresetHandler:
         # Handle AUTO preset - disable manual mode
         if command_preset == DeviceCurrentPresetEnum.AUTO:
             await self.__climate_service.disable_manual_mode(
-                manual_setting_id=command.manual_setting_id,
+                manual_setting_id=command.device.manual_setting.id,
                 device_id=command.device.id,
                 fallback_temperature=command.temperature or 16.0,
             )
@@ -53,7 +64,7 @@ class SetDevicePresetHandler:
         # Handle OFF preset
         if command_preset == DeviceCurrentPresetEnum.OFF:
             await self.__climate_service.turn_off(
-                manual_setting_id=command.manual_setting_id,
+                manual_setting_id=command.device.manual_setting.id,
                 device_id=command.device.id,
                 fallback_temperature=command.temperature or 16.0,
                 duration_hours=command.duration_hours,
@@ -61,9 +72,9 @@ class SetDevicePresetHandler:
             return
 
         if command.has_ecov_mode and command_preset == DeviceCurrentPresetEnum.ECO:
-            mode = DeviceModeEnum.ECOV
+            target_mode = DeviceModeEnum.ECOV
         elif command.has_on_mode and command_preset == DeviceCurrentPresetEnum.ON:
-            mode = DeviceModeEnum.NORMAL
+            target_mode = DeviceModeEnum.NORMAL
         else:
             # Handle other presets (COMFORT, ECO, FROST_PROTECTION)
             mode_mapping = {
@@ -72,14 +83,26 @@ class SetDevicePresetHandler:
                 DeviceCurrentPresetEnum.AWAY: DeviceModeEnum.HORS_GEL,
                 DeviceCurrentPresetEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
             }
-            mode = mode_mapping.get(command_preset, DeviceModeEnum.OFF)  # Default to OFF if preset is unrecognized
+            target_mode = mode_mapping.get(
+                command_preset, DeviceModeEnum.OFF
+            )  # Default to OFF if preset is unrecognized
 
-        temperature = get_appropriate_temperature(command.device, mode, command.temperature)
+        temperature = get_appropriate_temperature(
+            command.device,
+            target_mode,
+            default_temperature=self.__default_temperature,
+            default_away_temperature=self.__default_away_temperature,
+            default_eco_temperature=self.__default_eco_temperature,
+            default_comfort_temperature=self.__default_comfort_temperature,
+            use_device_programming=target_mode
+            in [DeviceModeEnum.AUTO, DeviceModeEnum.NORMAL, DeviceModeEnum.TEMPERATURE, DeviceModeEnum.OFF],
+            temperature=command.temperature,
+        )
 
         await self.__climate_service.set_manual_mode(
-            manual_setting_id=command.manual_setting_id,
+            manual_setting_id=command.device.manual_setting.id,
             device_id=command.device.id,
-            mode=mode,
+            mode=target_mode,
             temperature_target=temperature,
             duration_hours=command.duration_hours,
         )

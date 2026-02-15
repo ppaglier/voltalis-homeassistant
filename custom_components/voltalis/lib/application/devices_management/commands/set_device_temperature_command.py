@@ -7,14 +7,12 @@ class SetDeviceTemperatureCommand(CustomModel):
     """Command to set target temperature for a climate device.
 
     Attributes:
-        manual_setting_id: The ID of the manual setting to update
         device: The device for which to set the temperature
         temperature: The target temperature to set
         mode: The mode to use (default: TEMPERATURE)
         duration_hours: Duration in hours (None = indefinite)
     """
 
-    manual_setting_id: int
     device: DeviceDto
     temperature: float | None = None
     mode: DeviceModeEnum = DeviceModeEnum.TEMPERATURE

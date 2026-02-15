@@ -7,14 +7,13 @@ class TurnOffDeviceCommand(CustomModel):
     """Command to turn off a climate device for a specified duration.
 
     Attributes:
-        manual_setting_id: The ID of the manual setting to update
+
         device_id: The ID of the device (appliance)
         temperature: The target temperature to set when turning off (default: 16.0°C)
         duration_hours: Duration in hours to keep the device turned off (None = indefinite)
     """
 
-    manual_setting_id: int
     device: DeviceDto
-    fallback_mode: DeviceModeEnum = DeviceModeEnum.ECO
+    fallback_mode: DeviceModeEnum | None = None
     fallback_temperature: float | None = None
     duration_hours: int | None = None

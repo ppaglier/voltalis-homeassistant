@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityFeature
-from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.voltalis.apps.home_assistant.coordinators.device import DeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
@@ -95,14 +94,9 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
 
         self._attr_is_away_mode_on = False
 
-        device = self._current_device
-        if not device.manual_setting:
-            raise HomeAssistantError(f"Manual setting not available for device {device.id}")
-
         await self._voltalis_module.set_water_heater_operation_handler.handle(
             SetWaterHeaterOperationCommand(
-                device=device,
-                manual_setting_id=device.manual_setting.id,
+                device=self._current_device,
                 operation_mode=WaterHeaterCurrentOperationEnum(operation_mode),
             )
         )

@@ -14,5 +14,4 @@ class SetWaterHeaterOperationCommand(CustomModel):
     """
 
     device: DeviceDto
-    manual_setting_id: int
     operation_mode: WaterHeaterCurrentOperationEnum

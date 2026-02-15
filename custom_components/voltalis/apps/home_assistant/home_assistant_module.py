@@ -22,13 +22,32 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
     VoltalisConfigEntry,
     VoltalisConfigEntryData,
 )
-from custom_components.voltalis.const import CONF_LOG_LEVEL, DEFAULT_LOG_LEVEL, DOMAIN, LogLevelEnum
+from custom_components.voltalis.const import (
+    CONF_CLIMATE_MAX_TEMP,
+    CONF_CLIMATE_MIN_TEMP,
+    CONF_DEFAULT_AWAY_TEMP,
+    CONF_DEFAULT_COMFORT_TEMP,
+    CONF_DEFAULT_ECO_TEMP,
+    CONF_DEFAULT_TEMP,
+    CONF_DEFAULT_WATER_HEATER_TEMP,
+    CONF_LOG_LEVEL,
+    DEFAULT_AWAY_TEMP,
+    DEFAULT_CLIMATE_MAX_TEMP,
+    DEFAULT_CLIMATE_MIN_TEMP,
+    DEFAULT_COMFORT_TEMP,
+    DEFAULT_ECO_TEMP,
+    DEFAULT_LOG_LEVEL,
+    DEFAULT_TEMP,
+    DEFAULT_WATER_HEATER_TEMP,
+    DOMAIN,
+    LogLevelEnum,
+)
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_voltalis_api import (
     VoltalisProviderVoltalisApi,
 )
-from custom_components.voltalis.lib.voltalis_module import VoltalisModule
+from custom_components.voltalis.lib.voltalis_module import VoltalisModule, VoltalisModuleConfig
 
 
 class VoltalisHomeAssistantModule(VoltalisModule):
@@ -72,6 +91,15 @@ class VoltalisHomeAssistantModule(VoltalisModule):
             date_provider=DateProviderReal(),
             logger=logger,
             voltalis_provider=VoltalisProviderVoltalisApi(http_client=self._voltalis_client),
+            config=VoltalisModuleConfig(
+                climate_min_temp=entry.options.get(CONF_CLIMATE_MIN_TEMP, DEFAULT_CLIMATE_MIN_TEMP),
+                climate_max_temp=entry.options.get(CONF_CLIMATE_MAX_TEMP, DEFAULT_CLIMATE_MAX_TEMP),
+                default_temperature=entry.options.get(CONF_DEFAULT_TEMP, DEFAULT_TEMP),
+                default_away_temp=entry.options.get(CONF_DEFAULT_AWAY_TEMP, DEFAULT_AWAY_TEMP),
+                default_eco_temp=entry.options.get(CONF_DEFAULT_ECO_TEMP, DEFAULT_ECO_TEMP),
+                default_comfort_temp=entry.options.get(CONF_DEFAULT_COMFORT_TEMP, DEFAULT_COMFORT_TEMP),
+                default_water_heater_temp=entry.options.get(CONF_DEFAULT_WATER_HEATER_TEMP, DEFAULT_WATER_HEATER_TEMP),
+            ),
         )
 
         self.setup_handlers()

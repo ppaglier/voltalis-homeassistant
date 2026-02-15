@@ -1,4 +1,3 @@
-from custom_components.voltalis.const import DEFAULT_CLIMATE_COMFORT_TEMP, DEFAULT_CLIMATE_DEFAULT_TEMP
 from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 
@@ -6,26 +5,33 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device_enu
 def get_appropriate_temperature(
     device: DeviceDto,
     mode: DeviceModeEnum,
-    specified_temperature: float | None = None,
-    comfort_temperature: float = DEFAULT_CLIMATE_COMFORT_TEMP,
-    default_temperature: float = DEFAULT_CLIMATE_DEFAULT_TEMP,
+    *,
+    default_temperature: float,
+    default_away_temperature: float,
+    default_eco_temperature: float,
+    default_comfort_temperature: float,
+    use_device_programming: bool = True,
+    temperature: float | None = None,
 ) -> float:
     """Determine the appropriate temperature based on mode and device programming."""
 
-    if specified_temperature is not None:
-        return specified_temperature
+    if temperature is not None:
+        return temperature
 
-    # Use device programming temperature if available
-    if device.programming.temperature_target:
-        return device.programming.temperature_target
+    if use_device_programming:
+        # Use device programming temperature if available
+        if device.programming.temperature_target:
+            return device.programming.temperature_target
 
-    # Use default temperature from device programming
-    if device.programming.default_temperature:
-        return device.programming.default_temperature
+        # Use default temperature from device programming
+        if device.programming.default_temperature:
+            return device.programming.default_temperature
 
-    # Fallbacks based on mode
-    if mode == DeviceModeEnum.CONFORT:
-        return comfort_temperature
+    mode_mapping = {
+        DeviceModeEnum.HORS_GEL: default_away_temperature,
+        DeviceModeEnum.ECO: default_eco_temperature,
+        DeviceModeEnum.ECOV: default_eco_temperature,
+        DeviceModeEnum.CONFORT: default_comfort_temperature,
+    }
 
-    # Fallback to constant
-    return default_temperature
+    return mode_mapping.get(mode, default_temperature)
