@@ -12,7 +12,6 @@ from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_stu
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 async def test_form_user_input_none(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch) -> None:
     """Test that the form is shown when user_input is None."""
 
@@ -36,7 +35,6 @@ async def test_form_user_input_none(hass: HomeAssistant, monkeypatch: pytest.Mon
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 async def test_config_flow_creates_entry(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch) -> None:
     """Test that the config flow creates an entry successfully using the flow manager."""
 
@@ -67,7 +65,6 @@ async def test_config_flow_creates_entry(hass: HomeAssistant, monkeypatch: pytes
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 @pytest.mark.parametrize("exception_type", ["invalid_auth", "cannot_connect", "unknown"])
 async def test_form_errors(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch, exception_type: str) -> None:
     """Test that errors are handled correctly in the config flow."""
@@ -104,7 +101,6 @@ async def test_form_errors(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch,
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 async def test_already_configured(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch) -> None:
     """Test that we abort if already configured."""
 
@@ -146,7 +142,6 @@ async def test_already_configured(hass: HomeAssistant, monkeypatch: pytest.Monke
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 async def test_step_reconfigure_success(
     hass: HomeAssistant,
     monkeypatch: pytest.MonkeyPatch,
@@ -201,7 +196,6 @@ async def test_step_reconfigure_success(
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 async def test_step_reconfigure_shows_form(
     hass: HomeAssistant,
     monkeypatch: pytest.MonkeyPatch,
@@ -253,7 +247,6 @@ async def test_step_reconfigure_shows_form(
 
 
 @pytest.mark.e2e
-@pytest.mark.asyncio
 async def test_step_reconfigure_invalid_auth(
     hass: HomeAssistant,
     monkeypatch: pytest.MonkeyPatch,

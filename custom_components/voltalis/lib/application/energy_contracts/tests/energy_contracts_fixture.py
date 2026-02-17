@@ -55,7 +55,7 @@ class EnergyContractsFixture(BaseFixture):
     def given_energy_contracts(self, energy_contracts: dict[int, EnergyContract]) -> None:
         """Set energy contracts returned by the provider."""
 
-        self.voltalis_provider.set_current_energy_contract(energy_contracts)
+        self.voltalis_provider.set_energy_contracts(energy_contracts)
 
     def given_live_consumption(self, live_consumption: LiveConsumption) -> None:
         """Set live consumption returned by the provider."""
@@ -66,14 +66,12 @@ class EnergyContractsFixture(BaseFixture):
     # Assertions
     # ------------------------------------------------------------
 
-    async def then_energy_contracts_should_be(self, expected_contracts: dict[int, EnergyContract]) -> None:
+    def then_energy_contracts_should_be(self, expected_contracts: dict[int, EnergyContract]) -> None:
         """Assert energy contracts returned by the provider are as expected."""
 
-        energy_contracts = await self.voltalis_provider.get_energy_contracts()
-        self.compare_dicts(energy_contracts, expected_contracts)
+        self.compare_dicts(self.voltalis_provider._energy_contracts, expected_contracts)
 
-    async def then_live_consumption_should_be(self, expected: LiveConsumption) -> None:
+    def then_live_consumption_should_be(self, expected: LiveConsumption) -> None:
         """Assert live consumption returned by the provider is as expected."""
 
-        result = await self.voltalis_provider.get_live_consumption()
-        self.compare_data(result, expected)
+        self.compare_data(self.voltalis_provider._live_consumption, expected)

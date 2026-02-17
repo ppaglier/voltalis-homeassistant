@@ -63,7 +63,7 @@ async def test_set_water_heater_operation_on(
         .with_temperature_target(fixture.default_water_heater_temp)
         .build()
     )
-    await fixture.then_manual_settings_should_be({expected.id: expected})
+    fixture.then_manual_settings_should_be({expected.id: expected})
 
 
 @pytest.mark.unit
@@ -108,7 +108,7 @@ async def test_set_water_heater_operation_off(
         .with_temperature_target(fixture.default_water_heater_temp)
         .build()
     )
-    await fixture.then_manual_settings_should_be({expected.id: expected})
+    fixture.then_manual_settings_should_be({expected.id: expected})
 
 
 @pytest.fixture
@@ -159,4 +159,4 @@ async def test_set_water_heater_operation_auto(
         .with_temperature_target(53.0)
         .build()
     )
-    await fixture.then_manual_settings_should_be({expected.id: expected})
+    fixture.then_manual_settings_should_be({expected.id: expected})

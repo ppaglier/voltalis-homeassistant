@@ -196,15 +196,12 @@ class DeviceManagementFixture(BaseFixture):
     # Assertions
     # ------------------------------------------------------------
 
-    async def then_devices_should_be(self, expected_devices: dict[int, Device]) -> None:
+    def then_devices_should_be(self, expected_devices: dict[int, Device]) -> None:
         """Assert the devices returned by the provider are as expected."""
 
-        devices = await self.voltalis_provider.get_devices()
+        self.compare_dicts(self.voltalis_provider._devices, expected_devices)
 
-        self.compare_dicts(devices, expected_devices)
-
-    async def then_manual_settings_should_be(self, expected_manual_settings: dict[int, ManualSetting]) -> None:
+    def then_manual_settings_should_be(self, expected_manual_settings: dict[int, ManualSetting]) -> None:
         """Assert the manual settings returned by the provider are as expected."""
 
-        manual_settings = await self.voltalis_provider.get_manual_settings()
-        self.compare_dicts(manual_settings, expected_manual_settings)
+        self.compare_dicts(self.voltalis_provider._manual_settings, expected_manual_settings)

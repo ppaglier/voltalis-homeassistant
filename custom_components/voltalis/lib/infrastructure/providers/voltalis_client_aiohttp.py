@@ -10,10 +10,10 @@ from custom_components.voltalis.lib.domain.shared.providers.http_client import (
     HttpClientResponse,
     TData,
 )
-from custom_components.voltalis.lib.infrastructure.providers.http_client_aiohttp import HttpClientAioHttp
+from custom_components.voltalis.lib.infrastructure.providers.http_client_aiohttp import HttpClientAiohttp
 
 
-class VoltalisClientAiohttp(HttpClientAioHttp):
+class VoltalisClientAiohttp(HttpClientAiohttp):
     """
     Aiohttp client for Voltalis API.
     It implements authentication and token management.

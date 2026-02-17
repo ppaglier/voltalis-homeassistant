@@ -196,7 +196,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             mode=setting.mode.value.upper(),
             end_date=setting.end_date,
             temperature_target=setting.temperature_target,
-        ).model_dump(by_alias=True)
+        ).model_dump(mode="json", by_alias=True)
 
         try:
             await self._client.send_request(
@@ -277,7 +277,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
         payload = VoltalisProgramUpdateDto(
             name=program.name,
             enabled=program.enabled,
-        ).model_dump(by_alias=True, exclude={"name"} if program.type == ProgramTypeEnum.QUICK else None)
+        ).model_dump(mode="json", by_alias=True, exclude={"name"} if program.type == ProgramTypeEnum.QUICK else None)
 
         try:
             await self._client.send_request(

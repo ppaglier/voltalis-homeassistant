@@ -12,7 +12,7 @@ T = TypeVar("T")
 TData = TypeVar("TData")
 
 
-class HttpClientAioHttp(HttpClient):
+class HttpClientAiohttp(HttpClient):
     """Concrete implementation of the HttpClient using the aiohttp library."""
 
     def __init__(

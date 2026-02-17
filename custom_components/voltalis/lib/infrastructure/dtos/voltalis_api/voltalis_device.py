@@ -67,6 +67,26 @@ class VoltalisDeviceDto(CustomModel):
     available_modes: list[VoltalisDeviceDtoModeEnum] = Field(alias="availableModes")
     programming: VoltalisDeviceDtoProgramming
 
+    @staticmethod
+    def from_device(device: Device) -> "VoltalisDeviceDto":
+        """Convert from domain model to DTO"""
+
+        return VoltalisDeviceDto(
+            id=device.id,
+            name=device.name,
+            appliance_type=device.type.upper(),
+            modulator_type=device.modulator_type.upper(),
+            available_modes=[mode.upper() for mode in device.available_modes],
+            programming=VoltalisDeviceDtoProgramming(
+                prog_type=device.programming.prog_type.upper(),
+                id_manual_setting=device.programming.id_manual_setting,
+                is_on=device.programming.is_on,
+                mode=device.programming.mode.upper() if device.programming.mode else None,
+                temperature_target=device.programming.temperature_target,
+                default_temperature=device.programming.default_temperature,
+            ),
+        )
+
     def to_device(self) -> Device:
         """Convert to domain model"""
 

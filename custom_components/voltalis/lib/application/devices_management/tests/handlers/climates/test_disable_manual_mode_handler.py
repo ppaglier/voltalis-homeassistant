@@ -49,8 +49,8 @@ async def test_disable_manual_mode(fixture: DeviceManagementFixture) -> None:
     expected_manual_setting = (
         manual_setting_builder.with_until_further_notice(False).with_is_on(True).with_end_date(now).build()
     )
-    await fixture.then_devices_should_be({device.id: device})
-    await fixture.then_manual_settings_should_be({expected_manual_setting.id: expected_manual_setting})
+    fixture.then_devices_should_be({device.id: device})
+    fixture.then_manual_settings_should_be({expected_manual_setting.id: expected_manual_setting})
 
 
 @pytest.mark.unit
@@ -103,8 +103,8 @@ async def test_disable_manual_mode_with_already_disabled_manual_setting(fixture:
     )
 
     # Then
-    await fixture.then_devices_should_be({device.id: device})
-    await fixture.then_manual_settings_should_be({manual_setting.id: manual_setting})
+    fixture.then_devices_should_be({device.id: device})
+    fixture.then_manual_settings_should_be({manual_setting.id: manual_setting})
 
 
 @pytest.mark.unit
@@ -145,8 +145,8 @@ async def test_disable_manual_mode_with_fallback_mode(fixture: DeviceManagementF
         .with_end_date(now)
         .build()
     )
-    await fixture.then_devices_should_be({device.id: device})
-    await fixture.then_manual_settings_should_be({expected_manual_setting.id: expected_manual_setting})
+    fixture.then_devices_should_be({device.id: device})
+    fixture.then_manual_settings_should_be({expected_manual_setting.id: expected_manual_setting})
 
 
 @pytest.mark.unit
@@ -187,8 +187,8 @@ async def test_disable_manual_mode_with_fallback_temperature(fixture: DeviceMana
         .with_end_date(now)
         .build()
     )
-    await fixture.then_devices_should_be({device.id: device})
-    await fixture.then_manual_settings_should_be({expected_manual_setting.id: expected_manual_setting})
+    fixture.then_devices_should_be({device.id: device})
+    fixture.then_manual_settings_should_be({expected_manual_setting.id: expected_manual_setting})
 
 
 @pytest.fixture

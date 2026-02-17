@@ -47,7 +47,7 @@ async def test_set_device_preset_auto_disables_manual_mode(
         .with_temperature_target(16.0)
         .build()
     )
-    await fixture.then_manual_settings_should_be({expected.id: expected})
+    fixture.then_manual_settings_should_be({expected.id: expected})
 
 
 @pytest.mark.unit
@@ -82,7 +82,7 @@ async def test_set_device_preset_off_in_climate_mode_sets_temperature(
         .with_temperature_target(19.0)
         .build()
     )
-    await fixture.then_manual_settings_should_be({expected.id: expected})
+    fixture.then_manual_settings_should_be({expected.id: expected})
 
 
 @pytest.fixture
@@ -122,4 +122,4 @@ async def test_set_device_preset_eco_maps_to_ecov(
         .with_temperature_target(18.0)
         .build()
     )
-    await fixture.then_manual_settings_should_be({expected.id: expected})
+    fixture.then_manual_settings_should_be({expected.id: expected})

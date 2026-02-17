@@ -50,7 +50,7 @@ async def test_turn_off_device_sets_manual_mode(
         .with_temperature_target(17.0)
         .build()
     )
-    await fixture.then_manual_settings_should_be({expected.id: expected})
+    fixture.then_manual_settings_should_be({expected.id: expected})
 
 
 @pytest.mark.unit

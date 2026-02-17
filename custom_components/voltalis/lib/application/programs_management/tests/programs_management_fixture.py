@@ -39,8 +39,7 @@ class ProgramsManagementFixture(BaseFixture):
     # Assertions
     # ------------------------------------------------------------
 
-    async def then_programs_should_be(self, expected_programs: dict[int, Program]) -> None:
+    def then_programs_should_be(self, expected_programs: dict[int, Program]) -> None:
         """Assert programs returned by the provider are as expected."""
 
-        programs = await self.voltalis_provider.get_programs()
-        self.compare_dicts(programs, expected_programs)
+        self.compare_dicts(self.voltalis_provider._programs, expected_programs)
