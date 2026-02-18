@@ -1,11 +1,8 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import (
     ManualSetting,
     ManualSettingUpdate,
-)
-from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
-    DeviceConsumption,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
@@ -13,7 +10,6 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract impo
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
-from custom_components.voltalis.lib.infrastructure.helpers.get_consumption_for_hour import get_consumption_for_hour
 
 
 class VoltalisProviderStub(VoltalisProvider):
@@ -40,8 +36,8 @@ class VoltalisProviderStub(VoltalisProvider):
     def set_devices_consumptions(self, devices_consumptions: dict[int, list[tuple[datetime, float]]]) -> None:
         self._devices_consumptions = devices_consumptions
 
-    def set_manual_settings(self, manual_settings: dict[int, ManualSetting]) -> None:
-        self._manual_settings = manual_settings
+    def set_manual_settings(self, manual_settings: list[ManualSetting]) -> None:
+        self._manual_settings = {manual_setting.id: manual_setting for manual_setting in manual_settings}
 
     def set_energy_contracts(self, energy_contracts: dict[int, EnergyContract]) -> None:
         self._energy_contracts = energy_contracts
@@ -62,19 +58,19 @@ class VoltalisProviderStub(VoltalisProvider):
     async def get_live_consumption(self) -> LiveConsumption:
         return self._live_consumption
 
-    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, DeviceConsumption]:
-        consumptions = {
-            device_id: DeviceConsumption(
-                daily_consumption=get_consumption_for_hour(
-                    consumptions=consumption_records, target_datetime=target_datetime
-                )
-            )
+    async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[tuple[datetime, float]]]:
+        devices_consumptions = {
+            device_id: [
+                (consumption_date, consumption_value)
+                for (consumption_date, consumption_value) in consumption_records
+                if consumption_date.date() == target_date
+            ]
             for device_id, consumption_records in self._devices_consumptions.items()
         }
-        return consumptions
+        return devices_consumptions
 
     async def get_manual_settings(self) -> dict[int, ManualSetting]:
-        return self._manual_settings
+        return {manual_setting.id_appliance: manual_setting for manual_setting in self._manual_settings.values()}
 
     async def set_manual_setting(self, manual_setting_id: int, setting: ManualSettingUpdate) -> None:
         existing_setting = self._manual_settings[manual_setting_id]

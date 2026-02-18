@@ -36,7 +36,7 @@ async def test_disable_manual_mode(fixture: DeviceManagementFixture) -> None:
         .with_temperature_target(0.0)
     )
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.disable_manual_mode_handler.handle(
@@ -60,7 +60,7 @@ async def test_disable_manual_mode_with_no_manual_setting(fixture: DeviceManagem
     # Given
     device = DeviceBuilder().with_id(1).build()
     fixture.given_devices({device.id: device})
-    fixture.given_manual_settings({})
+    fixture.given_manual_settings([])
 
     # When / Then
     with pytest.raises(ValueError, match="does not support manual settings") as exc_info:
@@ -93,7 +93,7 @@ async def test_disable_manual_mode_with_already_disabled_manual_setting(fixture:
         .with_temperature_target(0.0)
     )
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.disable_manual_mode_handler.handle(
@@ -127,7 +127,7 @@ async def test_disable_manual_mode_with_fallback_mode(fixture: DeviceManagementF
         .with_temperature_target(0.0)
     )
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.disable_manual_mode_handler.handle(
@@ -169,7 +169,7 @@ async def test_disable_manual_mode_with_fallback_temperature(fixture: DeviceMana
         .with_temperature_target(0.0)
     )
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.disable_manual_mode_handler.handle(

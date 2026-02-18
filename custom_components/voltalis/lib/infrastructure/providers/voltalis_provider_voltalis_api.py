@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime
+from datetime import date, datetime
 from typing import cast
 
 from pydantic import TypeAdapter, ValidationError
@@ -8,9 +8,6 @@ from pydantic import TypeAdapter, ValidationError
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import (
     ManualSetting,
     ManualSettingUpdate,
-)
-from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
-    DeviceConsumption,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
@@ -49,7 +46,6 @@ from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_re
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_subscriber_contract import (
     VoltalisSubscriberContractDto,
 )
-from custom_components.voltalis.lib.infrastructure.helpers.get_consumption_for_hour import get_consumption_for_hour
 
 
 class VoltalisProviderVoltalisApi(VoltalisProvider):
@@ -128,9 +124,9 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         return LiveConsumption(consumption=live_consumption)
 
-    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, DeviceConsumption]:
+    async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[tuple[datetime, float]]]:
         # Fetch the data from the voltalis API
-        target_date_str = target_datetime.isoformat("T").split("T")[0]
+        target_date_str = target_date.isoformat()
 
         response: HttpClientResponse[dict]
         try:
@@ -149,15 +145,11 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             raise VoltalisValidationException(*err.args) from err
 
         devices_consumptions = {
-            device_id: DeviceConsumption(
-                daily_consumption=get_consumption_for_hour(
-                    consumptions=[
-                        (consumption_record.step_timestamp_on_site, consumption_record.total_consumption_in_wh)
-                        for consumption_record in sorted(device_consumptions, key=lambda x: x.step_timestamp_on_site)
-                    ],
-                    target_datetime=target_datetime,
-                )
-            )
+            device_id: [
+                (consumption_record.step_timestamp_on_site, consumption_record.total_consumption_in_wh)
+                for consumption_record in device_consumptions
+                if consumption_record.step_timestamp_on_site.date() == target_date
+            ]
             for device_id, device_consumptions in parsed_consumption.per_appliance.items()
         }
 
@@ -214,9 +206,6 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             url="/api/site/{site_id}/subscriber-contract",
             method="GET",
         )
-
-        if not response.data or len(response.data) == 0:
-            raise VoltalisValidationException("No subscriber contracts found")
 
         parsed_contracts: list[VoltalisSubscriberContractDto]
         try:

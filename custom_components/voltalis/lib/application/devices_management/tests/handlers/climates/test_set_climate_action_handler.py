@@ -41,7 +41,7 @@ async def test_set_climate_action_turns_off_device(
     )
     manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.set_climate_action_handler.handle(
@@ -86,7 +86,7 @@ async def test_set_climate_action_turns_on_device(
     )
     manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.set_climate_action_handler.handle(
@@ -133,7 +133,7 @@ async def test_set_climate_action_auto_disables_manual_mode(
     )
     manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.set_climate_action_handler.handle(

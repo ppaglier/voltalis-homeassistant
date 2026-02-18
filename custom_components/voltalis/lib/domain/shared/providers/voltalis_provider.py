@@ -1,12 +1,9 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import date, datetime
 
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import (
     ManualSetting,
     ManualSettingUpdate,
-)
-from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
-    DeviceConsumption,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
@@ -34,7 +31,7 @@ class VoltalisProvider(ABC):
         ...
 
     @abstractmethod
-    async def get_devices_daily_consumptions(self, target_datetime: datetime) -> dict[int, DeviceConsumption]:
+    async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[tuple[datetime, float]]]:
         """Get devices daily consumptions from the Voltalis servers for a specific datetime"""
         ...
 

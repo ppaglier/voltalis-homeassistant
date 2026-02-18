@@ -24,6 +24,23 @@ class VoltalisManualSettingDto(VoltalisManualSettingUpdateDto):
 
     id: int
 
+    @staticmethod
+    def from_manual_setting(
+        manual_setting: ManualSetting,
+    ) -> "VoltalisManualSettingDto":
+        """Convert from domain model"""
+
+        return VoltalisManualSettingDto(
+            id=manual_setting.id,
+            enabled=manual_setting.enabled,
+            id_appliance=manual_setting.id_appliance,
+            until_further_notice=manual_setting.until_further_notice,
+            is_on=manual_setting.is_on,
+            mode=manual_setting.mode.value.upper(),
+            end_date=manual_setting.end_date,
+            temperature_target=manual_setting.temperature_target,
+        )
+
     def to_manual_setting(self) -> ManualSetting:
         """Convert to domain model"""
 

@@ -10,6 +10,28 @@ class VoltalisProgramDto(CustomModel):
     enabled: bool
     name: str
 
+    @staticmethod
+    def from_program(program: Program) -> "VoltalisProgramDto":
+        """Convert from domain model"""
+
+        name = program.name
+
+        mapping = {
+            "quicksettings-longleave": "quicksettings.longleave",
+            "quicksettings-shortleave": "quicksettings.shortleave",
+            "quicksettings-athome": "quicksettings.athome",
+            "program-default": "program.default",
+        }
+
+        if name in mapping:
+            name = mapping[name]
+
+        return VoltalisProgramDto(
+            id=program.id,
+            name=name,
+            enabled=program.enabled,
+        )
+
     def to_program(self, _type: ProgramTypeEnum) -> Program:
         """Convert to domain model"""
 

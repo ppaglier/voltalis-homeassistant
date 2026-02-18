@@ -9,7 +9,6 @@ from typing import (
     Callable,
     Generic,
     TypeVar,
-    Union,
     cast,
 )
 from urllib.parse import parse_qs, urlparse
@@ -35,14 +34,12 @@ class MockHttpServer:
     class RequestHandler(CustomModel, Generic[T]):
         """Request handler type."""
 
-        response: (
-            Union[
-                Callable[[], "MockHttpServer.StubResponse[T]"],
-                Callable[[], Awaitable["MockHttpServer.StubResponse[T]"]],
-            ]
-            | None
-        ) = None
-        request_interceptor: Callable[[Any, dict], None] | None = None
+        handle: (
+            Callable[[Any, dict], Awaitable["MockHttpServer.StubResponse[T]"]]
+            | Callable[[Any, dict], "MockHttpServer.StubResponse[T]"]
+        )
+        with_body: bool = False
+        with_query_params: bool = False
 
     def __init__(self) -> None:
         self.__request_handlers: dict[str, dict[str, tuple[MockHttpServer.RequestHandler, dict]]] = {}
@@ -172,7 +169,7 @@ class MockHttpServer:
 
                 return request_handlers[url][method]
 
-            def __get_body(self, method: str) -> Any:
+            def __get_body(self) -> Any:
                 """Get the body of the request."""
 
                 content_length = int(self.headers.get("Content-Length", 0))
@@ -203,27 +200,23 @@ class MockHttpServer:
                 # Find the handler for the requested path and method
                 try:
                     request_handler, handler_config = self.__find_request_handler(path, method)
-                    if request_handler.response is None:
-                        raise Exception(f"No response defined for {method} {path}")
                 except Exception as error:
-                    self.send_response(404)
-                    self.end_headers()
-                    self.wfile.write(str(error).encode())
+                    self.send_error(404, str(error))
                     return
 
                 if "path_params" in handler_config:
                     config["path_params"] = handler_config["path_params"]
 
-                if request_handler.request_interceptor is not None:
+                body_data: Any = None
+                if request_handler.with_body:
                     try:
-                        body_data = self.__get_body(method)
+                        body_data = self.__get_body()
                     except Exception as error:
                         print("Error while parsing body", error)
-                        self.send_response(400)
-                        self.end_headers()
-                        self.wfile.write(str(error).encode())
+                        self.send_error(400, str(error))
                         return
 
+                if request_handler.with_query_params:
                     try:
                         query_params = {
                             k: v[0] if len(v) == 1 else v for k, v in parse_qs(url.query).items() if len(v) > 0
@@ -231,29 +224,23 @@ class MockHttpServer:
                         config["params"] = query_params
                     except Exception as error:
                         print("Error while parsing query params", error)
-                        self.send_response(500)
-                        self.end_headers()
-                        self.wfile.write(str(error).encode())
-                        return
-
-                    try:
-                        request_handler.request_interceptor(body_data, config)
-                    except Exception as error:
-                        print("Error in request interceptor", error)
-                        self.send_response(500)
-                        self.end_headers()
-                        self.wfile.write(str(error).encode())
+                        self.send_error(500, str(error))
                         return
 
                 try:
                     # Handle both sync and async response callables
-                    if inspect.iscoroutinefunction(request_handler.response):
+                    if inspect.iscoroutinefunction(request_handler.handle):
                         # Async callable
-                        response = asyncio.run(request_handler.response())
+                        response = asyncio.run(request_handler.handle(body_data, config))
                     else:
                         # Sync callable
-                        response = request_handler.response()
+                        response = request_handler.handle(body_data, config)
+                except Exception as error:
+                    print("Error while handling request", error)
+                    self.send_error(500, str(error))
+                    return
 
+                try:
                     status_code = response.status_code or 200
                     self.send_response(status_code)
                     self.send_header("Content-Type", "application/json")
@@ -267,6 +254,7 @@ class MockHttpServer:
                     else:
                         self.wfile.write(b"")
                 except Exception as error:
+                    print("Error while sending response", error)
                     self.send_error(500, str(error))
 
         return ServerRequestHandler

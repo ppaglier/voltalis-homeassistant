@@ -28,7 +28,7 @@ async def test_set_device_temperature_sets_manual_mode_with_duration(
     device = DeviceBuilder().with_id(1).build()
     manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.set_device_temperature_handler.handle(

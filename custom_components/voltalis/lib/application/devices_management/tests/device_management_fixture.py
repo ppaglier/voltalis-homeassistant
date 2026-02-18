@@ -187,7 +187,7 @@ class DeviceManagementFixture(BaseFixture):
 
         self.voltalis_provider.set_devices_consumptions(devices_consumptions)
 
-    def given_manual_settings(self, manual_settings: dict[int, ManualSetting]) -> None:
+    def given_manual_settings(self, manual_settings: list[ManualSetting]) -> None:
         """Set the devices manual settings to be returned by the provider."""
 
         self.voltalis_provider.set_manual_settings(manual_settings)

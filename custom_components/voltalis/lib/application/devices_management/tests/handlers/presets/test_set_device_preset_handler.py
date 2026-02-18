@@ -28,7 +28,7 @@ async def test_set_device_preset_auto_disables_manual_mode(
     device = DeviceBuilder().with_id(1).build()
     manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.set_device_preset_handler.handle(
@@ -60,7 +60,7 @@ async def test_set_device_preset_off_in_climate_mode_sets_temperature(
     device = DeviceBuilder().with_id(1).build()
     manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.set_device_preset_handler.handle(
@@ -100,7 +100,7 @@ async def test_set_device_preset_eco_maps_to_ecov(
     device = DeviceBuilder().with_id(1).build()
     manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.set_device_preset_handler.handle(

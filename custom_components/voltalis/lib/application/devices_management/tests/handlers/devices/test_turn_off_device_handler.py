@@ -28,7 +28,7 @@ async def test_turn_off_device_sets_manual_mode(
     device = DeviceBuilder().with_id(1).build()
     manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
     manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings({manual_setting.id: manual_setting})
+    fixture.given_manual_settings([manual_setting])
 
     # When
     await fixture.turn_off_device_handler.handle(

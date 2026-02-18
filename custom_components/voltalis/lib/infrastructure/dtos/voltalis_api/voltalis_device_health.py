@@ -25,6 +25,18 @@ class VoltalisDeviceHealthDto(CustomModel):
     cs_appliance_id: int = Field(alias="csApplianceId")
     status: VoltalisDeviceHealthDtoStatusEnum
 
+    @staticmethod
+    def from_device_health(
+        cs_appliance_id: int,
+        device_health: DeviceHealth,
+    ) -> "VoltalisDeviceHealthDto":
+        """Convert from domain model"""
+
+        return VoltalisDeviceHealthDto(
+            cs_appliance_id=cs_appliance_id,
+            status=device_health.status.value.upper(),
+        )
+
     def to_device_health(self) -> DeviceHealth:
         """Convert to domain model"""
 

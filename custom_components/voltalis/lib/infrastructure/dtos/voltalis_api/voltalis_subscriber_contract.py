@@ -38,6 +38,37 @@ class VoltalisSubscriberContractDto(CustomModel):
     peak_hours: list[VoltalisTimeRange] = Field(alias="peakHours")
     offpeak_hours: list[VoltalisTimeRange] = Field(alias="offpeakHours")
 
+    @staticmethod
+    def from_energy_contract(energy_contract: EnergyContract) -> "VoltalisSubscriberContractDto":
+        return VoltalisSubscriberContractDto(
+            id=energy_contract.id,
+            api_contract_id=energy_contract.contract_id,
+            company_name=energy_contract.company_name,
+            name=energy_contract.name,
+            subscribed_power=energy_contract.subscribed_power,
+            is_peak_off_peak_contract=(energy_contract.type == EnergyContractTypeEnum.PEAK_OFFPEAK),
+            end_date=energy_contract.end_date,
+            subscription_base_price=(
+                energy_contract.prices.subscription if energy_contract.type == EnergyContractTypeEnum.BASE else None
+            ),
+            subscription_peak_off_peak_base_price=(
+                energy_contract.prices.subscription
+                if energy_contract.type == EnergyContractTypeEnum.PEAK_OFFPEAK
+                else None
+            ),
+            kwh_base_price=energy_contract.prices.kwh_base,
+            kwh_peak_hour_price=energy_contract.prices.kwh_peak,
+            kwh_offpeak_hour_price=energy_contract.prices.kwh_offpeak,
+            peak_hours=[
+                VoltalisTimeRange(from_time=time_range.start, to_time=time_range.end)
+                for time_range in energy_contract.peak_hours
+            ],
+            offpeak_hours=[
+                VoltalisTimeRange(from_time=time_range.start, to_time=time_range.end)
+                for time_range in energy_contract.offpeak_hours
+            ],
+        )
+
     def to_energy_contract(self) -> EnergyContract:
         return EnergyContract(
             id=self.id,

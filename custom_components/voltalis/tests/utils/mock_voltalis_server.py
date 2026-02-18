@@ -1,15 +1,39 @@
-from datetime import datetime
+from datetime import date, datetime
+from typing import Any, Callable
 
 from aiohttp import ClientSession
 
-from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import ManualSetting
+from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import (
+    ManualSetting,
+    ManualSettingUpdate,
+)
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.domain.shared.providers.http_client import HttpClient
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device import VoltalisDeviceDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device_consumption import (
+    VoltalisConsumptionDto,
+    VoltalisConsumptionDtoDevice,
+)
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device_health import (
+    VoltalisDeviceHealthDto,
+)
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_manual_setting import (
+    VoltalisManualSettingDto,
+    VoltalisManualSettingUpdateDto,
+)
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_program import VoltalisProgramDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_realtime_consumption import (
+    VoltalisRealtimeConsumptionDto,
+    VoltalisRealtimeConsumptionDtoConsumption,
+)
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_subscriber_contract import (
+    VoltalisSubscriberContractDto,
+)
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_stub import VoltalisProviderStub
 from custom_components.voltalis.tests.utils.mock_http_server import MockHttpServer
@@ -79,7 +103,7 @@ class MockVoltalisServer:
             url="/auth/login",
             method="POST",
             new_request_handler=MockHttpServer.RequestHandler(
-                response=lambda: MockHttpServer.StubResponse(
+                handle=lambda body, config: MockHttpServer.StubResponse(
                     status_code=200,
                     data={"token": "fake_token"},
                 ),
@@ -90,7 +114,7 @@ class MockVoltalisServer:
             url="/api/account/me",
             method="GET",
             new_request_handler=MockHttpServer.RequestHandler(
-                response=lambda: MockHttpServer.StubResponse(
+                handle=lambda body, config: MockHttpServer.StubResponse(
                     status_code=200,
                     data={"defaultSite": {"id": "1"}},
                 ),
@@ -100,33 +124,212 @@ class MockVoltalisServer:
     def given_devices(self, devices: dict[int, Device]) -> None:
         self.__voltalis_provider.set_devices(devices)
 
-        voltalis_devices = [VoltalisDeviceDto.from_device(device) for device in devices.values()]
+        async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
+            devices = await self.__voltalis_provider.get_devices()
+            voltalis_devices = [VoltalisDeviceDto.from_device(device) for device in devices.values()]
+
+            return MockHttpServer.StubResponse(
+                status_code=200,
+                data=voltalis_devices,
+            )
 
         self.__voltalis_api.set_request_handler(
             url="/api/site/{site_id}/managed-appliance",
             method="GET",
             new_request_handler=MockHttpServer.RequestHandler(
-                response=lambda: MockHttpServer.StubResponse(
-                    status_code=200,
-                    data=voltalis_devices,
-                ),
+                handle=request_handler,
             ),
         )
 
     def given_devices_health(self, devices_health: dict[int, DeviceHealth]) -> None:
         self.__voltalis_provider.set_devices_health(devices_health)
 
+        async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
+            devices_health = await self.__voltalis_provider.get_devices_health()
+            voltalis_devices_health = [
+                VoltalisDeviceHealthDto.from_device_health(device_id, device_health)
+                for device_id, device_health in devices_health.items()
+            ]
+
+            return MockHttpServer.StubResponse(
+                status_code=200,
+                data=voltalis_devices_health,
+            )
+
+        self.__voltalis_api.set_request_handler(
+            url="/api/site/{site_id}/autodiag",
+            method="GET",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=request_handler,
+            ),
+        )
+
     def given_live_consumption(self, consumption: LiveConsumption) -> None:
         self.__voltalis_provider.set_live_consumption(consumption)
+
+        async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
+            live_consumption = await self.__voltalis_provider.get_live_consumption()
+            voltalis_live_consumption = VoltalisRealtimeConsumptionDto(
+                consumptions=[
+                    VoltalisRealtimeConsumptionDtoConsumption(
+                        total_consumption_in_wh=live_consumption.consumption,
+                    ),
+                ]
+            )
+
+            return MockHttpServer.StubResponse(
+                status_code=200,
+                data=voltalis_live_consumption,
+            )
+
+        self.__voltalis_api.set_request_handler(
+            url="/api/site/{site_id}/consumption/realtime",
+            method="GET",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=request_handler,
+            ),
+        )
 
     def given_devices_consumptions(self, devices_consumptions: dict[int, list[tuple[datetime, float]]]) -> None:
         self.__voltalis_provider.set_devices_consumptions(devices_consumptions)
 
-    def given_manual_settings(self, manual_settings: dict[int, ManualSetting]) -> None:
+        async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
+            target_date_str = date.fromisoformat(config["path_params"]["target_date_str"])
+            devices_consumptions = await self.__voltalis_provider.get_devices_daily_consumptions(target_date_str)
+
+            voltalis_devices_consumptions = VoltalisConsumptionDto(
+                per_appliance={
+                    device_id: [
+                        VoltalisConsumptionDtoDevice(
+                            step_timestamp_on_site=date,
+                            total_consumption_in_wh=consumption,
+                        )
+                        for (date, consumption) in consumptions
+                    ]
+                    for device_id, consumptions in devices_consumptions.items()
+                }
+            )
+
+            return MockHttpServer.StubResponse(
+                status_code=200,
+                data=voltalis_devices_consumptions,
+            )
+
+        self.__voltalis_api.set_request_handler(
+            url="/api/site/{site_id}/consumption/day/{target_date_str}/full-data",
+            method="GET",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=request_handler,
+            ),
+        )
+
+    def given_manual_settings(self, manual_settings: list[ManualSetting]) -> None:
         self.__voltalis_provider.set_manual_settings(manual_settings)
 
-    def given_current_energy_contract(self, energy_contracts: dict[int, EnergyContract]) -> None:
+        async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
+            manual_settings = await self.__voltalis_provider.get_manual_settings()
+            voltalis_manual_settings = [
+                VoltalisManualSettingDto.from_manual_setting(manual_setting)
+                for manual_setting in manual_settings.values()
+            ]
+
+            return MockHttpServer.StubResponse(
+                status_code=200,
+                data=voltalis_manual_settings,
+            )
+
+        self.__voltalis_api.set_request_handler(
+            url="/api/site/{site_id}/manualsetting",
+            method="GET",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=request_handler,
+            ),
+        )
+
+        async def request_handler_2(body: Any, config: dict) -> MockHttpServer.StubResponse:
+            manual_setting_id = int(config["path_params"]["manual_setting_id"])
+
+            voltalis_manual_setting_update = VoltalisManualSettingUpdateDto(**body)
+            manual_setting_update = ManualSettingUpdate(
+                enabled=voltalis_manual_setting_update.enabled,
+                id_appliance=voltalis_manual_setting_update.id_appliance,
+                until_further_notice=voltalis_manual_setting_update.until_further_notice,
+                is_on=voltalis_manual_setting_update.is_on,
+                mode=voltalis_manual_setting_update.mode.value.lower(),
+                end_date=voltalis_manual_setting_update.end_date,
+                temperature_target=voltalis_manual_setting_update.temperature_target,
+            )
+
+            await self.__voltalis_provider.set_manual_setting(manual_setting_id, manual_setting_update)
+
+            return MockHttpServer.StubResponse(
+                status_code=200,
+            )
+
+        self.__voltalis_api.set_request_handler(
+            url="/api/site/{site_id}/manualsetting/{manual_setting_id}",
+            method="PUT",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=request_handler_2,
+                with_body=True,
+            ),
+        )
+
+    def given_energy_contracts(self, energy_contracts: dict[int, EnergyContract]) -> None:
         self.__voltalis_provider.set_energy_contracts(energy_contracts)
+
+        async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
+            energy_contracts = await self.__voltalis_provider.get_energy_contracts()
+            voltalis_energy_contracts = [
+                VoltalisSubscriberContractDto.from_energy_contract(energy_contract)
+                for energy_contract in energy_contracts.values()
+            ]
+
+            return MockHttpServer.StubResponse(
+                status_code=200,
+                data=voltalis_energy_contracts,
+            )
+
+        self.__voltalis_api.set_request_handler(
+            url="/api/site/{site_id}/subscriber-contract",
+            method="GET",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=request_handler,
+            ),
+        )
 
     def given_programs(self, programs: dict[int, Program]) -> None:
         self.__voltalis_provider.set_programs(programs)
+
+        def get_handler_from_endpoint(quick_setting: bool) -> Callable:
+            async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
+                programs = await self.__voltalis_provider.get_programs()
+                voltalis_programs = [
+                    VoltalisProgramDto.from_program(program)
+                    for program in programs.values()
+                    if (program.type is ProgramTypeEnum.QUICK and quick_setting)
+                    or (program.type is ProgramTypeEnum.USER and not quick_setting)
+                ]
+
+                return MockHttpServer.StubResponse(
+                    status_code=200,
+                    data=voltalis_programs,
+                )
+
+            return request_handler
+
+        self.__voltalis_api.set_request_handler(
+            url="/api/site/{site_id}/programming/program",
+            method="GET",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=get_handler_from_endpoint(quick_setting=False),
+            ),
+        )
+
+        self.__voltalis_api.set_request_handler(
+            url="/api/site/{site_id}/quicksettings",
+            method="GET",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=get_handler_from_endpoint(quick_setting=True),
+            ),
+        )
