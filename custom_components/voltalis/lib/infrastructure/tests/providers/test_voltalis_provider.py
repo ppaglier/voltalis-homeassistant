@@ -357,6 +357,44 @@ async def test_get_programs(fixture: "VoltalisProviderFixture") -> None:
     fixture.compare_data(result, expected_result)
 
 
+@pytest.mark.integration
+@pytest.mark.enable_socket
+async def test_toggle_program_user(fixture: "VoltalisProviderFixture") -> None:
+    """Test toggle_program method."""
+
+    program_builder = ProgramBuilder().with_id(1).with_type(ProgramTypeEnum.USER).with_enabled(False)
+    program = program_builder.build()
+    fixture.given_programs({1: program})
+
+    # Act
+    updated_program = program_builder.with_enabled(True).build()
+    await fixture.provider.toggle_program(updated_program)
+
+    # Assert
+    result = await fixture.provider.get_programs()
+    expected_result = {1: updated_program}
+    fixture.compare_dicts(result, expected_result)
+
+
+@pytest.mark.integration
+@pytest.mark.enable_socket
+async def test_toggle_program_quick(fixture: "VoltalisProviderFixture") -> None:
+    """Test toggle_program method with a quick setting program."""
+
+    program_builder = ProgramBuilder().with_id(1).with_type(ProgramTypeEnum.QUICK).with_enabled(False)
+    program = program_builder.build()
+    fixture.given_programs({1: program})
+
+    # Act
+    updated_program = program_builder.with_enabled(True).build()
+    await fixture.provider.toggle_program(updated_program)
+
+    # Assert
+    result = await fixture.provider.get_programs()
+    expected_result = {1: updated_program}
+    fixture.compare_dicts(result, expected_result)
+
+
 class VoltalisProviderFixture(BaseFixture):
     """VoltalisProvider fixture."""
 

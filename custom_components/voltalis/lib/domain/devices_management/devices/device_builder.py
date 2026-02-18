@@ -43,14 +43,13 @@ class DeviceBuilder(GenericBuilder[Device]):
         """Set the type of the device."""
         return self._set_value("type", type)
 
-    def with_modulator_type(self, modulator_type: DeviceModulatorTypeEnum) -> Self:
-        """Set the modulator type of the device."""
-        return self._set_value("modulator_type", modulator_type)
-
-    def with_available_modes(self, available_modes: list[DeviceModeEnum]) -> Self:
-        """Set the available modes of the device."""
-        return self._set_value("available_modes", available_modes)
-
     def with_programming(self, programming: DeviceProgramming) -> Self:
         """Set the programming of the device."""
+        return self._set_value("programming", programming)
+
+    def with_programming_mode(self, mode: DeviceModeEnum) -> Self:
+        """Set the mode in the programming of the device."""
+
+        programming = self._get_value("programming")
+        programming["mode"] = mode
         return self._set_value("programming", programming)

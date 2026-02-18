@@ -66,6 +66,9 @@ class SetDevicePresetHandler:
             await self.__climate_service.turn_off(
                 manual_setting_id=command.device.manual_setting.id,
                 device_id=command.device.id,
+                fallback_mode=command.device.programming.mode
+                if command.device.programming.mode
+                else DeviceModeEnum.ECO,
                 fallback_temperature=command.temperature or 16.0,
                 duration_hours=command.duration_hours,
             )

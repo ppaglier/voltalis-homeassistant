@@ -333,3 +333,40 @@ class MockVoltalisServer:
                 handle=get_handler_from_endpoint(quick_setting=True),
             ),
         )
+
+        def put_handler_from_endpoint(quick_setting: bool) -> Callable:
+            async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
+                program_id = int(config["path_params"]["program_id"])
+                name = body.pop("name", None)
+                if quick_setting and name is None:
+                    name = f"Quick Setting {program_id}"
+                voltalis_program_update = VoltalisProgramDto(id=program_id, name=name, **body)
+                program_update = voltalis_program_update.to_program(
+                    ProgramTypeEnum.QUICK if quick_setting else ProgramTypeEnum.USER
+                )
+
+                await self.__voltalis_provider.toggle_program(program_update)
+
+                return MockHttpServer.StubResponse(
+                    status_code=200,
+                )
+
+            return request_handler
+
+        self.__voltalis_api.set_request_handler(
+            url="/api/site/{site_id}/programming/program/{program_id}",
+            method="PUT",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=put_handler_from_endpoint(quick_setting=False),
+                with_body=True,
+            ),
+        )
+
+        self.__voltalis_api.set_request_handler(
+            url="/api/site/{site_id}/quicksettings/{program_id}/enable",
+            method="PUT",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=put_handler_from_endpoint(quick_setting=True),
+                with_body=True,
+            ),
+        )

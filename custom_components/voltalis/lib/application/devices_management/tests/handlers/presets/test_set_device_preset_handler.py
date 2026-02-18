@@ -58,7 +58,9 @@ async def test_set_device_preset_off_in_climate_mode_sets_temperature(
 
     # Given
     device = DeviceBuilder().with_id(1).build()
-    manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
+    manual_setting_builder = (
+        ManualSettingBuilder().with_id(1).with_mode(DeviceModeEnum.AUTO).with_id_appliance(device.id)
+    )
     manual_setting = manual_setting_builder.build()
     fixture.given_manual_settings([manual_setting])
 
@@ -80,6 +82,78 @@ async def test_set_device_preset_off_in_climate_mode_sets_temperature(
         .with_mode(DeviceModeEnum.TEMPERATURE)
         .with_end_date(None)
         .with_temperature_target(19.0)
+        .build()
+    )
+    fixture.then_manual_settings_should_be({expected.id: expected})
+
+
+@pytest.mark.unit
+async def test_set_device_preset_off_in_non_climate_mode_turns_off(
+    fixture: DeviceManagementFixture,
+) -> None:
+    """Test OFF preset in non-climate mode turns off the device."""
+
+    # Given
+    device = DeviceBuilder().with_id(1).with_programming_mode(DeviceModeEnum.AUTO).build()
+    manual_setting_builder = (
+        ManualSettingBuilder().with_id(1).with_mode(DeviceModeEnum.AUTO).with_id_appliance(device.id)
+    )
+    manual_setting = manual_setting_builder.build()
+    fixture.given_manual_settings([manual_setting])
+
+    # When
+    await fixture.set_device_preset_handler.handle(
+        SetDevicePresetCommand(
+            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            preset=DeviceCurrentPresetEnum.OFF,
+            climate_mode=False,
+            temperature=19.0,
+        )
+    )
+
+    # Then
+    expected = (
+        manual_setting_builder.with_enabled(True)
+        .with_until_further_notice(True)
+        .with_is_on(False)
+        .with_end_date(None)
+        .with_temperature_target(19.0)
+        .build()
+    )
+    fixture.then_manual_settings_should_be({expected.id: expected})
+
+
+@pytest.mark.unit
+async def test_set_device_preset_on_with_has_on_mode_maps_to_normal(
+    fixture: DeviceManagementFixture,
+) -> None:
+    """Test ON preset with has_on_mode maps to NORMAL mode."""
+
+    # Given
+    device = DeviceBuilder().with_id(1).build()
+    manual_setting_builder = (
+        ManualSettingBuilder().with_id(1).with_mode(DeviceModeEnum.OFF).with_id_appliance(device.id)
+    )
+    manual_setting = manual_setting_builder.build()
+    fixture.given_manual_settings([manual_setting])
+
+    # When
+    await fixture.set_device_preset_handler.handle(
+        SetDevicePresetCommand(
+            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            preset=DeviceCurrentPresetEnum.ON,
+            has_on_mode=True,
+            climate_mode=True,
+        )
+    )
+
+    # Then
+    expected = (
+        manual_setting_builder.with_enabled(True)
+        .with_until_further_notice(True)
+        .with_is_on(True)
+        .with_mode(DeviceModeEnum.NORMAL)
+        .with_end_date(None)
         .build()
     )
     fixture.then_manual_settings_should_be({expected.id: expected})
