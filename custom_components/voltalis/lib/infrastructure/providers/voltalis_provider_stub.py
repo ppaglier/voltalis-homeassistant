@@ -9,6 +9,7 @@ from custom_components.voltalis.lib.domain.devices_management.health.device_heal
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
 
 
@@ -81,7 +82,11 @@ class VoltalisProviderStub(VoltalisProvider):
         return self._energy_contracts
 
     async def get_programs(self) -> dict[int, Program]:
-        return self._programs
+        return {
+            program_id: program
+            for program_id, program in self._programs.items()
+            if program.type in [ProgramTypeEnum.USER, ProgramTypeEnum.QUICK]
+        }
 
     async def toggle_program(self, program: Program) -> None:
         self._programs[program.id].enabled = program.enabled
