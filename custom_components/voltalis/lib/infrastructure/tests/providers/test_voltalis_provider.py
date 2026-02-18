@@ -404,7 +404,7 @@ class VoltalisProviderFixture(BaseFixture):
     # Define the tested providers
     # NOTE: VoltalisProviderVoltalisApi is disabled until MockVoltalisServer HTTP routes are fully implemented
     TESTED_PROVIDERS = [
-        # VoltalisProviderStub,
+        VoltalisProviderStub,
         VoltalisProviderVoltalisApi,
     ]
 
