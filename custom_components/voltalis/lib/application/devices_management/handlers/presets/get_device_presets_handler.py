@@ -5,9 +5,8 @@ from custom_components.voltalis.lib.application.devices_management.queries.get_d
     GetDevicePresetsQuery,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
-    DeviceCurrentPresetEnum,
-)
+from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
+from custom_components.voltalis.lib.domain.devices_management.presets.presets_mappings import PRESET_MODE_MAPPING
 
 
 class GetDevicePresetsHandler:
@@ -18,11 +17,7 @@ class GetDevicePresetsHandler:
 
         presets_config: dict[DeviceCurrentPresetEnum, DeviceModeEnum | None] = {
             DeviceCurrentPresetEnum.AUTO: None,
-            DeviceCurrentPresetEnum.ON: DeviceModeEnum.ON,
-            DeviceCurrentPresetEnum.COMFORT: DeviceModeEnum.COMFORT,
-            DeviceCurrentPresetEnum.ECO: DeviceModeEnum.ECO,
-            DeviceCurrentPresetEnum.AWAY: DeviceModeEnum.AWAY,
-            DeviceCurrentPresetEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
+            **{preset: mode for preset, mode in PRESET_MODE_MAPPING.items()},
             DeviceCurrentPresetEnum.OFF: None,
         }
 

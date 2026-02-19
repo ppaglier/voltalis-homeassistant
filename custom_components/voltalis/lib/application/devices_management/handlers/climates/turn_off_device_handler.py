@@ -44,7 +44,7 @@ class TurnOffDeviceHandler:
         if command.device.manual_setting is None:
             raise ValueError(f"Device {command.device.id} does not support manual settings")
 
-        target_mode = command.fallback_mode or command.device.programming.mode or DeviceModeEnum.OFF
+        target_mode = command.fallback_mode or command.device.programming.mode or DeviceModeEnum.ECO
 
         target_temp = get_appropriate_temperature(
             device=command.device,

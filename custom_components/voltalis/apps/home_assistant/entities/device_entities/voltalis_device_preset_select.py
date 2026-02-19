@@ -19,9 +19,7 @@ from custom_components.voltalis.lib.application.devices_management.queries.get_d
     GetDevicePresetsQuery,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
-from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
-    DeviceCurrentPresetEnum,
-)
+from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
 
 
 class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
@@ -38,7 +36,6 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
             GetDevicePresetsQuery(available_modes=device.available_modes)
         )
 
-        self.__has_ecov_mode = result.has_ecov_mode
         self.__has_on_mode = result.has_on_mode
         self._attr_options = [preset.value for preset in result.presets]
 
@@ -103,7 +100,6 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
                 device=device,
                 preset=DeviceCurrentPresetEnum(option),
                 duration_hours=None,  # Indefinite until user changes it again
-                has_ecov_mode=self.__has_ecov_mode,
                 has_on_mode=self.__has_on_mode,
             )
         )

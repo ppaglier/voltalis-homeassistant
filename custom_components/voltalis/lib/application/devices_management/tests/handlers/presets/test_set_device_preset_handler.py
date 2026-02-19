@@ -12,9 +12,7 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device_builder import DeviceBuilder
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
-    DeviceCurrentPresetEnum,
-)
+from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
 
 
 @pytest.mark.unit
@@ -132,7 +130,7 @@ async def test_set_device_preset_on_with_has_on_mode_maps_to_normal(
     # Given
     device = DeviceBuilder().with_id(1).build()
     manual_setting_builder = (
-        ManualSettingBuilder().with_id(1).with_mode(DeviceModeEnum.OFF).with_id_appliance(device.id)
+        ManualSettingBuilder().with_id(1).with_mode(DeviceModeEnum.ECO).with_id_appliance(device.id)
     )
     manual_setting = manual_setting_builder.build()
     fixture.given_manual_settings([manual_setting])

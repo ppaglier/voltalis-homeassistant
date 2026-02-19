@@ -10,9 +10,7 @@ from custom_components.voltalis.lib.application.devices_management.tests.device_
     DeviceManagementFixture,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
-    DeviceCurrentPresetEnum,
-)
+from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
 
 
 @pytest.mark.unit
@@ -43,7 +41,6 @@ def test_get_device_presets_includes_auto_on_and_off(
             DeviceCurrentPresetEnum.TEMPERATURE,
             DeviceCurrentPresetEnum.OFF,
         ],
-        has_ecov_mode=False,
         has_on_mode=True,
     )
 
@@ -76,7 +73,6 @@ def test_get_device_presets_climate_mode(
             DeviceCurrentPresetEnum.AWAY,
             DeviceCurrentPresetEnum.OFF,
         ],
-        has_ecov_mode=False,
         has_on_mode=True,
     )
 

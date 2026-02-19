@@ -34,7 +34,7 @@ async def test_set_water_heater_operation_on(
         .with_programming(
             DeviceProgramming(
                 prog_type=ProgramTypeEnum.DEFAULT,
-                mode=DeviceModeEnum.OFF,
+                mode=DeviceModeEnum.ECO,
                 temperature_target=None,
                 default_temperature=None,
             )
@@ -79,7 +79,7 @@ async def test_set_water_heater_operation_off(
         .with_programming(
             DeviceProgramming(
                 prog_type=ProgramTypeEnum.DEFAULT,
-                mode=DeviceModeEnum.OFF,
+                mode=DeviceModeEnum.ECO,
                 temperature_target=None,
                 default_temperature=None,
             )

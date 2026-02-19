@@ -2,9 +2,8 @@ from custom_components.voltalis.lib.application.devices_management.queries.get_d
     GetDevicePresetQuery,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
-    DeviceCurrentPresetEnum,
-)
+from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
+from custom_components.voltalis.lib.domain.devices_management.presets.presets_mappings import MODE_PRESET_MAPPING
 
 
 class GetDevicePresetHandler:
@@ -18,24 +17,16 @@ class GetDevicePresetHandler:
             return DeviceCurrentPresetEnum.OFF
 
         # Check if device is off
-        if query.id_manual_setting is None:
+        if not query.climate_mode and query.id_manual_setting is None:
             return DeviceCurrentPresetEnum.AUTO
 
         if query.mode is None:
             return None
 
-        query_mode = query.mode
-        if query_mode == DeviceModeEnum.TEMPERATURE and query.climate_mode:
+        if query.climate_mode and query.mode in [DeviceModeEnum.TEMPERATURE, DeviceModeEnum.ON]:
             # For climate devices in TEMPERATURE mode, we consider the preset to be OFF
             return DeviceCurrentPresetEnum.OFF
 
-        mode_mapping = {
-            DeviceModeEnum.COMFORT: DeviceCurrentPresetEnum.COMFORT,
-            DeviceModeEnum.ECO: DeviceCurrentPresetEnum.ECO,
-            DeviceModeEnum.AWAY: DeviceCurrentPresetEnum.AWAY,
-            DeviceModeEnum.TEMPERATURE: DeviceCurrentPresetEnum.TEMPERATURE,
-            DeviceModeEnum.ON: DeviceCurrentPresetEnum.ON,
-        }
-
-        mode = mode_mapping.get(query.mode, DeviceCurrentPresetEnum.OFF)  # Default to OFF if preset is unrecognized
-        return mode
+        # Default to OFF if preset is unrecognized
+        preset = MODE_PRESET_MAPPING.get(query.mode, DeviceCurrentPresetEnum.OFF)
+        return preset

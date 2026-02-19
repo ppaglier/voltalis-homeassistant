@@ -68,7 +68,6 @@ class VoltalisDeviceDtoModeEnum(StrEnum):
     HORS_GEL = "HORS_GEL"
     NORMAL = "NORMAL"
     ECOV = "ECOV"
-    OFF = "OFF"
 
 
 VOLTALIS_DEVICE_MODE_MAPPING = {
@@ -77,7 +76,6 @@ VOLTALIS_DEVICE_MODE_MAPPING = {
     VoltalisDeviceDtoModeEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
     VoltalisDeviceDtoModeEnum.HORS_GEL: DeviceModeEnum.AWAY,
     VoltalisDeviceDtoModeEnum.NORMAL: DeviceModeEnum.ON,
-    VoltalisDeviceDtoModeEnum.OFF: DeviceModeEnum.OFF,
 }
 REVERSED_MODE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_MODE_MAPPING.items()}
 
@@ -117,12 +115,19 @@ class VoltalisDeviceDto(CustomModel):
             if device.programming.mode is DeviceModeEnum.ECO and device.has_ecov:
                 actual_mode = VoltalisDeviceDtoModeEnum.ECOV
 
+        available_modes: list[VoltalisDeviceDtoModeEnum] = []
+        for mode in device.available_modes:
+            if mode is DeviceModeEnum.ECO and device.has_ecov:
+                available_modes.append(VoltalisDeviceDtoModeEnum.ECOV)
+            elif mode in REVERSED_MODE_MAPPING:
+                available_modes.append(REVERSED_MODE_MAPPING[mode])
+
         return VoltalisDeviceDto(
             id=device.id,
             name=device.name,
             appliance_type=REVERSED_DEVICE_TYPE_MAPPING[device.type],
             modulator_type=REVERSED_MODULATOR_TYPE_MAPPING[device.modulator_type],
-            available_modes=[REVERSED_MODE_MAPPING[mode] for mode in device.available_modes],
+            available_modes=available_modes,
             programming=VoltalisDeviceDtoProgramming(
                 prog_type=REVERSED_PROG_TYPE_MAPPING[device.programming.prog_type],
                 id_manual_setting=device.programming.id_manual_setting,
@@ -142,16 +147,19 @@ class VoltalisDeviceDto(CustomModel):
             if self.programming.mode is VoltalisDeviceDtoModeEnum.ECOV:
                 actual_mode = DeviceModeEnum.ECO
 
+        available_modes: list[DeviceModeEnum] = []
+        for mode in self.available_modes:
+            if mode is VoltalisDeviceDtoModeEnum.ECOV:
+                available_modes.append(DeviceModeEnum.ECO)
+            if mode in VOLTALIS_DEVICE_MODE_MAPPING:
+                available_modes.append(VOLTALIS_DEVICE_MODE_MAPPING[mode])
+
         return Device(
             id=self.id,
             name=self.name,
             type=VOLTALIS_DEVICE_TYPE_MAPPING[self.appliance_type],
             modulator_type=VOLTALIS_DEVICE_MODULATOR_TYPE_MAPPING[self.modulator_type],
-            available_modes=[
-                VOLTALIS_DEVICE_MODE_MAPPING[mode]
-                for mode in self.available_modes
-                if mode in VOLTALIS_DEVICE_MODE_MAPPING
-            ],
+            available_modes=available_modes,
             has_ecov=VoltalisDeviceDtoModeEnum.ECOV in self.available_modes,
             programming=DeviceProgramming(
                 prog_type=VOLTALIS_DEVICE_PROG_TYPE_MAPPING[self.programming.prog_type],

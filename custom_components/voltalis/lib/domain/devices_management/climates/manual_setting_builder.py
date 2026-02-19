@@ -16,7 +16,7 @@ class ManualSettingBuilder(GenericBuilder[ManualSetting]):
         id_appliance=DeviceBuilder.DEFAULT_VALUES.id,
         until_further_notice=True,
         is_on=False,
-        mode=DeviceModeEnum.OFF,
+        mode=DeviceModeEnum.ECO,
         end_date=None,
         temperature_target=0.0,
     )

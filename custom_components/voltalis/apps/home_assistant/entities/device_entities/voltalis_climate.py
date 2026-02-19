@@ -46,9 +46,7 @@ from custom_components.voltalis.lib.application.devices_management.queries.set_c
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
-    DeviceCurrentPresetEnum,
-)
+from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
 
 
 class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
@@ -76,7 +74,6 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
             )
         )
 
-        self.__has_ecov_mode = result.has_ecov_mode
         self._attr_preset_modes = [preset.value for preset in result.presets]
 
         # Determine supported features
@@ -235,7 +232,6 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
             SetDevicePresetCommand(
                 device=self._current_device,
                 preset=DeviceCurrentPresetEnum(preset_mode),
-                has_ecov_mode=self.__has_ecov_mode,
                 climate_mode=True,
             )
         )
@@ -266,7 +262,6 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
                     device=self._current_device,
                     temperature=temperature,
                     preset=preset_mode,
-                    has_ecov_mode=self.__has_ecov_mode,
                     duration_hours=duration_hours,
                 )
             )

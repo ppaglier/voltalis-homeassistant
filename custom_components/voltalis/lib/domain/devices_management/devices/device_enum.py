@@ -27,4 +27,3 @@ class DeviceModeEnum(StrEnum):
     TEMPERATURE = "temperature"
 
     ON = "on"
-    OFF = PRESET_NONE

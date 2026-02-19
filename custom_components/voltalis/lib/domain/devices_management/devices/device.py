@@ -14,8 +14,10 @@ class DeviceProgramming(CustomModel):
 
     prog_type: ProgramTypeEnum
     id_manual_setting: int | None = None
-    is_on: bool | None = None
-    mode: DeviceModeEnum | None = None
+
+    is_on: bool = False
+    mode: DeviceModeEnum
+
     temperature_target: float | None = None
     default_temperature: float | None = None
 
@@ -25,8 +27,11 @@ class Device(CustomModel):
 
     id: int
     name: str
+
     type: DeviceTypeEnum
     modulator_type: DeviceModulatorTypeEnum
+
     available_modes: list[DeviceModeEnum]
     has_ecov: bool
+
     programming: DeviceProgramming

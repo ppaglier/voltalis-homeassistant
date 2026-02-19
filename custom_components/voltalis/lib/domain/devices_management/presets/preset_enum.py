@@ -3,8 +3,8 @@ from enum import StrEnum
 from homeassistant.components.climate import PRESET_AWAY, PRESET_COMFORT, PRESET_ECO, PRESET_NONE
 
 
-class DeviceCurrentModeEnum(StrEnum):
-    """Voltalis device preset select options."""
+class DeviceCurrentPresetEnum(StrEnum):
+    """Enum for device presets"""
 
     COMFORT = PRESET_COMFORT
     ECO = PRESET_ECO
@@ -13,3 +13,4 @@ class DeviceCurrentModeEnum(StrEnum):
 
     ON = "on"
     OFF = PRESET_NONE
+    AUTO = "auto"

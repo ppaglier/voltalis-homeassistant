@@ -8,15 +8,20 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisDeviceEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_device_mode_handler import (
+    DeviceCurrentModeEnum,
+)
+from custom_components.voltalis.lib.application.devices_management.queries.get_device_mode_query import (
+    GetDeviceModeQuery,
+)
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
-from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 
 
 class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
     """Select entity for Voltalis heating device mode."""
 
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_options = [option for option in DeviceModeEnum]
+    _attr_options = [option for option in DeviceCurrentModeEnum]
     _attr_translation_key = "device_current_mode"
     _unique_id_suffix = "device_current_mode"
 
@@ -29,17 +34,17 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
         """Return the icon to use for this entity."""
         current = self.native_value
         if current is not None:
-            if current == DeviceModeEnum.COMFORT:
+            if current == DeviceCurrentModeEnum.COMFORT:
                 return "mdi:home-thermometer"
-            if current == DeviceModeEnum.ECO:
+            if current == DeviceCurrentModeEnum.ECO:
                 return "mdi:leaf"
-            if current == DeviceModeEnum.AWAY:
+            if current == DeviceCurrentModeEnum.AWAY:
                 return "mdi:snowflake-alert"
-            if current == DeviceModeEnum.TEMPERATURE:
+            if current == DeviceCurrentModeEnum.TEMPERATURE:
                 return "mdi:thermometer"
-            if current == DeviceModeEnum.ON:
+            if current == DeviceCurrentModeEnum.ON:
                 return "mdi:flash-outline"
-            if current == DeviceModeEnum.OFF:
+            if current == DeviceCurrentModeEnum.OFF:
                 return "mdi:power"
         return "mdi:eye-off"
 
@@ -53,7 +58,12 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
             return
 
         # Check if device is off
-        self._attr_native_value = DeviceModeEnum.OFF if device.programming.is_on is False else device.programming.mode
+        self._attr_native_value = self._voltalis_module.get_device_mode_handler.handle(
+            GetDeviceModeQuery(
+                is_on=device.programming.is_on,
+                mode=device.programming.mode,
+            )
+        )
 
         self.async_write_ha_state()
 

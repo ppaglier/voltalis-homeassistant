@@ -10,9 +10,8 @@ from custom_components.voltalis.lib.domain.devices_management.climates.climate_m
     ClimateManagementService,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
-from custom_components.voltalis.lib.domain.devices_management.presets.device_current_preset_enum import (
-    DeviceCurrentPresetEnum,
-)
+from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
+from custom_components.voltalis.lib.domain.devices_management.presets.presets_mappings import PRESET_MODE_MAPPING
 from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
 
@@ -80,15 +79,7 @@ class SetDevicePresetHandler:
             target_mode = DeviceModeEnum.ON
         else:
             # Handle other presets (COMFORT, ECO, FROST_PROTECTION)
-            mode_mapping = {
-                DeviceCurrentPresetEnum.COMFORT: DeviceModeEnum.COMFORT,
-                DeviceCurrentPresetEnum.ECO: DeviceModeEnum.ECO,
-                DeviceCurrentPresetEnum.AWAY: DeviceModeEnum.AWAY,
-                DeviceCurrentPresetEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
-            }
-            target_mode = mode_mapping.get(
-                command_preset, DeviceModeEnum.OFF
-            )  # Default to OFF if preset is unrecognized
+            target_mode = PRESET_MODE_MAPPING.get(command_preset, DeviceModeEnum.ECO)
 
         temperature = get_appropriate_temperature(
             command.device,
@@ -97,7 +88,7 @@ class SetDevicePresetHandler:
             default_away_temperature=self.__default_away_temperature,
             default_eco_temperature=self.__default_eco_temperature,
             default_comfort_temperature=self.__default_comfort_temperature,
-            use_device_programming=target_mode in [DeviceModeEnum.ON, DeviceModeEnum.TEMPERATURE, DeviceModeEnum.OFF],
+            use_device_programming=target_mode in [DeviceModeEnum.ON, DeviceModeEnum.TEMPERATURE],
             temperature=command.temperature,
         )
 
