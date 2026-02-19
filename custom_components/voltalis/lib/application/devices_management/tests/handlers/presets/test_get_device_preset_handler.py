@@ -81,6 +81,24 @@ def test_get_device_preset_maps_modes(
     assert result == DeviceCurrentPresetEnum.COMFORT
 
 
+@pytest.mark.unit
+def test_get_device_preset_non_climate_device_with_unrecognized_mode_returns_off(
+    fixture: DeviceManagementFixture,
+) -> None:
+    """Test device preset handler returns OFF for non-climate devices with unrecognized modes."""
+
+    result = fixture.get_device_preset_handler.handle(
+        GetDevicePresetQuery(
+            is_on=True,
+            id_manual_setting=1,
+            mode=None,
+            climate_mode=True,
+        )
+    )
+
+    assert result is None
+
+
 @pytest.fixture
 def fixture() -> DeviceManagementFixture:
     return DeviceManagementFixture()

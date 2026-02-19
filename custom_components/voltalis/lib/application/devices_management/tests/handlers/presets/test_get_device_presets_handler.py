@@ -69,6 +69,27 @@ def test_get_device_presets_with_ecov_only(
     fixture.compare_data(result, expected)
 
 
+@pytest.mark.unit
+def test_get_device_presets_ecov_replaces_temperature_mode(
+    fixture: DeviceManagementFixture,
+) -> None:
+    """Test that ECOV mode replaces TEMPERATURE mode when ECO is not available (line 48)."""
+
+    result = fixture.get_device_presets_handler.handle(GetDevicePresetsQuery(available_modes=[DeviceModeEnum.ECOV]))
+
+    expected = GetDevicePresetsDto(
+        presets=[
+            DeviceCurrentPresetEnum.AUTO,
+            DeviceCurrentPresetEnum.ECO,
+            DeviceCurrentPresetEnum.OFF,
+        ],
+        has_ecov_mode=True,
+        has_on_mode=False,
+    )
+
+    fixture.compare_data(result, expected)
+
+
 @pytest.fixture
 def fixture() -> DeviceManagementFixture:
     return DeviceManagementFixture()

@@ -180,7 +180,6 @@ class VoltalisClientAiohttp(HttpClientAiohttp):
                 body=body,
                 query_params=query_params,
                 headers=headers,
-                can_retry=False,
                 **kwargs,
             )
 

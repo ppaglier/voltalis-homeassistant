@@ -16,47 +16,22 @@ class GetDevicePresetsHandler:
     def handle(self, query: GetDevicePresetsQuery) -> GetDevicePresetsDto:
         """Handle the query to get the possible presets of a device."""
 
-        preset_mapping = {
-            DeviceModeEnum.CONFORT: DeviceCurrentPresetEnum.COMFORT,
-            DeviceModeEnum.ECO: DeviceCurrentPresetEnum.ECO,
-            DeviceModeEnum.ECOV: DeviceCurrentPresetEnum.ECO,
-            DeviceModeEnum.HORS_GEL: DeviceCurrentPresetEnum.AWAY,
-            DeviceModeEnum.TEMPERATURE: DeviceCurrentPresetEnum.TEMPERATURE,
-            DeviceModeEnum.NORMAL: DeviceCurrentPresetEnum.ON,
+        presets_config: dict[DeviceCurrentPresetEnum, list[DeviceModeEnum]] = {
+            DeviceCurrentPresetEnum.AUTO: [],
+            DeviceCurrentPresetEnum.ON: [DeviceModeEnum.NORMAL],
+            DeviceCurrentPresetEnum.COMFORT: [DeviceModeEnum.CONFORT],
+            DeviceCurrentPresetEnum.ECO: [DeviceModeEnum.ECO, DeviceModeEnum.ECOV],
+            DeviceCurrentPresetEnum.AWAY: [DeviceModeEnum.HORS_GEL],
+            DeviceCurrentPresetEnum.TEMPERATURE: [DeviceModeEnum.TEMPERATURE],
+            DeviceCurrentPresetEnum.OFF: [],
         }
-
-        available_presets = set(preset_mapping[mode] for mode in query.available_modes if mode in preset_mapping)
-
-        has_ecov_mode = DeviceModeEnum.ECOV in query.available_modes
-        has_on_mode = DeviceModeEnum.NORMAL in query.available_modes
-
-        # Build options modes from available modes
-        possible_presets: list[DeviceCurrentPresetEnum] = []
-        for voltalis_mode in DeviceCurrentPresetEnum:
-            # Skip AUTO | ON | NONE mode here, will add it after the loop
-            if voltalis_mode in [
-                DeviceCurrentPresetEnum.AUTO,
-                DeviceCurrentPresetEnum.ON,
-                DeviceCurrentPresetEnum.OFF,
-            ]:
-                continue
-
-            if voltalis_mode not in available_presets:
-                # Special handling for ECOV mode
-                if (has_ecov_mode and voltalis_mode != DeviceCurrentPresetEnum.ECO) or not has_ecov_mode:
-                    continue
-                voltalis_mode = DeviceCurrentPresetEnum.ECO
-
-            if voltalis_mode not in possible_presets:
-                possible_presets.append(voltalis_mode)
 
         return GetDevicePresetsDto(
             presets=[
-                DeviceCurrentPresetEnum.AUTO,
-                *([DeviceCurrentPresetEnum.ON] if has_on_mode else []),
-                *possible_presets,
-                DeviceCurrentPresetEnum.OFF,
+                preset
+                for (preset, modes) in presets_config.items()
+                if len(modes) == 0 or any(mode in query.available_modes for mode in modes)
             ],
-            has_ecov_mode=has_ecov_mode,
-            has_on_mode=has_on_mode,
+            has_ecov_mode=DeviceModeEnum.ECOV in query.available_modes,
+            has_on_mode=DeviceModeEnum.NORMAL in query.available_modes,
         )

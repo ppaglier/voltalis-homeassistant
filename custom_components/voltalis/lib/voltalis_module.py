@@ -200,9 +200,7 @@ class VoltalisModule:
         self.get_energy_contract_current_mode_handler = GetEnergyContractCurrentModeHandler(
             date_provider=self.date_provider,
         )
-        self.get_energy_contract_current_kwh_cost_handler = GetEnergyContractCurrentKwhCostHandler(
-            logger=self.logger,
-        )
+        self.get_energy_contract_current_kwh_cost_handler = GetEnergyContractCurrentKwhCostHandler()
         self.get_live_consumption_handler = GetLiveConsumptionHandler(
             voltalis_provider=self.__voltalis_provider,
         )

@@ -60,27 +60,26 @@ class SetClimateActionHandler:
             default_comfort_temperature=self.__default_comfort_temperature,
         )
 
-        match command.action:
-            case HVACAction.OFF:
-                await self.__climate_service.turn_off(
-                    manual_setting_id=command.device.manual_setting.id,
-                    device_id=command.device.id,
-                    fallback_mode=target_mode,
-                    fallback_temperature=target_temp,
-                )
-            case HVACAction.HEATING:
-                await self.__climate_service.set_manual_mode(
-                    manual_setting_id=command.device.manual_setting.id,
-                    device_id=command.device.id,
-                    mode=target_mode,
-                    temperature_target=target_temp,
-                )
-            case HVACAction.IDLE:
-                await self.__climate_service.disable_manual_mode(
-                    manual_setting_id=command.device.manual_setting.id,
-                    device_id=command.device.id,
-                    fallback_mode=target_mode,
-                    fallback_temperature=target_temp,
-                )
-            case _:
-                raise ValueError(f"HVAC action {command.action} not supported")
+        if command.action is HVACAction.HEATING:
+            await self.__climate_service.set_manual_mode(
+                manual_setting_id=command.device.manual_setting.id,
+                device_id=command.device.id,
+                mode=target_mode,
+                temperature_target=target_temp,
+            )
+            return
+        if command.action is HVACAction.IDLE:
+            await self.__climate_service.disable_manual_mode(
+                manual_setting_id=command.device.manual_setting.id,
+                device_id=command.device.id,
+                fallback_mode=target_mode,
+                fallback_temperature=target_temp,
+            )
+            return
+
+        await self.__climate_service.turn_off(
+            manual_setting_id=command.device.manual_setting.id,
+            device_id=command.device.id,
+            fallback_mode=target_mode,
+            fallback_temperature=target_temp,
+        )

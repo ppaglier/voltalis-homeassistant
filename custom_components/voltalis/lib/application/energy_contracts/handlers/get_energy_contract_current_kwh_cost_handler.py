@@ -11,24 +11,11 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_curr
 class GetEnergyContractCurrentKwhCostHandler:
     """Handler to get the current kWh cost of the energy contract."""
 
-    def __init__(
-        self,
-        *,
-        logger: Logger,
-    ):
-
-        self.__logger = logger
-
     async def handle(self, query: GetEnergyContractCurrentKwCostQuery) -> float | None:
         """Handle the request to get the current mode of the energy contract."""
 
-        match query.current_mode:
-            case EnergyContractCurrentModeEnum.BASE:
-                return query.base_kwh_cost
-            case EnergyContractCurrentModeEnum.PEAK:
-                return query.peak_kwh_cost
-            case EnergyContractCurrentModeEnum.OFFPEAK:
-                return query.offpeak_kwh_cost
-            case _:
-                self.__logger.error("Unknown energy contract current mode: %s", query.current_mode)
-                return None
+        if query.current_mode is EnergyContractCurrentModeEnum.PEAK:
+            return query.peak_kwh_cost
+        if query.current_mode is EnergyContractCurrentModeEnum.OFFPEAK:
+            return query.offpeak_kwh_cost
+        return query.base_kwh_cost

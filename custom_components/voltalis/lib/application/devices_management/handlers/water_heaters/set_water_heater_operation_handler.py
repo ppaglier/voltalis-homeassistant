@@ -41,18 +41,13 @@ class SetWaterHeaterOperationHandler:
         if command.device.manual_setting is None:
             raise ValueError(f"Device {command.device.id} does not support manual settings")
 
-        match command.operation_mode:
-            case WaterHeaterCurrentOperationEnum.ON:
-                await self.__turn_on(command, command.device.manual_setting.id)
-                return
-            case WaterHeaterCurrentOperationEnum.OFF:
-                await self.__turn_off(command, command.device.manual_setting.id)
-                return
-            case WaterHeaterCurrentOperationEnum.AUTO:
-                await self.__turn_auto_mode(command, command.device.manual_setting.id)
-                return
-            case _:
-                self.__logger.error(f"Invalid operation mode: {command.operation_mode}")
+        if command.operation_mode is WaterHeaterCurrentOperationEnum.ON:
+            await self.__turn_on(command, command.device.manual_setting.id)
+            return
+        if command.operation_mode is WaterHeaterCurrentOperationEnum.AUTO:
+            await self.__turn_auto_mode(command, command.device.manual_setting.id)
+            return
+        await self.__turn_off(command, command.device.manual_setting.id)
 
     async def __turn_on(self, command: SetWaterHeaterOperationCommand, manual_setting_id: int) -> None:
         """Set OFF mode by turning off the water heater with a manual mode."""
