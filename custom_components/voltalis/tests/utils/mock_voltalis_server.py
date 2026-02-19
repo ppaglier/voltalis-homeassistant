@@ -14,7 +14,10 @@ from custom_components.voltalis.lib.domain.energy_contracts.live_consumption imp
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.domain.shared.providers.http_client import HttpClient
-from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device import VoltalisDeviceDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device import (
+    VOLTALIS_DEVICE_MODE_MAPPING,
+    VoltalisDeviceDto,
+)
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device_consumption import (
     VoltalisConsumptionDto,
     VoltalisConsumptionDtoDevice,
@@ -255,7 +258,7 @@ class MockVoltalisServer:
                 id_appliance=voltalis_manual_setting_update.id_appliance,
                 until_further_notice=voltalis_manual_setting_update.until_further_notice,
                 is_on=voltalis_manual_setting_update.is_on,
-                mode=voltalis_manual_setting_update.mode.value.lower(),
+                mode=VOLTALIS_DEVICE_MODE_MAPPING[voltalis_manual_setting_update.mode],
                 end_date=voltalis_manual_setting_update.end_date,
                 temperature_target=voltalis_manual_setting_update.temperature_target,
             )

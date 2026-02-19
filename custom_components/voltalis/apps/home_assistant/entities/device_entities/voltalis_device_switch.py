@@ -30,9 +30,7 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
         """Initialize the program select entity."""
         super().__init__(entry, device, entry.runtime_data.voltalis_home_assistant_module.device_coordinator)
 
-        self.__on_mode = (
-            DeviceModeEnum.NORMAL if DeviceModeEnum.NORMAL in device.available_modes else DeviceModeEnum.CONFORT
-        )
+        self.__on_mode = DeviceModeEnum.ON if DeviceModeEnum.ON in device.available_modes else DeviceModeEnum.COMFORT
 
     @property
     def _current_device(self) -> DeviceDto:

@@ -52,7 +52,7 @@ class SetWaterHeaterOperationHandler:
     async def __turn_on(self, command: SetWaterHeaterOperationCommand, manual_setting_id: int) -> None:
         """Set OFF mode by turning off the water heater with a manual mode."""
 
-        target_mode = DeviceModeEnum.NORMAL
+        target_mode = DeviceModeEnum.ON
 
         target_temp = get_appropriate_temperature(
             command.device,
@@ -74,7 +74,7 @@ class SetWaterHeaterOperationHandler:
     async def __turn_off(self, command: SetWaterHeaterOperationCommand, manual_setting_id: int) -> None:
         """Set OFF mode by turning off the water heater with a manual mode."""
 
-        target_mode = DeviceModeEnum.NORMAL
+        target_mode = DeviceModeEnum.ON
 
         target_temp = get_appropriate_temperature(
             command.device,

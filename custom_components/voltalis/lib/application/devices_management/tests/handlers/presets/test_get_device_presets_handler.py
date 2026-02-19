@@ -24,10 +24,10 @@ def test_get_device_presets_includes_auto_on_and_off(
     result = fixture.get_device_presets_handler.handle(
         GetDevicePresetsQuery(
             available_modes=[
-                DeviceModeEnum.CONFORT,
+                DeviceModeEnum.COMFORT,
                 DeviceModeEnum.ECO,
-                DeviceModeEnum.HORS_GEL,
-                DeviceModeEnum.NORMAL,
+                DeviceModeEnum.AWAY,
+                DeviceModeEnum.ON,
                 DeviceModeEnum.TEMPERATURE,
             ]
         )
@@ -80,10 +80,10 @@ def test_get_device_presets_climate_mode(
     result = fixture.get_device_presets_handler.handle(
         GetDevicePresetsQuery(
             available_modes=[
-                DeviceModeEnum.CONFORT,
+                DeviceModeEnum.COMFORT,
                 DeviceModeEnum.ECO,
-                DeviceModeEnum.HORS_GEL,
-                DeviceModeEnum.NORMAL,
+                DeviceModeEnum.AWAY,
+                DeviceModeEnum.ON,
                 DeviceModeEnum.TEMPERATURE,
             ],
             climate_mode=True,

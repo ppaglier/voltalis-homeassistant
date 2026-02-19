@@ -311,7 +311,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         if device.manual_setting is None:
             raise HomeAssistantError(f"Device {device.id} does not support manual settings")
 
-        target_mode = DeviceModeEnum.CONFORT
+        target_mode = DeviceModeEnum.COMFORT
         target_temp = self._voltalis_module.config.default_comfort_temp + CLIMATE_BOOST_TEMP_INCREASE
 
         # If the device isn't in temperature mode, we can boost by increasing the target temperature above comfort temp

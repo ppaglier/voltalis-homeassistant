@@ -22,7 +22,7 @@ def test_get_device_preset_returns_off_when_device_is_off(
         GetDevicePresetQuery(
             is_on=False,
             id_manual_setting=1,
-            mode=DeviceModeEnum.CONFORT,
+            mode=DeviceModeEnum.COMFORT,
         )
     )
 
@@ -39,7 +39,7 @@ def test_get_device_preset_returns_auto_when_no_manual_setting(
         GetDevicePresetQuery(
             is_on=True,
             id_manual_setting=None,
-            mode=DeviceModeEnum.CONFORT,
+            mode=DeviceModeEnum.COMFORT,
         )
     )
 
@@ -74,7 +74,7 @@ def test_get_device_preset_maps_modes(
         GetDevicePresetQuery(
             is_on=True,
             id_manual_setting=1,
-            mode=DeviceModeEnum.CONFORT,
+            mode=DeviceModeEnum.COMFORT,
         )
     )
 

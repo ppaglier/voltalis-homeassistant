@@ -27,7 +27,7 @@ def test_get_climate_action_maps_modes(
 ) -> None:
     """Test climate action handler maps modes to actions."""
 
-    idle = fixture.get_climate_action_handler.handle(GetClimateActionQuery(is_on=True, mode=DeviceModeEnum.HORS_GEL))
+    idle = fixture.get_climate_action_handler.handle(GetClimateActionQuery(is_on=True, mode=DeviceModeEnum.AWAY))
     heating = fixture.get_climate_action_handler.handle(GetClimateActionQuery(is_on=True, mode=DeviceModeEnum.ECO))
 
     assert idle == HVACAction.IDLE

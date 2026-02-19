@@ -16,7 +16,7 @@ class GetClimateActionHandler:
         if query.is_on is False:
             return HVACAction.OFF
 
-        if query.mode == DeviceModeEnum.HORS_GEL:
+        if query.mode == DeviceModeEnum.AWAY:
             return HVACAction.IDLE
 
         return HVACAction.HEATING

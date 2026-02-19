@@ -215,7 +215,7 @@ async def test_get_manual_settings(fixture: "VoltalisProviderFixture") -> None:
             id_appliance=10,
             until_further_notice=True,
             is_on=True,
-            mode=DeviceModeEnum.CONFORT,
+            mode=DeviceModeEnum.COMFORT,
             temperature_target=21.5,
         ),
         ManualSetting(
@@ -268,7 +268,7 @@ async def test_set_manual_setting(fixture: "VoltalisProviderFixture") -> None:
         .with_id_appliance(10)
         .with_until_further_notice(True)
         .with_is_on(True)
-        .with_mode(DeviceModeEnum.CONFORT)
+        .with_mode(DeviceModeEnum.COMFORT)
         .with_temperature_target(21.5)
     )
     manual_settings = [manual_setting_builder.build()]

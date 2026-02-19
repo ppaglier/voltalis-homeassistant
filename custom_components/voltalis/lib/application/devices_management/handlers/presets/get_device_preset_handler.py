@@ -30,12 +30,12 @@ class GetDevicePresetHandler:
             return DeviceCurrentPresetEnum.OFF
 
         mode_mapping = {
-            DeviceModeEnum.CONFORT: DeviceCurrentPresetEnum.COMFORT,
+            DeviceModeEnum.COMFORT: DeviceCurrentPresetEnum.COMFORT,
             DeviceModeEnum.ECO: DeviceCurrentPresetEnum.ECO,
             DeviceModeEnum.ECOV: DeviceCurrentPresetEnum.ECO,
-            DeviceModeEnum.HORS_GEL: DeviceCurrentPresetEnum.AWAY,
+            DeviceModeEnum.AWAY: DeviceCurrentPresetEnum.AWAY,
             DeviceModeEnum.TEMPERATURE: DeviceCurrentPresetEnum.TEMPERATURE,
-            DeviceModeEnum.NORMAL: DeviceCurrentPresetEnum.ON,
+            DeviceModeEnum.ON: DeviceCurrentPresetEnum.ON,
         }
 
         mode = mode_mapping.get(query.mode, DeviceCurrentPresetEnum.OFF)  # Default to OFF if preset is unrecognized

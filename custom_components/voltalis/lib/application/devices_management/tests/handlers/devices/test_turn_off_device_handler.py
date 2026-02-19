@@ -34,7 +34,7 @@ async def test_turn_off_device_sets_manual_mode(
     await fixture.turn_off_device_handler.handle(
         TurnOffDeviceCommand(
             device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
-            fallback_mode=DeviceModeEnum.CONFORT,
+            fallback_mode=DeviceModeEnum.COMFORT,
             fallback_temperature=17.0,
             duration_hours=3,
         )
@@ -45,7 +45,7 @@ async def test_turn_off_device_sets_manual_mode(
         manual_setting_builder.with_enabled(True)
         .with_until_further_notice(False)
         .with_is_on(False)
-        .with_mode(DeviceModeEnum.CONFORT)
+        .with_mode(DeviceModeEnum.COMFORT)
         .with_end_date(now + timedelta(hours=3))
         .with_temperature_target(17.0)
         .build()

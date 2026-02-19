@@ -29,7 +29,7 @@ def test_get_device_mode_maps_modes(
 ) -> None:
     """Test device mode handler maps modes to current modes."""
 
-    result = fixture.get_device_mode_handler.handle(GetDeviceModeQuery(is_on=True, mode=DeviceModeEnum.NORMAL))
+    result = fixture.get_device_mode_handler.handle(GetDeviceModeQuery(is_on=True, mode=DeviceModeEnum.ON))
 
     assert result == DeviceCurrentModeEnum.ON
 

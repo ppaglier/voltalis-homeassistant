@@ -152,7 +152,7 @@ async def test_set_device_preset_on_with_has_on_mode_maps_to_normal(
         manual_setting_builder.with_enabled(True)
         .with_until_further_notice(True)
         .with_is_on(True)
-        .with_mode(DeviceModeEnum.NORMAL)
+        .with_mode(DeviceModeEnum.ON)
         .with_end_date(None)
         .build()
     )

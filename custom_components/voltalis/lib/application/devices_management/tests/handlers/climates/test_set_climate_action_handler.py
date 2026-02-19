@@ -32,7 +32,7 @@ async def test_set_climate_action_turns_off_device(
         .with_programming(
             DeviceProgramming(
                 prog_type=ProgramTypeEnum.DEFAULT,
-                mode=DeviceModeEnum.CONFORT,
+                mode=DeviceModeEnum.COMFORT,
                 temperature_target=21.0,
                 default_temperature=17.0,
             )
@@ -56,7 +56,7 @@ async def test_set_climate_action_turns_off_device(
         manual_setting_builder.with_enabled(True)
         .with_until_further_notice(True)
         .with_is_on(False)
-        .with_mode(DeviceModeEnum.CONFORT)
+        .with_mode(DeviceModeEnum.COMFORT)
         .with_end_date(None)
         .with_temperature_target(21.0)
         .build()

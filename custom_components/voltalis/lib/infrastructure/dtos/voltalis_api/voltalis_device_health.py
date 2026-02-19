@@ -2,7 +2,10 @@ from enum import StrEnum
 
 from pydantic import Field
 
-from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
+from custom_components.voltalis.lib.domain.devices_management.health.device_health import (
+    DeviceHealth,
+    DeviceHealthStatusEnum,
+)
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
 
@@ -19,6 +22,17 @@ class VoltalisDeviceHealthDtoStatusEnum(StrEnum):
     COMM_ERROR_NO_CAPS = "comm_error"
 
 
+VOLTALIS_DEVICE_HEALTH_STATUS_MAPPING = {
+    VoltalisDeviceHealthDtoStatusEnum.OK: DeviceHealthStatusEnum.OK,
+    VoltalisDeviceHealthDtoStatusEnum.NOT_OK: DeviceHealthStatusEnum.NOT_OK,
+    VoltalisDeviceHealthDtoStatusEnum.TEST_IN_PROGRESS: DeviceHealthStatusEnum.TEST_IN_PROGRESS,
+    VoltalisDeviceHealthDtoStatusEnum.NO_CONSUMPTION: DeviceHealthStatusEnum.NO_CONSUMPTION,
+    VoltalisDeviceHealthDtoStatusEnum.COMM_ERROR: DeviceHealthStatusEnum.COMM_ERROR,
+    VoltalisDeviceHealthDtoStatusEnum.NO_CONSUMPTION_NO_CAPS: DeviceHealthStatusEnum.NO_CONSUMPTION,
+    VoltalisDeviceHealthDtoStatusEnum.COMM_ERROR_NO_CAPS: DeviceHealthStatusEnum.COMM_ERROR,
+}
+
+
 class VoltalisDeviceHealthDto(CustomModel):
     """Class to represent a Voltalis device health DTO"""
 
@@ -32,14 +46,16 @@ class VoltalisDeviceHealthDto(CustomModel):
     ) -> "VoltalisDeviceHealthDto":
         """Convert from domain model"""
 
+        reversed_mapping = {v: k for k, v in VOLTALIS_DEVICE_HEALTH_STATUS_MAPPING.items()}
+
         return VoltalisDeviceHealthDto(
             cs_appliance_id=cs_appliance_id,
-            status=device_health.status.value.upper(),
+            status=reversed_mapping[device_health.status],
         )
 
     def to_device_health(self) -> DeviceHealth:
         """Convert to domain model"""
 
         return DeviceHealth(
-            status=self.status.value.lower(),
+            status=VOLTALIS_DEVICE_HEALTH_STATUS_MAPPING[self.status],
         )

@@ -1,5 +1,7 @@
 from enum import StrEnum
 
+from homeassistant.components.climate import PRESET_AWAY, PRESET_COMFORT, PRESET_ECO, PRESET_NONE
+
 
 class DeviceTypeEnum(StrEnum):
     """Enum for the type field"""
@@ -19,11 +21,13 @@ class DeviceModulatorTypeEnum(StrEnum):
 class DeviceModeEnum(StrEnum):
     """Enum for the available_modes field"""
 
-    ECO = "eco"
-    CONFORT = "confort"
+    COMFORT = PRESET_COMFORT
+    ECO = PRESET_ECO
+    AWAY = PRESET_AWAY
     TEMPERATURE = "temperature"
-    HORS_GEL = "hors_gel"
-    NORMAL = "normal"
-    ECOV = "ecov"
-    OFF = "off"
+
+    ON = "on"
+    OFF = PRESET_NONE
+
     AUTO = "auto"
+    ECOV = "ecov"

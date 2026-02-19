@@ -6,6 +6,12 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device imp
     Device,
     DeviceProgramming,
 )
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import (
+    DeviceModeEnum,
+    DeviceModulatorTypeEnum,
+    DeviceTypeEnum,
+)
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
 
@@ -17,11 +23,24 @@ class VoltalisDeviceDtoApplianceTypeEnum(StrEnum):
     OTHER = "OTHER"
 
 
+VOLTALIS_DEVICE_TYPE_MAPPING = {
+    VoltalisDeviceDtoApplianceTypeEnum.HEATER: DeviceTypeEnum.HEATER,
+    VoltalisDeviceDtoApplianceTypeEnum.WATER_HEATER: DeviceTypeEnum.WATER_HEATER,
+    VoltalisDeviceDtoApplianceTypeEnum.OTHER: DeviceTypeEnum.OTHER,
+}
+
+
 class VoltalisDeviceDtoModulatorTypeEnum(StrEnum):
     """Enum for the modulator_type field"""
 
     VX_WIRE = "VX_WIRE"
     VX_RELAY = "VX_RELAY"
+
+
+VOLTALIS_DEVICE_MODULATOR_TYPE_MAPPING = {
+    VoltalisDeviceDtoModulatorTypeEnum.VX_WIRE: DeviceModulatorTypeEnum.VX_WIRE,
+    VoltalisDeviceDtoModulatorTypeEnum.VX_RELAY: DeviceModulatorTypeEnum.VX_RELAY,
+}
 
 
 class VoltalisDeviceDtoProgTypeEnum(StrEnum):
@@ -31,6 +50,13 @@ class VoltalisDeviceDtoProgTypeEnum(StrEnum):
     DEFAULT = "DEFAULT"
     USER = "USER"
     QUICK = "QUICK"
+
+
+VOLTALIS_DEVICE_PROG_TYPE_MAPPING = {
+    VoltalisDeviceDtoProgTypeEnum.MANUAL: ProgramTypeEnum.MANUAL,
+    VoltalisDeviceDtoProgTypeEnum.DEFAULT: ProgramTypeEnum.DEFAULT,
+    VoltalisDeviceDtoProgTypeEnum.USER: ProgramTypeEnum.USER,
+}
 
 
 class VoltalisDeviceDtoModeEnum(StrEnum):
@@ -44,6 +70,18 @@ class VoltalisDeviceDtoModeEnum(StrEnum):
     ECOV = "ECOV"
     OFF = "OFF"
     AUTO = "AUTO"
+
+
+VOLTALIS_DEVICE_MODE_MAPPING = {
+    VoltalisDeviceDtoModeEnum.ECO: DeviceModeEnum.ECO,
+    VoltalisDeviceDtoModeEnum.CONFORT: DeviceModeEnum.COMFORT,
+    VoltalisDeviceDtoModeEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
+    VoltalisDeviceDtoModeEnum.HORS_GEL: DeviceModeEnum.AWAY,
+    VoltalisDeviceDtoModeEnum.NORMAL: DeviceModeEnum.ON,
+    VoltalisDeviceDtoModeEnum.ECOV: DeviceModeEnum.ECOV,
+    VoltalisDeviceDtoModeEnum.OFF: DeviceModeEnum.OFF,
+    VoltalisDeviceDtoModeEnum.AUTO: DeviceModeEnum.AUTO,
+}
 
 
 class VoltalisDeviceDtoProgramming(CustomModel):
@@ -71,17 +109,22 @@ class VoltalisDeviceDto(CustomModel):
     def from_device(device: Device) -> "VoltalisDeviceDto":
         """Convert from domain model to DTO"""
 
+        REVERSED_DEVICE_TYPE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_TYPE_MAPPING.items()}
+        REVERSED_MODULATOR_TYPE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_MODULATOR_TYPE_MAPPING.items()}
+        REVERSED_PROG_TYPE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_PROG_TYPE_MAPPING.items()}
+        REVERSED_MODE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_MODE_MAPPING.items()}
+
         return VoltalisDeviceDto(
             id=device.id,
             name=device.name,
-            appliance_type=device.type.upper(),
-            modulator_type=device.modulator_type.upper(),
-            available_modes=[mode.upper() for mode in device.available_modes],
+            appliance_type=REVERSED_DEVICE_TYPE_MAPPING[device.type],
+            modulator_type=REVERSED_MODULATOR_TYPE_MAPPING[device.modulator_type],
+            available_modes=[REVERSED_MODE_MAPPING[mode] for mode in device.available_modes],
             programming=VoltalisDeviceDtoProgramming(
-                prog_type=device.programming.prog_type.upper(),
+                prog_type=REVERSED_PROG_TYPE_MAPPING[device.programming.prog_type],
                 id_manual_setting=device.programming.id_manual_setting,
                 is_on=device.programming.is_on,
-                mode=device.programming.mode.upper() if device.programming.mode else None,
+                mode=REVERSED_MODE_MAPPING[device.programming.mode] if device.programming.mode else None,
                 temperature_target=device.programming.temperature_target,
                 default_temperature=device.programming.default_temperature,
             ),
@@ -93,14 +136,14 @@ class VoltalisDeviceDto(CustomModel):
         return Device(
             id=self.id,
             name=self.name,
-            type=self.appliance_type.value.lower(),
-            modulator_type=self.modulator_type.value.lower(),
-            available_modes=[mode.value.lower() for mode in self.available_modes],
+            type=VOLTALIS_DEVICE_TYPE_MAPPING[self.appliance_type],
+            modulator_type=VOLTALIS_DEVICE_MODULATOR_TYPE_MAPPING[self.modulator_type],
+            available_modes=[VOLTALIS_DEVICE_MODE_MAPPING[mode] for mode in self.available_modes],
             programming=DeviceProgramming(
-                prog_type=self.programming.prog_type.value.lower(),
+                prog_type=VOLTALIS_DEVICE_PROG_TYPE_MAPPING[self.programming.prog_type],
                 id_manual_setting=self.programming.id_manual_setting,
                 is_on=self.programming.is_on,
-                mode=self.programming.mode.value.lower() if self.programming.mode else None,
+                mode=VOLTALIS_DEVICE_MODE_MAPPING[self.programming.mode] if self.programming.mode else None,
                 temperature_target=self.programming.temperature_target,
                 default_temperature=self.programming.default_temperature,
             ),

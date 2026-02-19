@@ -28,10 +28,10 @@ def get_appropriate_temperature(
             return device.programming.default_temperature
 
     mode_mapping = {
-        DeviceModeEnum.HORS_GEL: default_away_temperature,
+        DeviceModeEnum.AWAY: default_away_temperature,
         DeviceModeEnum.ECO: default_eco_temperature,
         DeviceModeEnum.ECOV: default_eco_temperature,
-        DeviceModeEnum.CONFORT: default_comfort_temperature,
+        DeviceModeEnum.COMFORT: default_comfort_temperature,
     }
 
     return mode_mapping.get(mode, default_temperature)

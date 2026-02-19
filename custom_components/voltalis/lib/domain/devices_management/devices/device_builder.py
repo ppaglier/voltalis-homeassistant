@@ -18,7 +18,7 @@ class DeviceBuilder(GenericBuilder[Device]):
         name="Device name",
         type=DeviceTypeEnum.HEATER,
         modulator_type=DeviceModulatorTypeEnum.VX_WIRE,
-        available_modes=[DeviceModeEnum.AUTO, DeviceModeEnum.CONFORT, DeviceModeEnum.ECO, DeviceModeEnum.OFF],
+        available_modes=[DeviceModeEnum.AUTO, DeviceModeEnum.COMFORT, DeviceModeEnum.ECO, DeviceModeEnum.OFF],
         programming=DeviceProgramming(
             prog_type=ProgramTypeEnum.DEFAULT,
             mode=DeviceModeEnum.OFF,

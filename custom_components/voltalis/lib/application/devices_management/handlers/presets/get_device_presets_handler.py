@@ -18,10 +18,10 @@ class GetDevicePresetsHandler:
 
         presets_config: dict[DeviceCurrentPresetEnum, list[DeviceModeEnum]] = {
             DeviceCurrentPresetEnum.AUTO: [],
-            DeviceCurrentPresetEnum.ON: [DeviceModeEnum.NORMAL],
-            DeviceCurrentPresetEnum.COMFORT: [DeviceModeEnum.CONFORT],
+            DeviceCurrentPresetEnum.ON: [DeviceModeEnum.ON],
+            DeviceCurrentPresetEnum.COMFORT: [DeviceModeEnum.COMFORT],
             DeviceCurrentPresetEnum.ECO: [DeviceModeEnum.ECO, DeviceModeEnum.ECOV],
-            DeviceCurrentPresetEnum.AWAY: [DeviceModeEnum.HORS_GEL],
+            DeviceCurrentPresetEnum.AWAY: [DeviceModeEnum.AWAY],
             DeviceCurrentPresetEnum.TEMPERATURE: [DeviceModeEnum.TEMPERATURE],
             DeviceCurrentPresetEnum.OFF: [],
         }
@@ -39,5 +39,5 @@ class GetDevicePresetsHandler:
                 if len(modes) == 0 or any(mode in query.available_modes for mode in modes)
             ],
             has_ecov_mode=DeviceModeEnum.ECOV in query.available_modes,
-            has_on_mode=DeviceModeEnum.NORMAL in query.available_modes,
+            has_on_mode=DeviceModeEnum.ON in query.available_modes,
         )

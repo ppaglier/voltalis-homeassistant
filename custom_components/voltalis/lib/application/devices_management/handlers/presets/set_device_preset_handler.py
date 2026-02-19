@@ -77,13 +77,13 @@ class SetDevicePresetHandler:
         if command.has_ecov_mode and command_preset == DeviceCurrentPresetEnum.ECO:
             target_mode = DeviceModeEnum.ECOV
         elif command.has_on_mode and command_preset == DeviceCurrentPresetEnum.ON:
-            target_mode = DeviceModeEnum.NORMAL
+            target_mode = DeviceModeEnum.ON
         else:
             # Handle other presets (COMFORT, ECO, FROST_PROTECTION)
             mode_mapping = {
-                DeviceCurrentPresetEnum.COMFORT: DeviceModeEnum.CONFORT,
+                DeviceCurrentPresetEnum.COMFORT: DeviceModeEnum.COMFORT,
                 DeviceCurrentPresetEnum.ECO: DeviceModeEnum.ECO,
-                DeviceCurrentPresetEnum.AWAY: DeviceModeEnum.HORS_GEL,
+                DeviceCurrentPresetEnum.AWAY: DeviceModeEnum.AWAY,
                 DeviceCurrentPresetEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
             }
             target_mode = mode_mapping.get(
@@ -98,7 +98,7 @@ class SetDevicePresetHandler:
             default_eco_temperature=self.__default_eco_temperature,
             default_comfort_temperature=self.__default_comfort_temperature,
             use_device_programming=target_mode
-            in [DeviceModeEnum.AUTO, DeviceModeEnum.NORMAL, DeviceModeEnum.TEMPERATURE, DeviceModeEnum.OFF],
+            in [DeviceModeEnum.AUTO, DeviceModeEnum.ON, DeviceModeEnum.TEMPERATURE, DeviceModeEnum.OFF],
             temperature=command.temperature,
         )
 
