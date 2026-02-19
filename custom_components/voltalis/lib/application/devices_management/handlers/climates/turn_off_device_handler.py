@@ -59,6 +59,7 @@ class TurnOffDeviceHandler:
         await self.__climate_service.turn_off(
             manual_setting_id=command.device.manual_setting.id,
             device_id=command.device.id,
+            has_device_ecov=command.device.has_ecov,
             fallback_temperature=target_temp,
             fallback_mode=target_mode,
             duration_hours=command.duration_hours,

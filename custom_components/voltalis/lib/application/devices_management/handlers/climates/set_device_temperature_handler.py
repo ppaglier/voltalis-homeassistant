@@ -62,6 +62,7 @@ class SetDeviceTemperatureHandler:
         await self.__climate_service.set_manual_mode(
             manual_setting_id=command.device.manual_setting.id,
             device_id=command.device.id,
+            has_device_ecov=command.device.has_ecov,
             mode=command.mode,
             temperature_target=target_temp,
             duration_hours=command.duration_hours,

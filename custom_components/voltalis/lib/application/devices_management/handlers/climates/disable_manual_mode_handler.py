@@ -59,6 +59,7 @@ class DisableManualModeHandler:
         await self.__climate_service.disable_manual_mode(
             manual_setting_id=command.device.manual_setting.id,
             device_id=command.device.id,
+            has_device_ecov=command.device.has_ecov,
             fallback_mode=command.fallback_mode or command.device.programming.mode or DeviceModeEnum.ECO,
             fallback_temperature=target_temp,
         )

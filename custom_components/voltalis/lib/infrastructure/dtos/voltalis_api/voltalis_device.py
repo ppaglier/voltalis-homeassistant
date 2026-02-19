@@ -78,10 +78,10 @@ VOLTALIS_DEVICE_MODE_MAPPING = {
     VoltalisDeviceDtoModeEnum.TEMPERATURE: DeviceModeEnum.TEMPERATURE,
     VoltalisDeviceDtoModeEnum.HORS_GEL: DeviceModeEnum.AWAY,
     VoltalisDeviceDtoModeEnum.NORMAL: DeviceModeEnum.ON,
-    VoltalisDeviceDtoModeEnum.ECOV: DeviceModeEnum.ECOV,
     VoltalisDeviceDtoModeEnum.OFF: DeviceModeEnum.OFF,
     VoltalisDeviceDtoModeEnum.AUTO: DeviceModeEnum.AUTO,
 }
+REVERSED_MODE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_MODE_MAPPING.items()}
 
 
 class VoltalisDeviceDtoProgramming(CustomModel):
@@ -112,7 +112,12 @@ class VoltalisDeviceDto(CustomModel):
         REVERSED_DEVICE_TYPE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_TYPE_MAPPING.items()}
         REVERSED_MODULATOR_TYPE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_MODULATOR_TYPE_MAPPING.items()}
         REVERSED_PROG_TYPE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_PROG_TYPE_MAPPING.items()}
-        REVERSED_MODE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_MODE_MAPPING.items()}
+
+        actual_mode: VoltalisDeviceDtoModeEnum | None = None
+        if device.programming.mode:
+            actual_mode = REVERSED_MODE_MAPPING.get(device.programming.mode, None)
+            if device.programming.mode is DeviceModeEnum.ECO and device.has_ecov:
+                actual_mode = VoltalisDeviceDtoModeEnum.ECOV
 
         return VoltalisDeviceDto(
             id=device.id,
@@ -124,7 +129,7 @@ class VoltalisDeviceDto(CustomModel):
                 prog_type=REVERSED_PROG_TYPE_MAPPING[device.programming.prog_type],
                 id_manual_setting=device.programming.id_manual_setting,
                 is_on=device.programming.is_on,
-                mode=REVERSED_MODE_MAPPING[device.programming.mode] if device.programming.mode else None,
+                mode=actual_mode,
                 temperature_target=device.programming.temperature_target,
                 default_temperature=device.programming.default_temperature,
             ),
@@ -133,17 +138,28 @@ class VoltalisDeviceDto(CustomModel):
     def to_device(self) -> Device:
         """Convert to domain model"""
 
+        actual_mode: DeviceModeEnum | None = None
+        if self.programming.mode:
+            actual_mode = VOLTALIS_DEVICE_MODE_MAPPING.get(self.programming.mode, None)
+            if self.programming.mode is VoltalisDeviceDtoModeEnum.ECOV:
+                actual_mode = DeviceModeEnum.ECO
+
         return Device(
             id=self.id,
             name=self.name,
             type=VOLTALIS_DEVICE_TYPE_MAPPING[self.appliance_type],
             modulator_type=VOLTALIS_DEVICE_MODULATOR_TYPE_MAPPING[self.modulator_type],
-            available_modes=[VOLTALIS_DEVICE_MODE_MAPPING[mode] for mode in self.available_modes],
+            available_modes=[
+                VOLTALIS_DEVICE_MODE_MAPPING[mode]
+                for mode in self.available_modes
+                if mode in VOLTALIS_DEVICE_MODE_MAPPING
+            ],
+            has_ecov=VoltalisDeviceDtoModeEnum.ECOV in self.available_modes,
             programming=DeviceProgramming(
                 prog_type=VOLTALIS_DEVICE_PROG_TYPE_MAPPING[self.programming.prog_type],
                 id_manual_setting=self.programming.id_manual_setting,
                 is_on=self.programming.is_on,
-                mode=VOLTALIS_DEVICE_MODE_MAPPING[self.programming.mode] if self.programming.mode else None,
+                mode=actual_mode,
                 temperature_target=self.programming.temperature_target,
                 default_temperature=self.programming.default_temperature,
             ),

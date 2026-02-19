@@ -20,7 +20,6 @@ class GetDeviceModeHandler:
         mode_mapping = {
             DeviceModeEnum.COMFORT: DeviceCurrentModeEnum.COMFORT,
             DeviceModeEnum.ECO: DeviceCurrentModeEnum.ECO,
-            DeviceModeEnum.ECOV: DeviceCurrentModeEnum.ECO,
             DeviceModeEnum.AWAY: DeviceCurrentModeEnum.AWAY,
             DeviceModeEnum.TEMPERATURE: DeviceCurrentModeEnum.TEMPERATURE,
             DeviceModeEnum.ON: DeviceCurrentModeEnum.ON,

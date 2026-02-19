@@ -28,4 +28,5 @@ class Device(CustomModel):
     type: DeviceTypeEnum
     modulator_type: DeviceModulatorTypeEnum
     available_modes: list[DeviceModeEnum]
+    has_ecov: bool
     programming: DeviceProgramming

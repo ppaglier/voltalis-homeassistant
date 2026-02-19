@@ -57,6 +57,7 @@ class SetDevicePresetHandler:
             await self.__climate_service.disable_manual_mode(
                 manual_setting_id=command.device.manual_setting.id,
                 device_id=command.device.id,
+                has_device_ecov=command.device.has_ecov,
                 fallback_temperature=command.temperature or 16.0,
             )
             return
@@ -66,6 +67,7 @@ class SetDevicePresetHandler:
             await self.__climate_service.turn_off(
                 manual_setting_id=command.device.manual_setting.id,
                 device_id=command.device.id,
+                has_device_ecov=command.device.has_ecov,
                 fallback_mode=command.device.programming.mode
                 if command.device.programming.mode
                 else DeviceModeEnum.ECO,
@@ -74,9 +76,7 @@ class SetDevicePresetHandler:
             )
             return
 
-        if command.has_ecov_mode and command_preset == DeviceCurrentPresetEnum.ECO:
-            target_mode = DeviceModeEnum.ECOV
-        elif command.has_on_mode and command_preset == DeviceCurrentPresetEnum.ON:
+        if command.has_on_mode and command_preset == DeviceCurrentPresetEnum.ON:
             target_mode = DeviceModeEnum.ON
         else:
             # Handle other presets (COMFORT, ECO, FROST_PROTECTION)
@@ -105,6 +105,7 @@ class SetDevicePresetHandler:
         await self.__climate_service.set_manual_mode(
             manual_setting_id=command.device.manual_setting.id,
             device_id=command.device.id,
+            has_device_ecov=command.device.has_ecov,
             mode=target_mode,
             temperature_target=temperature,
             duration_hours=command.duration_hours,

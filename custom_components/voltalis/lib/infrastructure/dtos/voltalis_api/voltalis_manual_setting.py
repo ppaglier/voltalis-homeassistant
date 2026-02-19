@@ -3,8 +3,10 @@ from datetime import datetime
 from pydantic import Field
 
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import ManualSetting
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device import (
+    REVERSED_MODE_MAPPING,
     VOLTALIS_DEVICE_MODE_MAPPING,
     VoltalisDeviceDtoModeEnum,
 )
@@ -33,8 +35,6 @@ class VoltalisManualSettingDto(VoltalisManualSettingUpdateDto):
     ) -> "VoltalisManualSettingDto":
         """Convert from domain model"""
 
-        REVERSED_MODE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_MODE_MAPPING.items()}
-
         return VoltalisManualSettingDto(
             id=manual_setting.id,
             enabled=manual_setting.enabled,
@@ -49,13 +49,18 @@ class VoltalisManualSettingDto(VoltalisManualSettingUpdateDto):
     def to_manual_setting(self) -> ManualSetting:
         """Convert to domain model"""
 
+        if self.mode == VoltalisDeviceDtoModeEnum.ECOV:
+            setting_mode = DeviceModeEnum.ECO
+        else:
+            setting_mode = VOLTALIS_DEVICE_MODE_MAPPING[self.mode]
+
         return ManualSetting(
             id=self.id,
             enabled=self.enabled,
             id_appliance=self.id_appliance,
             until_further_notice=self.until_further_notice,
             is_on=self.is_on,
-            mode=VOLTALIS_DEVICE_MODE_MAPPING[self.mode],
+            mode=setting_mode,
             end_date=self.end_date,
             temperature_target=self.temperature_target,
         )

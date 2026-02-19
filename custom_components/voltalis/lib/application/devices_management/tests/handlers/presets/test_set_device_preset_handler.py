@@ -162,38 +162,3 @@ async def test_set_device_preset_on_with_has_on_mode_maps_to_normal(
 @pytest.fixture
 def fixture() -> DeviceManagementFixture:
     return DeviceManagementFixture()
-
-
-@pytest.mark.unit
-async def test_set_device_preset_eco_maps_to_ecov(
-    fixture: DeviceManagementFixture,
-) -> None:
-    """Test ECO preset maps to ECOV when available."""
-
-    # Given
-    device = DeviceBuilder().with_id(1).build()
-    manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
-    manual_setting = manual_setting_builder.build()
-    fixture.given_manual_settings([manual_setting])
-
-    # When
-    await fixture.set_device_preset_handler.handle(
-        SetDevicePresetCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
-            preset=DeviceCurrentPresetEnum.ECO,
-            has_ecov_mode=True,
-            temperature=18.0,
-        )
-    )
-
-    # Then
-    expected = (
-        manual_setting_builder.with_enabled(True)
-        .with_until_further_notice(True)
-        .with_is_on(True)
-        .with_mode(DeviceModeEnum.ECOV)
-        .with_end_date(None)
-        .with_temperature_target(18.0)
-        .build()
-    )
-    fixture.then_manual_settings_should_be({expected.id: expected})

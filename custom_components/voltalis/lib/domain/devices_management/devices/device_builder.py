@@ -19,6 +19,7 @@ class DeviceBuilder(GenericBuilder[Device]):
         type=DeviceTypeEnum.HEATER,
         modulator_type=DeviceModulatorTypeEnum.VX_WIRE,
         available_modes=[DeviceModeEnum.AUTO, DeviceModeEnum.COMFORT, DeviceModeEnum.ECO, DeviceModeEnum.OFF],
+        has_ecov=False,
         programming=DeviceProgramming(
             prog_type=ProgramTypeEnum.DEFAULT,
             mode=DeviceModeEnum.OFF,
@@ -39,9 +40,17 @@ class DeviceBuilder(GenericBuilder[Device]):
         """Set the id of the device."""
         return self._set_value("id", id)
 
+    def with_name(self, name: str) -> Self:
+        """Set the name of the device."""
+        return self._set_value("name", name)
+
     def with_type(self, type: DeviceTypeEnum) -> Self:
         """Set the type of the device."""
         return self._set_value("type", type)
+
+    def with_modulator_type(self, modulator_type: DeviceModulatorTypeEnum) -> Self:
+        """Set the modulator type of the device."""
+        return self._set_value("modulator_type", modulator_type)
 
     def with_programming(self, programming: DeviceProgramming) -> Self:
         """Set the programming of the device."""

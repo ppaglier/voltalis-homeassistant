@@ -30,4 +30,3 @@ class DeviceModeEnum(StrEnum):
     OFF = PRESET_NONE
 
     AUTO = "auto"
-    ECOV = "ecov"

@@ -51,27 +51,6 @@ def test_get_device_presets_includes_auto_on_and_off(
 
 
 @pytest.mark.unit
-def test_get_device_presets_with_ecov_only(
-    fixture: DeviceManagementFixture,
-) -> None:
-    """Test device presets handler when only ECOV is available."""
-
-    result = fixture.get_device_presets_handler.handle(GetDevicePresetsQuery(available_modes=[DeviceModeEnum.ECOV]))
-
-    expected = GetDevicePresetsDto(
-        presets=[
-            DeviceCurrentPresetEnum.AUTO,
-            DeviceCurrentPresetEnum.ECO,
-            DeviceCurrentPresetEnum.OFF,
-        ],
-        has_ecov_mode=True,
-        has_on_mode=False,
-    )
-
-    fixture.compare_data(result, expected)
-
-
-@pytest.mark.unit
 def test_get_device_presets_climate_mode(
     fixture: DeviceManagementFixture,
 ) -> None:

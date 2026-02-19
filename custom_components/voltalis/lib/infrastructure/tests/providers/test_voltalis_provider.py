@@ -10,10 +10,8 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting_builder import (
     ManualSettingBuilder,
 )
-from custom_components.voltalis.lib.domain.devices_management.devices.device import (
-    Device,
-    DeviceProgramming,
-)
+from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
+from custom_components.voltalis.lib.domain.devices_management.devices.device_builder import DeviceBuilder
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import (
     DeviceModeEnum,
     DeviceModulatorTypeEnum,
@@ -23,6 +21,7 @@ from custom_components.voltalis.lib.domain.devices_management.health.device_heal
     DeviceHealth,
     DeviceHealthStatusEnum,
 )
+from custom_components.voltalis.lib.domain.devices_management.health.device_health_builder import DeviceHealthBuilder
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_builder import EnergyContractBuilder
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
@@ -45,26 +44,18 @@ async def test_get_devices(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices method."""
 
     devices = {
-        1: Device(
-            id=1,
-            name="Device 1",
-            type=DeviceTypeEnum.HEATER,
-            modulator_type=DeviceModulatorTypeEnum.VX_WIRE,
-            available_modes=[],
-            programming=DeviceProgramming(
-                prog_type=ProgramTypeEnum.DEFAULT,
-            ),
-        ),
-        2: Device(
-            id=2,
-            name="Device 2",
-            type=DeviceTypeEnum.WATER_HEATER,
-            modulator_type=DeviceModulatorTypeEnum.VX_RELAY,
-            available_modes=[],
-            programming=DeviceProgramming(
-                prog_type=ProgramTypeEnum.DEFAULT,
-            ),
-        ),
+        1: DeviceBuilder()
+        .with_id(1)
+        .with_name("Device 1")
+        .with_type(DeviceTypeEnum.HEATER)
+        .with_modulator_type(DeviceModulatorTypeEnum.VX_WIRE)
+        .build(),
+        2: DeviceBuilder()
+        .with_id(2)
+        .with_name("Device 2")
+        .with_type(DeviceTypeEnum.WATER_HEATER)
+        .with_modulator_type(DeviceModulatorTypeEnum.VX_RELAY)
+        .build(),
     }
 
     # Arrange
@@ -99,8 +90,8 @@ async def test_get_devices_health(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices_health method."""
 
     devices_health = {
-        1: DeviceHealth(status=DeviceHealthStatusEnum.OK),
-        2: DeviceHealth(status=DeviceHealthStatusEnum.NOT_OK),
+        1: DeviceHealthBuilder().with_status(DeviceHealthStatusEnum.OK).build(),
+        2: DeviceHealthBuilder().with_status(DeviceHealthStatusEnum.NOT_OK).build(),
     }
 
     # Arrange
@@ -209,25 +200,25 @@ async def test_get_manual_settings(fixture: "VoltalisProviderFixture") -> None:
     """Test get_manual_settings method."""
 
     manual_settings = [
-        ManualSetting(
-            id=1,
-            enabled=True,
-            id_appliance=10,
-            until_further_notice=True,
-            is_on=True,
-            mode=DeviceModeEnum.COMFORT,
-            temperature_target=21.5,
-        ),
-        ManualSetting(
-            id=2,
-            enabled=False,
-            id_appliance=20,
-            until_further_notice=False,
-            is_on=False,
-            mode=DeviceModeEnum.ECO,
-            end_date="2024-12-31",
-            temperature_target=19.0,
-        ),
+        ManualSettingBuilder()
+        .with_id(1)
+        .with_enabled(True)
+        .with_id_appliance(10)
+        .with_until_further_notice(True)
+        .with_is_on(True)
+        .with_mode(DeviceModeEnum.COMFORT)
+        .with_temperature_target(21.5)
+        .build(),
+        ManualSettingBuilder()
+        .with_id(2)
+        .with_enabled(False)
+        .with_id_appliance(20)
+        .with_until_further_notice(False)
+        .with_is_on(False)
+        .with_mode(DeviceModeEnum.ECO)
+        .with_end_date(datetime(2024, 12, 31))
+        .with_temperature_target(19.0)
+        .build(),
     ]
 
     # Arrange
@@ -278,6 +269,53 @@ async def test_set_manual_setting(fixture: "VoltalisProviderFixture") -> None:
         id_appliance=10,
         until_further_notice=False,
         is_on=True,
+        has_ecov=False,
+        mode=DeviceModeEnum.ECO,
+        end_date=datetime(2024, 12, 31),
+        temperature_target=19.0,
+    )
+
+    # Arrange
+    fixture.given_manual_settings(manual_settings)
+
+    # Act
+    await fixture.provider.set_manual_setting(1, update)
+
+    # Assert
+    result = await fixture.provider.get_manual_settings()
+    expected = (
+        manual_setting_builder.with_until_further_notice(update.until_further_notice)
+        .with_mode(update.mode)
+        .with_end_date(update.end_date)
+        .with_temperature_target(update.temperature_target)
+        .build()
+    )
+    fixture.compare_data(result[10], expected)
+
+
+@pytest.mark.integration
+@pytest.mark.enable_socket
+async def test_set_manual_setting_with_ecov(fixture: "VoltalisProviderFixture") -> None:
+    """Test set_manual_setting method."""
+
+    manual_setting_builder = (
+        ManualSettingBuilder()
+        .with_id(1)
+        .with_enabled(True)
+        .with_id_appliance(10)
+        .with_until_further_notice(True)
+        .with_is_on(True)
+        .with_mode(DeviceModeEnum.COMFORT)
+        .with_temperature_target(21.5)
+    )
+    manual_settings = [manual_setting_builder.build()]
+
+    update = ManualSettingUpdate(
+        enabled=True,
+        id_appliance=10,
+        until_further_notice=False,
+        is_on=True,
+        has_ecov=True,
         mode=DeviceModeEnum.ECO,
         end_date=datetime(2024, 12, 31),
         temperature_target=19.0,

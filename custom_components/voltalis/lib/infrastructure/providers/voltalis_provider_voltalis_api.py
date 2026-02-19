@@ -10,6 +10,7 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
     ManualSettingUpdate,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
@@ -25,7 +26,11 @@ from custom_components.voltalis.lib.domain.shared.providers.http_client import (
     HttpClientResponse,
 )
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
-from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device import VoltalisDeviceDto
+from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device import (
+    REVERSED_MODE_MAPPING,
+    VoltalisDeviceDto,
+    VoltalisDeviceDtoModeEnum,
+)
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device_consumption import (
     VoltalisConsumptionDto,
 )
@@ -179,13 +184,19 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
         return manual_settings
 
     async def set_manual_setting(self, manual_setting_id: int, setting: ManualSettingUpdate) -> None:
+
+        if setting.has_ecov and setting.mode is DeviceModeEnum.ECO:
+            setting_mode = VoltalisDeviceDtoModeEnum.ECOV
+        else:
+            setting_mode = REVERSED_MODE_MAPPING[setting.mode]
+
         payload = VoltalisManualSettingUpdateDto(
             id=manual_setting_id,
             enabled=setting.enabled,
             id_appliance=setting.id_appliance,
             until_further_notice=setting.until_further_notice,
             is_on=setting.is_on,
-            mode=setting.mode.value.upper(),
+            mode=setting_mode,
             end_date=setting.end_date,
             temperature_target=setting.temperature_target,
         ).model_dump(mode="json", by_alias=True)

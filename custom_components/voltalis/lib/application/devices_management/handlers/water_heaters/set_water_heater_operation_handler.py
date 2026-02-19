@@ -66,6 +66,7 @@ class SetWaterHeaterOperationHandler:
         await self.__climate_service.set_manual_mode(
             manual_setting_id=manual_setting_id,
             device_id=command.device.id,
+            has_device_ecov=command.device.has_ecov,
             mode=target_mode,
             temperature_target=target_temp,
             duration_hours=None,
@@ -88,6 +89,7 @@ class SetWaterHeaterOperationHandler:
         await self.__climate_service.turn_off(
             manual_setting_id=manual_setting_id,
             device_id=command.device.id,
+            has_device_ecov=command.device.has_ecov,
             fallback_mode=target_mode,
             fallback_temperature=target_temp,
             duration_hours=None,
@@ -112,6 +114,7 @@ class SetWaterHeaterOperationHandler:
         await self.__climate_service.disable_manual_mode(
             manual_setting_id=manual_setting_id,
             device_id=command.device.id,
+            has_device_ecov=command.device.has_ecov,
             fallback_mode=target_mode,
             fallback_temperature=target_temp,
         )

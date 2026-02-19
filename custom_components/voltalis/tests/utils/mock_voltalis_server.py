@@ -8,6 +8,7 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
     ManualSettingUpdate,
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
@@ -17,6 +18,7 @@ from custom_components.voltalis.lib.domain.shared.providers.http_client import H
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device import (
     VOLTALIS_DEVICE_MODE_MAPPING,
     VoltalisDeviceDto,
+    VoltalisDeviceDtoModeEnum,
 )
 from custom_components.voltalis.lib.infrastructure.dtos.voltalis_api.voltalis_device_consumption import (
     VoltalisConsumptionDto,
@@ -253,12 +255,20 @@ class MockVoltalisServer:
             manual_setting_id = int(config["path_params"]["manual_setting_id"])
 
             voltalis_manual_setting_update = VoltalisManualSettingUpdateDto(**body)
+
+            has_ecov = voltalis_manual_setting_update.mode == VoltalisDeviceDtoModeEnum.ECOV
+            if has_ecov:
+                current_mode = DeviceModeEnum.ECO
+            else:
+                current_mode = VOLTALIS_DEVICE_MODE_MAPPING[voltalis_manual_setting_update.mode]
+
             manual_setting_update = ManualSettingUpdate(
                 enabled=voltalis_manual_setting_update.enabled,
                 id_appliance=voltalis_manual_setting_update.id_appliance,
                 until_further_notice=voltalis_manual_setting_update.until_further_notice,
                 is_on=voltalis_manual_setting_update.is_on,
-                mode=VOLTALIS_DEVICE_MODE_MAPPING[voltalis_manual_setting_update.mode],
+                has_ecov=has_ecov,
+                mode=current_mode,
                 end_date=voltalis_manual_setting_update.end_date,
                 temperature_target=voltalis_manual_setting_update.temperature_target,
             )

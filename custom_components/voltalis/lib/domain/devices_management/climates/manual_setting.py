@@ -24,6 +24,7 @@ class ManualSettingUpdate(CustomModel):
     id_appliance: int
     until_further_notice: bool
     is_on: bool
+    has_ecov: bool
     mode: DeviceModeEnum
     end_date: datetime | None = None
     temperature_target: float

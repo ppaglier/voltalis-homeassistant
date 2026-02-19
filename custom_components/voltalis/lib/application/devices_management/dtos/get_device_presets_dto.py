@@ -8,5 +8,4 @@ class GetDevicePresetsDto(CustomModel):
     """DTO to get the possible presets of a device."""
 
     presets: list[DeviceCurrentPresetEnum]
-    has_ecov_mode: bool
     has_on_mode: bool
