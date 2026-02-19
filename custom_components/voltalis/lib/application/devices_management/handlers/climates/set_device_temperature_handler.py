@@ -54,8 +54,7 @@ class SetDeviceTemperatureHandler:
             default_away_temperature=self.__default_away_temperature,
             default_eco_temperature=self.__default_eco_temperature,
             default_comfort_temperature=self.__default_comfort_temperature,
-            use_device_programming=command.mode
-            in [DeviceModeEnum.AUTO, DeviceModeEnum.ON, DeviceModeEnum.TEMPERATURE, DeviceModeEnum.OFF],
+            use_device_programming=command.mode in [DeviceModeEnum.ON, DeviceModeEnum.TEMPERATURE, DeviceModeEnum.OFF],
             temperature=command.temperature,
         )
 

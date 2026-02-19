@@ -98,7 +98,7 @@ class SetWaterHeaterOperationHandler:
     async def __turn_auto_mode(self, command: SetWaterHeaterOperationCommand, manual_setting_id: int) -> None:
         """Set AUTO mode to return to automatic planning."""
 
-        target_mode = DeviceModeEnum.AUTO
+        target_mode = DeviceModeEnum.ON
         if command.device.programming.mode:
             target_mode = command.device.programming.mode
 

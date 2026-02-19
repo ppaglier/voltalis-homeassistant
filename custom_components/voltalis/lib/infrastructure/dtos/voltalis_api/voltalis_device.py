@@ -69,7 +69,6 @@ class VoltalisDeviceDtoModeEnum(StrEnum):
     NORMAL = "NORMAL"
     ECOV = "ECOV"
     OFF = "OFF"
-    AUTO = "AUTO"
 
 
 VOLTALIS_DEVICE_MODE_MAPPING = {
@@ -79,7 +78,6 @@ VOLTALIS_DEVICE_MODE_MAPPING = {
     VoltalisDeviceDtoModeEnum.HORS_GEL: DeviceModeEnum.AWAY,
     VoltalisDeviceDtoModeEnum.NORMAL: DeviceModeEnum.ON,
     VoltalisDeviceDtoModeEnum.OFF: DeviceModeEnum.OFF,
-    VoltalisDeviceDtoModeEnum.AUTO: DeviceModeEnum.AUTO,
 }
 REVERSED_MODE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_MODE_MAPPING.items()}
 

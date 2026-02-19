@@ -28,5 +28,3 @@ class DeviceModeEnum(StrEnum):
 
     ON = "on"
     OFF = PRESET_NONE
-
-    AUTO = "auto"

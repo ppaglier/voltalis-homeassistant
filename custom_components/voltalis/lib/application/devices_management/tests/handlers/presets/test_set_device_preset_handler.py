@@ -59,7 +59,7 @@ async def test_set_device_preset_off_in_climate_mode_sets_temperature(
     # Given
     device = DeviceBuilder().with_id(1).build()
     manual_setting_builder = (
-        ManualSettingBuilder().with_id(1).with_mode(DeviceModeEnum.AUTO).with_id_appliance(device.id)
+        ManualSettingBuilder().with_id(1).with_mode(DeviceModeEnum.COMFORT).with_id_appliance(device.id)
     )
     manual_setting = manual_setting_builder.build()
     fixture.given_manual_settings([manual_setting])
@@ -94,9 +94,9 @@ async def test_set_device_preset_off_in_non_climate_mode_turns_off(
     """Test OFF preset in non-climate mode turns off the device."""
 
     # Given
-    device = DeviceBuilder().with_id(1).with_programming_mode(DeviceModeEnum.AUTO).build()
+    device = DeviceBuilder().with_id(1).with_programming_mode(DeviceModeEnum.COMFORT).build()
     manual_setting_builder = (
-        ManualSettingBuilder().with_id(1).with_mode(DeviceModeEnum.AUTO).with_id_appliance(device.id)
+        ManualSettingBuilder().with_id(1).with_mode(DeviceModeEnum.COMFORT).with_id_appliance(device.id)
     )
     manual_setting = manual_setting_builder.build()
     fixture.given_manual_settings([manual_setting])
