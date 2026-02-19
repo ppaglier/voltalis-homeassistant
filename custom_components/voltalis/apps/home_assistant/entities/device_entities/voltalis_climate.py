@@ -35,11 +35,11 @@ from custom_components.voltalis.lib.application.devices_management.queries.get_c
 from custom_components.voltalis.lib.application.devices_management.queries.get_climate_mode_query import (
     GetClimateModeQuery,
 )
-from custom_components.voltalis.lib.application.devices_management.queries.get_climate_presets_query import (
-    GetClimatePresetsQuery,
-)
 from custom_components.voltalis.lib.application.devices_management.queries.get_device_preset_query import (
     GetDevicePresetQuery,
+)
+from custom_components.voltalis.lib.application.devices_management.queries.get_device_presets_query import (
+    GetDevicePresetsQuery,
 )
 from custom_components.voltalis.lib.application.devices_management.queries.set_climate_action_command import (
     SetClimateActionCommand,
@@ -69,9 +69,10 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
         self._attr_min_temp = self._voltalis_module.config.climate_min_temp
         self._attr_max_temp = self._voltalis_module.config.climate_max_temp
 
-        result = self._voltalis_module.get_climate_presets_handler.handle(
-            GetClimatePresetsQuery(
+        result = self._voltalis_module.get_device_presets_handler.handle(
+            GetDevicePresetsQuery(
                 available_modes=device.available_modes,
+                climate_mode=True,
             )
         )
 

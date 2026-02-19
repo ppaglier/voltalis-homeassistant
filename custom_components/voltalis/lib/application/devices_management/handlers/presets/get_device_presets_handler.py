@@ -26,6 +26,12 @@ class GetDevicePresetsHandler:
             DeviceCurrentPresetEnum.OFF: [],
         }
 
+        # If it's a climate device, we don't include AUTO/ON/OFF/TEMPERATURE presets as they are not relevant
+        if query.climate_mode:
+            presets_config.pop(DeviceCurrentPresetEnum.AUTO)
+            presets_config.pop(DeviceCurrentPresetEnum.ON)
+            presets_config.pop(DeviceCurrentPresetEnum.TEMPERATURE)
+
         return GetDevicePresetsDto(
             presets=[
                 preset

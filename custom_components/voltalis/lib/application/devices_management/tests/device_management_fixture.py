@@ -17,9 +17,6 @@ from custom_components.voltalis.lib.application.devices_management.handlers.clim
 from custom_components.voltalis.lib.application.devices_management.handlers.climates.get_climate_mode_handler import (
     GetClimateModeHandler,
 )
-from custom_components.voltalis.lib.application.devices_management.handlers.climates.get_climate_presets_handler import (  # noqa: E501
-    GetClimatePresetsHandler,
-)
 from custom_components.voltalis.lib.application.devices_management.handlers.climates.set_climate_action_handler import (
     SetClimateActionHandler,
 )
@@ -118,8 +115,6 @@ class DeviceManagementFixture(BaseFixture):
         )
 
         # Device climate management
-
-        self.get_climate_presets_handler = GetClimatePresetsHandler()
 
         self.get_climate_mode_handler = GetClimateModeHandler()
 

@@ -28,6 +28,7 @@ def test_get_device_presets_includes_auto_on_and_off(
                 DeviceModeEnum.ECO,
                 DeviceModeEnum.HORS_GEL,
                 DeviceModeEnum.NORMAL,
+                DeviceModeEnum.TEMPERATURE,
             ]
         )
     )
@@ -39,6 +40,7 @@ def test_get_device_presets_includes_auto_on_and_off(
             DeviceCurrentPresetEnum.COMFORT,
             DeviceCurrentPresetEnum.ECO,
             DeviceCurrentPresetEnum.AWAY,
+            DeviceCurrentPresetEnum.TEMPERATURE,
             DeviceCurrentPresetEnum.OFF,
         ],
         has_ecov_mode=False,
@@ -70,21 +72,33 @@ def test_get_device_presets_with_ecov_only(
 
 
 @pytest.mark.unit
-def test_get_device_presets_ecov_replaces_temperature_mode(
+def test_get_device_presets_climate_mode(
     fixture: DeviceManagementFixture,
 ) -> None:
-    """Test that ECOV mode replaces TEMPERATURE mode when ECO is not available (line 48)."""
+    """Test device presets handler excludes AUTO/ON/OFF for climate devices."""
 
-    result = fixture.get_device_presets_handler.handle(GetDevicePresetsQuery(available_modes=[DeviceModeEnum.ECOV]))
+    result = fixture.get_device_presets_handler.handle(
+        GetDevicePresetsQuery(
+            available_modes=[
+                DeviceModeEnum.CONFORT,
+                DeviceModeEnum.ECO,
+                DeviceModeEnum.HORS_GEL,
+                DeviceModeEnum.NORMAL,
+                DeviceModeEnum.TEMPERATURE,
+            ],
+            climate_mode=True,
+        )
+    )
 
     expected = GetDevicePresetsDto(
         presets=[
-            DeviceCurrentPresetEnum.AUTO,
+            DeviceCurrentPresetEnum.COMFORT,
             DeviceCurrentPresetEnum.ECO,
+            DeviceCurrentPresetEnum.AWAY,
             DeviceCurrentPresetEnum.OFF,
         ],
-        has_ecov_mode=True,
-        has_on_mode=False,
+        has_ecov_mode=False,
+        has_on_mode=True,
     )
 
     fixture.compare_data(result, expected)

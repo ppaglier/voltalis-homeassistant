@@ -6,3 +6,4 @@ class GetDevicePresetsQuery(CustomModel):
     """Query to get the possible presets of a device."""
 
     available_modes: list[DeviceModeEnum]
+    climate_mode: bool = False
