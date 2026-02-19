@@ -155,6 +155,25 @@ async def test_set_climate_action_auto_disables_manual_mode(
     fixture.then_manual_settings_should_be({expected.id: expected})
 
 
+@pytest.mark.unit
+async def test_set_climate_action_without_manual_settings(
+    fixture: DeviceManagementFixture,
+) -> None:
+    """Test setting water heater operation without manual settings raises error."""
+
+    device = DeviceBuilder().with_id(1).build()
+
+    with pytest.raises(ValueError, match="does not support manual settings") as exc_info:
+        await fixture.set_climate_action_handler.handle(
+            SetClimateActionCommand(
+                device=DeviceDto(**device.model_dump(), manual_setting=None),
+                action=HVACAction.IDLE,
+            )
+        )
+
+    assert str(exc_info.value) == f"Device {device.id} does not support manual settings"
+
+
 @pytest.fixture
 def fixture() -> DeviceManagementFixture:
     return DeviceManagementFixture()

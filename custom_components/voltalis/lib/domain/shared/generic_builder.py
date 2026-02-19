@@ -12,8 +12,6 @@ class GenericBuilder(ABC, Generic[T]):
 
     DEFAULT_VALUES: T
 
-    props: dict = {}
-
     def __init__(self, props: dict = {}) -> None:
         self.props = {**self.DEFAULT_VALUES.model_dump(exclude_unset=True), **props}
 

@@ -15,11 +15,6 @@ class ProgramBuilder(GenericBuilder[Program]):
         enabled=True,
     )
 
-    props: dict = {}
-
-    def __init__(self, props: dict | None = None):
-        self.props = {**ProgramBuilder.DEFAULT_VALUES.model_dump(), **(props or {})}
-
     def build(self) -> Program:
         return Program(**self.props)
 

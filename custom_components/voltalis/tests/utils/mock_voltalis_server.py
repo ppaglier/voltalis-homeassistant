@@ -352,7 +352,12 @@ class MockVoltalisServer:
                 program_id = int(config["path_params"]["program_id"])
                 name = body.pop("name", None)
                 if quick_setting and name is None:
-                    name = f"Quick Setting {program_id}"
+                    quick_settings_mapping = ["longleave", "shortleave", "athome"]
+                    name = (
+                        f"quicksettings.{quick_settings_mapping[program_id]}"
+                        if program_id < len(quick_settings_mapping)
+                        else f"quicksettings.unknown{program_id}"
+                    )
                 voltalis_program_update = VoltalisProgramDto(id=program_id, name=name, **body)
                 program_update = voltalis_program_update.to_program(
                     ProgramTypeEnum.QUICK if quick_setting else ProgramTypeEnum.USER

@@ -111,11 +111,6 @@ async def test_set_water_heater_operation_off(
     fixture.then_manual_settings_should_be({expected.id: expected})
 
 
-@pytest.fixture
-def fixture() -> DeviceManagementFixture:
-    return DeviceManagementFixture()
-
-
 @pytest.mark.unit
 async def test_set_water_heater_operation_auto(
     fixture: DeviceManagementFixture,
@@ -160,3 +155,27 @@ async def test_set_water_heater_operation_auto(
         .build()
     )
     fixture.then_manual_settings_should_be({expected.id: expected})
+
+
+@pytest.mark.unit
+async def test_set_water_heater_operation_without_manual_settings(
+    fixture: DeviceManagementFixture,
+) -> None:
+    """Test setting water heater operation without manual settings raises error."""
+
+    device = DeviceBuilder().with_id(1).build()
+
+    with pytest.raises(ValueError, match="does not support manual settings") as exc_info:
+        await fixture.set_water_heater_operation_handler.handle(
+            SetWaterHeaterOperationCommand(
+                device=DeviceDto(**device.model_dump(), manual_setting=None),
+                operation_mode=WaterHeaterCurrentOperationEnum.AUTO,
+            )
+        )
+
+    assert str(exc_info.value) == f"Device {device.id} does not support manual settings"
+
+
+@pytest.fixture
+def fixture() -> DeviceManagementFixture:
+    return DeviceManagementFixture()

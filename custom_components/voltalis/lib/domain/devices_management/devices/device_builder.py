@@ -28,11 +28,6 @@ class DeviceBuilder(GenericBuilder[Device]):
         ),
     )
 
-    props: dict = {}
-
-    def __init__(self, props: dict = {}):
-        self.props = {**DeviceBuilder.DEFAULT_VALUES.model_dump(), **props}
-
     def build(self) -> Device:
         return Device(**self.props)
 
@@ -51,6 +46,14 @@ class DeviceBuilder(GenericBuilder[Device]):
     def with_modulator_type(self, modulator_type: DeviceModulatorTypeEnum) -> Self:
         """Set the modulator type of the device."""
         return self._set_value("modulator_type", modulator_type)
+
+    def with_available_modes(self, available_modes: list[DeviceModeEnum]) -> Self:
+        """Set the available modes of the device."""
+        return self._set_value("available_modes", available_modes)
+
+    def with_has_ecov(self, has_ecov: bool) -> Self:
+        """Set whether the device has ECOV mode."""
+        return self._set_value("has_ecov", has_ecov)
 
     def with_programming(self, programming: DeviceProgramming) -> Self:
         """Set the programming of the device."""

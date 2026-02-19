@@ -14,11 +14,6 @@ class DeviceHealthBuilder(GenericBuilder[DeviceHealth]):
         status=DeviceHealthStatusEnum.OK,
     )
 
-    props: dict = {}
-
-    def __init__(self, props: dict = {}):
-        self.props = {**DeviceHealthBuilder.DEFAULT_VALUES.model_dump(), **props}
-
     def build(self) -> DeviceHealth:
         return DeviceHealth(**self.props)
 

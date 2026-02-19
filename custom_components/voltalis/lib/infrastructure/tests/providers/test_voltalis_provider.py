@@ -49,12 +49,16 @@ async def test_get_devices(fixture: "VoltalisProviderFixture") -> None:
         .with_name("Device 1")
         .with_type(DeviceTypeEnum.HEATER)
         .with_modulator_type(DeviceModulatorTypeEnum.VX_WIRE)
+        .with_available_modes([DeviceModeEnum.COMFORT, DeviceModeEnum.ECO])
+        .with_has_ecov(True)
         .build(),
         2: DeviceBuilder()
         .with_id(2)
         .with_name("Device 2")
         .with_type(DeviceTypeEnum.WATER_HEATER)
         .with_modulator_type(DeviceModulatorTypeEnum.VX_RELAY)
+        .with_available_modes([DeviceModeEnum.COMFORT, DeviceModeEnum.ECO])
+        .with_has_ecov(False)
         .build(),
     }
 
@@ -379,7 +383,7 @@ async def test_get_programs(fixture: "VoltalisProviderFixture") -> None:
 
     programs = {
         1: ProgramBuilder().with_id(1).with_type(ProgramTypeEnum.MANUAL).build(),
-        2: ProgramBuilder().with_id(2).with_type(ProgramTypeEnum.QUICK).build(),
+        2: ProgramBuilder().with_id(2).with_name("quicksettings-longleave").with_type(ProgramTypeEnum.QUICK).build(),
         3: ProgramBuilder().with_id(3).with_type(ProgramTypeEnum.USER).build(),
     }
     fixture.given_programs(programs)

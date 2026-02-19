@@ -21,11 +21,6 @@ class ManualSettingBuilder(GenericBuilder[ManualSetting]):
         temperature_target=0.0,
     )
 
-    props: dict = {}
-
-    def __init__(self, props: dict = {}):
-        self.props = {**ManualSettingBuilder.DEFAULT_VALUES.model_dump(), **props}
-
     def build(self) -> ManualSetting:
         return ManualSetting(**self.props)
 

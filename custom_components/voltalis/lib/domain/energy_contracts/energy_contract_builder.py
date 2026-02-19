@@ -31,11 +31,6 @@ class EnergyContractBuilder(GenericBuilder[EnergyContract]):
         offpeak_hours=[RangeModel[time](start=time(20, 0), end=time(6, 0))],
     )
 
-    props: dict = {}
-
-    def __init__(self, props: dict | None = None):
-        self.props = {**EnergyContractBuilder.DEFAULT_VALUES.model_dump(), **(props or {})}
-
     def build(self) -> EnergyContract:
         return EnergyContract(**self.props)
 

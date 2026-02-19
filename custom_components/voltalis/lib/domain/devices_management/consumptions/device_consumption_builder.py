@@ -11,11 +11,6 @@ class DeviceConsumptionBuilder(GenericBuilder[DeviceConsumption]):
         daily_consumption=0.0,
     )
 
-    props: dict = {}
-
-    def __init__(self, props: dict = {}):
-        self.props = {**DeviceConsumptionBuilder.DEFAULT_VALUES.model_dump(), **props}
-
     def build(self) -> DeviceConsumption:
         return DeviceConsumption(**self.props)
 

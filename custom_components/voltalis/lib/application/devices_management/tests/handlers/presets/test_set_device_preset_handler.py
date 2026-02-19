@@ -157,6 +157,25 @@ async def test_set_device_preset_on_with_has_on_mode_maps_to_normal(
     fixture.then_manual_settings_should_be({expected.id: expected})
 
 
+@pytest.mark.unit
+async def test_set_device_preset_without_manual_setting_raises_exception(
+    fixture: DeviceManagementFixture,
+) -> None:
+    """Test setting a preset without an existing manual setting raises an exception."""
+
+    device = DeviceBuilder().with_id(1).build()
+
+    with pytest.raises(ValueError, match="does not support manual settings") as exc_info:
+        await fixture.set_device_preset_handler.handle(
+            SetDevicePresetCommand(
+                device=DeviceDto(**device.model_dump(), manual_setting=None),
+                preset=DeviceCurrentPresetEnum.ON,
+            )
+        )
+
+    assert str(exc_info.value) == f"Device {device.id} does not support manual settings"
+
+
 @pytest.fixture
 def fixture() -> DeviceManagementFixture:
     return DeviceManagementFixture()

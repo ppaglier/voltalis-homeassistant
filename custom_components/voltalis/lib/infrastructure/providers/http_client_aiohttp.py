@@ -31,8 +31,6 @@ class HttpClientAiohttp(HttpClient):
         data: Any = None
         if response.content_type == "application/json":
             data = await response.json()
-        else:
-            data = await response.read()
 
         return HttpClientResponse(
             data=data,
