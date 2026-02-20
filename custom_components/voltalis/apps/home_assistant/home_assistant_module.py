@@ -135,11 +135,19 @@ class VoltalisHomeAssistantModule(VoltalisModule):
     async def async_unload_entry(self) -> bool:
         """Unload the module."""
 
+        # Unload platforms FIRST before closing the client session
+        unload_ok = await self.hass.config_entries.async_unload_platforms(self.entry, self.PLATFORMS)
+
+        # Then unload coordinators
         await self.__unload_coordinators()
 
-        await self._voltalis_client.logout()
+        # Finally, close the client session
+        try:
+            await self._voltalis_client.logout()
+        except RuntimeError:
+            # Session might already be closed, this is acceptable during cleanup
+            pass
 
-        unload_ok = await self.hass.config_entries.async_unload_platforms(self.entry, self.PLATFORMS)
         return unload_ok
 
     async def __load_coordinators(self) -> None:

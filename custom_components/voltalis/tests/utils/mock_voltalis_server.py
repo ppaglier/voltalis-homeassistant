@@ -165,8 +165,21 @@ class MockVoltalisServer:
         self.__voltalis_provider.set_devices(devices)
 
         async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
-            devices = await self.__voltalis_provider.get_devices()
-            voltalis_devices = [VoltalisDeviceDto.from_device(device) for device in devices.values()]
+            devices_dict = await self.__voltalis_provider.get_devices()
+            manual_settings = await self.__voltalis_provider.get_manual_settings()
+
+            # Sync device programming.is_on with manual setting is_on
+            synced_devices = []
+            for device_id, device in devices_dict.items():
+                # manual_settings is keyed by id_appliance (device_id)
+                manual_setting = manual_settings.get(device_id)
+                if manual_setting:
+                    # Update the device programming is_on to match manual setting
+                    updated_programming = device.programming.model_copy(update={"is_on": manual_setting.is_on})
+                    device = device.model_copy(update={"programming": updated_programming})
+                synced_devices.append(device)
+
+            voltalis_devices = [VoltalisDeviceDto.from_device(device) for device in synced_devices]
 
             return MockHttpServer.StubResponse(
                 status_code=200,

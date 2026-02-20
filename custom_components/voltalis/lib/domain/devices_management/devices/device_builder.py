@@ -59,6 +59,13 @@ class DeviceBuilder(GenericBuilder[Device]):
         """Set the programming of the device."""
         return self._set_value("programming", programming)
 
+    def with_programming_is_on(self, is_on: bool) -> Self:
+        """Set the is_on in the programming of the device."""
+
+        programming = self._get_value("programming")
+        programming["is_on"] = is_on
+        return self._set_value("programming", programming)
+
     def with_programming_mode(self, mode: DeviceModeEnum) -> Self:
         """Set the mode in the programming of the device."""
 

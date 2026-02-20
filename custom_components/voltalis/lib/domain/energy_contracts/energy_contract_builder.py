@@ -36,9 +36,15 @@ class EnergyContractBuilder(GenericBuilder[EnergyContract]):
 
     def with_id(self, id: int) -> Self:
         """Set the id."""
-        self.props["id"] = id
-        self.props["contract_id"] = id
-        return self
+        return self._set_value("id", id)
+
+    def with_contract_id(self, contract_id: int) -> Self:
+        """Set the contract id."""
+        return self._set_value("contract_id", contract_id)
+
+    def with_type(self, _type: EnergyContractTypeEnum) -> Self:
+        """Set the contract type."""
+        return self._set_value("type", _type)
 
     def with_end_date(self, end_date: date | None) -> Self:
         """Set the end date."""
