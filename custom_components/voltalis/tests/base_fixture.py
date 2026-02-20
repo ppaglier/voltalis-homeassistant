@@ -29,9 +29,10 @@ class BaseFixture(Generic[T]):
     def before_each(self) -> None:
         """Set up before each test"""
 
-        del self._result
-        del self._exception
-        self._current_user = None
+        if hasattr(self, "_result"):
+            del self._result
+        if hasattr(self, "_exception"):
+            del self._exception
 
     def after_each(self) -> None:
         """Clean up after each test"""
