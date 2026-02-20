@@ -20,7 +20,7 @@ packages = [{ include = "custom_components" }]
 "test:all" = { cmd = "pytest", help = "Runs all tests" }
 "test:cov" = { cmd = "pytest --cov=custom_components --cov-report html:coverage", help = "Runs all tests for coverage" }
 "test:cov:lib" = { cmd = "pytest --cov=custom_components/voltalis/lib --cov-report html:coverage", help = "Runs all tests in lib for coverage" }
-"test:miss" = { cmd = "! pytest --collect-only -m 'not integration and not e2e' -q", help = "Find tests that are not marked at all" }
+"test:miss" = { cmd = "! pytest --collect-only -m 'not unit and not integration and not e2e' -q", help = "Find tests that are not marked at all" }
 
 
 [tool.pytest.ini_options]
