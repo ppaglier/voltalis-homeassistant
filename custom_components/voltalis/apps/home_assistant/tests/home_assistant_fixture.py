@@ -3,11 +3,14 @@
 from datetime import datetime
 
 from homeassistant import config_entries
-from homeassistant.core import HomeAssistant
+from homeassistant.const import ATTR_ENTITY_ID
+from homeassistant.core import HomeAssistant, State
 from homeassistant.data_entry_flow import FlowResultType
 from pytest import MonkeyPatch
 
+from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting_builder import (
     ManualSettingBuilder,
@@ -54,6 +57,45 @@ class HomeAssistantFixture(BaseFixture[None]):
 
         # Reset and configure the mock server
         self.voltalis_server.reset_storage()
+
+    def get_entity_state(self, entity_id: str) -> State:
+        """Helper method to get the state of an entity.
+
+        Args:
+            entity_id: The entity ID to look up
+
+        Returns:
+            The state of the entity, or None if not found
+        """
+        state = self.hass.states.get(entity_id)
+        if state is None:
+            raise AssertionError(f"Entity {entity_id} should exist")
+        return state
+
+    async def async_call_service(self, domain: str, service: str, entity_id: str) -> None:
+        """Helper method to call a Home Assistant service.
+
+        Args:
+            domain: The domain of the service (e.g., "switch")
+            service: The name of the service (e.g., "turn_on")
+            service_data: The data to pass to the service call
+        """
+        await self.hass.services.async_call(domain, service, {ATTR_ENTITY_ID: entity_id}, blocking=True)
+        await self.hass.async_block_till_done(True)
+
+    def get_home_assistant_voltalis_module(self) -> "VoltalisHomeAssistantModule":
+        """Helper method to get the Voltalis Home Assistant module instance."""
+        entry = self.get_config_entry()
+        return entry.runtime_data.voltalis_home_assistant_module
+
+    async def async_refresh_coordinator(self, coordinator: BaseVoltalisCoordinator) -> None:
+        """Helper method to refresh the coordinator and wait for updates.
+
+        Args:
+            coordinator: The coordinator to refresh
+        """
+        await coordinator.async_refresh()
+        await self.hass.async_block_till_done(True)
 
     def setup_before_test(
         self,
