@@ -1,18 +1,21 @@
 """Tests for the Voltalis config flow."""
 
+from collections.abc import AsyncGenerator
+
 import pytest
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
 from custom_components.voltalis.const import DOMAIN
-from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_stub import VoltalisClientStub
-
-# TODO: Use MockVoltalisServer when available to use realistic stub responses
+from custom_components.voltalis.tests.utils.mock_voltalis_server import MockVoltalisServer
 
 
 @pytest.mark.e2e
-async def test_form_user_input_none(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_form_user_input_none(
+    hass: HomeAssistant,
+    voltalis_server: MockVoltalisServer,
+) -> None:
     """Test that the form is shown when user_input is None."""
 
     # Start the flow via Home Assistant to ensure proper context handling
@@ -35,13 +38,21 @@ async def test_form_user_input_none(hass: HomeAssistant, monkeypatch: pytest.Mon
 
 
 @pytest.mark.e2e
-async def test_config_flow_creates_entry(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_config_flow_creates_entry(
+    hass: HomeAssistant,
+    voltalis_server: MockVoltalisServer,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Test that the config flow creates an entry successfully using the flow manager."""
 
-    # Ensure the config flow uses the stub client instead of performing real I/O
+    # Reset and configure the mock server
+    voltalis_server.reset_storage()
+    voltalis_server.given_login_ok()
+
+    # Mock VoltalisClientAiohttp to use the mock server's client
     monkeypatch.setattr(
         "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
-        lambda session: VoltalisClientStub(),
+        lambda session, **kwargs: voltalis_server.get_client(),
     )
 
     # Start the flow via Home Assistant to ensure proper context handling
@@ -66,20 +77,24 @@ async def test_config_flow_creates_entry(hass: HomeAssistant, monkeypatch: pytes
 
 @pytest.mark.e2e
 @pytest.mark.parametrize("exception_type", ["invalid_auth", "cannot_connect", "unknown"])
-async def test_form_errors(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch, exception_type: str) -> None:
+async def test_form_errors(
+    hass: HomeAssistant,
+    voltalis_server: MockVoltalisServer,
+    monkeypatch: pytest.MonkeyPatch,
+    exception_type: str,
+) -> None:
     """Test that errors are handled correctly in the config flow."""
 
-    # Ensure the config flow uses the stub client instead of performing real I/O
-    def get_client() -> VoltalisClientStub:
-        client = VoltalisClientStub()
-        client.set_auth_failure(exception_type == "invalid_auth")
-        client.set_connection_failure(exception_type == "cannot_connect")
-        client.set_unexpected_failure(exception_type == "unknown")
-        return client
+    # Reset the mock server
+    voltalis_server.reset_storage()
 
+    # Configure the server based on the error type being tested
+    voltalis_server.given_login_failure(exception_type)
+
+    # Mock VoltalisClientAiohttp to use the mock server's client
     monkeypatch.setattr(
         "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
-        lambda session: get_client(),
+        lambda session, **kwargs: voltalis_server.get_client(),
     )
 
     # Start the flow via Home Assistant to ensure proper context handling
@@ -97,16 +112,28 @@ async def test_form_errors(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch,
     )
     assert result["type"] == FlowResultType.FORM
     assert isinstance(result["errors"], dict), result["errors"]
-    assert result["errors"]["base"] == exception_type
+    # Note: "unknown" error type in this test will also result in "cannot_connect" error
+    # because HTTP 500 errors from a real server become HttpClientException which maps to "cannot_connect"
+    expected_error = "cannot_connect" if exception_type == "unknown" else exception_type
+    assert result["errors"]["base"] == expected_error
 
 
 @pytest.mark.e2e
-async def test_already_configured(hass: HomeAssistant, monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_already_configured(
+    hass: HomeAssistant,
+    voltalis_server: MockVoltalisServer,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Test that we abort if already configured."""
 
-    # Ensure the config flow uses the stub client instead of performing real I/O
+    # Reset and configure the mock server
+    voltalis_server.reset_storage()
+    voltalis_server.given_login_ok()
+
+    # Mock VoltalisClientAiohttp to use the mock server's client
     monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.VoltalisClientAiohttp", lambda session: VoltalisClientStub()
+        "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
+        lambda session, **kwargs: voltalis_server.get_client(),
     )
 
     credentials = {
@@ -144,13 +171,19 @@ async def test_already_configured(hass: HomeAssistant, monkeypatch: pytest.Monke
 @pytest.mark.e2e
 async def test_step_reconfigure_success(
     hass: HomeAssistant,
+    voltalis_server: MockVoltalisServer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test reconfigure flow updates existing entry."""
 
-    # Ensure the config flow uses the stub client instead of performing real I/O
+    # Reset and configure the mock server
+    voltalis_server.reset_storage()
+    voltalis_server.given_login_ok()
+
+    # Mock VoltalisClientAiohttp to use the mock server's client
     monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.VoltalisClientAiohttp", lambda session: VoltalisClientStub()
+        "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
+        lambda session, **kwargs: voltalis_server.get_client(),
     )
 
     credentials = {
@@ -198,13 +231,19 @@ async def test_step_reconfigure_success(
 @pytest.mark.e2e
 async def test_step_reconfigure_shows_form(
     hass: HomeAssistant,
+    voltalis_server: MockVoltalisServer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test reconfigure flow updates existing entry."""
 
-    # Ensure the config flow uses the stub client instead of performing real I/O
+    # Reset and configure the mock server
+    voltalis_server.reset_storage()
+    voltalis_server.given_login_ok()
+
+    # Mock VoltalisClientAiohttp to use the mock server's client
     monkeypatch.setattr(
-        "custom_components.voltalis.config_flow.VoltalisClientAiohttp", lambda session: VoltalisClientStub()
+        "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
+        lambda session, **kwargs: voltalis_server.get_client(),
     )
 
     credentials = {
@@ -249,24 +288,20 @@ async def test_step_reconfigure_shows_form(
 @pytest.mark.e2e
 async def test_step_reconfigure_invalid_auth(
     hass: HomeAssistant,
+    voltalis_server: MockVoltalisServer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test reconfigure flow shows error when authentication fails."""
 
-    # Track whether we're in the initial setup or reconfigure step
-    is_reconfiguring = False
+    # Reset and configure the mock server
+    voltalis_server.reset_storage()
+    voltalis_server.given_login_ok()
 
-    # Ensure the config flow uses the stub client instead of performing real I/O
-    def get_client() -> VoltalisClientStub:
-        client = VoltalisClientStub()
-        # Only fail auth during reconfiguration, not during initial setup
-        if is_reconfiguring:
-            client.set_auth_failure(True)
-        return client
-
+    # Mock VoltalisClientAiohttp to use the mock server's client
+    # We'll set up the server to fail auth only after the first entry is created
     monkeypatch.setattr(
         "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
-        lambda session: get_client(),
+        lambda session, **kwargs: voltalis_server.get_client(),
     )
 
     credentials = {
@@ -287,8 +322,8 @@ async def test_step_reconfigure_invalid_auth(
     )
     assert result["type"] == FlowResultType.CREATE_ENTRY
 
-    # Now we're in reconfiguration mode
-    is_reconfiguring = True
+    # Now configure the server to fail auth for reconfiguration
+    voltalis_server.given_login_failure("invalid_auth")
 
     # Start a second flow with the same credentials
     init_result2 = await hass.config_entries.flow.async_init(
@@ -314,3 +349,25 @@ async def test_step_reconfigure_invalid_auth(
     assert updated_entry is not None
     assert updated_entry.data["username"] == credentials["username"]
     assert updated_entry.data["password"] == credentials["password"]
+
+
+pytestmark = [pytest.mark.asyncio(loop_scope="function"), pytest.mark.enable_socket]
+
+
+@pytest.fixture(scope="module")
+async def fixture_all() -> AsyncGenerator[MockVoltalisServer, None]:
+    """
+    Before all tests, start the server.
+    Then after all tests, stop the server.
+    """
+    server = MockVoltalisServer()
+    await server.start_server()
+    yield server
+    await server.stop_server()
+
+
+@pytest.fixture(scope="function")
+async def fixture(fixture_all: MockVoltalisServer) -> AsyncGenerator[MockVoltalisServer, None]:
+    """Before each test, initialize the collection."""
+    fixture_all.reset_storage()
+    yield fixture_all

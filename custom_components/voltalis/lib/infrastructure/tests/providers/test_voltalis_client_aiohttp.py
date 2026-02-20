@@ -13,7 +13,6 @@ from custom_components.voltalis.tests.utils.mock_http_server import MockHttpServ
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_login_stores_token_and_site_id(fixture: "VoltalisClientFixture") -> None:
     """Test login stores token, site id, and credentials."""
 
@@ -33,7 +32,6 @@ async def test_login_stores_token_and_site_id(fixture: "VoltalisClientFixture") 
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_access_token_unauthorized(fixture: "VoltalisClientFixture") -> None:
     """Test get_access_token raises on invalid credentials."""
 
@@ -46,7 +44,6 @@ async def test_get_access_token_unauthorized(fixture: "VoltalisClientFixture") -
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_send_request_triggers_login_and_formats_site_id(fixture: "VoltalisClientFixture") -> None:
     """Test send_request triggers login and injects site_id into URLs."""
 
@@ -75,7 +72,6 @@ async def test_send_request_triggers_login_and_formats_site_id(fixture: "Voltali
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_send_request_retries_on_401(fixture: "VoltalisClientFixture") -> None:
     """Test send_request retries once after a 401 response."""
 
@@ -113,7 +109,6 @@ async def test_send_request_retries_on_401(fixture: "VoltalisClientFixture") -> 
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_logout_clears_storage(fixture: "VoltalisClientFixture") -> None:
     """Test logout clears the storage when a token is present."""
 
@@ -141,7 +136,6 @@ async def test_logout_clears_storage(fixture: "VoltalisClientFixture") -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_logout_no_token_does_nothing(fixture: "VoltalisClientFixture") -> None:
     """Test logout does nothing when no token is present."""
 
@@ -162,7 +156,6 @@ async def test_logout_no_token_does_nothing(fixture: "VoltalisClientFixture") ->
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_send_request_non_retryable_401(fixture: "VoltalisClientFixture") -> None:
     """Test send_request does not retry on 401 if can_retry is False."""
 
@@ -252,7 +245,7 @@ class VoltalisClientFixture(BaseFixture):
         )
 
 
-pytestmark = pytest.mark.asyncio(loop_scope="module")
+pytestmark = [pytest.mark.asyncio(loop_scope="module"), pytest.mark.enable_socket]
 
 
 @pytest.fixture(scope="module")

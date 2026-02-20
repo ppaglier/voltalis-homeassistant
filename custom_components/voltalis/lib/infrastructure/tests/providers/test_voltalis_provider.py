@@ -39,7 +39,6 @@ from custom_components.voltalis.tests.utils.mock_voltalis_server import MockVolt
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_devices(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices method."""
 
@@ -74,7 +73,6 @@ async def test_get_devices(fixture: "VoltalisProviderFixture") -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_devices_empty(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices method with no devices."""
 
@@ -89,7 +87,6 @@ async def test_get_devices_empty(fixture: "VoltalisProviderFixture") -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_devices_health(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices_health method."""
 
@@ -110,7 +107,6 @@ async def test_get_devices_health(fixture: "VoltalisProviderFixture") -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_devices_health_empty(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices_health method with no health data."""
 
@@ -125,7 +121,6 @@ async def test_get_devices_health_empty(fixture: "VoltalisProviderFixture") -> N
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_live_consumption(fixture: "VoltalisProviderFixture") -> None:
     """Test get_live_consumption method."""
 
@@ -143,7 +138,6 @@ async def test_get_live_consumption(fixture: "VoltalisProviderFixture") -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_devices_consumptions(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices_consumptions method."""
 
@@ -179,7 +173,6 @@ async def test_get_devices_consumptions(fixture: "VoltalisProviderFixture") -> N
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_devices_consumptions_no_match(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices_consumptions method with no matching datetime."""
 
@@ -199,7 +192,6 @@ async def test_get_devices_consumptions_no_match(fixture: "VoltalisProviderFixtu
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_manual_settings(fixture: "VoltalisProviderFixture") -> None:
     """Test get_manual_settings method."""
 
@@ -237,7 +229,6 @@ async def test_get_manual_settings(fixture: "VoltalisProviderFixture") -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_manual_settings_empty(fixture: "VoltalisProviderFixture") -> None:
     """Test get_manual_settings method with no manual settings."""
 
@@ -252,7 +243,6 @@ async def test_get_manual_settings_empty(fixture: "VoltalisProviderFixture") -> 
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_set_manual_setting(fixture: "VoltalisProviderFixture") -> None:
     """Test set_manual_setting method."""
 
@@ -298,7 +288,6 @@ async def test_set_manual_setting(fixture: "VoltalisProviderFixture") -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_set_manual_setting_with_ecov(fixture: "VoltalisProviderFixture") -> None:
     """Test set_manual_setting method."""
 
@@ -344,7 +333,6 @@ async def test_set_manual_setting_with_ecov(fixture: "VoltalisProviderFixture") 
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_energy_contracts(fixture: "VoltalisProviderFixture") -> None:
     """Test get_energy_contracts method."""
 
@@ -363,7 +351,6 @@ async def test_get_energy_contracts(fixture: "VoltalisProviderFixture") -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_energy_contracts_empty(fixture: "VoltalisProviderFixture") -> None:
     """Test get_energy_contracts method with no energy contracts."""
 
@@ -377,7 +364,6 @@ async def test_get_energy_contracts_empty(fixture: "VoltalisProviderFixture") ->
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_get_programs(fixture: "VoltalisProviderFixture") -> None:
     """Test get_programs method."""
 
@@ -400,7 +386,6 @@ async def test_get_programs(fixture: "VoltalisProviderFixture") -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_toggle_program_user(fixture: "VoltalisProviderFixture") -> None:
     """Test toggle_program method."""
 
@@ -419,7 +404,6 @@ async def test_toggle_program_user(fixture: "VoltalisProviderFixture") -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.enable_socket
 async def test_toggle_program_quick(fixture: "VoltalisProviderFixture") -> None:
     """Test toggle_program method with a quick setting program."""
 
@@ -578,7 +562,7 @@ class VoltalisProviderFixture(BaseFixture):
         raise ValueError("Unknown provider type")
 
 
-pytestmark = pytest.mark.asyncio(loop_scope="module")
+pytestmark = [pytest.mark.asyncio(loop_scope="module"), pytest.mark.enable_socket]
 
 
 @pytest.fixture(scope="module", params=VoltalisProviderFixture.TESTED_PROVIDERS)

@@ -3,7 +3,7 @@ from typing import Any, TypedDict
 
 from aiohttp import ClientSession
 
-from custom_components.voltalis.const import VOLTALIS_API_BASE_URL, VOLTALIS_API_LOGIN_ROUTE
+from custom_components.voltalis.const import VOLTALIS_API_LOGIN_ROUTE
 from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
 from custom_components.voltalis.lib.domain.shared.providers.http_client import (
     HttpClientException,
@@ -19,7 +19,6 @@ class VoltalisClientAiohttp(HttpClientAiohttp):
     It implements authentication and token management.
     """
 
-    BASE_URL = VOLTALIS_API_BASE_URL
     LOGIN_ROUTE = VOLTALIS_API_LOGIN_ROUTE
 
     class Storage(TypedDict):
@@ -34,7 +33,7 @@ class VoltalisClientAiohttp(HttpClientAiohttp):
         self,
         *,
         session: ClientSession,
-        base_url: str = BASE_URL,
+        base_url: str,
     ) -> None:
         super().__init__(session=session, base_url=base_url)
 

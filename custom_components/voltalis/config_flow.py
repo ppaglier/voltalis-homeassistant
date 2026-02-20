@@ -24,6 +24,7 @@ from custom_components.voltalis.const import (
     DEFAULT_TEMP,
     DEFAULT_WATER_HEATER_TEMP,
     DOMAIN,
+    VOLTALIS_API_BASE_URL,
     LogLevelEnum,
 )
 from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
@@ -59,7 +60,10 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if self.__client is not None:
             return self.__client
         # Client can't be provided if the config flow is instantiated by Home Assistant so we create a new one here
-        return VoltalisClientAiohttp(session=async_get_clientsession(self.hass))
+        return VoltalisClientAiohttp(
+            session=async_get_clientsession(self.hass),
+            base_url=VOLTALIS_API_BASE_URL,
+        )
 
     async def __validate_input(self, user_input: dict[str, Any]) -> None:
         """Validate provided user input."""

@@ -40,6 +40,7 @@ from custom_components.voltalis.const import (
     DEFAULT_TEMP,
     DEFAULT_WATER_HEATER_TEMP,
     DOMAIN,
+    VOLTALIS_API_BASE_URL,
     LogLevelEnum,
 )
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
@@ -72,7 +73,10 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         """Initialize the module. used in async_setup_entry"""
 
         # Initialize the module
-        self._voltalis_client = VoltalisClientAiohttp(session=async_get_clientsession(hass))
+        self._voltalis_client = VoltalisClientAiohttp(
+            session=async_get_clientsession(hass),
+            base_url=VOLTALIS_API_BASE_URL,
+        )
 
         logger = logging.getLogger("voltalis-home_assistant")
 
