@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 import voluptuous as vol
@@ -85,7 +86,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
         except VoltalisAuthenticationException as err:
             raise self.AuthError("invalid_auth") from err
-        except HttpClientException as err:
+        except (HttpClientException, RuntimeError, TimeoutError, asyncio.TimeoutError) as err:
             raise self.ConnectionError("cannot_connect") from err
         except Exception as err:
             raise self.ConfigFlowError("unknown") from err

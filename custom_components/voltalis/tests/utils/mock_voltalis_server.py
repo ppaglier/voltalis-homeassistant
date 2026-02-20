@@ -126,15 +126,27 @@ class MockVoltalisServer:
             ),
         )
 
+        self.__voltalis_api.set_request_handler(
+            url="/auth/logout",
+            method="DELETE",
+            new_request_handler=MockHttpServer.RequestHandler(
+                handle=lambda body, config: MockHttpServer.StubResponse(status_code=200)
+            ),
+        )
+
     def given_login_failure(self, error_type: str = "invalid_auth") -> None:
         """Configure the mock server to fail login with the specified error type.
 
         Args:
-            error_type: One of "invalid_auth" (401), "cannot_connect" (no handler), or "unknown" (no handler, same as cannot_connect)
+            error_type: One of:
+                - "invalid_auth" (401),
+                - "cannot_connect" (no handler)
+                - "unknown" (no handler, same as cannot_connect)
+
                 Note: "unknown" error responses (like 500) from an HTTP server are typically treated as "cannot_connect"
                 by the client since they become HttpClientException. To get a true "unknown" error in the config_flow,
                 you would need to raise an exception that isn't HttpClientException, which is not possible with a real HTTP server.
-        """
+        """  # noqa: E501
         if error_type == "cannot_connect" or error_type == "unknown":
             # Reset all handlers to simulate connection failure
             self.__voltalis_api.reset_request_handlers()

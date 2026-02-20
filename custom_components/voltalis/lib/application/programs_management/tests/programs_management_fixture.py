@@ -8,7 +8,7 @@ from custom_components.voltalis.lib.application.programs_management.handlers.set
 )
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_stub import VoltalisProviderStub
-from custom_components.voltalis.tests.base_fixture import BaseFixture
+from custom_components.voltalis.tests.utils.base_fixture import BaseFixture
 
 
 class ProgramsManagementFixture(BaseFixture):

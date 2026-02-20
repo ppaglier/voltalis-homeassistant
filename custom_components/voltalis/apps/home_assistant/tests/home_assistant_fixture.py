@@ -1,29 +1,19 @@
 """Base fixture class for Home Assistant E2E tests."""
 
-from typing import Any
-
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from pytest import MonkeyPatch
 
 from custom_components.voltalis.const import DOMAIN
-from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import (
-    ManualSetting,
-)
-from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
-from custom_components.voltalis.tests.base_fixture import BaseFixture
+from custom_components.voltalis.tests.utils.base_fixture import BaseFixture
 from custom_components.voltalis.tests.utils.mock_voltalis_server import MockVoltalisServer
 
 
-class HomeAssistantFixture(BaseFixture[Any]):
+class HomeAssistantFixture(BaseFixture[None]):
     """Base fixture class for Home Assistant E2E tests."""
 
-    def __init__(
-        self,
-        hass: HomeAssistant,
-        monkeypatch: MonkeyPatch,
-    ) -> None:
+    def __init__(self) -> None:
         """Initialize the fixture.
 
         Args:
@@ -32,8 +22,6 @@ class HomeAssistantFixture(BaseFixture[Any]):
         """
         super().__init__()
         self.voltalis_server = MockVoltalisServer()
-        self.hass = hass
-        self.monkeypatch = monkeypatch
 
     async def async_before_all(self) -> None:
         """Set up before all tests - called once at the start."""
@@ -52,33 +40,30 @@ class HomeAssistantFixture(BaseFixture[Any]):
 
         # Reset and configure the mock server
         self.voltalis_server.reset_storage()
-        self.voltalis_server.given_login_ok()
 
-        self.monkeypatch.setattr(
+    def setup_before_test(
+        self,
+        *,
+        hass: HomeAssistant,
+        monkeypatch: MonkeyPatch,
+    ) -> None:
+        """Set up the Home Assistant fixture.
+
+        Args:
+            hass: Home Assistant instance
+            monkeypatch: pytest MonkeyPatch instance
+        """
+        self.hass = hass
+
+        monkeypatch.setattr(
             "custom_components.voltalis.config_flow.VoltalisClientAiohttp",
             lambda session, **kwargs: self.voltalis_server.get_client(),
         )
 
-        self.monkeypatch.setattr(
+        monkeypatch.setattr(
             "custom_components.voltalis.apps.home_assistant.home_assistant_module.VoltalisClientAiohttp",
             lambda session, **kwargs: self.voltalis_server.get_client(),
         )
-
-    def given_devices(self, devices: dict[int, Device]) -> None:
-        """Configure test devices on the mock server.
-
-        Args:
-            devices: Dictionary of device ID to Device objects
-        """
-        self.voltalis_server.given_devices(devices)
-
-    def given_manual_settings(self, manual_settings: list[ManualSetting]) -> None:
-        """Configure manual settings on the mock server.
-
-        Args:
-            manual_settings: List of ManualSetting objects
-        """
-        self.voltalis_server.given_manual_settings(manual_settings)
 
     async def configure_entry(
         self,

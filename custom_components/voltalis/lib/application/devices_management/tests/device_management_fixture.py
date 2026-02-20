@@ -56,7 +56,7 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device imp
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_stub import DateProviderStub
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_stub import VoltalisProviderStub
-from custom_components.voltalis.tests.base_fixture import BaseFixture
+from custom_components.voltalis.tests.utils.base_fixture import BaseFixture
 
 
 class DeviceManagementFixture(BaseFixture):

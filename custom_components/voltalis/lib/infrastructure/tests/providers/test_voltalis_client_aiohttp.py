@@ -8,7 +8,7 @@ from custom_components.voltalis.lib.domain.shared.providers.http_client import H
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import (
     VoltalisClientAiohttp,
 )
-from custom_components.voltalis.tests.base_fixture import BaseFixture
+from custom_components.voltalis.tests.utils.base_fixture import BaseFixture
 from custom_components.voltalis.tests.utils.mock_http_server import MockHttpServer
 
 

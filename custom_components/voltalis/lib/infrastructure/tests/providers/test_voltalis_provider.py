@@ -34,7 +34,7 @@ from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_s
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_voltalis_api import (
     VoltalisProviderVoltalisApi,
 )
-from custom_components.voltalis.tests.base_fixture import BaseFixture
+from custom_components.voltalis.tests.utils.base_fixture import BaseFixture
 from custom_components.voltalis.tests.utils.mock_voltalis_server import MockVoltalisServer
 
 

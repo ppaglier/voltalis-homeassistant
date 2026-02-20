@@ -7,7 +7,7 @@ import pytest
 
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_stub import DateProviderStub
-from custom_components.voltalis.tests.base_fixture import BaseFixture
+from custom_components.voltalis.tests.utils.base_fixture import BaseFixture
 
 
 @pytest.mark.integration

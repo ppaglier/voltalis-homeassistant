@@ -17,7 +17,7 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract impo
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_stub import DateProviderStub
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_stub import VoltalisProviderStub
-from custom_components.voltalis.tests.base_fixture import BaseFixture
+from custom_components.voltalis.tests.utils.base_fixture import BaseFixture
 
 
 class EnergyContractsFixture(BaseFixture):
