@@ -1,5 +1,3 @@
-from logging import Logger
-
 from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_kwh_cost_query import (  # noqa: E501
     GetEnergyContractCurrentKwCostQuery,
 )
