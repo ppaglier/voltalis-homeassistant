@@ -5,6 +5,7 @@ on:
   pull_request:
     branches:
       - 'main'
+      - 'dev'
   schedule:
     # Every day at midnight
     - cron:  '0 0 * * *'

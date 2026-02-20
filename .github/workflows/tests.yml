@@ -5,6 +5,7 @@ on:
   pull_request:
     branches:
       - 'main'
+      - 'dev'
     paths:
       - ".github/workflows/tests.yml"
       - "custom_components/**"
