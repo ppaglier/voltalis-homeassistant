@@ -26,6 +26,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
     setup_ok = await home_assistant_module.async_setup_entry(hass=hass, entry=entry)
 
     if setup_ok:
+
+        async def _update_listener(hass: HomeAssistant, entry: VoltalisConfigEntry) -> None:
+            """Handle options updates by reloading the config entry."""
+            await hass.config_entries.async_reload(entry.entry_id)
+
         entry.async_on_unload(entry.add_update_listener(_update_listener))
 
     return setup_ok
@@ -35,8 +40,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) ->
     """Unload a config entry."""
 
     return await entry.runtime_data.voltalis_home_assistant_module.async_unload_entry()
-
-
-async def _update_listener(hass: HomeAssistant, entry: VoltalisConfigEntry) -> None:
-    """Handle options updates by reloading the config entry."""
-    await hass.config_entries.async_reload(entry.entry_id)
