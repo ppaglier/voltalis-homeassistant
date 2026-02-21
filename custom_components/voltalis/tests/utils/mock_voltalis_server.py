@@ -182,6 +182,7 @@ class MockVoltalisServer:
                         update={
                             "prog_type": ProgramTypeEnum.MANUAL if manual_setting.enabled else ProgramTypeEnum.DEFAULT,
                             "is_on": manual_setting.is_on,
+                            "mode": manual_setting.mode if manual_setting.enabled else device.programming.mode,
                         }
                     )
                     device = device.model_copy(update={"programming": updated_programming})

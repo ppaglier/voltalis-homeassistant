@@ -77,7 +77,7 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
         current_preset = self._voltalis_module.get_device_preset_handler.handle(
             GetDevicePresetQuery(
                 is_on=device.programming.is_on,
-                id_manual_setting=device.programming.id_manual_setting,
+                prog_type=device.programming.prog_type,
                 mode=device.programming.mode,
             )
         )

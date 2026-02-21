@@ -13,7 +13,6 @@ class DeviceProgramming(CustomModel):
     """Class to represent the status of a Voltalis device"""
 
     prog_type: ProgramTypeEnum
-    id_manual_setting: int | None = None
 
     is_on: bool = False
     mode: DeviceModeEnum

@@ -10,9 +10,9 @@ class ProgramBuilder(GenericBuilder[Program]):
 
     DEFAULT_VALUES = Program(
         id=1,
-        type=ProgramTypeEnum.DEFAULT,
+        type=ProgramTypeEnum.USER,
         name="Default Program",
-        enabled=True,
+        enabled=False,
     )
 
     def build(self) -> Program:

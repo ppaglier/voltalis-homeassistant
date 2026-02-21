@@ -8,6 +8,7 @@ from custom_components.voltalis.lib.application.devices_management.tests.device_
 )
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 
 
 @pytest.mark.unit
@@ -19,7 +20,7 @@ def test_get_device_preset_returns_off_when_device_is_off(
     result = fixture.get_device_preset_handler.handle(
         GetDevicePresetQuery(
             is_on=False,
-            id_manual_setting=1,
+            prog_type=ProgramTypeEnum.MANUAL,
             mode=DeviceModeEnum.COMFORT,
         )
     )
@@ -36,7 +37,7 @@ def test_get_device_preset_returns_auto_when_no_manual_setting(
     result = fixture.get_device_preset_handler.handle(
         GetDevicePresetQuery(
             is_on=True,
-            id_manual_setting=None,
+            prog_type=ProgramTypeEnum.DEFAULT,
             mode=DeviceModeEnum.COMFORT,
         )
     )
@@ -53,7 +54,7 @@ def test_get_device_preset_returns_off_for_climate_temperature_mode(
     result = fixture.get_device_preset_handler.handle(
         GetDevicePresetQuery(
             is_on=True,
-            id_manual_setting=1,
+            prog_type=ProgramTypeEnum.MANUAL,
             mode=DeviceModeEnum.TEMPERATURE,
             climate_mode=True,
         )
@@ -71,7 +72,7 @@ def test_get_device_preset_maps_modes(
     result = fixture.get_device_preset_handler.handle(
         GetDevicePresetQuery(
             is_on=True,
-            id_manual_setting=1,
+            prog_type=ProgramTypeEnum.MANUAL,
             mode=DeviceModeEnum.COMFORT,
         )
     )
@@ -88,7 +89,7 @@ def test_get_device_preset_non_climate_device_with_unrecognized_mode_returns_off
     result = fixture.get_device_preset_handler.handle(
         GetDevicePresetQuery(
             is_on=True,
-            id_manual_setting=1,
+            prog_type=ProgramTypeEnum.MANUAL,
             mode=None,
             climate_mode=True,
         )

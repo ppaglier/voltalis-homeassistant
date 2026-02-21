@@ -93,6 +93,17 @@ class HomeAssistantFixture(BaseFixture[None]):
         await coordinator.async_refresh()
         await self.hass.async_block_till_done(True)
 
+    async def async_refresh_all_coordinators(self) -> None:
+        """Helper method to refresh all coordinators and wait for updates."""
+
+        voltalis_module = self.get_home_assistant_voltalis_module()
+        await self.async_refresh_coordinator(voltalis_module.device_coordinator)
+        await self.async_refresh_coordinator(voltalis_module.device_health_coordinator)
+        await self.async_refresh_coordinator(voltalis_module.device_daily_consumption_coordinator)
+        await self.async_refresh_coordinator(voltalis_module.live_consumption_coordinator)
+        await self.async_refresh_coordinator(voltalis_module.energy_contract_coordinator)
+        await self.async_refresh_coordinator(voltalis_module.programs_coordinator)
+
     def setup_before_test(
         self,
         *,
@@ -149,6 +160,8 @@ class HomeAssistantFixture(BaseFixture[None]):
 
         # Wait for setup to complete
         await self.hass.async_block_till_done(True)
+
+        await self.async_refresh_all_coordinators()
 
     def init_provider_with_data(self) -> None:
         """Set up devices in the mock server.

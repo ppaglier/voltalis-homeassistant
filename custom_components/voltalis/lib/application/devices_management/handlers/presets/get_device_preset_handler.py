@@ -4,6 +4,7 @@ from custom_components.voltalis.lib.application.devices_management.queries.get_d
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
 from custom_components.voltalis.lib.domain.devices_management.presets.presets_mappings import MODE_PRESET_MAPPING
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 
 
 class GetDevicePresetHandler:
@@ -17,7 +18,7 @@ class GetDevicePresetHandler:
             return DeviceCurrentPresetEnum.OFF
 
         # Check if device is off
-        if not query.climate_mode and query.id_manual_setting is None:
+        if not query.climate_mode and query.prog_type is ProgramTypeEnum.DEFAULT:
             return DeviceCurrentPresetEnum.AUTO
 
         if query.mode is None:

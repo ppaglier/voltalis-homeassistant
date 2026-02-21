@@ -84,7 +84,6 @@ class VoltalisDeviceDtoProgramming(CustomModel):
     """Class to represent the status of a Voltalis device"""
 
     prog_type: VoltalisDeviceDtoProgTypeEnum = Field(alias="progType")
-    id_manual_setting: int | None = Field(None, alias="idManualSetting")
     is_on: bool | None = Field(None, alias="isOn")
     mode: VoltalisDeviceDtoModeEnum | None = None
     temperature_target: float | None = Field(None, alias="temperatureTarget")
@@ -130,7 +129,6 @@ class VoltalisDeviceDto(CustomModel):
             available_modes=available_modes,
             programming=VoltalisDeviceDtoProgramming(
                 prog_type=REVERSED_PROG_TYPE_MAPPING[device.programming.prog_type],
-                id_manual_setting=device.programming.id_manual_setting,
                 is_on=device.programming.is_on,
                 mode=actual_mode,
                 temperature_target=device.programming.temperature_target,
@@ -163,7 +161,6 @@ class VoltalisDeviceDto(CustomModel):
             has_ecov=VoltalisDeviceDtoModeEnum.ECOV in self.available_modes,
             programming=DeviceProgramming(
                 prog_type=VOLTALIS_DEVICE_PROG_TYPE_MAPPING[self.programming.prog_type],
-                id_manual_setting=self.programming.id_manual_setting,
                 is_on=self.programming.is_on,
                 mode=actual_mode,
                 temperature_target=self.programming.temperature_target,
