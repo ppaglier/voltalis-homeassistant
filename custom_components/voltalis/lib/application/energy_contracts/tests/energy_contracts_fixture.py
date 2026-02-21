@@ -50,7 +50,7 @@ class EnergyContractsFixture(BaseFixture):
 
         self.date_provider.now = now
 
-    def given_energy_contracts(self, energy_contracts: dict[int, EnergyContract]) -> None:
+    def given_energy_contracts(self, energy_contracts: list[EnergyContract]) -> None:
         """Set energy contracts returned by the provider."""
 
         self.voltalis_provider.set_energy_contracts(energy_contracts)

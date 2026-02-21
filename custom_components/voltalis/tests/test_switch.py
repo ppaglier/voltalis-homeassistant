@@ -16,7 +16,8 @@ from custom_components.voltalis.apps.home_assistant.tests.home_assistant_fixture
     [
         ("switch.heater_1_device_switch", STATE_ON),
         ("switch.heater_2_device_switch", STATE_OFF),
-        ("switch.water_heater_device_switch", STATE_ON),
+        ("switch.water_heater_1_device_switch", STATE_ON),
+        ("switch.water_heater_2_device_switch", STATE_OFF),
     ],
 )
 async def test_switch_entity_setup(

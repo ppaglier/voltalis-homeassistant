@@ -23,6 +23,7 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_buil
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
 from custom_components.voltalis.lib.domain.programs_management.programs.program_builder import ProgramBuilder
+from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.tests.utils.base_fixture import BaseFixture
 from custom_components.voltalis.tests.utils.mock_voltalis_server import MockVoltalisServer
 
@@ -72,7 +73,7 @@ class HomeAssistantFixture(BaseFixture[None]):
             raise AssertionError(f"Entity {entity_id} should exist")
         return state
 
-    async def async_call_service(self, domain: str, service: str, entity_id: str) -> None:
+    async def async_call_service(self, domain: str, service: str, entity_id: str, service_data: dict = {}) -> None:
         """Helper method to call a Home Assistant service.
 
         Args:
@@ -80,7 +81,7 @@ class HomeAssistantFixture(BaseFixture[None]):
             service: The name of the service (e.g., "turn_on")
             service_data: The data to pass to the service call
         """
-        await self.hass.services.async_call(domain, service, {ATTR_ENTITY_ID: entity_id}, blocking=True)
+        await self.hass.services.async_call(domain, service, {ATTR_ENTITY_ID: entity_id, **service_data}, blocking=True)
         await self.hass.async_block_till_done(True)
 
     def get_home_assistant_voltalis_module(self) -> "VoltalisHomeAssistantModule":
@@ -173,43 +174,51 @@ class HomeAssistantFixture(BaseFixture[None]):
         """Set up devices in the mock server."""
 
         # Create test devices
-        device1 = (
+        devices = [
             DeviceBuilder()
             .with_id(1)
             .with_name("Heater 1")
             .with_type(DeviceTypeEnum.HEATER)
+            .with_programming_type(ProgramTypeEnum.MANUAL)
             .with_programming_is_on(True)
-            .build()
-        )
-
-        device2 = (
+            .with_available_modes([DeviceModeEnum.COMFORT, DeviceModeEnum.ECO])
+            .build(),
             DeviceBuilder()
             .with_id(2)
             .with_name("Heater 2")
+            .with_programming_type(ProgramTypeEnum.MANUAL)
             .with_type(DeviceTypeEnum.HEATER)
             .with_available_modes([DeviceModeEnum.ON, DeviceModeEnum.ECO])
             .with_programming_is_on(False)
-            .build()
-        )
-
-        device3 = (
+            .build(),
             DeviceBuilder()
             .with_id(3)
-            .with_name("Water Heater")
+            .with_name("Water Heater 1")
             .with_type(DeviceTypeEnum.WATER_HEATER)
+            .with_programming_type(ProgramTypeEnum.MANUAL)
             .with_programming_is_on(True)
-            .build()
-        )
+            .with_available_modes([DeviceModeEnum.ON])
+            .build(),
+            DeviceBuilder()
+            .with_id(4)
+            .with_name("Water Heater 2")
+            .with_type(DeviceTypeEnum.WATER_HEATER)
+            .with_programming_type(ProgramTypeEnum.MANUAL)
+            .with_programming_is_on(False)
+            .with_available_modes([DeviceModeEnum.ON])
+            .build(),
+        ]
 
-        self.voltalis_server.given_devices({device1.id: device1, device2.id: device2, device3.id: device3})
+        self.voltalis_server.given_devices(devices)
 
     def init_devices_health(self) -> None:
         """Set up devices health in the mock server."""
-        devices_health = {
-            1: DeviceHealthBuilder().with_status(DeviceHealthStatusEnum.OK).build(),
-            2: DeviceHealthBuilder().with_status(DeviceHealthStatusEnum.NOT_OK).build(),
-            3: DeviceHealthBuilder().with_status(DeviceHealthStatusEnum.COMM_ERROR).build(),
-        }
+        devices_health = [
+            DeviceHealthBuilder().with_device_id(1).with_status(DeviceHealthStatusEnum.OK).build(),
+            DeviceHealthBuilder().with_device_id(2).with_status(DeviceHealthStatusEnum.NOT_OK).build(),
+            DeviceHealthBuilder().with_device_id(3).with_status(DeviceHealthStatusEnum.COMM_ERROR).build(),
+            DeviceHealthBuilder().with_device_id(4).with_status(DeviceHealthStatusEnum.NO_CONSUMPTION).build(),
+        ]
         self.voltalis_server.given_devices_health(devices_health)
 
     def init_live_consumption(self) -> None:
@@ -221,21 +230,12 @@ class HomeAssistantFixture(BaseFixture[None]):
         """Set up devices consumption data in the mock server."""
 
         devices_consumptions = {
-            1: [
+            device_id: [
                 (datetime(2024, 1, 1, 8, 15, 0), 1.2),
                 (datetime(2024, 1, 1, 9, 45, 0), 2.3),
                 (datetime(2024, 1, 1, 10, 15, 0), 3.0),
-            ],
-            2: [
-                (datetime(2024, 1, 1, 8, 15, 0), 1.2),
-                (datetime(2024, 1, 1, 9, 45, 0), 2.3),
-                (datetime(2024, 1, 1, 10, 15, 0), 3.0),
-            ],
-            3: [
-                (datetime(2024, 1, 1, 8, 15, 0), 1.2),
-                (datetime(2024, 1, 1, 9, 45, 0), 2.3),
-                (datetime(2024, 1, 1, 10, 15, 0), 3.0),
-            ],
+            ]
+            for device_id in range(1, 5)
         }
 
         self.voltalis_server.given_devices_consumptions(devices_consumptions)
@@ -244,11 +244,14 @@ class HomeAssistantFixture(BaseFixture[None]):
         """Set up manual settings in the mock server."""
 
         # Create and set manual settings
-        manual_setting1 = ManualSettingBuilder().with_id(1).with_id_appliance(1).with_is_on(True).build()
-        manual_setting2 = ManualSettingBuilder().with_id(2).with_id_appliance(2).with_is_on(False).build()
-        manual_setting3 = ManualSettingBuilder().with_id(3).with_id_appliance(3).with_is_on(True).build()
+        manual_settings = [
+            ManualSettingBuilder().with_id(1).with_id_appliance(1).with_is_on(True).build(),
+            ManualSettingBuilder().with_id(2).with_id_appliance(2).with_is_on(False).build(),
+            ManualSettingBuilder().with_id(3).with_id_appliance(3).with_is_on(True).build(),
+            ManualSettingBuilder().with_id(4).with_id_appliance(4).with_is_on(True).build(),
+        ]
 
-        self.voltalis_server.given_manual_settings([manual_setting1, manual_setting2, manual_setting3])
+        self.voltalis_server.given_manual_settings(manual_settings)
 
     def init_energy_contracts(self) -> None:
         """Set up energy contracts in the mock server."""
@@ -260,9 +263,9 @@ class HomeAssistantFixture(BaseFixture[None]):
             .with_type(EnergyContractTypeEnum.PEAK_OFFPEAK)
             .build()
         )
-        self.voltalis_server.given_energy_contracts({energy_contract.contract_id: energy_contract})
+        self.voltalis_server.given_energy_contracts([energy_contract])
 
     def init_programs(self) -> None:
         """Set up programs in the mock server."""
         program1 = ProgramBuilder().with_id(1).with_name("Morning Program").build()
-        self.voltalis_server.given_programs({program1.id: program1})
+        self.voltalis_server.given_programs([program1])

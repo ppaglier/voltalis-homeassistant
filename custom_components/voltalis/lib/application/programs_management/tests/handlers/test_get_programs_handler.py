@@ -14,11 +14,11 @@ async def test_get_programs_returns_provider_data(
     """Test get programs handler returns provider data."""
 
     # Given
-    programs = {
-        1: ProgramBuilder().with_id(1).with_type(ProgramTypeEnum.MANUAL).build(),
-        2: ProgramBuilder().with_id(2).with_type(ProgramTypeEnum.QUICK).build(),
-        3: ProgramBuilder().with_id(3).with_type(ProgramTypeEnum.USER).build(),
-    }
+    programs = [
+        ProgramBuilder().with_id(1).with_type(ProgramTypeEnum.MANUAL).build(),
+        ProgramBuilder().with_id(2).with_type(ProgramTypeEnum.QUICK).build(),
+        ProgramBuilder().with_id(3).with_type(ProgramTypeEnum.USER).build(),
+    ]
     fixture.given_programs(programs)
 
     # When
@@ -26,8 +26,8 @@ async def test_get_programs_returns_provider_data(
 
     # Then
     expected_result = {
-        2: programs[2],
-        3: programs[3],
+        2: programs[1],
+        3: programs[2],
     }
     fixture.compare_dicts(result, expected_result)
 

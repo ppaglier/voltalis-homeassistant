@@ -167,12 +167,12 @@ class DeviceManagementFixture(BaseFixture):
 
         self.date_provider.now = now
 
-    def given_devices(self, devices: dict[int, Device]) -> None:
+    def given_devices(self, devices: list[Device]) -> None:
         """Set the devices to be returned by the provider."""
 
         self.voltalis_provider.set_devices(devices)
 
-    def given_devices_health(self, devices_health: dict[int, DeviceHealth]) -> None:
+    def given_devices_health(self, devices_health: list[DeviceHealth]) -> None:
         """Set the devices health to be returned by the provider."""
 
         self.voltalis_provider.set_devices_health(devices_health)

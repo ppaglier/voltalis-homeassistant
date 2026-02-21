@@ -25,11 +25,11 @@ class VoltalisProviderStub(VoltalisProvider):
         self._energy_contracts: dict[int, EnergyContract] = {}
         self._programs: dict[int, Program] = {}
 
-    def set_devices(self, devices: dict[int, Device]) -> None:
-        self._devices = devices
+    def set_devices(self, devices: list[Device]) -> None:
+        self._devices = {device.id: device for device in devices}
 
-    def set_devices_health(self, devices_health: dict[int, DeviceHealth]) -> None:
-        self._devices_health = devices_health
+    def set_devices_health(self, devices_health: list[DeviceHealth]) -> None:
+        self._devices_health = {device_health.device_id: device_health for device_health in devices_health}
 
     def set_live_consumption(self, consumption: LiveConsumption) -> None:
         self._live_consumption = consumption
@@ -40,11 +40,11 @@ class VoltalisProviderStub(VoltalisProvider):
     def set_manual_settings(self, manual_settings: list[ManualSetting]) -> None:
         self._manual_settings = {manual_setting.id: manual_setting for manual_setting in manual_settings}
 
-    def set_energy_contracts(self, energy_contracts: dict[int, EnergyContract]) -> None:
-        self._energy_contracts = energy_contracts
+    def set_energy_contracts(self, energy_contracts: list[EnergyContract]) -> None:
+        self._energy_contracts = {energy_contract.id: energy_contract for energy_contract in energy_contracts}
 
-    def set_programs(self, programs: dict[int, Program]) -> None:
-        self._programs = programs
+    def set_programs(self, programs: list[Program]) -> None:
+        self._programs = {program.id: program for program in programs}
 
     # ------------------------------------------------------------
     # Implementation of VoltalisProvider methods

@@ -24,7 +24,7 @@ async def test_get_devices_filters_supported_types_and_attaches_manual_settings(
     water_heater = DeviceBuilder().with_id(2).with_type(DeviceTypeEnum.WATER_HEATER).build()
     other = DeviceBuilder().with_id(3).with_type(DeviceTypeEnum.OTHER).build()
     manual_setting = ManualSettingBuilder().with_id(10).with_id_appliance(heater.id).build()
-    fixture.given_devices({heater.id: heater, water_heater.id: water_heater, other.id: other})
+    fixture.given_devices([heater, water_heater, other])
     fixture.given_manual_settings([manual_setting])
 
     # When

@@ -40,16 +40,13 @@ class VoltalisDeviceHealthDto(CustomModel):
     status: VoltalisDeviceHealthDtoStatusEnum
 
     @staticmethod
-    def from_device_health(
-        cs_appliance_id: int,
-        device_health: DeviceHealth,
-    ) -> "VoltalisDeviceHealthDto":
+    def from_device_health(device_health: DeviceHealth) -> "VoltalisDeviceHealthDto":
         """Convert from domain model"""
 
         reversed_mapping = {v: k for k, v in VOLTALIS_DEVICE_HEALTH_STATUS_MAPPING.items()}
 
         return VoltalisDeviceHealthDto(
-            cs_appliance_id=cs_appliance_id,
+            cs_appliance_id=device_health.device_id,
             status=reversed_mapping[device_health.status],
         )
 
@@ -57,5 +54,6 @@ class VoltalisDeviceHealthDto(CustomModel):
         """Convert to domain model"""
 
         return DeviceHealth(
+            device_id=self.cs_appliance_id,
             status=VOLTALIS_DEVICE_HEALTH_STATUS_MAPPING[self.status],
         )

@@ -12,7 +12,6 @@ from custom_components.voltalis.lib.application.devices_management.tests.device_
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting_builder import (
     ManualSettingBuilder,
 )
-from custom_components.voltalis.lib.domain.devices_management.devices.device import DeviceProgramming
 from custom_components.voltalis.lib.domain.devices_management.devices.device_builder import DeviceBuilder
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.devices_management.water_heaters.water_heater_current_operations_enum import (  # noqa: E501
@@ -22,7 +21,7 @@ from custom_components.voltalis.lib.domain.programs_management.programs.program_
 
 
 @pytest.mark.unit
-async def test_set_water_heater_operation_on(
+async def test_set_water_heater_operation_from_off_to_on(
     fixture: DeviceManagementFixture,
 ) -> None:
     """Test water heater ON operation sets manual mode."""
@@ -31,17 +30,13 @@ async def test_set_water_heater_operation_on(
     device = (
         DeviceBuilder()
         .with_id(1)
-        .with_programming(
-            DeviceProgramming(
-                prog_type=ProgramTypeEnum.DEFAULT,
-                mode=DeviceModeEnum.ECO,
-                temperature_target=None,
-                default_temperature=None,
-            )
-        )
+        .with_programming_is_on(False)
+        .with_programming_type(ProgramTypeEnum.MANUAL)
+        .with_programming_mode(DeviceModeEnum.ON)
+        .with_programming_temperature_target(fixture.default_water_heater_temp)
         .build()
     )
-    manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
+    manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id).with_enabled(False)
     manual_setting = manual_setting_builder.build()
     fixture.given_manual_settings([manual_setting])
 
@@ -67,7 +62,7 @@ async def test_set_water_heater_operation_on(
 
 
 @pytest.mark.unit
-async def test_set_water_heater_operation_off(
+async def test_set_water_heater_operation_from_auto_to_off(
     fixture: DeviceManagementFixture,
 ) -> None:
     """Test water heater OFF operation updates manual setting."""
@@ -76,14 +71,10 @@ async def test_set_water_heater_operation_off(
     device = (
         DeviceBuilder()
         .with_id(1)
-        .with_programming(
-            DeviceProgramming(
-                prog_type=ProgramTypeEnum.DEFAULT,
-                mode=DeviceModeEnum.ECO,
-                temperature_target=None,
-                default_temperature=None,
-            )
-        )
+        .with_programming_is_on(False)
+        .with_programming_type(ProgramTypeEnum.MANUAL)
+        .with_programming_mode(DeviceModeEnum.ON)
+        .with_programming_temperature_target(fixture.default_water_heater_temp)
         .build()
     )
     manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
@@ -112,7 +103,7 @@ async def test_set_water_heater_operation_off(
 
 
 @pytest.mark.unit
-async def test_set_water_heater_operation_auto(
+async def test_set_water_heater_operation_from_on_to_auto(
     fixture: DeviceManagementFixture,
 ) -> None:
     """Test water heater AUTO operation disables manual mode."""
@@ -123,14 +114,10 @@ async def test_set_water_heater_operation_auto(
     device = (
         DeviceBuilder()
         .with_id(1)
-        .with_programming(
-            DeviceProgramming(
-                prog_type=ProgramTypeEnum.DEFAULT,
-                mode=DeviceModeEnum.ECO,
-                temperature_target=53.0,
-                default_temperature=None,
-            )
-        )
+        .with_programming_is_on(True)
+        .with_programming_type(ProgramTypeEnum.MANUAL)
+        .with_programming_mode(DeviceModeEnum.ON)
+        .with_programming_temperature_target(fixture.default_water_heater_temp)
         .build()
     )
     manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
@@ -149,9 +136,51 @@ async def test_set_water_heater_operation_auto(
     expected = (
         manual_setting_builder.with_until_further_notice(False)
         .with_is_on(True)
-        .with_mode(DeviceModeEnum.ECO)
+        .with_mode(DeviceModeEnum.ON)
         .with_end_date(now)
-        .with_temperature_target(53.0)
+        .with_temperature_target(fixture.default_water_heater_temp)
+        .build()
+    )
+    fixture.then_manual_settings_should_be({expected.id: expected})
+
+
+@pytest.mark.unit
+async def test_set_water_heater_operation_from_off_to_auto(
+    fixture: DeviceManagementFixture,
+) -> None:
+    """Test water heater AUTO operation disables manual mode."""
+
+    # Given
+    now = datetime(2024, 1, 4, 7, 0, 0)
+    fixture.given_now(now)
+    device = (
+        DeviceBuilder()
+        .with_id(1)
+        .with_programming_is_on(False)
+        .with_programming_type(ProgramTypeEnum.MANUAL)
+        .with_programming_mode(DeviceModeEnum.ON)
+        .with_programming_temperature_target(fixture.default_water_heater_temp)
+        .build()
+    )
+    manual_setting_builder = ManualSettingBuilder().with_id(1).with_id_appliance(device.id)
+    manual_setting = manual_setting_builder.build()
+    fixture.given_manual_settings([manual_setting])
+
+    # When
+    await fixture.set_water_heater_operation_handler.handle(
+        SetWaterHeaterOperationCommand(
+            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            operation_mode=WaterHeaterCurrentOperationEnum.AUTO,
+        )
+    )
+
+    # Then
+    expected = (
+        manual_setting_builder.with_until_further_notice(False)
+        .with_is_on(True)
+        .with_mode(DeviceModeEnum.ON)
+        .with_end_date(now)
+        .with_temperature_target(fixture.default_water_heater_temp)
         .build()
     )
     fixture.then_manual_settings_should_be({expected.id: expected})

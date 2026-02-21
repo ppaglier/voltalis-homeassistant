@@ -24,7 +24,7 @@ async def test_disable_manual_mode(fixture: DeviceManagementFixture) -> None:
     now = datetime(2024, 1, 4, 7, 0, 0)
     fixture.given_now(now)
     device = DeviceBuilder().with_id(1).build()
-    fixture.given_devices({device.id: device})
+    fixture.given_devices([device])
     manual_setting_builder = (
         ManualSettingBuilder()
         .with_id(1)
@@ -59,7 +59,7 @@ async def test_disable_manual_mode_with_no_manual_setting(fixture: DeviceManagem
 
     # Given
     device = DeviceBuilder().with_id(1).build()
-    fixture.given_devices({device.id: device})
+    fixture.given_devices([device])
     fixture.given_manual_settings([])
 
     # When / Then
@@ -81,7 +81,7 @@ async def test_disable_manual_mode_with_already_disabled_manual_setting(fixture:
     now = datetime(2024, 1, 4, 7, 0, 0)
     fixture.given_now(now)
     device = DeviceBuilder().with_id(1).build()
-    fixture.given_devices({device.id: device})
+    fixture.given_devices([device])
     manual_setting_builder = (
         ManualSettingBuilder()
         .with_id(1)
@@ -115,7 +115,7 @@ async def test_disable_manual_mode_with_fallback_mode(fixture: DeviceManagementF
     now = datetime(2024, 1, 4, 7, 0, 0)
     fixture.given_now(now)
     device = DeviceBuilder().with_id(1).build()
-    fixture.given_devices({device.id: device})
+    fixture.given_devices([device])
     manual_setting_builder = (
         ManualSettingBuilder()
         .with_id(1)
@@ -157,7 +157,7 @@ async def test_disable_manual_mode_with_fallback_temperature(fixture: DeviceMana
     now = datetime(2024, 1, 4, 7, 0, 0)
     fixture.given_now(now)
     device = DeviceBuilder().with_id(1).build()
-    fixture.given_devices({device.id: device})
+    fixture.given_devices([device])
     manual_setting_builder = (
         ManualSettingBuilder()
         .with_id(1)

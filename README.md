@@ -652,7 +652,7 @@ Customize default temperatures for different operating modes:
 
 #### Advanced Settings
 
-- **Log Level** (default: info)
+- **Log Level** (default: warning)
   - Control the verbosity of logs in Home Assistant
   - Options: `debug`, `info`, `warning`, `error`, `critical`
   - Useful for troubleshooting issues or debugging

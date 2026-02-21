@@ -37,7 +37,7 @@ class LogLevelEnum(StrEnum):
     CRITICAL = "critical"
 
 
-DEFAULT_LOG_LEVEL = LogLevelEnum.INFO
+DEFAULT_LOG_LEVEL = LogLevelEnum.WARNING
 
 
 # Temperature defaults for climate control

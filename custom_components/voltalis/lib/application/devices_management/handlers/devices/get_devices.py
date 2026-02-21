@@ -27,7 +27,7 @@ class GetDevicesHandler:
         result: dict[int, DeviceDto] = {}
         for device_id, device in devices.items():
             if device.type not in [DeviceTypeEnum.HEATER, DeviceTypeEnum.WATER_HEATER]:
-                self.__logger.debug(f"Skipping unsupported device type: {device.type}")
+                self.__logger.info(f"Skipping unsupported device type: {device.type}")
                 continue
 
             result[device_id] = DeviceDto(

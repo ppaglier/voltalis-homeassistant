@@ -1,3 +1,4 @@
+import logging
 from datetime import date, datetime
 from typing import Any, Callable
 
@@ -49,7 +50,9 @@ class MockVoltalisServer:
 
     def __init__(self) -> None:
         self.__voltalis_provider = VoltalisProviderStub()
-        self.__voltalis_api = MockHttpServer()
+        self.__logger = logging.getLogger(__name__)
+        self.__logger.setLevel(logging.WARNING)
+        self.__voltalis_api = MockHttpServer(logger=self.__logger)
 
     # --------------------------
     # Server management methods
@@ -161,21 +164,25 @@ class MockVoltalisServer:
                 ),
             )
 
-    def given_devices(self, devices: dict[int, Device]) -> None:
+    def given_devices(self, devices: list[Device]) -> None:
         self.__voltalis_provider.set_devices(devices)
 
         async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
             devices_dict = await self.__voltalis_provider.get_devices()
             manual_settings = await self.__voltalis_provider.get_manual_settings()
 
-            # Sync device programming.is_on with manual setting is_on
+            # Sync device programming.is_on and prog_type with manual setting
             synced_devices = []
             for device_id, device in devices_dict.items():
                 # manual_settings is keyed by id_appliance (device_id)
                 manual_setting = manual_settings.get(device_id)
                 if manual_setting:
-                    # Update the device programming is_on to match manual setting
-                    updated_programming = device.programming.model_copy(update={"is_on": manual_setting.is_on})
+                    # Update the device programming to match manual setting
+                    updates: dict = {"is_on": manual_setting.is_on}
+                    # If manual setting is enabled, set prog_type to MANUAL
+                    if manual_setting.enabled:
+                        updates["prog_type"] = ProgramTypeEnum.MANUAL
+                    updated_programming = device.programming.model_copy(update=updates)
                     device = device.model_copy(update={"programming": updated_programming})
                 synced_devices.append(device)
 
@@ -194,14 +201,13 @@ class MockVoltalisServer:
             ),
         )
 
-    def given_devices_health(self, devices_health: dict[int, DeviceHealth]) -> None:
+    def given_devices_health(self, devices_health: list[DeviceHealth]) -> None:
         self.__voltalis_provider.set_devices_health(devices_health)
 
         async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
             devices_health = await self.__voltalis_provider.get_devices_health()
             voltalis_devices_health = [
-                VoltalisDeviceHealthDto.from_device_health(device_id, device_health)
-                for device_id, device_health in devices_health.items()
+                VoltalisDeviceHealthDto.from_device_health(device_health) for device_health in devices_health.values()
             ]
 
             return MockHttpServer.StubResponse(
@@ -336,7 +342,7 @@ class MockVoltalisServer:
             ),
         )
 
-    def given_energy_contracts(self, energy_contracts: dict[int, EnergyContract]) -> None:
+    def given_energy_contracts(self, energy_contracts: list[EnergyContract]) -> None:
         self.__voltalis_provider.set_energy_contracts(energy_contracts)
 
         async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
@@ -359,7 +365,7 @@ class MockVoltalisServer:
             ),
         )
 
-    def given_programs(self, programs: dict[int, Program]) -> None:
+    def given_programs(self, programs: list[Program]) -> None:
         self.__voltalis_provider.set_programs(programs)
 
         def get_handler_from_endpoint(quick_setting: bool) -> Callable:

@@ -30,7 +30,7 @@ class ProgramsManagementFixture(BaseFixture):
     # Given
     # ------------------------------------------------------------
 
-    def given_programs(self, programs: dict[int, Program]) -> None:
+    def given_programs(self, programs: list[Program]) -> None:
         """Set programs returned by the provider."""
 
         self.voltalis_provider.set_programs(programs)

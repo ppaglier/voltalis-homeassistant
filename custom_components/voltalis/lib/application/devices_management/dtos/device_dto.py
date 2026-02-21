@@ -6,3 +6,11 @@ class DeviceDto(Device):
     """Data class to hold device information."""
 
     manual_setting: ManualSetting | None = None
+
+    @staticmethod
+    def from_device(device: Device, manual_setting: ManualSetting | None = None) -> "DeviceDto":
+        """Create a DeviceDto from a Device and an optional ManualSetting."""
+        return DeviceDto(
+            **device.model_dump(),
+            manual_setting=manual_setting,
+        )

@@ -22,7 +22,7 @@ async def test_set_program_disables_old_and_enables_new(
     new_program = (
         ProgramBuilder().with_id(2).with_type(ProgramTypeEnum.USER).with_name("User").with_enabled(False).build()
     )
-    fixture.given_programs({old_program.id: old_program, new_program.id: new_program})
+    fixture.given_programs([old_program, new_program])
 
     # When
     await fixture.set_program_handler.handle(new_program=new_program, old_program=old_program)
@@ -51,7 +51,7 @@ async def test_set_program_allows_new_only(
     new_program = (
         ProgramBuilder().with_id(2).with_type(ProgramTypeEnum.USER).with_name("User").with_enabled(False).build()
     )
-    fixture.given_programs({new_program.id: new_program})
+    fixture.given_programs([new_program])
 
     # When
     await fixture.set_program_handler.handle(new_program=new_program, old_program=None)

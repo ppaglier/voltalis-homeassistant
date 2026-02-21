@@ -42,8 +42,8 @@ from custom_components.voltalis.tests.utils.mock_voltalis_server import MockVolt
 async def test_get_devices(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices method."""
 
-    devices = {
-        1: DeviceBuilder()
+    devices = [
+        DeviceBuilder()
         .with_id(1)
         .with_name("Device 1")
         .with_type(DeviceTypeEnum.HEATER)
@@ -51,7 +51,7 @@ async def test_get_devices(fixture: "VoltalisProviderFixture") -> None:
         .with_available_modes([DeviceModeEnum.COMFORT, DeviceModeEnum.ECO])
         .with_has_ecov(True)
         .build(),
-        2: DeviceBuilder()
+        DeviceBuilder()
         .with_id(2)
         .with_name("Device 2")
         .with_type(DeviceTypeEnum.WATER_HEATER)
@@ -59,7 +59,7 @@ async def test_get_devices(fixture: "VoltalisProviderFixture") -> None:
         .with_available_modes([DeviceModeEnum.COMFORT, DeviceModeEnum.ECO])
         .with_has_ecov(False)
         .build(),
-    }
+    ]
 
     # Arrange
     fixture.given_devices(devices)
@@ -68,7 +68,7 @@ async def test_get_devices(fixture: "VoltalisProviderFixture") -> None:
     result = await fixture.provider.get_devices()
 
     # Assert
-    expected_result = devices
+    expected_result = {device.id: device for device in devices}
     fixture.compare_data(result, expected_result)
 
 
@@ -77,7 +77,7 @@ async def test_get_devices_empty(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices method with no devices."""
 
     # Arrange
-    fixture.given_devices({})
+    fixture.given_devices([])
 
     # Act
     result = await fixture.provider.get_devices()
@@ -90,10 +90,10 @@ async def test_get_devices_empty(fixture: "VoltalisProviderFixture") -> None:
 async def test_get_devices_health(fixture: "VoltalisProviderFixture") -> None:
     """Test get_devices_health method."""
 
-    devices_health = {
-        1: DeviceHealthBuilder().with_status(DeviceHealthStatusEnum.OK).build(),
-        2: DeviceHealthBuilder().with_status(DeviceHealthStatusEnum.NOT_OK).build(),
-    }
+    devices_health = [
+        DeviceHealthBuilder().with_device_id(1).with_status(DeviceHealthStatusEnum.OK).build(),
+        DeviceHealthBuilder().with_device_id(2).with_status(DeviceHealthStatusEnum.NOT_OK).build(),
+    ]
 
     # Arrange
     fixture.given_devices_health(devices_health)
@@ -102,7 +102,7 @@ async def test_get_devices_health(fixture: "VoltalisProviderFixture") -> None:
     result = await fixture.provider.get_devices_health()
 
     # Assert
-    expected_result = devices_health
+    expected_result = {device_health.device_id: device_health for device_health in devices_health}
     fixture.compare_data(result, expected_result)
 
 
@@ -111,7 +111,7 @@ async def test_get_devices_health_empty(fixture: "VoltalisProviderFixture") -> N
     """Test get_devices_health method with no health data."""
 
     # Arrange
-    fixture.given_devices_health({})
+    fixture.given_devices_health([])
 
     # Act
     result = await fixture.provider.get_devices_health()
@@ -336,17 +336,17 @@ async def test_set_manual_setting_with_ecov(fixture: "VoltalisProviderFixture") 
 async def test_get_energy_contracts(fixture: "VoltalisProviderFixture") -> None:
     """Test get_energy_contracts method."""
 
-    energy_contracts = {
-        1: EnergyContractBuilder().with_id(1).build(),
-        2: EnergyContractBuilder().with_id(2).build(),
-    }
+    energy_contracts = [
+        EnergyContractBuilder().with_id(1).build(),
+        EnergyContractBuilder().with_id(2).build(),
+    ]
     fixture.given_energy_contracts(energy_contracts)
 
     # Act
     result = await fixture.provider.get_energy_contracts()
 
     # Assert
-    expected_result = energy_contracts
+    expected_result = {energy_contract.id: energy_contract for energy_contract in energy_contracts}
     fixture.compare_data(result, expected_result)
 
 
@@ -354,7 +354,7 @@ async def test_get_energy_contracts(fixture: "VoltalisProviderFixture") -> None:
 async def test_get_energy_contracts_empty(fixture: "VoltalisProviderFixture") -> None:
     """Test get_energy_contracts method with no energy contracts."""
 
-    fixture.given_energy_contracts({})
+    fixture.given_energy_contracts([])
 
     # Act
     result = await fixture.provider.get_energy_contracts()
@@ -367,11 +367,11 @@ async def test_get_energy_contracts_empty(fixture: "VoltalisProviderFixture") ->
 async def test_get_programs(fixture: "VoltalisProviderFixture") -> None:
     """Test get_programs method."""
 
-    programs = {
-        1: ProgramBuilder().with_id(1).with_type(ProgramTypeEnum.MANUAL).build(),
-        2: ProgramBuilder().with_id(2).with_name("quicksettings-longleave").with_type(ProgramTypeEnum.QUICK).build(),
-        3: ProgramBuilder().with_id(3).with_type(ProgramTypeEnum.USER).build(),
-    }
+    programs = [
+        ProgramBuilder().with_id(1).with_type(ProgramTypeEnum.MANUAL).build(),
+        ProgramBuilder().with_id(2).with_name("quicksettings-longleave").with_type(ProgramTypeEnum.QUICK).build(),
+        ProgramBuilder().with_id(3).with_type(ProgramTypeEnum.USER).build(),
+    ]
     fixture.given_programs(programs)
 
     # Act
@@ -379,8 +379,8 @@ async def test_get_programs(fixture: "VoltalisProviderFixture") -> None:
 
     # Assert
     expected_result = {
-        2: programs[2],
-        3: programs[3],
+        2: programs[1],
+        3: programs[2],
     }
     fixture.compare_data(result, expected_result)
 
@@ -391,7 +391,7 @@ async def test_toggle_program_user(fixture: "VoltalisProviderFixture") -> None:
 
     program_builder = ProgramBuilder().with_id(1).with_type(ProgramTypeEnum.USER).with_enabled(False)
     program = program_builder.build()
-    fixture.given_programs({1: program})
+    fixture.given_programs([program])
 
     # Act
     updated_program = program_builder.with_enabled(True).build()
@@ -409,7 +409,7 @@ async def test_toggle_program_quick(fixture: "VoltalisProviderFixture") -> None:
 
     program_builder = ProgramBuilder().with_id(1).with_type(ProgramTypeEnum.QUICK).with_enabled(False)
     program = program_builder.build()
-    fixture.given_programs({1: program})
+    fixture.given_programs([program])
 
     # Act
     updated_program = program_builder.with_enabled(True).build()
@@ -451,8 +451,8 @@ class VoltalisProviderFixture(BaseFixture):
 
     def before_each(self) -> None:
         if isinstance(self.provider, VoltalisProviderStub):
-            self.provider.set_devices({})
-            self.provider.set_devices_health({})
+            self.provider.set_devices([])
+            self.provider.set_devices_health([])
             self.provider.set_devices_consumptions({})
             self.provider.set_manual_settings([])
 
@@ -477,7 +477,7 @@ class VoltalisProviderFixture(BaseFixture):
     # --------------------------------------
     # Arrange
     # --------------------------------------
-    def given_devices(self, devices: dict[int, Device]) -> None:
+    def given_devices(self, devices: list[Device]) -> None:
         """Set existing devices in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
             self.provider.set_devices(devices)
@@ -489,7 +489,7 @@ class VoltalisProviderFixture(BaseFixture):
 
         raise ValueError("Unknown provider type")
 
-    def given_devices_health(self, devices_health: dict[int, DeviceHealth]) -> None:
+    def given_devices_health(self, devices_health: list[DeviceHealth]) -> None:
         """Set existing devices health in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
             self.provider.set_devices_health(devices_health)
@@ -537,7 +537,7 @@ class VoltalisProviderFixture(BaseFixture):
 
         raise ValueError("Unknown provider type")
 
-    def given_energy_contracts(self, energy_contracts: dict[int, EnergyContract]) -> None:
+    def given_energy_contracts(self, energy_contracts: list[EnergyContract]) -> None:
         """Set existing energy contracts in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
             self.provider.set_energy_contracts(energy_contracts)
@@ -549,7 +549,7 @@ class VoltalisProviderFixture(BaseFixture):
 
         raise ValueError("Unknown provider type")
 
-    def given_programs(self, programs: dict[int, Program]) -> None:
+    def given_programs(self, programs: list[Program]) -> None:
         """Set existing programs in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
             self.provider.set_programs(programs)

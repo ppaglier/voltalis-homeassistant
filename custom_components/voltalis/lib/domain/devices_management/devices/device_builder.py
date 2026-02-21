@@ -59,6 +59,13 @@ class DeviceBuilder(GenericBuilder[Device]):
         """Set the programming of the device."""
         return self._set_value("programming", programming)
 
+    def with_programming_type(self, prog_type: ProgramTypeEnum) -> Self:
+        """Set the type in the programming of the device."""
+
+        programming = self._get_value("programming")
+        programming["prog_type"] = prog_type
+        return self._set_value("programming", programming)
+
     def with_programming_is_on(self, is_on: bool) -> Self:
         """Set the is_on in the programming of the device."""
 
@@ -71,4 +78,11 @@ class DeviceBuilder(GenericBuilder[Device]):
 
         programming = self._get_value("programming")
         programming["mode"] = mode
+        return self._set_value("programming", programming)
+
+    def with_programming_temperature_target(self, temperature_target: float) -> Self:
+        """Set the temperature target in the programming of the device."""
+
+        programming = self._get_value("programming")
+        programming["temperature_target"] = temperature_target
         return self._set_value("programming", programming)

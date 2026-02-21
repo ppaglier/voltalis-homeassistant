@@ -2,6 +2,7 @@ import asyncio
 import inspect
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from logging import Logger
 from threading import Thread
 from typing import (
     Any,
@@ -41,7 +42,8 @@ class MockHttpServer:
         with_body: bool = False
         with_query_params: bool = False
 
-    def __init__(self) -> None:
+    def __init__(self, logger: Logger) -> None:
+        self.__logger = logger
         self.__request_handlers: dict[str, dict[str, tuple[MockHttpServer.RequestHandler, dict]]] = {}
         self.__http_server = HTTPServer(("127.0.0.1", 0), self.server_request_handler_factory())
         self.__thread = Thread(target=self.__http_server.serve_forever, daemon=True)
@@ -111,9 +113,25 @@ class MockHttpServer:
 
     def server_request_handler_factory(self) -> type[BaseHTTPRequestHandler]:
         request_handlers = self.__request_handlers
+        logger = self.__logger
 
         class ServerRequestHandler(BaseHTTPRequestHandler):
             """Server request handler for the mocked server"""
+
+            def log_message(self, format_str: str, *args: Any) -> None:
+                """Redirect log messages to the logger instead of stderr."""
+                logger.debug(f"{self.address_string()} - {format_str % args}")
+
+            def log_error(self, format_str: str, *args: Any) -> None:
+                """Redirect error messages to the logger instead of stderr."""
+                logger.error(f"{self.address_string()} - {format_str % args}")
+
+            def log_request(self, code: int | str = "-", size: int | str = "-") -> None:
+                """Redirect request logs to the logger instead of stderr."""
+                if isinstance(code, int):
+                    logger.debug(f'{self.address_string()} - "{self.requestline}" {code} {size}')
+                else:
+                    logger.debug(f'{self.address_string()} - "{self.requestline}" {code} {size}')
 
             def do_GET(self) -> None:
                 self.__handle_request()
@@ -212,7 +230,7 @@ class MockHttpServer:
                     try:
                         body_data = self.__get_body()
                     except Exception as error:
-                        print("Error while parsing body", error)
+                        logger.info("Error while parsing body", error)
                         self.send_error(400, str(error))
                         return
 
@@ -223,7 +241,7 @@ class MockHttpServer:
                         }
                         config["params"] = query_params
                     except Exception as error:
-                        print("Error while parsing query params", error)
+                        logger.error("Error while parsing query params", error)
                         self.send_error(500, str(error))
                         return
 
@@ -236,7 +254,7 @@ class MockHttpServer:
                         # Sync callable
                         response = request_handler.handle(body_data, config)
                 except Exception as error:
-                    print("Error while handling request", error)
+                    logger.error("Error while handling request", error)
                     self.send_error(500, str(error))
                     return
 
@@ -254,7 +272,7 @@ class MockHttpServer:
                     else:
                         self.wfile.write(b"")
                 except Exception as error:
-                    print("Error while sending response", error)
+                    logger.error("Error while sending response", error)
                     self.send_error(500, str(error))
 
         return ServerRequestHandler
