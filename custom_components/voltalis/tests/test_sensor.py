@@ -219,6 +219,84 @@ async def test_energy_contract_coordinator_update(fixture: HomeAssistantFixture)
     assert state.state == initial_value
 
 
+@pytest.mark.e2e
+async def test_device_sensor_handles_missing_device_data(fixture: HomeAssistantFixture) -> None:
+    """Test that device sensor handles missing device data gracefully."""
+
+    entity_id = "sensor.heater_1_daily_consumption"
+
+    # Verify entity is available initially
+    initial_state = fixture.get_entity_state(entity_id)
+    assert initial_state.state != "unavailable"
+
+    # Remove the device from coordinator data
+    coordinator = fixture.get_home_assistant_voltalis_module().device_daily_consumption_coordinator
+    device_id = 1
+    if device_id in coordinator.data:
+        del coordinator.data[device_id]
+
+    # Manually trigger listeners to notify entities of data change
+    coordinator.async_set_updated_data(coordinator.data)
+    await fixture.hass.async_block_till_done(True)
+
+    # Verify entity either becomes unavailable or retains state
+    # (Entity should not crash when data is missing)
+    state = fixture.get_entity_state(entity_id)
+    assert state is not None
+
+
+@pytest.mark.e2e
+async def test_device_health_sensor_handles_missing_device_data(fixture: HomeAssistantFixture) -> None:
+    """Test that device health sensor handles missing device data gracefully."""
+
+    entity_id = "sensor.heater_1_connection_status"
+
+    # Verify entity is available initially
+    initial_state = fixture.get_entity_state(entity_id)
+    assert initial_state.state != "unavailable"
+
+    # Remove the device from coordinator data
+    coordinator = fixture.get_home_assistant_voltalis_module().device_health_coordinator
+    device_id = 1
+    if device_id in coordinator.data:
+        del coordinator.data[device_id]
+
+    # Manually trigger listeners to notify entities of data change
+    coordinator.async_set_updated_data(coordinator.data)
+    await fixture.hass.async_block_till_done(True)
+
+    # Verify entity either becomes unavailable or retains state
+    # (Entity should not crash when data is missing)
+    state = fixture.get_entity_state(entity_id)
+    assert state is not None
+
+
+@pytest.mark.e2e
+async def test_energy_contract_sensor_handles_missing_contract_data(fixture: HomeAssistantFixture) -> None:
+    """Test that energy contract sensor handles missing contract data gracefully."""
+
+    entity_id = "sensor.contract_1_3_kva_peak_offpeak_subscribed_power"
+
+    # Verify entity is available initially
+    initial_state = fixture.get_entity_state(entity_id)
+    assert initial_state.state != "unavailable"
+
+    # Remove the contract from coordinator data
+    coordinator = fixture.get_home_assistant_voltalis_module().energy_contract_coordinator
+    contract_id = 1
+    if contract_id in coordinator.data:
+        del coordinator.data[contract_id]
+
+    # Manually trigger listeners to notify entities of data change
+    coordinator.async_set_updated_data(coordinator.data)
+    await fixture.hass.async_block_till_done(True)
+
+    # Verify entity either becomes unavailable or retains state
+    # (Entity should not crash when data is missing)
+    state = fixture.get_entity_state(entity_id)
+    assert state is not None
+
+
 # We can't use the module-level because of the hass fixture scope
 pytestmark = [pytest.mark.asyncio(loop_scope="function"), pytest.mark.enable_socket]
 

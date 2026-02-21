@@ -255,6 +255,31 @@ async def test_climate_hvac_mode_transitions(
         fixture.compare_data(state.state, hvac_mode.value)
 
 
+@pytest.mark.e2e
+async def test_climate_entity_unavailable_when_device_removed(fixture: HomeAssistantFixture) -> None:
+    """Test that climate entity becomes unavailable when device is removed from coordinator."""
+
+    entity_id = "climate.heater_1"
+
+    # Verify entity is available initially
+    initial_state = fixture.get_entity_state(entity_id)
+    assert initial_state.state != "unavailable"
+
+    # Remove the device from coordinator data without refetching from mock server
+    coordinator = fixture.get_home_assistant_voltalis_module().device_coordinator
+    device_id = 1
+    if device_id in coordinator.data:
+        del coordinator.data[device_id]
+
+    # Manually trigger listeners to notify entities of data change
+    coordinator.async_set_updated_data(coordinator.data)
+    await fixture.hass.async_block_till_done(True)
+
+    # Verify entity is now unavailable
+    state = fixture.get_entity_state(entity_id)
+    assert state.state == "unavailable"
+
+
 # We can't use the module-level because of the hass fixture scope
 pytestmark = [pytest.mark.asyncio(loop_scope="function"), pytest.mark.enable_socket]
 

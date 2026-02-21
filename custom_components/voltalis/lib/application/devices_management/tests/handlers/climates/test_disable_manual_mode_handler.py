@@ -23,7 +23,7 @@ async def test_disable_manual_mode(fixture: DeviceManagementFixture) -> None:
     # Given
     now = datetime(2024, 1, 4, 7, 0, 0)
     fixture.given_now(now)
-    device = DeviceBuilder().with_id(1).build()
+    device = DeviceBuilder().with_id(1).with_programming_temperature_target(10.0).build()
     fixture.given_devices([device])
     manual_setting_builder = (
         ManualSettingBuilder()
@@ -33,7 +33,7 @@ async def test_disable_manual_mode(fixture: DeviceManagementFixture) -> None:
         .with_is_on(False)
         .with_mode(DeviceModeEnum.ECO)
         .with_end_date(None)
-        .with_temperature_target(0.0)
+        .with_temperature_target(10.0)
     )
     manual_setting = manual_setting_builder.build()
     fixture.given_manual_settings([manual_setting])
@@ -80,7 +80,7 @@ async def test_disable_manual_mode_with_already_disabled_manual_setting(fixture:
     # Given
     now = datetime(2024, 1, 4, 7, 0, 0)
     fixture.given_now(now)
-    device = DeviceBuilder().with_id(1).build()
+    device = DeviceBuilder().with_id(1).with_programming_temperature_target(10.0).build()
     fixture.given_devices([device])
     manual_setting_builder = (
         ManualSettingBuilder()
@@ -90,7 +90,7 @@ async def test_disable_manual_mode_with_already_disabled_manual_setting(fixture:
         .with_is_on(True)
         .with_mode(DeviceModeEnum.ECO)
         .with_end_date(now)
-        .with_temperature_target(0.0)
+        .with_temperature_target(10.0)
     )
     manual_setting = manual_setting_builder.build()
     fixture.given_manual_settings([manual_setting])
@@ -112,7 +112,7 @@ async def test_disable_manual_mode_with_fallback_mode(fixture: DeviceManagementF
     # Given
     now = datetime(2024, 1, 4, 7, 0, 0)
     fixture.given_now(now)
-    device = DeviceBuilder().with_id(1).build()
+    device = DeviceBuilder().with_id(1).with_programming_temperature_target(10.0).build()
     fixture.given_devices([device])
     manual_setting_builder = (
         ManualSettingBuilder()
@@ -141,6 +141,7 @@ async def test_disable_manual_mode_with_fallback_mode(fixture: DeviceManagementF
         .with_is_on(True)
         .with_mode(DeviceModeEnum.ECO)
         .with_end_date(now)
+        .with_temperature_target(10.0)
         .build()
     )
     fixture.then_devices_should_be({device.id: device})

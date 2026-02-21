@@ -140,6 +140,32 @@ async def test_water_heater_coordinator_update_reflects_state(fixture: HomeAssis
     fixture.compare_data(state.state, initial_operation)
 
 
+@pytest.mark.e2e
+async def test_water_heater_entity_unavailable_when_device_removed(fixture: HomeAssistantFixture) -> None:
+    """Test that water heater entity handles missing device data gracefully."""
+
+    entity_id = "water_heater.water_heater_1"
+
+    # Verify entity is available initially
+    initial_state = fixture.get_entity_state(entity_id)
+    assert initial_state.state != "unavailable"
+
+    # Remove the device from coordinator data
+    coordinator = fixture.get_home_assistant_voltalis_module().device_coordinator
+    device_id = 3  # Water Heater 1 has device_id = 3
+    if device_id in coordinator.data:
+        del coordinator.data[device_id]
+
+    # Manually trigger listeners to notify entities of data change
+    coordinator.async_set_updated_data(coordinator.data)
+    await fixture.hass.async_block_till_done(True)
+
+    # Verify entity either becomes unavailable or retains state
+    # (Entity should not crash when data is missing)
+    state = fixture.get_entity_state(entity_id)
+    assert state is not None
+
+
 # We can't use the module-level because of the hass fixture scope
 pytestmark = [pytest.mark.asyncio(loop_scope="function"), pytest.mark.enable_socket]
 

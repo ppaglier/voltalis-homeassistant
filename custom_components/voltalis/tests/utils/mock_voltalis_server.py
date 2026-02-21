@@ -98,6 +98,30 @@ class MockVoltalisServer:
             "programs": self.__voltalis_provider._programs,
         }
 
+    def remove_device(self, device_id: int) -> None:
+        """Remove a device from the mock server storage.
+
+        Args:
+            device_id: The ID of the device to remove
+        """
+        if device_id in self.__voltalis_provider._devices:
+            del self.__voltalis_provider._devices[device_id]
+        if device_id in self.__voltalis_provider._devices_health:
+            del self.__voltalis_provider._devices_health[device_id]
+        if device_id in self.__voltalis_provider._devices_consumptions:
+            del self.__voltalis_provider._devices_consumptions[device_id]
+        if device_id in self.__voltalis_provider._manual_settings:
+            del self.__voltalis_provider._manual_settings[device_id]
+
+    def remove_energy_contract(self, contract_id: int) -> None:
+        """Remove an energy contract from the mock server storage.
+
+        Args:
+            contract_id: The ID of the energy contract to remove
+        """
+        if contract_id in self.__voltalis_provider._energy_contracts:
+            del self.__voltalis_provider._energy_contracts[contract_id]
+
     def reset_storage(self) -> None:
         """Resets the storage of the mocked server"""
 

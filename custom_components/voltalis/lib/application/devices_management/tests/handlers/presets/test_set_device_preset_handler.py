@@ -130,7 +130,11 @@ async def test_set_device_preset_on_with_has_on_mode_maps_to_normal(
     # Given
     device = DeviceBuilder().with_id(1).build()
     manual_setting_builder = (
-        ManualSettingBuilder().with_id(1).with_mode(DeviceModeEnum.ECO).with_id_appliance(device.id)
+        ManualSettingBuilder()
+        .with_id(1)
+        .with_mode(DeviceModeEnum.ECO)
+        .with_id_appliance(device.id)
+        .with_temperature_target(18.0)
     )
     manual_setting = manual_setting_builder.build()
     fixture.given_manual_settings([manual_setting])

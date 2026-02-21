@@ -54,6 +54,74 @@ async def test_set_device_temperature_sets_manual_mode_with_duration(
 
 
 @pytest.mark.unit
+async def test_set_device_temperature_using_target_temperature_from_programming(
+    fixture: DeviceManagementFixture,
+) -> None:
+    """Test set device temperature uses target temperature from programming if available."""
+
+    # Given
+    device = DeviceBuilder().with_id(1).with_programming_temperature_target(21.0).build()
+    manual_setting = ManualSettingBuilder().with_id(1).with_id_appliance(device.id).build()
+    fixture.given_manual_settings([manual_setting])
+
+    # When
+    await fixture.set_device_temperature_handler.handle(
+        SetDeviceTemperatureCommand(
+            device=DeviceDto.from_device(device, manual_setting),
+            mode=DeviceModeEnum.TEMPERATURE,
+        )
+    )
+
+    # Then
+    expected = (
+        ManualSettingBuilder()
+        .with_id(1)
+        .with_id_appliance(device.id)
+        .with_enabled(True)
+        .with_until_further_notice(True)
+        .with_is_on(True)
+        .with_mode(DeviceModeEnum.TEMPERATURE)
+        .with_temperature_target(21.0)
+        .build()
+    )
+    fixture.then_manual_settings_should_be({expected.id: expected})
+
+
+@pytest.mark.unit
+async def test_set_device_temperature_using_default_temperature_from_programming(
+    fixture: DeviceManagementFixture,
+) -> None:
+    """Test set device temperature uses default temperature from programming if target is not available."""
+
+    # Given
+    device = DeviceBuilder().with_id(1).with_programming_default_temperature(20.0).build()
+    manual_setting = ManualSettingBuilder().with_id(1).with_id_appliance(device.id).build()
+    fixture.given_manual_settings([manual_setting])
+
+    # When
+    await fixture.set_device_temperature_handler.handle(
+        SetDeviceTemperatureCommand(
+            device=DeviceDto.from_device(device, manual_setting),
+            mode=DeviceModeEnum.TEMPERATURE,
+        )
+    )
+
+    # Then
+    expected = (
+        ManualSettingBuilder()
+        .with_id(1)
+        .with_id_appliance(device.id)
+        .with_enabled(True)
+        .with_until_further_notice(True)
+        .with_is_on(True)
+        .with_mode(DeviceModeEnum.TEMPERATURE)
+        .with_temperature_target(20.0)
+        .build()
+    )
+    fixture.then_manual_settings_should_be({expected.id: expected})
+
+
+@pytest.mark.unit
 async def test_set_device_temperature_requires_manual_setting(
     fixture: DeviceManagementFixture,
 ) -> None:

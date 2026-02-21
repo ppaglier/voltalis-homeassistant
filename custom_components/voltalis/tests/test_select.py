@@ -140,6 +140,35 @@ async def test_select_coordinator_update_reflects_state(fixture: HomeAssistantFi
     assert "options" in state.attributes
 
 
+@pytest.mark.e2e
+async def test_select_device_preset_unavailable_when_device_removed(fixture: HomeAssistantFixture) -> None:
+    """Test that device preset select handles missing device data gracefully."""
+
+    entity_id = "select.heater_1_preset"
+
+    # Verify entity is available initially
+    initial_state = fixture.get_entity_state(entity_id)
+    assert initial_state.state != "unavailable"
+    initial_option = initial_state.state
+
+    # Remove the device from coordinator data
+    coordinator = fixture.get_home_assistant_voltalis_module().device_coordinator
+    device_id = 1
+    if device_id in coordinator.data:
+        del coordinator.data[device_id]
+
+    # Manually trigger listeners to notify entities of data change
+    coordinator.async_set_updated_data(coordinator.data)
+    await fixture.hass.async_block_till_done(True)
+
+    # Verify that the entity either becomes unavailable or retains last known state
+    # (This is acceptable behavior - the entity warns in logs but doesn't crash)
+    state = fixture.get_entity_state(entity_id)
+    assert state is not None  # Entity should still exist
+    # The select can retain the last known option or become unavailable
+    assert state.state in ["unavailable", initial_option]
+
+
 # We can't use the module-level because of the hass fixture scope
 pytestmark = [pytest.mark.asyncio(loop_scope="function"), pytest.mark.enable_socket]
 

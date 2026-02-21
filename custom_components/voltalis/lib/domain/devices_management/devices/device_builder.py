@@ -23,8 +23,8 @@ class DeviceBuilder(GenericBuilder[Device]):
         programming=DeviceProgramming(
             prog_type=ProgramTypeEnum.DEFAULT,
             mode=DeviceModeEnum.ECO,
-            temperature_target=0.0,
-            default_temperature=0.0,
+            temperature_target=None,
+            default_temperature=None,
         ),
     )
 
@@ -85,4 +85,11 @@ class DeviceBuilder(GenericBuilder[Device]):
 
         programming = self._get_value("programming")
         programming["temperature_target"] = temperature_target
+        return self._set_value("programming", programming)
+
+    def with_programming_default_temperature(self, default_temperature: float) -> Self:
+        """Set the default temperature in the programming of the device."""
+
+        programming = self._get_value("programming")
+        programming["default_temperature"] = default_temperature
         return self._set_value("programming", programming)
