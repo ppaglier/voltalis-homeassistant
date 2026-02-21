@@ -69,7 +69,7 @@ async def test_water_heater_turn_on_off(
 @pytest.mark.parametrize(
     "entity_id,expected_state",
     [
-        ("water_heater.water_heater_1", WaterHeaterCurrentOperationEnum.AUTO),
+        ("water_heater.water_heater_2", WaterHeaterCurrentOperationEnum.AUTO),
         ("water_heater.water_heater_1", WaterHeaterCurrentOperationEnum.OFF),
         ("water_heater.water_heater_1", WaterHeaterCurrentOperationEnum.ON),
     ],
@@ -91,7 +91,6 @@ async def test_water_heater_set_operation_mode(
 
     # Verify operation mode changed in HA
     state = fixture.get_entity_state(entity_id)
-    print(state.attributes.get("operation_mode"), expected_state.value)
     fixture.compare_data(state.attributes.get("operation_mode"), expected_state.value)
 
 

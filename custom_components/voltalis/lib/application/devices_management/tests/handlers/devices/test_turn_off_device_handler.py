@@ -33,7 +33,7 @@ async def test_turn_off_device_sets_manual_mode(
     # When
     await fixture.turn_off_device_handler.handle(
         TurnOffDeviceCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             fallback_mode=DeviceModeEnum.COMFORT,
             fallback_temperature=17.0,
             duration_hours=3,
@@ -64,7 +64,7 @@ async def test_turn_off_device_requires_manual_setting(
     with pytest.raises(ValueError, match="does not support manual settings"):
         await fixture.turn_off_device_handler.handle(
             TurnOffDeviceCommand(
-                device=DeviceDto(**device.model_dump(), manual_setting=None),
+                device=DeviceDto.from_device(device, None),
             )
         )
 

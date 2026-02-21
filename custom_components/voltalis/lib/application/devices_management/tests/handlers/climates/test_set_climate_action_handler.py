@@ -46,7 +46,7 @@ async def test_set_climate_action_turns_off_device(
     # When
     await fixture.set_climate_action_handler.handle(
         SetClimateActionCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             action=HVACAction.OFF,
         )
     )
@@ -91,7 +91,7 @@ async def test_set_climate_action_turns_on_device(
     # When
     await fixture.set_climate_action_handler.handle(
         SetClimateActionCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             action=HVACAction.HEATING,
         )
     )
@@ -138,7 +138,7 @@ async def test_set_climate_action_auto_disables_manual_mode(
     # When
     await fixture.set_climate_action_handler.handle(
         SetClimateActionCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             action=HVACAction.IDLE,
         )
     )
@@ -166,7 +166,7 @@ async def test_set_climate_action_without_manual_settings(
     with pytest.raises(ValueError, match="does not support manual settings") as exc_info:
         await fixture.set_climate_action_handler.handle(
             SetClimateActionCommand(
-                device=DeviceDto(**device.model_dump(), manual_setting=None),
+                device=DeviceDto.from_device(device, None),
                 action=HVACAction.IDLE,
             )
         )

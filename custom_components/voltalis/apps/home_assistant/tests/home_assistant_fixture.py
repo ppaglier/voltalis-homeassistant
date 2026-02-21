@@ -32,12 +32,7 @@ class HomeAssistantFixture(BaseFixture[None]):
     """Base fixture class for Home Assistant E2E tests."""
 
     def __init__(self) -> None:
-        """Initialize the fixture.
-
-        Args:
-            hass: Home Assistant instance
-            monkeypatch: pytest MonkeyPatch instance
-        """
+        """Initialize the fixture."""
         super().__init__()
         self.voltalis_server = MockVoltalisServer()
 
@@ -179,33 +174,33 @@ class HomeAssistantFixture(BaseFixture[None]):
             .with_id(1)
             .with_name("Heater 1")
             .with_type(DeviceTypeEnum.HEATER)
-            .with_programming_type(ProgramTypeEnum.MANUAL)
-            .with_programming_is_on(True)
             .with_available_modes([DeviceModeEnum.COMFORT, DeviceModeEnum.ECO])
+            .with_programming_is_on(True)
+            .with_programming_type(ProgramTypeEnum.MANUAL)
             .build(),
             DeviceBuilder()
             .with_id(2)
             .with_name("Heater 2")
-            .with_programming_type(ProgramTypeEnum.MANUAL)
             .with_type(DeviceTypeEnum.HEATER)
             .with_available_modes([DeviceModeEnum.ON, DeviceModeEnum.ECO])
             .with_programming_is_on(False)
+            .with_programming_type(ProgramTypeEnum.MANUAL)
             .build(),
             DeviceBuilder()
             .with_id(3)
             .with_name("Water Heater 1")
             .with_type(DeviceTypeEnum.WATER_HEATER)
-            .with_programming_type(ProgramTypeEnum.MANUAL)
-            .with_programming_is_on(True)
             .with_available_modes([DeviceModeEnum.ON])
+            .with_programming_is_on(True)
+            .with_programming_type(ProgramTypeEnum.MANUAL)
             .build(),
             DeviceBuilder()
             .with_id(4)
             .with_name("Water Heater 2")
             .with_type(DeviceTypeEnum.WATER_HEATER)
-            .with_programming_type(ProgramTypeEnum.MANUAL)
-            .with_programming_is_on(False)
             .with_available_modes([DeviceModeEnum.ON])
+            .with_programming_is_on(False)
+            .with_programming_type(ProgramTypeEnum.MANUAL)
             .build(),
         ]
 
@@ -245,10 +240,10 @@ class HomeAssistantFixture(BaseFixture[None]):
 
         # Create and set manual settings
         manual_settings = [
-            ManualSettingBuilder().with_id(1).with_id_appliance(1).with_is_on(True).build(),
-            ManualSettingBuilder().with_id(2).with_id_appliance(2).with_is_on(False).build(),
-            ManualSettingBuilder().with_id(3).with_id_appliance(3).with_is_on(True).build(),
-            ManualSettingBuilder().with_id(4).with_id_appliance(4).with_is_on(True).build(),
+            ManualSettingBuilder().with_id(1).with_id_appliance(1).with_is_on(True).with_enabled(True).build(),
+            ManualSettingBuilder().with_id(2).with_id_appliance(2).with_is_on(False).with_enabled(True).build(),
+            ManualSettingBuilder().with_id(3).with_id_appliance(3).with_is_on(True).with_enabled(True).build(),
+            ManualSettingBuilder().with_id(4).with_id_appliance(4).with_is_on(False).with_enabled(True).build(),
         ]
 
         self.voltalis_server.given_manual_settings(manual_settings)

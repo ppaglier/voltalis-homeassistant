@@ -178,11 +178,12 @@ class MockVoltalisServer:
                 manual_setting = manual_settings.get(device_id)
                 if manual_setting:
                     # Update the device programming to match manual setting
-                    updates: dict = {"is_on": manual_setting.is_on}
-                    # If manual setting is enabled, set prog_type to MANUAL
-                    if manual_setting.enabled:
-                        updates["prog_type"] = ProgramTypeEnum.MANUAL
-                    updated_programming = device.programming.model_copy(update=updates)
+                    updated_programming = device.programming.model_copy(
+                        update={
+                            "prog_type": ProgramTypeEnum.MANUAL if manual_setting.enabled else ProgramTypeEnum.DEFAULT,
+                            "is_on": manual_setting.is_on,
+                        }
+                    )
                     device = device.model_copy(update={"programming": updated_programming})
                 synced_devices.append(device)
 

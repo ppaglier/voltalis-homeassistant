@@ -28,7 +28,6 @@ class SetWaterHeaterOperationHandler:
         voltalis_provider: VoltalisProvider,
         default_water_heater_temp: float,
     ):
-        self.__logger = logger
         self.__climate_service = ClimateManagementService(
             logger=logger,
             date_provider=date_provider,

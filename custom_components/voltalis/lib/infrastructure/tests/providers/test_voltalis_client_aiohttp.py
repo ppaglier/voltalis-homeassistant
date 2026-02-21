@@ -1,3 +1,4 @@
+import logging
 from typing import AsyncGenerator
 
 import pytest
@@ -185,7 +186,8 @@ class VoltalisClientFixture(BaseFixture):
 
     def __init__(self) -> None:
         super().__init__()
-        self.server = MockHttpServer()
+        self.logger = logging.getLogger("VoltalisClientFixture")
+        self.server = MockHttpServer(logger=self.logger)
         self.state: dict[str, int] = {}
 
     async def async_before_all(self) -> None:

@@ -32,8 +32,8 @@ async def test_get_devices_filters_supported_types_and_attaches_manual_settings(
 
     # Then
     expected = {
-        heater.id: DeviceDto(**heater.model_dump(), manual_setting=manual_setting),
-        water_heater.id: DeviceDto(**water_heater.model_dump(), manual_setting=None),
+        heater.id: DeviceDto.from_device(heater, manual_setting),
+        water_heater.id: DeviceDto.from_device(water_heater, None),
     }
     fixture.compare_dicts(result, expected)
 

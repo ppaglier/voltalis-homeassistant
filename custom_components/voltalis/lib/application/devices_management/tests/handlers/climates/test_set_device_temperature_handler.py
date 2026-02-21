@@ -33,7 +33,7 @@ async def test_set_device_temperature_sets_manual_mode_with_duration(
     # When
     await fixture.set_device_temperature_handler.handle(
         SetDeviceTemperatureCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             temperature=22.5,
             mode=DeviceModeEnum.TEMPERATURE,
             duration_hours=2,
@@ -64,7 +64,7 @@ async def test_set_device_temperature_requires_manual_setting(
     with pytest.raises(ValueError, match="does not support manual settings"):
         await fixture.set_device_temperature_handler.handle(
             SetDeviceTemperatureCommand(
-                device=DeviceDto(**device.model_dump(), manual_setting=None),
+                device=DeviceDto.from_device(device, None),
                 temperature=22.0,
             )
         )

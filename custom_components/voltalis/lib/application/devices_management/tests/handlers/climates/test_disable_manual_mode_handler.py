@@ -41,7 +41,7 @@ async def test_disable_manual_mode(fixture: DeviceManagementFixture) -> None:
     # When
     await fixture.disable_manual_mode_handler.handle(
         DisableManualModeCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
         )
     )
 
@@ -66,7 +66,7 @@ async def test_disable_manual_mode_with_no_manual_setting(fixture: DeviceManagem
     with pytest.raises(ValueError, match="does not support manual settings") as exc_info:
         await fixture.disable_manual_mode_handler.handle(
             DisableManualModeCommand(
-                device=DeviceDto(**device.model_dump(), manual_setting=None),
+                device=DeviceDto.from_device(device, None),
             )
         )
 
@@ -97,9 +97,7 @@ async def test_disable_manual_mode_with_already_disabled_manual_setting(fixture:
 
     # When
     await fixture.disable_manual_mode_handler.handle(
-        DisableManualModeCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
-        )
+        DisableManualModeCommand(device=DeviceDto.from_device(device, manual_setting))
     )
 
     # Then
@@ -132,7 +130,7 @@ async def test_disable_manual_mode_with_fallback_mode(fixture: DeviceManagementF
     # When
     await fixture.disable_manual_mode_handler.handle(
         DisableManualModeCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             fallback_mode=DeviceModeEnum.ECO,
         )
     )
@@ -174,7 +172,7 @@ async def test_disable_manual_mode_with_fallback_temperature(fixture: DeviceMana
     # When
     await fixture.disable_manual_mode_handler.handle(
         DisableManualModeCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             fallback_temperature=22.0,
         )
     )

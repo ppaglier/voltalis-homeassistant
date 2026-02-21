@@ -31,7 +31,7 @@ async def test_set_device_preset_auto_disables_manual_mode(
     # When
     await fixture.set_device_preset_handler.handle(
         SetDevicePresetCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             preset=DeviceCurrentPresetEnum.AUTO,
         )
     )
@@ -65,7 +65,7 @@ async def test_set_device_preset_off_in_climate_mode_sets_temperature(
     # When
     await fixture.set_device_preset_handler.handle(
         SetDevicePresetCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             preset=DeviceCurrentPresetEnum.OFF,
             climate_mode=True,
             temperature=19.0,
@@ -102,7 +102,7 @@ async def test_set_device_preset_off_in_non_climate_mode_turns_off(
     # When
     await fixture.set_device_preset_handler.handle(
         SetDevicePresetCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             preset=DeviceCurrentPresetEnum.OFF,
             climate_mode=False,
             temperature=19.0,
@@ -138,7 +138,7 @@ async def test_set_device_preset_on_with_has_on_mode_maps_to_normal(
     # When
     await fixture.set_device_preset_handler.handle(
         SetDevicePresetCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             preset=DeviceCurrentPresetEnum.ON,
             has_on_mode=True,
             climate_mode=True,
@@ -168,7 +168,7 @@ async def test_set_device_preset_without_manual_setting_raises_exception(
     with pytest.raises(ValueError, match="does not support manual settings") as exc_info:
         await fixture.set_device_preset_handler.handle(
             SetDevicePresetCommand(
-                device=DeviceDto(**device.model_dump(), manual_setting=None),
+                device=DeviceDto.from_device(device, None),
                 preset=DeviceCurrentPresetEnum.ON,
             )
         )

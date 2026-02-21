@@ -43,7 +43,7 @@ async def test_set_water_heater_operation_from_off_to_on(
     # When
     await fixture.set_water_heater_operation_handler.handle(
         SetWaterHeaterOperationCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             operation_mode=WaterHeaterCurrentOperationEnum.ON,
         )
     )
@@ -84,7 +84,7 @@ async def test_set_water_heater_operation_from_auto_to_off(
     # When
     await fixture.set_water_heater_operation_handler.handle(
         SetWaterHeaterOperationCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             operation_mode=WaterHeaterCurrentOperationEnum.OFF,
         )
     )
@@ -127,7 +127,7 @@ async def test_set_water_heater_operation_from_on_to_auto(
     # When
     await fixture.set_water_heater_operation_handler.handle(
         SetWaterHeaterOperationCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             operation_mode=WaterHeaterCurrentOperationEnum.AUTO,
         )
     )
@@ -169,7 +169,7 @@ async def test_set_water_heater_operation_from_off_to_auto(
     # When
     await fixture.set_water_heater_operation_handler.handle(
         SetWaterHeaterOperationCommand(
-            device=DeviceDto(**device.model_dump(), manual_setting=manual_setting),
+            device=DeviceDto.from_device(device, manual_setting),
             operation_mode=WaterHeaterCurrentOperationEnum.AUTO,
         )
     )
@@ -197,7 +197,7 @@ async def test_set_water_heater_operation_without_manual_settings(
     with pytest.raises(ValueError, match="does not support manual settings") as exc_info:
         await fixture.set_water_heater_operation_handler.handle(
             SetWaterHeaterOperationCommand(
-                device=DeviceDto(**device.model_dump(), manual_setting=None),
+                device=DeviceDto.from_device(device, None),
                 operation_mode=WaterHeaterCurrentOperationEnum.AUTO,
             )
         )
