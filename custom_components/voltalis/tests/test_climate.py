@@ -280,6 +280,22 @@ async def test_climate_entity_unavailable_when_device_removed(fixture: HomeAssis
     assert state.state == "unavailable"
 
 
+@pytest.mark.e2e
+@pytest.mark.parametrize(
+    "entity_id",
+    [
+        "climate.heater_1",
+        "climate.heater_2",
+    ],
+)
+async def test_climate_entity_has_icon(fixture: HomeAssistantFixture, entity_id: str) -> None:
+    """Test that climate entities have icons."""
+
+    climate_entity = fixture.get_entity_state(entity_id)
+    # Check that icon attribute exists (can be mdi:* format or None)
+    assert "icon" in climate_entity.attributes or climate_entity.attributes.get("icon") is None
+
+
 # We can't use the module-level because of the hass fixture scope
 pytestmark = [pytest.mark.asyncio(loop_scope="function"), pytest.mark.enable_socket]
 

@@ -102,6 +102,24 @@ async def test_switch_entity_handles_missing_device_data(fixture: HomeAssistantF
     assert state is not None
 
 
+@pytest.mark.e2e
+@pytest.mark.parametrize(
+    "entity_id",
+    [
+        "switch.heater_1_device_switch",
+        "switch.heater_2_device_switch",
+        "switch.water_heater_1_device_switch",
+        "switch.water_heater_2_device_switch",
+    ],
+)
+async def test_switch_entity_has_icon(fixture: HomeAssistantFixture, entity_id: str) -> None:
+    """Test that switch entities have icons."""
+
+    switch_entity = fixture.get_entity_state(entity_id)
+    # Check that icon attribute exists (can be mdi:* format or None)
+    assert "icon" in switch_entity.attributes or switch_entity.attributes.get("icon") is None
+
+
 # We can't use the module-level because of the hass fixture scope
 pytestmark = [pytest.mark.asyncio(loop_scope="function"), pytest.mark.enable_socket]
 

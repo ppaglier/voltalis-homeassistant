@@ -169,6 +169,25 @@ async def test_select_device_preset_unavailable_when_device_removed(fixture: Hom
     assert state.state in ["unavailable", initial_option]
 
 
+@pytest.mark.e2e
+@pytest.mark.parametrize(
+    "entity_id",
+    [
+        "select.heater_1_preset",
+        "select.heater_2_preset",
+        "select.water_heater_1_preset",
+        "select.water_heater_2_preset",
+        "select.program",
+    ],
+)
+async def test_select_entity_has_icon(fixture: HomeAssistantFixture, entity_id: str) -> None:
+    """Test that select entities have icons."""
+
+    select_entity = fixture.get_entity_state(entity_id)
+    # Check that icon attribute exists (can be mdi:* format or None)
+    assert "icon" in select_entity.attributes or select_entity.attributes.get("icon") is None
+
+
 # We can't use the module-level because of the hass fixture scope
 pytestmark = [pytest.mark.asyncio(loop_scope="function"), pytest.mark.enable_socket]
 

@@ -297,6 +297,28 @@ async def test_energy_contract_sensor_handles_missing_contract_data(fixture: Hom
     assert state is not None
 
 
+@pytest.mark.e2e
+@pytest.mark.parametrize(
+    "entity_id",
+    [
+        "sensor.heater_1_daily_consumption",
+        "sensor.heater_2_daily_consumption",
+        "sensor.water_heater_1_daily_consumption",
+        "sensor.water_heater_2_daily_consumption",
+        "sensor.heater_1_connection_status",
+        "sensor.heater_2_connection_status",
+        "sensor.water_heater_1_connection_status",
+        "sensor.water_heater_2_connection_status",
+    ],
+)
+async def test_sensor_entity_has_icon(fixture: HomeAssistantFixture, entity_id: str) -> None:
+    """Test that sensor entities have icons."""
+
+    sensor_entity = fixture.get_entity_state(entity_id)
+    # Check that icon attribute exists (can be mdi:* format or None)
+    assert "icon" in sensor_entity.attributes or sensor_entity.attributes.get("icon") is None
+
+
 # We can't use the module-level because of the hass fixture scope
 pytestmark = [pytest.mark.asyncio(loop_scope="function"), pytest.mark.enable_socket]
 

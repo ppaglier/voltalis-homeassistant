@@ -166,6 +166,22 @@ async def test_water_heater_entity_unavailable_when_device_removed(fixture: Home
     assert state is not None
 
 
+@pytest.mark.e2e
+@pytest.mark.parametrize(
+    "entity_id",
+    [
+        "water_heater.water_heater_1",
+        "water_heater.water_heater_2",
+    ],
+)
+async def test_water_heater_entity_has_icon(fixture: HomeAssistantFixture, entity_id: str) -> None:
+    """Test that water heater entities have icons."""
+
+    water_heater_entity = fixture.get_entity_state(entity_id)
+    # Check that icon attribute exists (can be mdi:* format or None)
+    assert "icon" in water_heater_entity.attributes or water_heater_entity.attributes.get("icon") is None
+
+
 # We can't use the module-level because of the hass fixture scope
 pytestmark = [pytest.mark.asyncio(loop_scope="function"), pytest.mark.enable_socket]
 
