@@ -11,8 +11,8 @@ from homeassistant.components.climate import (
     SERVICE_SET_PRESET_MODE,
 )
 from homeassistant.components.climate import DOMAIN as CLIMATE_DOMAIN
-from homeassistant.components.climate.const import HVACMode
-from homeassistant.const import SERVICE_TURN_OFF, SERVICE_TURN_ON
+from homeassistant.components.climate.const import SERVICE_SET_TEMPERATURE, HVACMode
+from homeassistant.const import ATTR_TEMPERATURE, SERVICE_TURN_OFF, SERVICE_TURN_ON
 from homeassistant.core import HomeAssistant
 
 from custom_components.voltalis.apps.home_assistant.tests.home_assistant_fixture import HomeAssistantFixture
@@ -303,6 +303,40 @@ async def test_climate_entity_has_icon(fixture: HomeAssistantFixture, entity_id:
 
 
 @pytest.mark.e2e
+async def test_climate_set_temperature(fixture: HomeAssistantFixture) -> None:
+    """Test setting temperature for climate entities."""
+
+    entity_id = "climate.heater_1"
+    temperature = 22.0
+
+    # Set temperature using set_manual_mode service
+    await fixture.async_call_service(
+        CLIMATE_DOMAIN,
+        SERVICE_SET_TEMPERATURE,
+        entity_id,
+        {ATTR_TEMPERATURE: temperature},
+    )
+
+    # Trigger coordinator refresh to update HA state
+    coordinator = fixture.get_home_assistant_voltalis_module().device_coordinator
+    await fixture.async_refresh_coordinator(coordinator)
+
+    # Verify that the manual setting was updated with the new temperature
+    expected_manual_setting = (
+        ManualSettingBuilder()
+        .with_id(1)
+        .with_id_appliance(1)
+        .with_is_on(True)
+        .with_enabled(True)
+        .with_mode(DeviceModeEnum.TEMPERATURE)
+        .with_temperature_target(temperature)
+        .with_until_further_notice(True)
+        .build()
+    )
+    fixture.compare_data(coordinator.data[1].manual_setting, expected_manual_setting)
+
+
+@pytest.mark.e2e
 async def test_climate_has_service_set_quick_boost(fixture: HomeAssistantFixture) -> None:
     """Test that climate entities have set_quick_boost service."""
 
@@ -338,7 +372,7 @@ async def test_climate_has_service_set_quick_boost(fixture: HomeAssistantFixture
         .with_temperature_target(temperature)
         .with_until_further_notice(False)
         .with_end_date(
-            datetime.now().replace(microsecond=0) + timedelta(hours=duration_hours)
+            datetime.now().replace(second=0, microsecond=0) + timedelta(hours=duration_hours)
         )  # We can't predict the end date, so we take it from the coordinator data
         .build()
     )
@@ -346,8 +380,8 @@ async def test_climate_has_service_set_quick_boost(fixture: HomeAssistantFixture
 
 
 @pytest.mark.e2e
-async def test_climate_has_service_set_manual_mode(fixture: HomeAssistantFixture) -> None:
-    """Test that climate entities have set_manual_mode service."""
+async def test_climate_has_service_set_manual_mode_with_preset(fixture: HomeAssistantFixture) -> None:
+    """Test that climate entities have set_manual_mode service with preset."""
 
     entity_id = "climate.heater_1"
     service_id = "set_manual_mode"
@@ -380,8 +414,47 @@ async def test_climate_has_service_set_manual_mode(fixture: HomeAssistantFixture
         .with_temperature_target(21.0)
         .with_until_further_notice(False)
         .with_end_date(
-            datetime.now().replace(microsecond=0) + timedelta(hours=duration_hours)
+            datetime.now().replace(second=0, microsecond=0) + timedelta(hours=duration_hours)
         )  # We can't predict the end date, so we take it from the coordinator data
+        .build()
+    )
+    fixture.compare_data(coordinator.data[1].manual_setting, expected_manual_setting)
+
+
+@pytest.mark.e2e
+async def test_climate_has_service_set_manual_mode_with_temperature(fixture: HomeAssistantFixture) -> None:
+    """Test that climate entities have set_manual_mode service with temperature."""
+
+    entity_id = "climate.heater_1"
+    service_id = "set_manual_mode"
+
+    services = fixture.hass.services.async_services()
+    voltalis_services = services.get(DOMAIN, {})
+    assert service_id in voltalis_services, (
+        f"{service_id} service not found in Voltalis services: {list(voltalis_services.keys())}"
+    )
+
+    temperature = 22.0
+
+    await fixture.async_call_service(
+        DOMAIN,
+        service_id,
+        entity_id,
+        {"temperature": temperature},
+    )
+
+    coordinator = fixture.get_home_assistant_voltalis_module().device_coordinator
+    await fixture.async_refresh_coordinator(coordinator)
+
+    expected_manual_setting = (
+        ManualSettingBuilder()
+        .with_id(1)
+        .with_id_appliance(1)
+        .with_is_on(True)
+        .with_enabled(True)
+        .with_mode(DeviceModeEnum.TEMPERATURE)
+        .with_temperature_target(temperature)
+        .with_until_further_notice(True)
         .build()
     )
     fixture.compare_data(coordinator.data[1].manual_setting, expected_manual_setting)
@@ -416,7 +489,7 @@ async def test_climate_has_service_disable_manual_mode(fixture: HomeAssistantFix
         .with_until_further_notice(False)
         .with_temperature_target(15.5)
         .with_end_date(
-            datetime.now().replace(microsecond=0)
+            datetime.now().replace(second=0, microsecond=0)
         )  # We can't predict the end date, so we take it from the coordinator data
         .build()
     )

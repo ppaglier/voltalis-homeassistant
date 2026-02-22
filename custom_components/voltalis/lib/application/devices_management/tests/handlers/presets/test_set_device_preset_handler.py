@@ -41,7 +41,7 @@ async def test_set_device_preset_auto_disables_manual_mode(
         manual_setting_builder.with_until_further_notice(False)
         .with_is_on(True)
         .with_mode(DeviceModeEnum.ECO)
-        .with_end_date(now)
+        .with_end_date(now.replace(second=0, microsecond=0))
         .with_temperature_target(16.0)
         .build()
     )

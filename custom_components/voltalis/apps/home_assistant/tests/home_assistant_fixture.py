@@ -187,7 +187,7 @@ class HomeAssistantFixture(BaseFixture[None]):
             .with_id(1)
             .with_name("Heater 1")
             .with_type(DeviceTypeEnum.HEATER)
-            .with_available_modes([DeviceModeEnum.COMFORT, DeviceModeEnum.ECO])
+            .with_available_modes([DeviceModeEnum.COMFORT, DeviceModeEnum.ECO, DeviceModeEnum.TEMPERATURE])
             .with_programming_is_on(True)
             .with_programming_type(ProgramTypeEnum.MANUAL)
             .build(),
@@ -195,7 +195,7 @@ class HomeAssistantFixture(BaseFixture[None]):
             .with_id(2)
             .with_name("Heater 2")
             .with_type(DeviceTypeEnum.HEATER)
-            .with_available_modes([DeviceModeEnum.ON, DeviceModeEnum.ECO])
+            .with_available_modes([DeviceModeEnum.ON, DeviceModeEnum.ECO, DeviceModeEnum.TEMPERATURE])
             .with_programming_is_on(False)
             .with_programming_type(ProgramTypeEnum.MANUAL)
             .build(),
