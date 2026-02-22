@@ -609,6 +609,70 @@ automation:
           entity_id: climate.bedroom_heater
 ```
 
+## Configuration Options
+
+You can customize the integration behavior through the configuration options menu:
+
+1. Go to **Settings** > **Devices & Services**
+2. Find the **Voltalis** integration
+3. Click on **Configure** (or the three dots menu > **Configure**)
+
+### Available Options
+
+#### Temperature Settings
+
+Customize default temperatures for different operating modes:
+
+- **Climate Minimum Temperature** (default: 7.0°C)
+  - The lowest temperature you can set for your heating devices
+  - Useful if you want to prevent temperatures from going too low
+
+- **Climate Maximum Temperature** (default: 30.0°C)
+  - The highest temperature you can set for your heating devices
+  - Useful if you want to limit maximum heating temperature
+
+- **Default Temperature** (default: 18.0°C)
+  - The temperature used when no specific mode is selected
+
+- **Default Away Temperature** (default: 7.0°C)
+  - The temperature used in away/frost protection mode
+  - Prevents freezing while you're away
+
+- **Default Eco Temperature** (default: 15.5°C)
+  - The temperature used when eco mode is activated
+  - Balances comfort and energy savings
+
+- **Default Comfort Temperature** (default: 21.0°C)
+  - The temperature used when comfort mode is activated
+  - Your preferred comfortable temperature
+
+- **Default Water Heater Temperature** (default: 55.0°C)
+  - The target temperature for water heater devices
+  - ⚠️ Minimum recommended: 55°C to prevent bacterial growth (Legionella)
+
+#### Advanced Settings
+
+- **Log Level** (default: warning)
+  - Control the verbosity of logs in Home Assistant
+  - Options: `debug`, `info`, `warning`, `error`, `critical`
+  - Useful for troubleshooting issues or debugging
+
+### Example Use Cases
+
+**Warmer home preset:**
+- Comfort: 22°C
+- Eco: 17°C
+- Away: 10°C
+
+**Energy-saving preset:**
+- Comfort: 19°C
+- Eco: 14°C
+- Away: 7°C
+
+**Large temperature range:**
+- Min: 5°C
+- Max: 28°C
+
 ## Inspirations
 
 This project was inspired by and built upon the work of:

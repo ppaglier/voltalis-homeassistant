@@ -26,6 +26,33 @@
       "reconfigure_successful": "Configuration updated successfully"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options",
+        "data": {
+          "log_level": "Log level",
+          "climate_min_temp": "Minimum temperature",
+          "climate_max_temp": "Maximum temperature",
+          "default_temp": "Default temperature",
+          "default_away_temp": "Default away/frost protection temperature",
+          "default_eco_temp": "Default eco temperature",
+          "default_comfort_temp": "Default comfort temperature",
+          "default_water_heater_temp": "Default water heater temperature"
+        },
+        "data_description": {
+          "log_level": "Logging verbosity for the integration.",
+          "climate_min_temp": "Minimum target temperature for climate entities (Celsius).",
+          "climate_max_temp": "Maximum target temperature for climate entities (Celsius).",
+          "default_temp": "Default target temperature used as fallback (Celsius).",
+          "default_away_temp": "Default target temperature used in away/frost protection mode (Celsius).",
+          "default_eco_temp": "Default target temperature used in eco mode (Celsius).",
+          "default_comfort_temp": "Default target temperature used in comfort mode (Celsius).",
+          "default_water_heater_temp": "Default target temperature for water heater (Celsius)."
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "device_connected": {
@@ -56,12 +83,12 @@
       "device_current_mode": {
         "name": "Current mode",
         "state": {
-          "confort": "Comfort",
+          "comfort": "Comfort",
           "eco": "Eco",
-          "hors_gel": "Frost protection",
+          "away": "Away/Frost protection",
           "temperature": "Temperature",
-          "normal": "On",
-          "off": "Off"
+          "on": "On",
+          "none": "Off"
         }
       },
       "energy_contract_subscribed_power": {
@@ -89,13 +116,13 @@
       "device_preset": {
         "name": "Preset",
         "state": {
-          "confort": "Comfort",
+          "comfort": "Comfort",
           "eco": "Eco",
-          "hors_gel": "Frost protection",
+          "away": "Away/Frost protection",
           "temperature": "Temperature",
-          "auto": "Auto",
-          "normal": "On",
-          "off": "Off"
+          "on": "On",
+          "none": "Off",
+          "auto": "Auto"
         }
       },
       "program_select": {
@@ -104,7 +131,8 @@
           "internal_program-none": "No Program",
           "quicksettings-longleave": "Long Leave",
           "quicksettings-shortleave": "Short Leave",
-          "quicksettings-athome": "Boost"
+          "quicksettings-athome": "Boost",
+          "program-default": "Default Program"
         }
       }
     },

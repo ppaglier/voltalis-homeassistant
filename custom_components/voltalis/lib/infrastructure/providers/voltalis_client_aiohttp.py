@@ -3,23 +3,22 @@ from typing import Any, TypedDict
 
 from aiohttp import ClientSession
 
-from custom_components.voltalis.const import VOLTALIS_API_BASE_URL, VOLTALIS_API_LOGIN_ROUTE
-from custom_components.voltalis.lib.application.providers.http_client import (
+from custom_components.voltalis.const import VOLTALIS_API_LOGIN_ROUTE
+from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
+from custom_components.voltalis.lib.domain.shared.providers.http_client import (
     HttpClientException,
     HttpClientResponse,
     TData,
 )
-from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException
-from custom_components.voltalis.lib.infrastructure.providers.http_client_aiohttp import HttpClientAioHttp
+from custom_components.voltalis.lib.infrastructure.providers.http_client_aiohttp import HttpClientAiohttp
 
 
-class VoltalisClientAiohttp(HttpClientAioHttp):
+class VoltalisClientAiohttp(HttpClientAiohttp):
     """
     Aiohttp client for Voltalis API.
     It implements authentication and token management.
     """
 
-    BASE_URL = VOLTALIS_API_BASE_URL
     LOGIN_ROUTE = VOLTALIS_API_LOGIN_ROUTE
 
     class Storage(TypedDict):
@@ -34,7 +33,7 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
         self,
         *,
         session: ClientSession,
-        base_url: str = BASE_URL,
+        base_url: str,
     ) -> None:
         super().__init__(session=session, base_url=base_url)
 
@@ -180,7 +179,6 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
                 body=body,
                 query_params=query_params,
                 headers=headers,
-                can_retry=False,
                 **kwargs,
             )
 

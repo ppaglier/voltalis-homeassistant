@@ -5,6 +5,7 @@ on:
   pull_request:
     branches:
       - 'main'
+      - 'dev'
     paths:
       - ".github/workflows/tests.yml"
       - "custom_components/**"
@@ -38,6 +39,9 @@ jobs:
       # E2E tests
       - name: Run e2e tests
         run: poetry run task test:e2e
+      # Coverage check
+      - name: Check coverage (minimum 95%)
+        run: poetry run task test:cov:check
 
 
   lint:

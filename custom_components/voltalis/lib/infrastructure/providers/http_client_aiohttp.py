@@ -2,7 +2,7 @@ from typing import Any, TypeVar
 
 from aiohttp import ClientConnectorError, ClientError, ClientResponse, ClientResponseError, ClientSession
 
-from custom_components.voltalis.lib.application.providers.http_client import (
+from custom_components.voltalis.lib.domain.shared.providers.http_client import (
     HttpClient,
     HttpClientException,
     HttpClientResponse,
@@ -12,7 +12,7 @@ T = TypeVar("T")
 TData = TypeVar("TData")
 
 
-class HttpClientAioHttp(HttpClient):
+class HttpClientAiohttp(HttpClient):
     """Concrete implementation of the HttpClient using the aiohttp library."""
 
     def __init__(
@@ -31,8 +31,6 @@ class HttpClientAioHttp(HttpClient):
         data: Any = None
         if response.content_type == "application/json":
             data = await response.json()
-        else:
-            data = await response.read()
 
         return HttpClientResponse(
             data=data,

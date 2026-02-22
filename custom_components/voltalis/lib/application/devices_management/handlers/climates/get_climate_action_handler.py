@@ -1,0 +1,22 @@
+from homeassistant.components.climate.const import HVACAction
+
+from custom_components.voltalis.lib.application.devices_management.queries.get_climate_action_query import (
+    GetClimateActionQuery,
+)
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
+
+
+class GetClimateActionHandler:
+    """Handler to get the current action of a climate device."""
+
+    def handle(self, query: GetClimateActionQuery) -> HVACAction:
+        """Handle the query to get the current action of a climate device."""
+
+        # Check if device is off
+        if query.is_on is False:
+            return HVACAction.OFF
+
+        if query.mode == DeviceModeEnum.AWAY:
+            return HVACAction.IDLE
+
+        return HVACAction.HEATING

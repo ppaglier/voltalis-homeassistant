@@ -26,6 +26,33 @@
       "reconfigure_successful": "La configuration a été mise à jour avec succès"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options",
+        "data": {
+          "log_level": "Niveau de log",
+          "climate_min_temp": "Température minimale",
+          "climate_max_temp": "Température maximale",
+          "default_temp": "Température par défaut",
+          "default_away_temp": "Température par défaut en mode absence/hors-gel",
+          "default_eco_temp": "Température par défaut en mode éco",
+          "default_comfort_temp": "Température par défaut en mode confort",
+          "default_water_heater_temp": "Température par défaut pour le chauffe-eau"
+        },
+        "data_description": {
+          "log_level": "Niveau de verbosité des logs de l'intégration.",
+          "climate_min_temp": "Température cible minimale pour les entités climate (Celsius).",
+          "climate_max_temp": "Température cible maximale pour les entités climate (Celsius).",
+          "default_temp": "Température cible par défaut utilisée comme valeur de secours (Celsius).",
+          "default_away_temp": "Température cible par défaut utilisée en mode absence/hors-gel (Celsius).",
+          "default_eco_temp": "Température cible par défaut utilisée en mode éco (Celsius).",
+          "default_comfort_temp": "Température cible par défaut utilisée en mode confort (Celsius).",
+          "default_water_heater_temp": "Température cible par défaut pour le chauffe-eau (Celsius)."
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "device_connected": {
@@ -56,12 +83,12 @@
       "device_current_mode": {
         "name": "Mode actuel",
         "state": {
-          "confort": "Confort",
+          "comfort": "Confort",
           "eco": "Éco",
-          "hors_gel": "Hors-gel",
+          "away": "Absence/Hors-gel",
           "temperature": "Température",
-          "normal": "Marche",
-          "off": "Arrêt"
+          "on": "Marche",
+          "none": "Arrêt"
         }
       },
       "energy_contract_subscribed_power": {
@@ -89,13 +116,13 @@
       "device_preset": {
         "name": "Préréglage",
         "state": {
-          "confort": "Confort",
+          "comfort": "Confort",
           "eco": "Éco",
-          "hors_gel": "Hors-gel",
+          "away": "Absence/Hors-gel",
           "temperature": "Température",
-          "auto": "Auto",
-          "normal": "Marche",
-          "off": "Arrêt"
+          "on": "Marche",
+          "none": "Arrêt",
+          "auto": "Auto"
         }
       },
       "program_select": {
@@ -104,7 +131,8 @@
           "internal_program-none": "Aucun programme",
           "quicksettings-longleave": "Vacances",
           "quicksettings-shortleave": "Absence courte",
-          "quicksettings-athome": "Boost"
+          "quicksettings-athome": "Boost",
+          "program-default": "Programme prédéfini"
         }
       }
     },

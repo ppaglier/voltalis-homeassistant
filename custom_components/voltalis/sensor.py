@@ -1,47 +1,47 @@
-import logging
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_device_entity import VoltalisDeviceEntity
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_energy_contract_entity import (
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
+    VoltalisBaseEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
+    VoltalisDeviceEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,
 )
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_connected_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_connected_sensor import (
     VoltalisDeviceConnectedSensor,
 )
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_current_mode_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_current_mode_sensor import (  # noqa: E501
     VoltalisDeviceCurrentModeSensor,
 )
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_daily_consumption_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_daily_consumption_sensor import (  # noqa: E501
     VoltalisDeviceDailyConsumptionSensor,
 )
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_device_programming_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_programming_sensor import (
     VoltalisDeviceProgrammingSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.current_mode_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.current_mode_sensor import (
     VoltalisEnergyContractCurrentModeSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_current_cost_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.kwh_current_cost_sensor import (
     VoltalisEnergyContractKwhCurrentCostSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_offpeak_cost_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.kwh_offpeak_cost_sensor import (
     VoltalisEnergyContractKwhOffPeakCostSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.kwh_peak_cost_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.kwh_peak_cost_sensor import (
     VoltalisEnergyContractKwhPeakCostSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.live_consumption_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.live_consumption_sensor import (
     VoltalisEnergyContractLiveConsumptionSensor,
 )
-from custom_components.voltalis.lib.domain.entities.energy_contract.subscribed_power_sensor import (
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.subscribed_power_sensor import (
     VoltalisEnergyContractSubscribedPowerSensor,
 )
-from custom_components.voltalis.lib.domain.models.energy_contract import VoltalisEnergyContractTypeEnum
-
-_LOGGER = logging.getLogger(__name__)
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContractTypeEnum
 
 # Limit parallel updates (the DataUpdateCoordinator already centralizes calls)
 PARALLEL_UPDATES = 1
@@ -54,10 +54,10 @@ async def async_setup_entry(
 ) -> None:
     """Set up Voltalis sensors from a config entry."""
 
-    device_coordinator = entry.runtime_data.coordinators.device
-    health_coordinator = entry.runtime_data.coordinators.device_health
-    energy_contract_coordinator = entry.runtime_data.coordinators.energy_contract
-    date_provider = entry.runtime_data.date_provider
+    voltalis_home_assistant_module = entry.runtime_data.voltalis_home_assistant_module
+    device_coordinator = voltalis_home_assistant_module.device_coordinator
+    health_coordinator = voltalis_home_assistant_module.device_health_coordinator
+    energy_contract_coordinator = voltalis_home_assistant_module.energy_contract_coordinator
 
     device_sensors: list[VoltalisDeviceEntity] = []
 
@@ -77,18 +77,16 @@ async def async_setup_entry(
             device_sensors.append(VoltalisDeviceProgrammingSensor(entry, device))
 
     energy_contract_sensors: list[VoltalisEnergyContractEntity] = []
-    current_contract = energy_contract_coordinator.get_current_energy_contract()
+    current_contract = next(iter(energy_contract_coordinator.data.values()), None)
     if current_contract is not None:
         energy_contract_sensors.append(VoltalisEnergyContractLiveConsumptionSensor(entry, current_contract))
         energy_contract_sensors.append(VoltalisEnergyContractSubscribedPowerSensor(entry, current_contract))
-        energy_contract_sensors.append(VoltalisEnergyContractCurrentModeSensor(entry, current_contract, date_provider))
+        energy_contract_sensors.append(VoltalisEnergyContractCurrentModeSensor(entry, current_contract))
 
-        energy_contract_sensors.append(
-            VoltalisEnergyContractKwhCurrentCostSensor(entry, current_contract, date_provider)
-        )
+        energy_contract_sensors.append(VoltalisEnergyContractKwhCurrentCostSensor(entry, current_contract))
 
         # Create peak/off-peak specific sensors
-        if current_contract.type is VoltalisEnergyContractTypeEnum.PEAK_OFFPEAK:
+        if current_contract.type is EnergyContractTypeEnum.PEAK_OFFPEAK:
             energy_contract_sensors.append(VoltalisEnergyContractKwhPeakCostSensor(entry, current_contract))
             energy_contract_sensors.append(VoltalisEnergyContractKwhOffPeakCostSensor(entry, current_contract))
 
@@ -96,4 +94,6 @@ async def async_setup_entry(
         sensor.unique_internal_name: sensor for sensor in (device_sensors + energy_contract_sensors)
     }
     async_add_entities(all_entities.values(), update_before_add=True)
-    _LOGGER.info(f"Added {len(all_entities)} Voltalis sensor entities: {list(all_entities.keys())}")
+    voltalis_home_assistant_module.logger.info(
+        f"Added {len(all_entities)} Voltalis sensor entities: {list(all_entities.keys())}"
+    )
