@@ -84,7 +84,9 @@ class ClimateManagementService:
             fallback_temperature: The temperature to use as fallback (default: 16.0°C)
         """
 
-        end_date = self.__date_provider.get_now()
+        end_date = self.__date_provider.get_now().replace(
+            microsecond=0
+        )  # End date is now, we want to avoid microsecond differences
 
         setting = ManualSettingUpdate(
             enabled=False,
@@ -152,6 +154,6 @@ class ClimateManagementService:
         if duration_hours is None:
             return None, True
 
-        now = self.__date_provider.get_now()
+        now = self.__date_provider.get_now().replace(microsecond=0)
         end_date = now + timedelta(hours=duration_hours)
         return end_date, False
