@@ -24,7 +24,7 @@ class BaseFixture(Generic[T]):
 
     def after_all(self) -> None:
         """Clean up after all tests"""
-        raise NotImplementedError("before_all method should be implemented by subclasses")
+        raise NotImplementedError("after_all method should be implemented by subclasses")
 
     def before_each(self) -> None:
         """Set up before each test"""
@@ -33,10 +33,6 @@ class BaseFixture(Generic[T]):
             del self._result
         if hasattr(self, "_exception"):
             del self._exception
-
-    def after_each(self) -> None:
-        """Clean up after each test"""
-        raise NotImplementedError("before_all method should be implemented by subclasses")
 
     async def async_before_all(self) -> None:
         """Async set up before all tests"""
@@ -49,10 +45,6 @@ class BaseFixture(Generic[T]):
     async def async_before_each(self) -> None:
         """Async set up before each test"""
         self.before_each()
-
-    async def async_after_each(self) -> None:
-        """Async clean up after each test"""
-        self.after_each()
 
     # --------------------------------------
     # Assert success
