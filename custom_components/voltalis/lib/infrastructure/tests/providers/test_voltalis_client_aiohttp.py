@@ -3,6 +3,7 @@ from typing import AsyncGenerator
 
 import pytest
 from aiohttp import ClientSession
+from pydantic import SecretStr
 
 from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
 from custom_components.voltalis.lib.domain.shared.providers.http_client import HttpClientException, HttpClientResponse
@@ -21,12 +22,12 @@ async def test_login_stores_token_and_site_id(fixture: "VoltalisClientFixture") 
     fixture.given_login_ok(token="token-123", default_site_id="42")
 
     # Act
-    await fixture.client.login(username="user", password="pass")
+    await fixture.client.login(username="user", password=SecretStr("pass"))
 
     # Assert
     assert fixture.client.storage["username"] == "user"
-    assert fixture.client.storage["password"] == "pass"
-    assert fixture.client.storage["auth_token"] == "token-123"
+    assert fixture.client.storage["password"] == SecretStr("pass")
+    assert fixture.client.storage["auth_token"] == SecretStr("token-123")
     assert fixture.client.storage["default_site_id"] == "42"
     assert fixture.state["login_calls"] == 1
     assert fixture.state["me_calls"] == 1
@@ -41,7 +42,7 @@ async def test_get_access_token_unauthorized(fixture: "VoltalisClientFixture") -
 
     # Act / Assert
     with pytest.raises(VoltalisAuthenticationException):
-        await fixture.client.get_access_token(username="user", password="bad")
+        await fixture.client.get_access_token(username="user", password=SecretStr("bad"))
 
 
 @pytest.mark.integration
@@ -51,7 +52,7 @@ async def test_send_request_triggers_login_and_formats_site_id(fixture: "Voltali
     # Arrange
     fixture.given_login_ok()
     fixture.client.storage["username"] = "user"
-    fixture.client.storage["password"] = "pass"
+    fixture.client.storage["password"] = SecretStr("pass")
 
     def ping_handler(body: object, config: dict) -> MockHttpServer.StubResponse[dict]:
         assert fixture.state["login_calls"] == 1
@@ -79,8 +80,8 @@ async def test_send_request_retries_on_401(fixture: "VoltalisClientFixture") -> 
     # Arrange
     fixture.given_login_ok(token="new-token", default_site_id="1")
     fixture.client.storage["username"] = "user"
-    fixture.client.storage["password"] = "pass"
-    fixture.client.storage["auth_token"] = "stale-token"
+    fixture.client.storage["password"] = SecretStr("pass")
+    fixture.client.storage["auth_token"] = SecretStr("stale-token")
     fixture.client.storage["default_site_id"] = "1"
 
     calls = {"count": 0}
@@ -115,8 +116,8 @@ async def test_logout_clears_storage(fixture: "VoltalisClientFixture") -> None:
 
     # Arrange
     fixture.client.storage["username"] = "user"
-    fixture.client.storage["password"] = "pass"
-    fixture.client.storage["auth_token"] = "token"
+    fixture.client.storage["password"] = SecretStr("pass")
+    fixture.client.storage["auth_token"] = SecretStr("token")
     fixture.client.storage["default_site_id"] = "1"
     fixture.server.set_request_handler(
         url="/auth/logout",
@@ -163,8 +164,8 @@ async def test_send_request_non_retryable_401(fixture: "VoltalisClientFixture") 
     # Arrange
     fixture.given_login_ok()
     fixture.client.storage["username"] = "user"
-    fixture.client.storage["password"] = "pass"
-    fixture.client.storage["auth_token"] = "stale-token"
+    fixture.client.storage["password"] = SecretStr("pass")
+    fixture.client.storage["auth_token"] = SecretStr("stale-token")
     fixture.client.storage["default_site_id"] = "1"
 
     def unauthorized_handler(body: object, config: dict) -> MockHttpServer.StubResponse[dict]:
