@@ -4,6 +4,7 @@ import logging
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from pydantic import SecretStr
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceCoordinator
@@ -118,7 +119,7 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         self.hass.data.setdefault(DOMAIN, {})
 
         username = self.entry.data["username"]
-        password = self.entry.data["password"]
+        password = SecretStr(self.entry.data["password"])
 
         await self._voltalis_client.login(
             username=username,
