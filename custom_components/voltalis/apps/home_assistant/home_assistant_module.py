@@ -3,6 +3,7 @@ import logging
 
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from pydantic import SecretStr
 
@@ -131,6 +132,9 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         # forward setup to sensor platform
         await self.hass.config_entries.async_forward_entry_setups(self.entry, self.PLATFORMS)
 
+        # Cleanup devices without entities to prevent shadow devices after initial setup
+        self.cleanup_empty_devices()
+
         return True
 
     async def async_unload_entry(self) -> bool:
@@ -183,3 +187,20 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         # Stop time tracking for consumption coordinators
         self.device_daily_consumption_coordinator.stop_time_tracking()
         self.live_consumption_coordinator.stop_time_tracking()
+
+    def cleanup_empty_devices(self) -> None:
+        """Cleanup devices with no entities to prevent shadow devices"""
+
+        dev_reg = device_registry.async_get(self.hass)
+        ent_reg = entity_registry.async_get(self.hass)
+
+        devices = device_registry.async_entries_for_config_entry(dev_reg, self.entry.entry_id)
+        for device in devices:
+            # Check if there are any entities linked to this device (including disabled entities)
+            entities = entity_registry.async_entries_for_device(
+                ent_reg,
+                device.id,
+                include_disabled_entities=True,
+            )
+            if not entities:
+                dev_reg.async_remove_device(device.id)
