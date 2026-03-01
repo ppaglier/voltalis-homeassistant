@@ -1,12 +1,12 @@
 from typing import Any
 
-from custom_components.voltalis.lib.application.providers.http_client import (
+from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
+from custom_components.voltalis.lib.domain.shared.providers.http_client import (
     HttpClient,
     HttpClientException,
     HttpClientResponse,
     TData,
 )
-from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException
 
 
 class VoltalisClientStub(HttpClient):

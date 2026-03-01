@@ -2,39 +2,39 @@ import logging
 from typing import Any, TypedDict
 
 from aiohttp import ClientSession
+from pydantic import SecretStr
 
-from custom_components.voltalis.const import VOLTALIS_API_BASE_URL, VOLTALIS_API_LOGIN_ROUTE
-from custom_components.voltalis.lib.application.providers.http_client import (
+from custom_components.voltalis.const import VOLTALIS_API_LOGIN_ROUTE
+from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
+from custom_components.voltalis.lib.domain.shared.providers.http_client import (
     HttpClientException,
     HttpClientResponse,
     TData,
 )
-from custom_components.voltalis.lib.domain.exceptions import VoltalisAuthenticationException
-from custom_components.voltalis.lib.infrastructure.providers.http_client_aiohttp import HttpClientAioHttp
+from custom_components.voltalis.lib.infrastructure.providers.http_client_aiohttp import HttpClientAiohttp
 
 
-class VoltalisClientAiohttp(HttpClientAioHttp):
+class VoltalisClientAiohttp(HttpClientAiohttp):
     """
     Aiohttp client for Voltalis API.
     It implements authentication and token management.
     """
 
-    BASE_URL = VOLTALIS_API_BASE_URL
     LOGIN_ROUTE = VOLTALIS_API_LOGIN_ROUTE
 
     class Storage(TypedDict):
         """Dict that represent the storage of the client"""
 
         username: str | None
-        password: str | None
-        auth_token: str | None
+        password: SecretStr | None
+        auth_token: SecretStr | None
         default_site_id: str | None
 
     def __init__(
         self,
         *,
         session: ClientSession,
-        base_url: str = BASE_URL,
+        base_url: str,
     ) -> None:
         super().__init__(session=session, base_url=base_url)
 
@@ -59,13 +59,13 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
         self,
         *,
         username: str,
-        password: str,
-    ) -> str:
+        password: SecretStr,
+    ) -> SecretStr:
         """Get Voltalis access token."""
 
         payload = {
             "login": username,
-            "password": password,
+            "password": password.get_secret_value(),
         }
         try:
             response: HttpClientResponse[dict] = await self.send_request(
@@ -74,7 +74,7 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
                 body=payload,
                 can_retry=False,
             )
-            return response.data["token"]
+            return SecretStr(response.data["token"])
         except HttpClientException as err:
             self.__logger.error("Error while getting access token: %s", err)
             if err.response and err.response.status == 401:
@@ -88,7 +88,7 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
         )
         return response.data["defaultSite"]["id"]
 
-    async def login(self, *, username: str, password: str) -> None:
+    async def login(self, *, username: str, password: SecretStr) -> None:
         """Execute Voltalis login."""
 
         self.__logger.info("Voltalis login in progress...")
@@ -136,7 +136,7 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
         if self.__storage["auth_token"] is None and url != VoltalisClientAiohttp.LOGIN_ROUTE:
             await self.login(
                 username=self.__storage["username"] or "",
-                password=self.__storage["password"] or "",
+                password=self.__storage["password"] or SecretStr(""),
             )
 
         headers = {
@@ -147,7 +147,7 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
             **(headers or {}),
         }
         if self.__storage["auth_token"] is not None:
-            headers["Authorization"] = f"Bearer {self.__storage['auth_token']}"
+            headers["Authorization"] = f"Bearer {self.__storage['auth_token'].get_secret_value()}"
 
         _url = url
         if self.__storage["default_site_id"] is not None:
@@ -170,7 +170,7 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
             try:
                 await self.login(
                     username=self.__storage["username"] or "",
-                    password=self.__storage["password"] or "",
+                    password=self.__storage["password"] or SecretStr(""),
                 )
             except Exception as login_ex:
                 self.__logger.error("Re-login failed during retry after 401: %s", login_ex)
@@ -180,7 +180,6 @@ class VoltalisClientAiohttp(HttpClientAioHttp):
                 body=body,
                 query_params=query_params,
                 headers=headers,
-                can_retry=False,
                 **kwargs,
             )
 

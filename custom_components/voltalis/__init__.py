@@ -1,37 +1,14 @@
-"""Initialization of the Voltalis integration."""
+"""Initialization of the Voltalis integration in Home Assistant."""
 
-import logging
-
-from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from custom_components.voltalis.const import CONFIG_SCHEMA, DOMAIN
-from custom_components.voltalis.lib.domain.config_entry_data import (
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import (
     VoltalisConfigEntry,
-    VoltalisConfigEntryData,
-    VoltalisCoordinators,
 )
-from custom_components.voltalis.lib.domain.coordinators.device import VoltalisDeviceCoordinator
-from custom_components.voltalis.lib.domain.coordinators.device_daily_consumption import (
-    VoltalisDeviceDailyConsumptionCoordinator,
-)
-from custom_components.voltalis.lib.domain.coordinators.device_health import VoltalisDeviceHealthCoordinator
-from custom_components.voltalis.lib.domain.coordinators.energy_contract import VoltalisEnergyContractCoordinator
-from custom_components.voltalis.lib.domain.coordinators.live_consumption import VoltalisLiveConsumptionCoordinator
-from custom_components.voltalis.lib.domain.coordinators.program import VoltalisProgramCoordinator
-from custom_components.voltalis.lib.infrastructure.providers.date_provider_real import DateProviderReal
-from custom_components.voltalis.lib.infrastructure.providers.voltalis_client_aiohttp import VoltalisClientAiohttp
-from custom_components.voltalis.lib.infrastructure.repositories.voltalis_repository_voltalis_api import (
-    VoltalisRepositoryVoltalisApi,
-)
+from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
+from custom_components.voltalis.const import CONFIG_SCHEMA
 
-PLATFORMS = [
-    Platform.SENSOR,
-    Platform.SELECT,
-    Platform.CLIMATE,
-    Platform.WATER_HEATER,
-]
+PLATFORMS = VoltalisHomeAssistantModule.PLATFORMS
 
 __all__ = ["CONFIG_SCHEMA"]
 
@@ -45,80 +22,21 @@ async def async_setup(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Set up Voltalis from a config entry."""
 
-    username = entry.data["username"]
-    password = entry.data["password"]
+    home_assistant_module = VoltalisHomeAssistantModule()
+    setup_ok = await home_assistant_module.async_setup_entry(hass=hass, entry=entry)
 
-    hass.data.setdefault(DOMAIN, {})
+    if setup_ok:
 
-    date_provider = DateProviderReal()
+        async def _update_listener(hass: HomeAssistant, entry: VoltalisConfigEntry) -> None:
+            """Handle options updates by reloading the config entry."""
+            await hass.config_entries.async_reload(entry.entry_id)
 
-    voltalis_client = VoltalisClientAiohttp(session=async_get_clientsession(hass))
+        entry.async_on_unload(entry.add_update_listener(_update_listener))
 
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-
-    await voltalis_client.login(
-        username=username,
-        password=password,
-    )
-
-    voltalis_repository = VoltalisRepositoryVoltalisApi(http_client=voltalis_client)
-
-    coordinators = VoltalisCoordinators(
-        device=VoltalisDeviceCoordinator(
-            hass=hass,
-            voltalis_repository=voltalis_repository,
-            entry=entry,
-        ),
-        device_health=VoltalisDeviceHealthCoordinator(
-            hass=hass,
-            voltalis_repository=voltalis_repository,
-            entry=entry,
-        ),
-        device_daily_consumption=VoltalisDeviceDailyConsumptionCoordinator(
-            hass=hass,
-            voltalis_repository=voltalis_repository,
-            date_provider=date_provider,
-            entry=entry,
-        ),
-        live_consumption=VoltalisLiveConsumptionCoordinator(
-            hass=hass,
-            voltalis_repository=voltalis_repository,
-            entry=entry,
-        ),
-        energy_contract=VoltalisEnergyContractCoordinator(
-            hass=hass,
-            voltalis_repository=voltalis_repository,
-            entry=entry,
-        ),
-        programs=VoltalisProgramCoordinator(
-            hass=hass,
-            voltalis_repository=voltalis_repository,
-            entry=entry,
-        ),
-    )
-
-    await coordinators.setup_all()
-
-    # ✅ store coordinator for other platforms
-    entry.runtime_data = VoltalisConfigEntryData(
-        voltalis_client=voltalis_client,
-        date_provider=date_provider,
-        coordinators=coordinators,
-    )
-
-    # forward setup to sensor platform
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    return True
+    return setup_ok
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
     """Unload a config entry."""
 
-    await entry.runtime_data.coordinators.unload_all()
-
-    await entry.runtime_data.voltalis_client.logout()
-
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    return unload_ok
+    return await entry.runtime_data.voltalis_home_assistant_module.async_unload_entry()

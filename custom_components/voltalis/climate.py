@@ -1,20 +1,20 @@
 """Platform for Voltalis climate integration."""
 
-import logging
-
 import voluptuous as vol
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from custom_components.voltalis.lib.domain.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_base_entity import VoltalisBaseEntity
-from custom_components.voltalis.lib.domain.entities.base_entities.voltalis_device_entity import VoltalisDeviceEntity
-from custom_components.voltalis.lib.domain.entities.device_entities.voltalis_climate import VoltalisClimate
-from custom_components.voltalis.lib.domain.models.device import VoltalisDeviceTypeEnum
-
-_LOGGER = logging.getLogger(__name__)
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
+    VoltalisBaseEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
+    VoltalisDeviceEntity,
+)
+from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_climate import VoltalisClimate
+from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceTypeEnum
 
 # Limit parallel updates (the DataUpdateCoordinator already centralizes calls)
 PARALLEL_UPDATES = 1
@@ -27,18 +27,21 @@ async def async_setup_entry(
 ) -> None:
     """Set up Voltalis climate entities from a config entry."""
 
-    device_coordinator = entry.runtime_data.coordinators.device
+    voltalis_home_assistant_module = entry.runtime_data.voltalis_home_assistant_module
+    device_coordinator = voltalis_home_assistant_module.device_coordinator
 
     climate_entities: list[VoltalisDeviceEntity] = []
 
     for device in device_coordinator.data.values():
         # Only create climate entities for heater devices
-        if device.type == VoltalisDeviceTypeEnum.HEATER:
+        if device.type == DeviceTypeEnum.HEATER:
             climate_entities.append(VoltalisClimate(entry, device))
 
     all_entities: dict[str, VoltalisBaseEntity] = {sensor.unique_internal_name: sensor for sensor in climate_entities}
     async_add_entities(all_entities.values(), update_before_add=True)
-    _LOGGER.info(f"Added {len(all_entities)} Voltalis climate entities: {list(all_entities.keys())}")
+    voltalis_home_assistant_module.logger.info(
+        f"Added {len(all_entities)} Voltalis climate entities: {list(all_entities.keys())}"
+    )
 
     # Register service actions
     platform = entity_platform.async_get_current_platform()

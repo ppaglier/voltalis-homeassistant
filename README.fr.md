@@ -62,6 +62,7 @@ Cette intégration fournit un contrôle et une surveillance complets de vos appa
 ### Contrôles
 - **Sélecteur de préset d'appareil** : Changez rapidement le mode d'un appareil individuel (Automatique, Confort, Économie, Protection antigel, Température, Activé, Arrêt)
 - **Sélecteur de programme** : Sélectionnez des programmes globaux qui s'appliquent à tous les appareils (Aucun programme, Vacances, Absence courte, Boost)
+- **Interrupteur d'appareil** : Activez les appareils (en mode Confort) ou désactivez-les
 
 ## Installation
 
@@ -379,6 +380,25 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
   - **Remarque** : Un seul programme global peut être actif à la fois. La sélection d'un programme peut remplacer les paramètres individuels des appareils.
 </details>
 
+### Entités interrupteur
+
+<details>
+  <summary>Interrupteur d'appareil</summary>
+
+  - **ID d'entité** : `switch.<device_name>_device_switch`
+  - **Type** : Interrupteur
+  - **Description** : Contrôle simple marche/arrêt pour l'appareil
+  - **Fonctionnalités** :
+    - **Activer** : Active l'appareil en mode manuel avec le mode Confort pour un chauffage immédiat
+    - **Désactiver** : Désactive l'appareil en mode manuel tout en conservant les paramètres de mode actuels
+    - Fournit un contrôle rapide du chauffage - l'activation utilise toujours le mode Confort pour un chauffage maximal
+  - **Cas d'utilisation** :
+    - Contrôle rapide marche/arrêt dans les automatisations
+    - Gestion simple de l'alimentation des appareils
+    - Intégration avec les assistants vocaux (« Allume le radiateur de la chambre »)
+  - **Fréquence de mise à jour** : Chaque 1 minute
+</details>
+
 ## Dépannage
 
 ### Erreurs d'authentification
@@ -584,6 +604,70 @@ automation:
         target:
           entity_id: climate.bedroom_heater
 ```
+
+## Options de configuration
+
+Vous pouvez personnaliser le comportement de l'intégration via le menu des options de configuration :
+
+1. Allez dans **Paramètres** > **Appareils et services**
+2. Trouvez l'intégration **Voltalis**
+3. Cliquez sur **Configurer** (ou le menu trois points > **Configurer**)
+
+### Options disponibles
+
+#### Paramètres de température
+
+Personnalisez les températures par défaut pour les différents modes de fonctionnement :
+
+- **Température minimale du climat** (par défaut : 7.0°C)
+  - La température la plus basse que vous pouvez définir pour vos appareils de chauffage
+  - Utile si vous souhaitez éviter des températures trop basses
+
+- **Température maximale du climat** (par défaut : 30.0°C)
+  - La température la plus élevée que vous pouvez définir pour vos appareils de chauffage
+  - Utile si vous souhaitez limiter la température maximale de chauffage
+
+- **Température par défaut** (par défaut : 18.0°C)
+  - La température utilisée lorsqu'aucun mode spécifique n'est sélectionné
+
+- **Température absence par défaut** (par défaut : 7.0°C)
+  - La température utilisée en mode absence/protection antigel
+  - Empêche le gel pendant votre absence
+
+- **Température éco par défaut** (par défaut : 15.5°C)
+  - La température utilisée lorsque le mode éco est activé
+  - Équilibre entre confort et économies d'énergie
+
+- **Température confort par défaut** (par défaut : 21.0°C)
+  - La température utilisée lorsque le mode confort est activé
+  - Votre température de confort préférée
+
+- **Température chauffe-eau par défaut** (par défaut : 55.0°C)
+  - La température cible pour les chauffe-eaux
+  - ⚠️ Minimum recommandé : 55°C pour éviter la prolifération bactérienne (Légionelle)
+
+#### Paramètres avancés
+
+- **Niveau de log** (par défaut : warning)
+  - Contrôle la verbosité des logs dans Home Assistant
+  - Options : `debug`, `info`, `warning`, `error`, `critical`
+  - Utile pour le dépannage ou le débogage
+
+### Exemples de cas d'usage
+
+**Préréglage maison plus chaude :**
+- Confort : 22°C
+- Éco : 17°C
+- Absence : 10°C
+
+**Préréglage économies d'énergie :**
+- Confort : 19°C
+- Éco : 14°C
+- Absence : 7°C
+
+**Grande plage de température :**
+- Min : 5°C
+- Max : 28°C
 
 ## Inspirations
 
