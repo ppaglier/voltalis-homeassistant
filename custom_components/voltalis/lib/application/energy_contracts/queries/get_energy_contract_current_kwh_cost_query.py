@@ -5,7 +5,7 @@ from custom_components.voltalis.lib.domain.shared.custom_model import CustomMode
 
 
 class GetEnergyContractCurrentKwCostQuery(CustomModel):
-    """Query to get the current mode of an energy contract."""
+    """Query to get the current kWh cost of the energy contract."""
 
     current_mode: EnergyContractCurrentModeEnum
 

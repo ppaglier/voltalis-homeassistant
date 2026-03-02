@@ -20,7 +20,7 @@ class EnergyContract(CustomModel):
     """Class to represent an energy contract"""
 
     id: int
-    contract_id: int
+    subscriber_id: int
     company_name: str
     name: str
     subscribed_power: int

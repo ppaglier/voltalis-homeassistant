@@ -91,7 +91,7 @@ def test_get_device_preset_non_climate_device_with_unrecognized_mode_returns_off
             is_on=True,
             prog_type=ProgramTypeEnum.MANUAL,
             mode=None,
-            climate_mode=True,
+            climate_mode=False,
         )
     )
 

@@ -15,7 +15,7 @@ class EnergyContractBuilder(GenericBuilder[EnergyContract]):
 
     DEFAULT_VALUES = EnergyContract(
         id=1,
-        contract_id=1,
+        subscriber_id=1,
         company_name="ACME",
         name="Contract 1",
         subscribed_power=3,
@@ -38,9 +38,9 @@ class EnergyContractBuilder(GenericBuilder[EnergyContract]):
         """Set the id."""
         return self._set_value("id", id)
 
-    def with_contract_id(self, contract_id: int) -> Self:
-        """Set the contract id."""
-        return self._set_value("contract_id", contract_id)
+    def with_subscriber_id(self, subscriber_id: int) -> Self:
+        """Set the subscriber id."""
+        return self._set_value("subscriber_id", subscriber_id)
 
     def with_type(self, _type: EnergyContractTypeEnum) -> Self:
         """Set the contract type."""

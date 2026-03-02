@@ -267,7 +267,7 @@ class HomeAssistantFixture(BaseFixture[None]):
         energy_contract = (
             EnergyContractBuilder()
             .with_id(1)
-            .with_contract_id(1)
+            .with_subscriber_id(1)
             .with_type(EnergyContractTypeEnum.PEAK_OFFPEAK)
             .build()
         )

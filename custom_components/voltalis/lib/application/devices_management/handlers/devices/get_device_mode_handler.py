@@ -22,10 +22,10 @@ class DeviceCurrentModeEnum(StrEnum):
 
 
 class GetDeviceModeHandler:
-    """Handler to get the health of the devices."""
+    """Handler for getting the current device mode based on its state and program type."""
 
     def handle(self, query: GetDeviceModeQuery) -> DeviceCurrentModeEnum | None:
-        """Handle the request to get the health of the devices."""
+        """Determine the current device mode based on the query parameters."""
 
         # Check if device is off
         if query.is_on is False:
