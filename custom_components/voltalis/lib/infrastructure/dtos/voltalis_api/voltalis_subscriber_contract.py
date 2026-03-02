@@ -22,7 +22,7 @@ class VoltalisSubscriberContractDto(CustomModel):
     """Class to represent a Voltalis subscriber contract DTO"""
 
     id: int
-    api_contract_id: int = Field(alias="apiContractId")
+    subscriber_id: int = Field(alias="subscriberId")
     company_name: str = Field(alias="companyName")
     name: str
     subscribed_power: int = Field(alias="subscribedPower")
@@ -42,7 +42,7 @@ class VoltalisSubscriberContractDto(CustomModel):
     def from_energy_contract(energy_contract: EnergyContract) -> "VoltalisSubscriberContractDto":
         return VoltalisSubscriberContractDto(
             id=energy_contract.id,
-            api_contract_id=energy_contract.contract_id,
+            subscriber_id=energy_contract.subscriber_id,
             company_name=energy_contract.company_name,
             name=energy_contract.name,
             subscribed_power=energy_contract.subscribed_power,
@@ -72,7 +72,7 @@ class VoltalisSubscriberContractDto(CustomModel):
     def to_energy_contract(self) -> EnergyContract:
         return EnergyContract(
             id=self.id,
-            contract_id=self.api_contract_id,
+            subscriber_id=self.subscriber_id,
             company_name=self.company_name,
             name=self.name,
             subscribed_power=self.subscribed_power,

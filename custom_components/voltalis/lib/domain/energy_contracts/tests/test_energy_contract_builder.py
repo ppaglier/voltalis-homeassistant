@@ -20,11 +20,11 @@ def test_energy_contract_builder_creates_valid_contract() -> None:
     """Test that EnergyContractBuilder creates a valid energy contract."""
 
     # Act
-    contract = EnergyContractBuilder().with_id(1).with_contract_id(100).with_type(EnergyContractTypeEnum.BASE).build()
+    contract = EnergyContractBuilder().with_id(1).with_subscriber_id(100).with_type(EnergyContractTypeEnum.BASE).build()
 
     # Assert
     assert contract.id == 1
-    assert contract.contract_id == 100
+    assert contract.subscriber_id == 100
     assert contract.type == EnergyContractTypeEnum.BASE
 
 
@@ -37,7 +37,7 @@ def test_energy_contract_builder_with_all_fields() -> None:
     contract = (
         EnergyContractBuilder()
         .with_id(2)
-        .with_contract_id(200)
+        .with_subscriber_id(200)
         .with_type(EnergyContractTypeEnum.PEAK_OFFPEAK)
         .with_end_date(end_date)
         .build()
