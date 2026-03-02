@@ -8,10 +8,10 @@ from custom_components.voltalis.lib.domain.programs_management.programs.program_
 
 
 class GetWaterHeaterCurrentOperationHandler:
-    """Handler to get the health of the devices."""
+    """Handler for getting the current operation of a water heater based on its state and program type."""
 
     def handle(self, query: GetWaterHeaterCurrentOperationQuery) -> WaterHeaterCurrentOperationEnum:
-        """Handle the request to get the health of the devices."""
+        """Determine the current operation of the water heater based on the query parameters."""
 
         # Check if device is off
         if query.is_on is False:

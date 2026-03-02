@@ -13,7 +13,7 @@ class GenericBuilder(ABC, Generic[T]):
     DEFAULT_VALUES: T
 
     def __init__(self, props: dict = {}) -> None:
-        self.props = {**self.DEFAULT_VALUES.model_dump(exclude_unset=True), **props}
+        self.props = deepcopy({**self.DEFAULT_VALUES.model_dump(exclude_unset=True), **props})
 
     def _get_value(self, key: str) -> Any:
         """Get the value of a key in the props."""
