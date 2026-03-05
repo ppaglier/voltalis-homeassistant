@@ -161,7 +161,7 @@ poetry run task typecheck
 ### Type Safety
 
 - **All code must have type hints.** Mypy is configured in strict mode.
-- Use Python 3.13+ syntax where applicable.
+- Use Python 3.14+ syntax where applicable.
 
 ### Line Length
 

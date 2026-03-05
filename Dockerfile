@@ -1,5 +1,5 @@
 ## ------------------------------- Python base Stage ------------------------------ ##
-ARG PYTHON_VERSION=3.13
+ARG PYTHON_VERSION=3.14
 FROM python:${PYTHON_VERSION}-slim AS python-base
 
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -54,6 +54,9 @@ FROM builder-dev AS dev
 WORKDIR /app
 
 ENV TZ="Europe/Paris"
+
+# Enable Python 3.14 experimental JIT for improved performance (5-15% speed increase)
+ENV PYTHON_JIT=1
 
 # Copy all files of the application
 COPY . .
