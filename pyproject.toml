@@ -56,8 +56,8 @@ extend-exclude = [
     "*.png"
 ]
 
-# Assume Python 3.13.
-target-version = "py313"
+# Assume Python 3.14
+target-version = "py314"
 
 [tool.ruff.lint]
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
@@ -86,7 +86,7 @@ explicit_package_bases = true
 
 
 [tool.poetry.dependencies]
-python = ">=3.13.2,<4.0"
+python = ">=3.14.3,<4.0"
 taskipy = "^1.14.1"
 homeassistant = "^2026.2.3"
 pydantic = "^2.12.2"
