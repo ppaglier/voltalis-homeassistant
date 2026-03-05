@@ -10,7 +10,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 RUN pip install --upgrade pip
 
 # https://python-poetry.org/docs#ci-recommendations
-ENV POETRY_VERSION=2.1.1
+ENV POETRY_VERSION=2.1.3
 ENV POETRY_HOME=/opt/poetry
 ENV POETRY_VENV="${POETRY_HOME}/.venv"
 ENV POETRY_CACHE_DIR="${POETRY_HOME}/.cache"
