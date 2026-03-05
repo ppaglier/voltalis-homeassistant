@@ -16,7 +16,7 @@ We would love for you to contribute and help make it even better than it is toda
 
 ### Prerequisites
 
-- Python 3.13+
+- Python 3.14+
 - Poetry (for dependency management)
 - A Home Assistant instance for testing (optional but recommended)
 
