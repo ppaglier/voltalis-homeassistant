@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 class VoltalisConfigEntryData:
     """Config entry for the Voltalis data"""
 
-    def __init__(self, *, voltalis_home_assistant_module: "VoltalisHomeAssistantModule") -> None:
+    def __init__(self, *, voltalis_home_assistant_module: VoltalisHomeAssistantModule) -> None:
         self.voltalis_home_assistant_module = voltalis_home_assistant_module
 
 

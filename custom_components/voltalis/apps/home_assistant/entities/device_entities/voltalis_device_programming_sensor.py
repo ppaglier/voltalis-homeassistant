@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import callback
