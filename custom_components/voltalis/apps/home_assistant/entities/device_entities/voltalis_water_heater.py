@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Any
 
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityFeature

@@ -1,5 +1,5 @@
 ## ------------------------------- Python base Stage ------------------------------ ##
-ARG PYTHON_VERSION=3.13
+ARG PYTHON_VERSION=3.14
 FROM python:${PYTHON_VERSION}-slim AS python-base
 
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -10,7 +10,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 RUN pip install --upgrade pip
 
 # https://python-poetry.org/docs#ci-recommendations
-ENV POETRY_VERSION=2.1.1
+ENV POETRY_VERSION=2.1.3
 ENV POETRY_HOME=/opt/poetry
 ENV POETRY_VENV="${POETRY_HOME}/.venv"
 ENV POETRY_CACHE_DIR="${POETRY_HOME}/.cache"
@@ -54,6 +54,9 @@ FROM builder-dev AS dev
 WORKDIR /app
 
 ENV TZ="Europe/Paris"
+
+# Enable Python 3.14 experimental JIT for improved performance (5-15% speed increase)
+ENV PYTHON_JIT=1
 
 # Copy all files of the application
 COPY . .
