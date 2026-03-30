@@ -56,6 +56,7 @@ VOLTALIS_DEVICE_PROG_TYPE_MAPPING = {
     VoltalisDeviceDtoProgTypeEnum.MANUAL: ProgramTypeEnum.MANUAL,
     VoltalisDeviceDtoProgTypeEnum.DEFAULT: ProgramTypeEnum.DEFAULT,
     VoltalisDeviceDtoProgTypeEnum.USER: ProgramTypeEnum.USER,
+    VoltalisDeviceDtoProgTypeEnum.QUICK: ProgramTypeEnum.QUICK,
 }
 
 
