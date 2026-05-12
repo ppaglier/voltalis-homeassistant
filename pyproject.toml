@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voltalis-homeassistant"
-version = "0.6.4"
+version = "0.6.5"
 description = "Voltalis integration in Home Assistant"
 authors = ["Pierre-Louis Pagliero"]
 license = "MIT"
@@ -94,16 +94,16 @@ pydantic = "^2.12.2"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.15.5"
+ruff = "^0.15.12"
 mypy = "^1.19.1"
 
 
 [tool.poetry.group.test.dependencies]
-pytest = "^9.0.0"
+pytest = "^9.0.3"
 dictdiffer = "^0.9.0"
-pytest-env = "^1.2.0"
-pytest-cov = "^7.0.0"
-pytest-homeassistant-custom-component = "^0.13.317"
+pytest-env = "^1.6.0"
+pytest-cov = "^7.1.0"
+pytest-homeassistant-custom-component = "^0.13.330"
 pytest-aiohttp = "^1.1.0"
 
 
