@@ -49,6 +49,7 @@ async def async_setup_entry(
     platform.async_register_entity_service(
         "set_manual_mode",
         {
+            vol.Required("entity_id"): cv.entity_ids,
             vol.Optional("preset_mode"): cv.string,
             vol.Optional("temperature"): vol.Coerce(float),
             vol.Optional("duration_hours"): lambda v: None if v is None else cv.positive_int(v),
@@ -58,13 +59,16 @@ async def async_setup_entry(
 
     platform.async_register_entity_service(
         "disable_manual_mode",
-        {},
+        {
+            vol.Required("entity_id"): cv.entity_ids,
+        },
         "async_service_disable_manual_mode",
     )
 
     platform.async_register_entity_service(
         "set_quick_boost",
         {
+            vol.Required("entity_id"): cv.entity_ids,
             vol.Optional("duration_hours", default=2): vol.Coerce(float),
             vol.Optional("temperature"): vol.Coerce(float),
         },

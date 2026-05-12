@@ -3,6 +3,10 @@ networks:
     name: voltalis-homeassistant_default
     driver: bridge
 
+volumes:
+  ha_venv:
+  ha_config:
+
 services:
   voltalis-homeassistant:
     container_name: voltalis-homeassistant
@@ -16,6 +20,6 @@ services:
       - 9123:8123
     volumes:
       - .:/app
-      - /app/.venv
-      - /config
+      - ha_venv:/app/.venv
+      - ha_config:/config
       - ./custom_components/voltalis:/config/custom_components/voltalis:ro
