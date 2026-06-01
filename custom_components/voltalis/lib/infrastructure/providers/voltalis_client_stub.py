@@ -72,7 +72,7 @@ class VoltalisClientStub(HttpClient):
                     data=None,
                     status=401,
                     url=url,
-                    header={},
+                    headers={},
                 ),
             )
         if self.__should_fail_connection:
@@ -82,7 +82,7 @@ class VoltalisClientStub(HttpClient):
                     data=None,
                     status=503,
                     url=url,
-                    header={},
+                    headers={},
                 ),
             )
         if self.__should_fail_unexpected:

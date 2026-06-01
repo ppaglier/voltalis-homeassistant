@@ -94,7 +94,6 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
 
         await self._voltalis_module.set_device_preset_handler.handle(
             SetDevicePresetCommand(
-                manual_setting_id=device.manual_setting.id,
                 device=device,
                 preset=DeviceCurrentPresetEnum(option),
                 duration_hours=None,  # Indefinite until user changes it again

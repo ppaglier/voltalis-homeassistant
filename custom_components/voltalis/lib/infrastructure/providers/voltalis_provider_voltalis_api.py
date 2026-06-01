@@ -191,7 +191,6 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             setting_mode = REVERSED_MODE_MAPPING[setting.mode]
 
         payload = VoltalisManualSettingUpdateDto(
-            id=manual_setting_id,
             enabled=setting.enabled,
             id_appliance=setting.id_appliance,
             until_further_notice=setting.until_further_notice,
