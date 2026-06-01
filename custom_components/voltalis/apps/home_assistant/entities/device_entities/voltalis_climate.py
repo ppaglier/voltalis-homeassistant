@@ -4,7 +4,6 @@ from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import ClimateEntityFeature, HVACAction, HVACMode
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.voltalis.apps.home_assistant.coordinators.device import DeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
 )
@@ -27,6 +26,7 @@ from custom_components.voltalis.lib.application.devices_management.commands.set_
 from custom_components.voltalis.lib.application.devices_management.commands.turn_off_device_command import (
     TurnOffDeviceCommand,
 )
+from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
 from custom_components.voltalis.lib.application.devices_management.queries.get_climate_action_query import (
     GetClimateActionQuery,
 )

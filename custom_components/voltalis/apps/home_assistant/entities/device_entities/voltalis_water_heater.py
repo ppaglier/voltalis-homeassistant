@@ -2,7 +2,6 @@ from typing import Any
 
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityFeature
 
-from custom_components.voltalis.apps.home_assistant.coordinators.device import DeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
 )
@@ -11,6 +10,7 @@ from custom_components.voltalis.const import CLIMATE_UNIT
 from custom_components.voltalis.lib.application.devices_management.commands.set_water_heater_operation_command import (
     SetWaterHeaterOperationCommand,
 )
+from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
 from custom_components.voltalis.lib.application.devices_management.queries.get_water_heater_current_operation_query import (  # noqa: E501
     GetWaterHeaterCurrentOperationQuery,
 )
