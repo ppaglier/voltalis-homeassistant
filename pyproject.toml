@@ -86,6 +86,9 @@ no_implicit_reexport = false
 plugins = "pydantic.mypy"
 explicit_package_bases = true
 
+[tool.pydantic-mypy]
+init_typed = true
+
 
 [tool.poetry.dependencies]
 python = ">=3.14.3,<4.0"
