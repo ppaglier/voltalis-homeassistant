@@ -2,11 +2,8 @@ from datetime import date, time
 
 from pydantic import Field
 
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import (
-    EnergyContract,
-    EnergyContractPrices,
-    EnergyContractTypeEnum,
-)
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract, EnergyContractPrices
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 from custom_components.voltalis.lib.domain.shared.range_model import RangeModel
 
