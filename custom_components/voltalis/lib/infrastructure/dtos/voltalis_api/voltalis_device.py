@@ -162,8 +162,8 @@ class VoltalisDeviceDto(CustomModel):
             has_ecov=VoltalisDeviceDtoModeEnum.ECOV in self.available_modes,
             programming=DeviceProgramming(
                 prog_type=VOLTALIS_DEVICE_PROG_TYPE_MAPPING[self.programming.prog_type],
-                is_on=self.programming.is_on,
-                mode=actual_mode,
+                is_on=self.programming.is_on or False,
+                mode=actual_mode or DeviceModeEnum.ECO,
                 temperature_target=self.programming.temperature_target,
                 default_temperature=self.programming.default_temperature,
             ),

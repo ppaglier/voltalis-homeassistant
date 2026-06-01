@@ -41,7 +41,7 @@ from custom_components.voltalis.apps.home_assistant.entities.energy_contract.liv
 from custom_components.voltalis.apps.home_assistant.entities.energy_contract.subscribed_power_sensor import (
     VoltalisEnergyContractSubscribedPowerSensor,
 )
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContractTypeEnum
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 
 # Limit parallel updates (the DataUpdateCoordinator already centralizes calls)
 PARALLEL_UPDATES = 1
