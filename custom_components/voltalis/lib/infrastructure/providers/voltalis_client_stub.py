@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 
 from custom_components.voltalis.lib.domain.shared.exceptions import VoltalisAuthenticationException
 from custom_components.voltalis.lib.domain.shared.providers.http_client import (
@@ -49,7 +49,7 @@ class VoltalisClientStub(HttpClient):
                 method="POST",
                 body=payload,
             )
-            return response.data["token"]
+            return cast(str, response.data["token"])
         except HttpClientException as err:
             if err.response and err.response.status == 401:
                 raise VoltalisAuthenticationException("Invalid username or password") from err
