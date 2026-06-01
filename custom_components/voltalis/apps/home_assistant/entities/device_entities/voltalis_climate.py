@@ -323,7 +323,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
                 device=device,
                 mode=target_mode,
                 temperature=target_temp,
-                duration_hours=duration_hours,
+                duration_hours=int(duration_hours),
             )
         )
 

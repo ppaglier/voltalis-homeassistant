@@ -1,4 +1,4 @@
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from aiohttp import ClientConnectorError, ClientError, ClientResponse, ClientResponseError, ClientSession
 
@@ -51,7 +51,7 @@ class HttpClientAiohttp(HttpClient):
         response: HttpClientResponse[T] | None = None
         if isinstance(exception, ClientResponseError):
             response = HttpClientResponse(
-                data=None,
+                data=cast(T, None),
                 status=exception.status,
                 url=str(exception.request_info.url),
                 headers=dict(exception.headers) if exception.headers else {},

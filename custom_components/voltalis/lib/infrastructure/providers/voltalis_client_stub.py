@@ -87,4 +87,4 @@ class VoltalisClientStub(HttpClient):
             )
         if self.__should_fail_unexpected:
             raise RuntimeError("Unexpected error")
-        return HttpClientResponse[TData](data={"token": None}, status=200, url=url)
+        return HttpClientResponse[TData](data={"token": None}, status=200, url=url)  # type: ignore
