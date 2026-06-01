@@ -2,11 +2,11 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import callback
 
-from custom_components.voltalis.apps.home_assistant.coordinators.device import DeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import (
     DeviceHealth,
     DeviceHealthStatusEnum,

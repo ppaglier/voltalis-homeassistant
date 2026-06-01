@@ -1,5 +1,5 @@
 import logging
-from typing import Any, TypedDict
+from typing import Any, TypedDict, cast
 
 from aiohttp import ClientSession
 from pydantic import SecretStr
@@ -86,7 +86,7 @@ class VoltalisClientAiohttp(HttpClientAiohttp):
             url="/api/account/me",
             method="GET",
         )
-        return response.data["defaultSite"]["id"]
+        return cast(str, response.data["defaultSite"]["id"])
 
     async def login(self, *, username: str, password: SecretStr) -> None:
         """Execute Voltalis login."""

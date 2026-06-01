@@ -2,7 +2,6 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.voltalis.apps.home_assistant.coordinators.device import DeviceDto
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
 )
@@ -10,6 +9,7 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.lib.application.devices_management.commands.set_device_preset_command import (
     SetDevicePresetCommand,
 )
+from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
 from custom_components.voltalis.lib.application.devices_management.queries.get_device_preset_query import (
     GetDevicePresetQuery,
 )
@@ -94,7 +94,6 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
 
         await self._voltalis_module.set_device_preset_handler.handle(
             SetDevicePresetCommand(
-                manual_setting_id=device.manual_setting.id,
                 device=device,
                 preset=DeviceCurrentPresetEnum(option),
                 duration_hours=None,  # Indefinite until user changes it again

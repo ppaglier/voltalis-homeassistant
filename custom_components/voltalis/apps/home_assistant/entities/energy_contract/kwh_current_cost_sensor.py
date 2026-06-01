@@ -15,13 +15,11 @@ from custom_components.voltalis.lib.application.energy_contracts.queries.get_ene
 from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_mode_query import (
     GetEnergyContractCurrentModeQuery,
 )
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import (
-    EnergyContract,
-    EnergyContractTypeEnum,
-)
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_mode_enum import (
     EnergyContractCurrentModeEnum,
 )
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 
 
 class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, SensorEntity):

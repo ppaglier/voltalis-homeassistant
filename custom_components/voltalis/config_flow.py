@@ -195,7 +195,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         username = self.__get_username_input(user_input)
         password = self.__get_password_input(user_input)
 
-        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])  # type: ignore[index]
+        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
         assert entry is not None
 
         if user_input is not None:

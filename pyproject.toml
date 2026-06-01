@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voltalis-homeassistant"
-version = "0.6.5"
+version = "0.6.6"
 description = "Voltalis integration in Home Assistant"
 authors = ["Pierre-Louis Pagliero"]
 license = "MIT"
@@ -77,25 +77,34 @@ docstring-code-format = true
 [tool.mypy]
 cache_dir = ".venv/.mypy_cache"
 show_column_numbers = true
-implicit_optional = false
-disallow_untyped_defs = true
-disallow_untyped_calls = true
-follow_imports = "silent"
-ignore_missing_imports = true
-plugins = "pydantic.mypy"
 explicit_package_bases = true
+plugins = ["pydantic.mypy"]
+strict = true
+follow_imports = "normal"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = false
+no_implicit_reexport = false
+disallow_untyped_defs = true
+ignore_missing_imports = true
+implicit_optional = false
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
 
 
 [tool.poetry.dependencies]
 python = ">=3.14.3,<4.0"
 taskipy = "^1.14.1"
 homeassistant = "^2026.3.1"
-pydantic = "^2.12.2"
+pydantic = "^2.13.4"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.15.12"
-mypy = "^1.19.1"
+ruff = "^0.15.15"
+mypy = "^2.1.0"
 
 
 [tool.poetry.group.test.dependencies]
