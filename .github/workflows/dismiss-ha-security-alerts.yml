@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      security-events: write
       contents: read
+      dependabot-alerts: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -35,33 +35,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "=================================================="
-          echo "🔍 FETCHING OPEN DEPENDABOT ALERTS VIA GRAPHQL"
+          echo "🔍 FETCHING OPEN DEPENDABOT ALERTS VIA REST API"
           echo "=================================================="
-
-          # Extract Owner and Repo name from GITHUB_REPOSITORY
-          REPO_OWNER="${GITHUB_REPOSITORY%/*}"
-          REPO_NAME="${GITHUB_REPOSITORY#*/}"
-
-          # Query open alerts using GraphQL to bypass REST API 403 restriction
-          ALERTS_JSON=$(gh api graphql -f query='
-            query($owner: String!, $repo: String!) {
-              repository(owner: $owner, name: $repo) {
-                vulnerabilityAlerts(first: 100, states: OPEN) {
-                  nodes {
-                    number
-                    securityVulnerability {
-                      package {
-                        name
-                      }
-                    }
-                  }
-                }
-              }
-            }' -F owner="$REPO_OWNER" -F repo="$REPO_NAME" \
-            --jq '.data.repository.vulnerabilityAlerts.nodes[]? | {number: .number, pkg: .securityVulnerability.package.name}' || true)
+          
+          if ! ALERTS_JSON=$(gh api --paginate "/repos/${{ github.repository }}/dependabot/alerts?state=open&per_page=100" \
+            --jq '.[] | {number: .number, pkg: .dependency.package.name}'); then
+            echo "❌ Unable to read Dependabot alerts. Verify token permissions (dependabot-alerts: read/write)."
+            exit 1
+          fi
 
           if [ -z "$ALERTS_JSON" ]; then
-            echo "✅ No open Dependabot alerts found (or unable to read alerts)."
+            echo "✅ No open Dependabot alerts found."
             exit 0
           fi
 
