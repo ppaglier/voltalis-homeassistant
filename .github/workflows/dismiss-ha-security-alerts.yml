@@ -35,40 +35,76 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Read directly from the GitHub event payload JSON file to avoid injection/context errors
-          PKG_NAME=$(jq -r '.alert.security_vulnerability.package.name' "$GITHUB_EVENT_PATH")
-          ALERT_NUMBER=$(jq -r '.alert.number' "$GITHUB_EVENT_PATH")
+          echo "=================================================="
+          echo "🔍 ANALYZING DEPENDABOT ALERT"
+          echo "=================================================="
+
+          # Extract package name and alert number safely from event payload
+          PKG_NAME=$(jq -r '.alert.security_vulnerability.package.name // .alert.dependency.package.name // empty' "$GITHUB_EVENT_PATH")
+          ALERT_NUMBER=$(jq -r '.alert.number // empty' "$GITHUB_EVENT_PATH")
+
+          if [ -z "$PKG_NAME" ] || [ "$PKG_NAME" = "null" ]; then
+            echo "❌ ERROR: Could not parse package name from GitHub event payload."
+            echo "Payload summary:"
+            jq '.alert | {number, state, dependency, security_vulnerability}' "$GITHUB_EVENT_PATH"
+            exit 1
+          fi
+
           PKG_LOWER=$(echo "$PKG_NAME" | tr '[:upper:]' '[:lower:]')
 
+          echo "📦 Package: $PKG_NAME ($PKG_LOWER)"
+          echo "🔢 Alert Number: #$ALERT_NUMBER"
+          echo "--------------------------------------------------"
+
           # 1. Check if the package is a DIRECT dependency of your project
+          echo "📋 Checking direct project dependencies..."
           DIRECT_DEPS=$(poetry run pipdeptree --json-tree | jq -r '.[].package_name' | tr '[:upper:]' '[:lower:]')
+          
           if echo "$DIRECT_DEPS" | grep -q "^${PKG_LOWER}$"; then
-            echo "KEEP OPEN: $PKG_NAME is a direct dependency of your project."
+            echo "⛔ KEEP OPEN: '$PKG_NAME' is a DIRECT dependency in pyproject.toml."
+            exit 0
+          fi
+          echo "✅ '$PKG_NAME' is not a direct dependency."
+
+          # 2. Get ALL parent packages requiring this vulnerable package
+          echo "--------------------------------------------------"
+          echo "🌳 Building reverse dependency tree for '$PKG_NAME'..."
+          
+          PARENTS=$(poetry run pipdeptree -p "$PKG_NAME" --reverse --json-tree 2>/dev/null | jq -r '.. .package_name? // empty' | tr '[:upper:]' '[:lower:]' | sort -u | grep -v "^${PKG_LOWER}$" || true)
+
+          if [ -z "$PARENTS" ]; then
+            echo "⚠️ WARNING: No parent dependencies found for '$PKG_NAME' in pipdeptree."
+            echo "⛔ KEEP OPEN: Safety fallback triggered."
             exit 0
           fi
 
-          # 2. Get ALL parent packages requiring this vulnerable package
-          PARENTS=$(poetry run pipdeptree -p "$PKG_NAME" --reverse --json-tree | jq -r '.. .package_name? // empty' | tr '[:upper:]' '[:lower:]' | sort -u | grep -v "^${PKG_LOWER}$" || true)
+          echo "Found parent dependency chain(s):"
+          echo "$PARENTS" | sed 's/^/   ↳ /'
 
           # 3. Verify if ALL parents are part of Home Assistant's dependency tree
+          echo "--------------------------------------------------"
+          echo "🏠 Checking if all parents belong exclusively to Home Assistant..."
+          
           IS_HA_ONLY=true
 
-          if [ -z "$PARENTS" ]; then
-            IS_HA_ONLY=false
-          else
-            for parent in $PARENTS; do
-              IS_PARENT_IN_HA=$(poetry run pipdeptree -p homeassistant --json-tree | jq -r '.. .package_name? // empty' | tr '[:upper:]' '[:lower:]' | grep -x "$parent" || true)
-              if [ -z "$IS_PARENT_IN_HA" ]; then
-                echo "Parent dependency '$parent' is NOT part of Home Assistant!"
-                IS_HA_ONLY=false
-                break
-              fi
-            done
-          fi
+          for parent in $PARENTS; do
+            IS_PARENT_IN_HA=$(poetry run pipdeptree -p homeassistant --json-tree 2>/dev/null | jq -r '.. .package_name? // empty' | tr '[:upper:]' '[:lower:]' | grep -x "$parent" || true)
+            
+            if [ -n "$IS_PARENT_IN_HA" ]; then
+              echo "  [✓] Parent '$parent' IS a Home Assistant sub-dependency."
+            else
+              echo "  [✗] Parent '$parent' IS NOT part of Home Assistant!"
+              IS_HA_ONLY=false
+            fi
+          done
 
           # 4. Auto-dismiss or keep open
+          echo "=================================================="
           if [ "$IS_HA_ONLY" = true ]; then
-            echo "Dismissing alert #$ALERT_NUMBER: $PKG_NAME is exclusively used by Home Assistant."
+            echo "🎉 DECISION: DISMISS ALERT #$ALERT_NUMBER"
+            echo "   Reason: '$PKG_NAME' is exclusively used by Home Assistant."
+            echo "--------------------------------------------------"
+            
             gh api \
               --method PATCH \
               -H "Accept: application/vnd.github+json" \
@@ -76,6 +112,10 @@ jobs:
               -f state="dismissed" \
               -f dismissed_reason="tolerable_risk" \
               -f dismissed_comment="Auto-dismissed: Package is exclusively a sub-dependency of Home Assistant."
+              
+            echo "✅ Alert #$ALERT_NUMBER successfully dismissed on GitHub."
           else
-            echo "KEEP OPEN: $PKG_NAME is used by other dependencies outside of Home Assistant."
+            echo "⛔ DECISION: KEEP ALERT OPEN"
+            echo "   Reason: '$PKG_NAME' is used by other dependencies outside of Home Assistant."
           fi
+          echo "=================================================="
