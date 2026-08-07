@@ -1,0 +1,60 @@
+name: 'Auto-dismiss HA Sub-dependencies Alerts'
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Runs automatically every monday at 2:00 AM UTC
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
+
+permissions:
+  security-events: write # Required to update Dependabot alert statuses via GitHub API
+  contents: read          # Required to checkout the repository code
+
+jobs:
+  dismiss-ha-alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install
+          poetry run pip install pipdeptree
+
+      - name: Process Dependabot Alerts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Extract all sub-dependencies imported by Home Assistant into a unique list via Poetry
+          HA_DEPS=$(poetry run pipdeptree -p homeassistant --json-tree | jq -r '.. .package_name? // empty' | tr '[:upper:]' '[:lower:]' | sort -u)
+
+          # Fetch all currently open Dependabot alerts using the GitHub REST API
+          ALERTS=$(gh api /repos/${{ github.repository }}/dependabot/alerts --jq '.[] | select(.state=="open") | {number: .number, pkg: .security_vulnerability.package.name}')
+
+          # Iterate through open alerts and auto-dismiss any package that belongs to Home Assistant's dependency tree
+          echo "$ALERTS" | jq -c '.' | while read -r alert; do
+            NUMBER=$(echo "$alert" | jq -r '.number')
+            PKG=$(echo "$alert" | jq -r '.pkg' | tr '[:upper:]' '[:lower:]')
+
+            # Check if the vulnerable package matches any Home Assistant dependency
+            if echo "$HA_DEPS" | grep -q "^${PKG}$"; then
+              echo "Dismissing alert #$NUMBER for $PKG (Home Assistant sub-dependency)..."
+              gh api \
+                --method PATCH \
+                -H "Accept: application/vnd.github+json" \
+                /repos/${{ github.repository }}/dependabot/alerts/$NUMBER \
+                -f state="dismissed" \
+                -f dismissed_reason="tolerable_risk" \
+                -f dismissed_comment="Automatically closed: Sub-dependency of Home Assistant."
+            fi
+          done
