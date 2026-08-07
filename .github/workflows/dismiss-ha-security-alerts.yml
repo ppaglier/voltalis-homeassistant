@@ -119,15 +119,18 @@ jobs:
               echo "🎉 DECISION: DISMISS ALERT #$ALERT_NUMBER"
               echo "   Reason: '$PKG_NAME' is exclusively used by Home Assistant."
               
-              gh api \
+              if gh api \
                 --method PATCH \
                 -H "Accept: application/vnd.github+json" \
                 /repos/${{ github.repository }}/dependabot/alerts/$ALERT_NUMBER \
                 -f state="dismissed" \
                 -f dismissed_reason="tolerable_risk" \
                 -f dismissed_comment="Auto-dismissed: Package is exclusively a sub-dependency of Home Assistant."
-                
-              echo "✅ Alert #$ALERT_NUMBER successfully dismissed on GitHub."
+              then
+                echo "✅ Alert #$ALERT_NUMBER successfully dismissed on GitHub."
+              else
+                echo "⚠️ Unable to dismiss alert #$ALERT_NUMBER (permission/API limitation). Keeping it open."
+              fi
             else
               echo "⛔ DECISION: KEEP ALERT OPEN"
               echo "   Reason: '$PKG_NAME' is used by other dependencies outside of Home Assistant."
