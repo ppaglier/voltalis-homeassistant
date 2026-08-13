@@ -1,0 +1,127 @@
+name: 'Auto-dismiss HA Sub-dependencies Alerts'
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Runs automatically every monday at 2:00 AM UTC
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
+
+jobs:
+  dismiss-ha-alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      dependabot-alerts: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install
+          poetry run pip install pipdeptree
+
+      - name: Dismiss alert if EXCLUSIVELY an HA sub-dependency
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=================================================="
+          echo "🔍 FETCHING OPEN DEPENDABOT ALERTS VIA REST API"
+          echo "=================================================="
+          
+          if ! ALERTS_JSON=$(gh api --paginate "/repos/${{ github.repository }}/dependabot/alerts?state=open&per_page=100" \
+            --jq '.[] | {number: .number, pkg: .dependency.package.name}'); then
+            echo "❌ Unable to read Dependabot alerts. Verify token permissions (dependabot-alerts: read/write)."
+            exit 1
+          fi
+
+          if [ -z "$ALERTS_JSON" ]; then
+            echo "✅ No open Dependabot alerts found."
+            exit 0
+          fi
+
+          # Extract direct project dependencies
+          DIRECT_DEPS=$(poetry run pipdeptree --json-tree | jq -r '.[].package_name' | tr '[:upper:]' '[:lower:]')
+
+          # Loop through each alert found
+          echo "$ALERTS_JSON" | jq -c '.' | while read -r alert; do
+            ALERT_NUMBER=$(echo "$alert" | jq -r '.number')
+            PKG_NAME=$(echo "$alert" | jq -r '.pkg')
+            PKG_LOWER=$(echo "$PKG_NAME" | tr '[:upper:]' '[:lower:]')
+
+            echo ""
+            echo "--------------------------------------------------"
+            echo "📦 Processing Alert #$ALERT_NUMBER for package: $PKG_NAME"
+            echo "--------------------------------------------------"
+
+            # 1. Check if the package is a DIRECT dependency
+            if echo "$DIRECT_DEPS" | grep -q "^${PKG_LOWER}$"; then
+              echo "⛔ KEEP OPEN: '$PKG_NAME' is a DIRECT dependency in pyproject.toml."
+              continue
+            fi
+            echo "✅ '$PKG_NAME' is not a direct dependency."
+
+            # 2. Get ALL parent packages requiring this vulnerable package
+            echo "🌳 Building reverse dependency tree for '$PKG_NAME'..."
+            PARENTS=$(poetry run pipdeptree -p "$PKG_NAME" --reverse --json-tree 2>/dev/null | jq -r '.. .package_name? // empty' | tr '[:upper:]' '[:lower:]' | sort -u | grep -v "^${PKG_LOWER}$" || true)
+
+            if [ -z "$PARENTS" ]; then
+              echo "⚠️ WARNING: No parent dependencies found for '$PKG_NAME' in pipdeptree."
+              echo "⛔ KEEP OPEN: Safety fallback triggered."
+              continue
+            fi
+
+            echo "Found parent dependency chain(s):"
+            echo "$PARENTS" | sed 's/^/   ↳ /'
+
+            # 3. Verify if ALL parents belong exclusively to Home Assistant
+            echo "🏠 Checking if all parents belong exclusively to Home Assistant..."
+            IS_HA_ONLY=true
+
+            for parent in $PARENTS; do
+              IS_PARENT_IN_HA=$(poetry run pipdeptree -p homeassistant --json-tree 2>/dev/null | jq -r '.. .package_name? // empty' | tr '[:upper:]' '[:lower:]' | grep -x "$parent" || true)
+              
+              if [ -n "$IS_PARENT_IN_HA" ]; then
+                echo "  [✓] Parent '$parent' IS a Home Assistant sub-dependency."
+              else
+                echo "  [✗] Parent '$parent' IS NOT part of Home Assistant!"
+                IS_HA_ONLY=false
+              fi
+            done
+
+            # 4. Auto-dismiss or keep open
+            if [ "$IS_HA_ONLY" = true ]; then
+              echo "🎉 DECISION: DISMISS ALERT #$ALERT_NUMBER"
+              echo "   Reason: '$PKG_NAME' is exclusively used by Home Assistant."
+              
+              if gh api \
+                --method PATCH \
+                -H "Accept: application/vnd.github+json" \
+                /repos/${{ github.repository }}/dependabot/alerts/$ALERT_NUMBER \
+                -f state="dismissed" \
+                -f dismissed_reason="tolerable_risk" \
+                -f dismissed_comment="Auto-dismissed: Package is exclusively a sub-dependency of Home Assistant."
+              then
+                echo "✅ Alert #$ALERT_NUMBER successfully dismissed on GitHub."
+              else
+                echo "⚠️ Unable to dismiss alert #$ALERT_NUMBER (permission/API limitation). Keeping it open."
+              fi
+            else
+              echo "⛔ DECISION: KEEP ALERT OPEN"
+              echo "   Reason: '$PKG_NAME' is used by other dependencies outside of Home Assistant."
+            fi
+          done
+
+          echo ""
+          echo "=================================================="
+          echo "🏁 ANALYSIS COMPLETE"
+          echo "=================================================="
