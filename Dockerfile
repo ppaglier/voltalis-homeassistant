@@ -61,7 +61,7 @@ ENV PYTHON_JIT=1
 # Copy all files of the application
 COPY . .
 
-EXPOSE 9123
+EXPOSE 80
 
 # Run Application
 ENTRYPOINT [ "hass", "--config", "/config", "--debug" ]

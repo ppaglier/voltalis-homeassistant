@@ -17,7 +17,7 @@ services:
     networks:
       default:
     ports:
-      - 9123:8123
+      - 8888:80
     volumes:
       - .:/app
       - ha_venv:/app/.venv
