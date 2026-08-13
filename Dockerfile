@@ -4,8 +4,12 @@ FROM python:${PYTHON_VERSION}-slim AS python-base
 
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install --no-install-recommends -y \
-        build-essential ffmpeg && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+        build-essential \
+        ffmpeg \
+        libstdc++6 \
+        libpcap-dev \
+        libturbojpeg0 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip
 
