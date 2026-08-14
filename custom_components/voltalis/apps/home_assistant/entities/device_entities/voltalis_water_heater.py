@@ -1,6 +1,7 @@
 from typing import Any
 
 from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityFeature
+from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
@@ -20,7 +21,7 @@ from custom_components.voltalis.lib.domain.devices_management.water_heaters.wate
 )
 
 
-class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
+class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Water heater entity for Voltalis water heater devices.
 
     This is a relay controller with 3 states:
@@ -58,7 +59,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
         device = self._voltalis_module.device_coordinator.data.get(self._device.id)
         return device if device else self._device
 
-    @property
+    @cached_property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
         current = self.current_operation
@@ -75,7 +76,7 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):
     # Operation mode handling
     # ------------------------------------------------------------------
 
-    @property
+    @cached_property
     def current_operation(self) -> WaterHeaterCurrentOperationEnum | None:
         """Return current operation mode: on, off, or auto."""
         device = self._current_device

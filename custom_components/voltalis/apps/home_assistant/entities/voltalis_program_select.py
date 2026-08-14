@@ -1,5 +1,6 @@
 from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
+from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
     VoltalisBaseEntity,
@@ -31,15 +32,15 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         """Return a unique internal name for the entity."""
         return f"programs_{self._attr_unique_id}"
 
-    @property
+    @cached_property
     def has_entity_name(self) -> bool:
         return True
 
     # ------------------------------------------------------------------
     # Availability handling
     # ------------------------------------------------------------------
-    @property
-    def available(self) -> bool:
+    @cached_property
+    def available(self) -> bool:  # pyright: ignore[reportIncompatibleMethodOverride]
         """Return if entity is available."""
         data = self.coordinator.data
         return data is not None and self.coordinator.last_update_success
@@ -74,7 +75,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
             return None
         return self._get_program_by_name(self.current_option)
 
-    @property
+    @cached_property
     def options(self) -> list[str]:
         """Return the list of available program options."""
         return list(self.__programs.keys())

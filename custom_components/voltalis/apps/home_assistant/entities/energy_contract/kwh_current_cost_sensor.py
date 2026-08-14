@@ -4,6 +4,7 @@ from typing import Callable
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.const import CURRENCY_EURO, UnitOfEnergy
 from homeassistant.helpers.event import async_track_time_change
+from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,
@@ -22,7 +23,7 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_curr
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 
 
-class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, SensorEntity):
+class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Sensor entity for Voltalis energy contract kWh current cost."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
@@ -44,7 +45,7 @@ class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, S
         self.__current_mode: EnergyContractCurrentModeEnum | None = None
         self.__unsub: Callable | None = None
 
-    @property
+    @cached_property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
         if self.__current_mode is None:

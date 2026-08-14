@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from homeassistant.components.climate import PRESET_AWAY, PRESET_COMFORT, PRESET_ECO, PRESET_NONE
+from homeassistant.components.climate.const import PRESET_AWAY, PRESET_COMFORT, PRESET_ECO, PRESET_NONE
 
 
 class DeviceCurrentPresetEnum(StrEnum):

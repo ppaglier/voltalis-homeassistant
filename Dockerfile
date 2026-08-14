@@ -4,8 +4,19 @@ FROM python:${PYTHON_VERSION}-slim AS python-base
 
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install --no-install-recommends -y \
-        build-essential ffmpeg && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+        build-essential \
+        g++ \
+        ffmpeg \
+        libpcap-dev \
+        libturbojpeg0 \
+        libjpeg62-turbo-dev \
+        curl \
+        ca-certificates \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 2. Téléchargement du binaire go2rtc (aarch64)
+RUN curl -L -o /usr/bin/go2rtc https://github.com/AlexxIT/go2rtc/releases/latest/download/go2rtc_linux_arm64 \
+    && chmod +x /usr/bin/go2rtc
 
 RUN pip install --upgrade pip
 
@@ -43,9 +54,10 @@ RUN poetry check
 ## ------------------------------- Dev Builder Stage ------------------------------ ##
 FROM builder-base AS builder-dev
 
-# Install all Dependencies
+# Install all Dependencies && force reinstall of sources
 RUN . $POETRY_VENV/bin/activate \
-    && poetry install --no-root --no-interaction
+    && poetry install --no-root --no-interaction \
+    && pip install --force-reinstall --no-binary pymicro-vad pymicro-vad
 
 
 ## ------------------------------- Dev Stage ------------------------------ ##
@@ -55,13 +67,18 @@ WORKDIR /app
 
 ENV TZ="Europe/Paris"
 
+# Load libstdc++ globally to garante the export of C++ symbols
+ENV LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libstdc++.so.6"
+
 # Enable Python 3.14 experimental JIT for improved performance (5-15% speed increase)
 ENV PYTHON_JIT=1
+
 
 # Copy all files of the application
 COPY . .
 
-EXPOSE 9123
+ENV SETUP_PORT=80
+EXPOSE 80
 
 # Run Application
 ENTRYPOINT [ "hass", "--config", "/config", "--debug" ]
