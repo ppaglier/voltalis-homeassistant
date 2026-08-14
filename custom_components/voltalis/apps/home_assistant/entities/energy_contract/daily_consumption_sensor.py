@@ -38,7 +38,6 @@ class VoltalisEnergyContractDailyConsumptionSensor(VoltalisEnergyContractEntity,
             entry, energy_contract, entry.runtime_data.voltalis_home_assistant_module.live_consumption_coordinator
         )
 
-        self.__sensor_type = sensor_type
         self.__sensor_type_hours = (
             energy_contract.peak_hours if sensor_type == "peak" else energy_contract.offpeak_hours
         )
