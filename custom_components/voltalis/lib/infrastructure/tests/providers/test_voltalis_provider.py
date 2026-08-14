@@ -28,6 +28,14 @@ from custom_components.voltalis.lib.domain.energy_contracts.live_consumption imp
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 from custom_components.voltalis.lib.domain.programs_management.programs.program_builder import ProgramBuilder
 from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
+from custom_components.voltalis.lib.domain.shared.exceptions import (
+    VoltalisConnectionException,
+    VoltalisValidationException,
+)
+from custom_components.voltalis.lib.domain.shared.providers.http_client import (
+    HttpClientException,
+    HttpClientResponse,
+)
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_stub import (
     VoltalisProviderStub,
 )
@@ -419,6 +427,83 @@ async def test_toggle_program_quick(fixture: "VoltalisProviderFixture") -> None:
     result = await fixture.provider.get_programs()
     expected_result = {1: updated_program}
     fixture.compare_dicts(result, expected_result)
+
+
+def _require_api_provider(fixture: "VoltalisProviderFixture") -> VoltalisProviderVoltalisApi:
+    if not isinstance(fixture.provider, VoltalisProviderVoltalisApi):
+        pytest.skip("This test targets only VoltalisProviderVoltalisApi")
+    return fixture.provider
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "method_name,response_data,method_args",
+    [
+        ("get_devices", [{}], tuple()),
+        ("get_devices_health", [{}], tuple()),
+        ("get_live_consumption", {}, tuple()),
+        ("get_devices_daily_consumptions", {"per_appliance": {"bad": []}}, (date(2024, 11, 24),)),
+        ("get_manual_settings", [{}], tuple()),
+        ("get_energy_contracts", [{}], tuple()),
+        ("get_programs", {"bad": "payload"}, tuple()),
+    ],
+)
+async def test_api_provider_raises_validation_exception_on_invalid_payload(
+    fixture: "VoltalisProviderFixture",
+    monkeypatch: pytest.MonkeyPatch,
+    method_name: str,
+    response_data: object,
+    method_args: tuple,
+) -> None:
+    """Ensure malformed API payloads are converted to VoltalisValidationException."""
+
+    provider = _require_api_provider(fixture)
+
+    async def invalid_payload_send_request(**kwargs: object) -> HttpClientResponse[object]:
+        return HttpClientResponse(data=response_data, status=200, url=str(kwargs.get("url", "")))
+
+    monkeypatch.setattr(provider._client, "send_request", invalid_payload_send_request)
+
+    method = getattr(provider, method_name)
+    with pytest.raises(VoltalisValidationException):
+        await method(*method_args)
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("target_method", ["set_manual_setting", "get_manual_settings", "toggle_program"])
+async def test_api_provider_raises_connection_exception_on_update_error(
+    fixture: "VoltalisProviderFixture",
+    monkeypatch: pytest.MonkeyPatch,
+    target_method: str,
+) -> None:
+    """Ensure update endpoints convert HttpClientException into VoltalisConnectionException."""
+
+    provider = _require_api_provider(fixture)
+
+    async def failing_send_request(**kwargs: object) -> HttpClientResponse[object]:
+        raise HttpClientException(message="boom", request={"url": kwargs.get("url")}, response=None)
+
+    monkeypatch.setattr(provider._client, "send_request", failing_send_request)
+
+    with pytest.raises(VoltalisConnectionException):
+        if target_method == "set_manual_setting":
+            await provider.set_manual_setting(
+                1,
+                ManualSettingUpdate(
+                    enabled=True,
+                    id_appliance=10,
+                    until_further_notice=True,
+                    is_on=True,
+                    has_ecov=False,
+                    mode=DeviceModeEnum.ECO,
+                    end_date=None,
+                    temperature_target=19.0,
+                ),
+            )
+        elif target_method == "get_manual_settings":
+            await provider.get_manual_settings()
+        else:
+            await provider.toggle_program(ProgramBuilder().with_id(1).with_type(ProgramTypeEnum.USER).build())
 
 
 class VoltalisProviderFixture(BaseFixture):
