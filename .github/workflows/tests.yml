@@ -33,6 +33,9 @@ jobs:
       # Check tests without marks
       - name: Check tests without marks
         run: poetry run task test:miss
+      # Unit tests
+      - name: Run unit tests
+        run: poetry run task test:unit
       # Integration tests
       - name: Run integration tests
         run: poetry run task test:integration
