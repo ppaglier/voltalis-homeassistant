@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from homeassistant.components.climate import PRESET_AWAY, PRESET_COMFORT, PRESET_ECO, PRESET_NONE
+from homeassistant.components.climate.const import PRESET_AWAY, PRESET_COMFORT, PRESET_ECO, PRESET_NONE
 
 from custom_components.voltalis.lib.application.devices_management.queries.get_device_mode_query import (
     GetDeviceModeQuery,
