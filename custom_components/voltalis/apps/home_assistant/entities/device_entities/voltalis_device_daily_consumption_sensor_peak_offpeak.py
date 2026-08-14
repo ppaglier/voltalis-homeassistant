@@ -35,8 +35,6 @@ class VoltalisDeviceDailyConsumptionPeakOffPeakSensor(VoltalisDeviceEntity, Sens
         self._attr_translation_key = "device_daily_consumption_" + sensor_type
         self._unique_id_suffix = "device_daily_consumption_" + sensor_type
 
-        self._attr_icon = "mdi:transmission-tower"
-
         super().__init__(
             entry, device, entry.runtime_data.voltalis_home_assistant_module.device_daily_consumption_coordinator
         )
