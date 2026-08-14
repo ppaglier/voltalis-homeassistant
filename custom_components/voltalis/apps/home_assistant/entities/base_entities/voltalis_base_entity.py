@@ -38,3 +38,14 @@ class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any
         This method should be implemented by subclasses.
         """
         raise NotImplementedError()
+
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+
+        # Invalidate cached properties to ensure they are recalculated on the next access
+        cls = self.__class__
+        for attr_name in dir(cls):
+            if isinstance(getattr(cls, attr_name, None), cached_property):
+                self.__dict__.pop(attr_name, None)  # pyright: ignore[reportAttributeAccessIssue]
+
+        super()._handle_coordinator_update()
