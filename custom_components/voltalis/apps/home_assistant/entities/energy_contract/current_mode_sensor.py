@@ -3,6 +3,7 @@ from typing import Callable
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.helpers.event import async_track_time_change
+from propcache import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,
@@ -17,7 +18,7 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_curr
 )
 
 
-class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, SensorEntity):
+class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Sensor entity for Voltalis energy contract current mode."""
 
     _attr_device_class = SensorDeviceClass.ENUM
@@ -37,7 +38,7 @@ class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, Sens
         self.__date_provider = self._voltalis_module.date_provider
         self.__unsub: Callable | None = None
 
-    @property
+    @cached_property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
         if self.native_value is None:

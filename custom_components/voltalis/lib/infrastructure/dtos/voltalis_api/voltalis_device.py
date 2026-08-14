@@ -1,4 +1,5 @@
 from enum import StrEnum
+from typing import Annotated
 
 from pydantic import Field
 
@@ -84,11 +85,11 @@ REVERSED_MODE_MAPPING = {v: k for k, v in VOLTALIS_DEVICE_MODE_MAPPING.items()}
 class VoltalisDeviceDtoProgramming(CustomModel):
     """Class to represent the status of a Voltalis device"""
 
-    prog_type: VoltalisDeviceDtoProgTypeEnum = Field(alias="progType")
-    is_on: bool | None = Field(None, alias="isOn")
+    prog_type: Annotated[VoltalisDeviceDtoProgTypeEnum, Field(alias="progType")]
+    is_on: Annotated[bool | None, Field(alias="isOn")] = None
     mode: VoltalisDeviceDtoModeEnum | None = None
-    temperature_target: float | None = Field(None, alias="temperatureTarget")
-    default_temperature: float | None = Field(None, alias="defaultTemperature")
+    temperature_target: Annotated[float | None, Field(alias="temperatureTarget")] = None
+    default_temperature: Annotated[float | None, Field(alias="defaultTemperature")] = None
 
 
 class VoltalisDeviceDto(CustomModel):
@@ -96,9 +97,9 @@ class VoltalisDeviceDto(CustomModel):
 
     id: int
     name: str
-    appliance_type: VoltalisDeviceDtoApplianceTypeEnum = Field(alias="applianceType")
-    modulator_type: VoltalisDeviceDtoModulatorTypeEnum = Field(alias="modulatorType")
-    available_modes: list[VoltalisDeviceDtoModeEnum] = Field(alias="availableModes")
+    appliance_type: Annotated[VoltalisDeviceDtoApplianceTypeEnum, Field(alias="applianceType")]
+    modulator_type: Annotated[VoltalisDeviceDtoModulatorTypeEnum, Field(alias="modulatorType")]
+    available_modes: Annotated[list[VoltalisDeviceDtoModeEnum], Field(alias="availableModes")]
     programming: VoltalisDeviceDtoProgramming
 
     @staticmethod

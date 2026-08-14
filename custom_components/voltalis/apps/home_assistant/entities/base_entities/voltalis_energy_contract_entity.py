@@ -1,6 +1,7 @@
 from typing import Any
 
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
+from propcache import cached_property
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
@@ -31,7 +32,7 @@ class VoltalisEnergyContractEntity(VoltalisBaseEntity):
         self._attr_unique_id = f"{unique_id}_{self._unique_id_suffix}"
         contract_model = self.__get_energy_contract_model()
 
-        self._attr_device_info: DeviceInfo = DeviceInfo(
+        self._attr_device_info: DeviceInfo = DeviceInfo(  # pyright: ignore[reportIncompatibleVariableOverride]
             identifiers={(DOMAIN, unique_id)},
             name=contract_model,
             manufacturer=energy_contract.company_name,
@@ -43,11 +44,11 @@ class VoltalisEnergyContractEntity(VoltalisBaseEntity):
         """Return a unique internal name for the entity."""
         return f"{self._energy_contract.name.lower()}_{self._attr_unique_id}"
 
-    @property
+    @cached_property
     def has_entity_name(self) -> bool:
         return True
 
-    @property
+    @cached_property
     def device_info(self) -> DeviceInfo:
         return self._attr_device_info
 

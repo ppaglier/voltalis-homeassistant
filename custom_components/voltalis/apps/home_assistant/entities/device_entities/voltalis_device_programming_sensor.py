@@ -1,6 +1,7 @@
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import EntityCategory
 from homeassistant.core import callback
+from propcache import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
@@ -13,7 +14,7 @@ from custom_components.voltalis.lib.domain.programs_management.programs.program_
 )
 
 
-class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):
+class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Sensor for programming of devices (manual, default, user, quick)."""
 
     _attr_device_class = SensorDeviceClass.ENUM
@@ -27,7 +28,7 @@ class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):
         """Initialize the sensor entity."""
         super().__init__(entry, device, entry.runtime_data.voltalis_home_assistant_module.device_coordinator)
 
-    @property
+    @cached_property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
         if self.native_value is None:

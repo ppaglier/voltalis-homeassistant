@@ -13,7 +13,7 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
 
 
-class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity):
+class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """References the daily consumption of a device."""
 
     _attr_device_class = SensorDeviceClass.ENERGY

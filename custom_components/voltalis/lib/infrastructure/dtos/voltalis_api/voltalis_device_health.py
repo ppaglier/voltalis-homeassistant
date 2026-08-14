@@ -1,4 +1,5 @@
 from enum import StrEnum
+from typing import Annotated
 
 from pydantic import Field
 
@@ -36,7 +37,7 @@ VOLTALIS_DEVICE_HEALTH_STATUS_MAPPING = {
 class VoltalisDeviceHealthDto(CustomModel):
     """Class to represent a Voltalis device health DTO"""
 
-    cs_appliance_id: int = Field(alias="csApplianceId")
+    cs_appliance_id: Annotated[int, Field(alias="csApplianceId")]
     status: VoltalisDeviceHealthDtoStatusEnum
 
     @staticmethod

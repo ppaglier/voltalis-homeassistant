@@ -5,6 +5,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import UnitOfPower
 from homeassistant.core import callback
+from propcache import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,
@@ -13,7 +14,7 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 
 
-class VoltalisEnergyContractLiveConsumptionSensor(VoltalisEnergyContractEntity, SensorEntity):
+class VoltalisEnergyContractLiveConsumptionSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Sensor entity to represent near real-time consumption for a Voltalis energy contract."""
 
     _attr_device_class = SensorDeviceClass.POWER
@@ -47,8 +48,8 @@ class VoltalisEnergyContractLiveConsumptionSensor(VoltalisEnergyContractEntity, 
     # ------------------------------------------------------------------
     # Availability handling override
     # ------------------------------------------------------------------
-    @property
-    def available(self) -> bool:
+    @cached_property
+    def available(self) -> bool:  # pyright: ignore[reportIncompatibleMethodOverride]
         """Return if the entity is available."""
         data = self.coordinator.data.get(0)
         if data is None:

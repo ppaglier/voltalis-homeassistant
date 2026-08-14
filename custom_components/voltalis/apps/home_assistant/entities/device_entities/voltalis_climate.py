@@ -3,6 +3,7 @@ from typing import Any
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import ClimateEntityFeature, HVACAction, HVACMode
 from homeassistant.exceptions import HomeAssistantError
+from propcache import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
@@ -47,7 +48,7 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device_enu
 from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
 
 
-class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
+class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Climate entity for Voltalis heating devices."""
 
     _attr_temperature_unit = CLIMATE_UNIT
@@ -97,13 +98,13 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
     # Temperature handling
     # ------------------------------------------------------------------
 
-    @property
+    @cached_property
     def current_temperature(self) -> float | None:
         """Return the current temperature."""
         # API doesn't provide current temperature yet
         return None
 
-    @property
+    @cached_property
     def target_temperature(self) -> float | None:
         """Return the target temperature."""
         device = self._current_device
@@ -135,7 +136,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
     # HVAC mode handling
     # ------------------------------------------------------------------
 
-    @property
+    @cached_property
     def hvac_mode(self) -> HVACMode:
         """Return current HVAC mode."""
         device = self._current_device
@@ -147,7 +148,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
             )
         )
 
-    @property
+    @cached_property
     def hvac_action(self) -> HVACAction:
         """Return current HVAC action."""
         device = self._current_device
@@ -203,7 +204,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):
     # Preset mode handling
     # ------------------------------------------------------------------
 
-    @property
+    @cached_property
     def preset_mode(self) -> str | None:
         """Return current preset mode."""
         device = self._current_device

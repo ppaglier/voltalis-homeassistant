@@ -1,5 +1,6 @@
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.core import callback
+from propcache import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
@@ -15,7 +16,7 @@ from custom_components.voltalis.lib.application.devices_management.queries.get_d
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 
 
-class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
+class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Select entity for Voltalis heating device mode."""
 
     _attr_device_class = SensorDeviceClass.ENUM
@@ -27,7 +28,7 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):
         """Initialize the sensor entity."""
         super().__init__(entry, device, entry.runtime_data.voltalis_home_assistant_module.device_coordinator)
 
-    @property
+    @cached_property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
         current = self.native_value
