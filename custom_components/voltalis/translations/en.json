@@ -80,8 +80,20 @@
       "live_consumption": {
         "name": "Live Consumption"
       },
-      "device_daily_consumption": {
+      "daily_consumption": {
         "name": "Daily Consumption"
+      },
+      "daily_consumption_peak": {
+        "name": "Daily Consumption (Peak)"
+      },
+      "daily_consumption_offpeak": {
+        "name": "Daily Consumption (Off-Peak)"
+      },
+      "device_daily_consumption_peak": {
+        "name": "Daily Consumption (Peak)"
+      },
+      "device_daily_consumption_offpeak": {
+        "name": "Daily Consumption (Off-Peak)"
       },
       "device_programming": {
         "name": "Programming",

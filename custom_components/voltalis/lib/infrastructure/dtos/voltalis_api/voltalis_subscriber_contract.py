@@ -25,7 +25,7 @@ class VoltalisSubscriberContractDto(CustomModel):
     name: str
     subscribed_power: Annotated[int, Field(alias="subscribedPower")]
     is_peak_off_peak_contract: Annotated[bool, Field(alias="isPeakOffPeakContract")]
-    end_date: Annotated[date | None, Field(alias="isPeakOffPeakContract")] = None
+    end_date: Annotated[date | None, Field(alias="endDate")] = None
 
     subscription_base_price: Annotated[float | None, Field(alias="subscriptionBasePrice")] = None
     subscription_peak_off_peak_base_price: Annotated[float | None, Field(alias="subscriptionPeakOffPeakBasePrice")] = (
