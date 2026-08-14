@@ -114,7 +114,7 @@ async def async_setup_entry(
             )
 
     all_entities: dict[str, VoltalisBaseEntity] = {
-        sensor.unique_internal_name: sensor for sensor in (device_sensors + energy_contract_sensors)
+        sensor.unique_internal_name: sensor for sensor in (energy_contract_sensors + device_sensors)
     }
     async_add_entities(all_entities.values(), update_before_add=True)
     voltalis_home_assistant_module.logger.info(
