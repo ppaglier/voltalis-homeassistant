@@ -3,7 +3,7 @@ from typing import Any
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import ClimateEntityFeature, HVACAction, HVACMode
 from homeassistant.exceptions import HomeAssistantError
-from propcache import cached_property
+from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,

@@ -5,7 +5,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import UnitOfPower
 from homeassistant.core import callback
-from propcache import cached_property
+from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,

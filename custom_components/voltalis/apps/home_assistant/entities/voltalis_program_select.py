@@ -1,6 +1,6 @@
 from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
-from propcache import cached_property
+from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
     VoltalisBaseEntity,

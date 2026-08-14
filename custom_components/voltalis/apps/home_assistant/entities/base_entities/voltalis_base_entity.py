@@ -1,6 +1,7 @@
 from typing import Any
 
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry

@@ -4,7 +4,7 @@ from typing import Callable
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.const import CURRENCY_EURO, UnitOfEnergy
 from homeassistant.helpers.event import async_track_time_change
-from propcache import cached_property
+from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_energy_contract_entity import (
     VoltalisEnergyContractEntity,

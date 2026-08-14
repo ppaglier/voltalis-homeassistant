@@ -1,7 +1,7 @@
 from typing import Any
 
 from homeassistant.helpers.device_registry import DeviceInfo
-from propcache import cached_property
+from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
