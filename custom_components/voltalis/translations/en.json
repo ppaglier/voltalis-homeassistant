@@ -89,6 +89,9 @@
       "daily_consumption_offpeak": {
         "name": "Daily Consumption (Off-Peak)"
       },
+      "device_daily_consumption": {
+        "name": "Daily Consumption"
+      },
       "device_daily_consumption_peak": {
         "name": "Daily Consumption (Peak)"
       },
