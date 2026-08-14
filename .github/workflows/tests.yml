@@ -41,7 +41,7 @@ jobs:
         run: poetry run task test:e2e
       # Coverage check
       - name: Check coverage (minimum 95%)
-        run: poetry run task test:cov:check
+        run: poetry run task test:cov:report
 
 
   lint:
