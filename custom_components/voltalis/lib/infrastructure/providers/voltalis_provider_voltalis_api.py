@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import cast
 
 from pydantic import TypeAdapter, ValidationError
@@ -151,7 +151,11 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         devices_consumptions = {
             device_id: [
-                (consumption_record.step_timestamp_on_site, consumption_record.total_consumption_in_wh)
+                (
+                    # We remove 1 hour because Voltalis return the consumption for the previous hour
+                    consumption_record.step_timestamp_on_site - timedelta(hours=1),
+                    consumption_record.total_consumption_in_wh,
+                )
                 for consumption_record in device_consumptions
                 if consumption_record.step_timestamp_on_site.date() == target_date
             ]

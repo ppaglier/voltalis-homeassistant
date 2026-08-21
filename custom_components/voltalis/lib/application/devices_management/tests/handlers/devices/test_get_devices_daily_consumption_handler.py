@@ -17,7 +17,7 @@ async def test_get_devices_daily_consumption_uses_previous_hour(
     """Test daily consumption handler uses previous hour to aggregate."""
 
     # Given
-    now = datetime(2024, 1, 1, 10, 30, 0)
+    now = datetime(2024, 1, 1, 9, 15, 0)
     fixture.given_now(now)
     fixture.given_devices_consumptions(
         {

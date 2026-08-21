@@ -1,5 +1,5 @@
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any, Callable
 
 from aiohttp import ClientSession
@@ -286,7 +286,7 @@ class MockVoltalisServer:
                 per_appliance={
                     device_id: [
                         VoltalisConsumptionDtoDevice(
-                            step_timestamp_on_site=date,
+                            step_timestamp_on_site=date + timedelta(hours=1),
                             total_consumption_in_wh=consumption,
                         )
                         for (date, consumption) in consumptions

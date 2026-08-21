@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, time
 
 from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
     DeviceConsumption,
@@ -22,8 +22,7 @@ class GetDevicesDailyConsumptionHandler:
     async def handle(self) -> dict[int, DeviceConsumption]:
         """Handle the request to get the daily consumption for all devices."""
 
-        # We remove 1 hour because we can't fetch data from the current hour
-        target_datetime = self.__date_provider.get_now() - timedelta(hours=1)
+        target_datetime = self.__date_provider.get_now()
 
         devices_daily_consumptions = await self.__voltalis_provider.get_devices_daily_consumptions(
             target_datetime.date()
