@@ -18,7 +18,7 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device imp
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 
 
-class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):
+class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Switch entity for Voltalis heating device on/off state."""
 
     _attr_translation_key = "device_switch"

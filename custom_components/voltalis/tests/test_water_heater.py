@@ -9,7 +9,7 @@ from homeassistant.components.water_heater import (
     SERVICE_SET_AWAY_MODE,
     SERVICE_SET_OPERATION_MODE,
 )
-from homeassistant.components.water_heater import DOMAIN as WATER_HEATER_DOMAIN
+from homeassistant.components.water_heater.const import DOMAIN as WATER_HEATER_DOMAIN
 from homeassistant.const import SERVICE_TURN_OFF, SERVICE_TURN_ON
 from homeassistant.core import HomeAssistant
 

@@ -1,4 +1,5 @@
 from datetime import date, time
+from typing import Annotated
 
 from pydantic import Field
 
@@ -11,29 +12,31 @@ from custom_components.voltalis.lib.domain.shared.range_model import RangeModel
 class VoltalisTimeRange(CustomModel):
     """Class to represent time ranges for peak/offpeak hours"""
 
-    from_time: time = Field(alias="from")
-    to_time: time = Field(alias="to")
+    from_time: Annotated[time, Field(alias="from")]
+    to_time: Annotated[time, Field(alias="to")]
 
 
 class VoltalisSubscriberContractDto(CustomModel):
     """Class to represent a Voltalis subscriber contract DTO"""
 
     id: int
-    subscriber_id: int = Field(alias="subscriberId")
-    company_name: str = Field(alias="companyName")
+    subscriber_id: Annotated[int, Field(alias="subscriberId")]
+    company_name: Annotated[str, Field(alias="companyName")]
     name: str
-    subscribed_power: int = Field(alias="subscribedPower")
-    is_peak_off_peak_contract: bool = Field(alias="isPeakOffPeakContract")
-    end_date: date | None = Field(None, alias="endDate")
+    subscribed_power: Annotated[int, Field(alias="subscribedPower")]
+    is_peak_off_peak_contract: Annotated[bool, Field(alias="isPeakOffPeakContract")]
+    end_date: Annotated[date | None, Field(alias="endDate")] = None
 
-    subscription_base_price: float | None = Field(None, alias="subscriptionBasePrice")
-    subscription_peak_off_peak_base_price: float | None = Field(None, alias="subscriptionPeakOffPeakBasePrice")
-    kwh_base_price: float | None = Field(None, alias="kwhBasePrice")
-    kwh_peak_hour_price: float | None = Field(None, alias="kwhPeakHourPrice")
-    kwh_offpeak_hour_price: float | None = Field(None, alias="kwhOffpeakHourPrice")
+    subscription_base_price: Annotated[float | None, Field(alias="subscriptionBasePrice")] = None
+    subscription_peak_off_peak_base_price: Annotated[float | None, Field(alias="subscriptionPeakOffPeakBasePrice")] = (
+        None
+    )
+    kwh_base_price: Annotated[float | None, Field(alias="kwhBasePrice")] = None
+    kwh_peak_hour_price: Annotated[float | None, Field(alias="kwhPeakHourPrice")] = None
+    kwh_offpeak_hour_price: Annotated[float | None, Field(alias="kwhOffpeakHourPrice")] = None
 
-    peak_hours: list[VoltalisTimeRange] = Field(alias="peakHours")
-    offpeak_hours: list[VoltalisTimeRange] = Field(alias="offpeakHours")
+    peak_hours: Annotated[list[VoltalisTimeRange], Field(alias="peakHours")]
+    offpeak_hours: Annotated[list[VoltalisTimeRange], Field(alias="offpeakHours")]
 
     @staticmethod
     def from_energy_contract(energy_contract: EnergyContract) -> "VoltalisSubscriberContractDto":

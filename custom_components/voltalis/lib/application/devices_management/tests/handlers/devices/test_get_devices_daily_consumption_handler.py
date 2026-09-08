@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 
 import pytest
 
@@ -17,7 +17,7 @@ async def test_get_devices_daily_consumption_uses_previous_hour(
     """Test daily consumption handler uses previous hour to aggregate."""
 
     # Given
-    now = datetime(2024, 1, 1, 10, 30, 0)
+    now = datetime(2024, 1, 1, 9, 15, 0)
     fixture.given_now(now)
     fixture.given_devices_consumptions(
         {
@@ -33,7 +33,15 @@ async def test_get_devices_daily_consumption_uses_previous_hour(
     result = await fixture.get_devices_daily_consumption_handler.handle()
 
     # Then
-    expected = {1: DeviceConsumption(daily_consumption=1.2 + 2.3)}
+    expected = {
+        1: DeviceConsumption(
+            daily_consumption=1.2 + 2.3,
+            daily_consumption_records=[
+                (time(8, 15, 0), 1.2),
+                (time(9, 45, 0), 2.3),
+            ],
+        )
+    }
     fixture.compare_dicts(result, expected)
 
 

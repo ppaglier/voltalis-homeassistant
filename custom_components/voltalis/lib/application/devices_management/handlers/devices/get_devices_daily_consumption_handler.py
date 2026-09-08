@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time
 
 from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
     DeviceConsumption,
@@ -22,36 +22,44 @@ class GetDevicesDailyConsumptionHandler:
     async def handle(self) -> dict[int, DeviceConsumption]:
         """Handle the request to get the daily consumption for all devices."""
 
-        # We remove 1 hour because we can't fetch data from the current hour
-        target_datetime = self.__date_provider.get_now() - timedelta(hours=1)
+        target_datetime = self.__date_provider.get_now()
 
         devices_daily_consumptions = await self.__voltalis_provider.get_devices_daily_consumptions(
             target_datetime.date()
         )
         devices_consumptions = {
-            device_id: DeviceConsumption(
-                daily_consumption=self.get_consumption_for_hour(
-                    consumptions=consumption_records,
-                    target_datetime=target_datetime,
-                )
+            device_id: self.get_device_consumption(
+                consumption_records=consumption_records, target_datetime=target_datetime
             )
             for device_id, consumption_records in devices_daily_consumptions.items()
         }
         return devices_consumptions
 
-    def get_consumption_for_hour(
+    def get_device_consumption(
+        self,
+        *,
+        consumption_records: list[tuple[datetime, float]],
+        target_datetime: datetime,
+    ) -> DeviceConsumption:
+        filtered_consumptions = self.get_consumptions_for_hour(
+            consumptions=consumption_records,
+            target_datetime=target_datetime,
+        )
+        return DeviceConsumption(
+            daily_consumption=sum([consumption for (_, consumption) in filtered_consumptions], 0.0),
+            daily_consumption_records=filtered_consumptions,
+        )
+
+    def get_consumptions_for_hour(
         self,
         *,
         consumptions: list[tuple[datetime, float]],
         target_datetime: datetime,
-    ) -> float:
+    ) -> list[tuple[time, float]]:
         target_hour = target_datetime.replace(minute=0, second=0, microsecond=0)
 
-        return sum(
-            [
-                consumption
-                for (date, consumption) in consumptions
-                if date.replace(minute=0, second=0, microsecond=0) <= target_hour
-            ],
-            0.0,
-        )
+        return [
+            (date.time(), consumption)
+            for (date, consumption) in consumptions
+            if date.replace(minute=0, second=0, microsecond=0) <= target_hour
+        ]

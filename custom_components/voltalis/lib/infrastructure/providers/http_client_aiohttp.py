@@ -60,9 +60,9 @@ class HttpClientAiohttp(HttpClient):
         return HttpClientException(
             message=str(exception),
             request={
-                "url": str(exception.request_info.url),
-                "method": exception.request_info.method,
-                "headers": dict(exception.request_info.headers),
+                "url": str(exception.request_info.url),  # pyright: ignore[reportAttributeAccessIssue]
+                "method": exception.request_info.method,  # pyright: ignore[reportAttributeAccessIssue]
+                "headers": dict(exception.request_info.headers),  # pyright: ignore[reportAttributeAccessIssue]
             }
             if hasattr(exception, "request_info")
             else {},

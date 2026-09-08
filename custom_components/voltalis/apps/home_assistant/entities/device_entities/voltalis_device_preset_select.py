@@ -1,6 +1,7 @@
 from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
+from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
@@ -20,7 +21,7 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device imp
 from custom_components.voltalis.lib.domain.devices_management.presets.preset_enum import DeviceCurrentPresetEnum
 
 
-class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
+class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Select entity for Voltalis heating device mode."""
 
     _attr_translation_key = "device_preset"
@@ -43,7 +44,7 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):
         device = self._voltalis_module.device_coordinator.data.get(self._device.id)
         return device if device else self._device
 
-    @property
+    @cached_property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
         current = self.current_option

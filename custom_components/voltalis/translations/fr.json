@@ -80,8 +80,23 @@
       "live_consumption": {
         "name": "Consommation actuelle"
       },
+      "daily_consumption": {
+        "name": "Consommation journalière"
+      },
+      "daily_consumption_peak": {
+        "name": "Consommation journalière (Heures pleines)"
+      },
+      "daily_consumption_offpeak": {
+        "name": "Consommation journalière (Heures creuses)"
+      },
       "device_daily_consumption": {
         "name": "Consommation journalière"
+      },
+      "device_daily_consumption_peak": {
+        "name": "Consommation journalière (Heures pleines)"
+      },
+      "device_daily_consumption_offpeak": {
+        "name": "Consommation journalière (Heures creuses)"
       },
       "device_programming": {
         "name": "Programmation",

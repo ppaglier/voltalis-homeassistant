@@ -146,7 +146,7 @@ class HomeAssistantFixture(BaseFixture[None]):
         init_result = await self.hass.config_entries.flow.async_init(
             DOMAIN, context={"source": config_entries.SOURCE_USER}
         )
-        assert init_result["type"] == FlowResultType.FORM
+        assert init_result["type"] == FlowResultType.FORM  # pyright: ignore[reportTypedDictNotRequiredAccess]
 
         # Submit credentials
         result = await self.hass.config_entries.flow.async_configure(
@@ -156,7 +156,7 @@ class HomeAssistantFixture(BaseFixture[None]):
                 "password": password,
             },
         )
-        assert result["type"] == FlowResultType.CREATE_ENTRY
+        assert result["type"] == FlowResultType.CREATE_ENTRY  # pyright: ignore[reportTypedDictNotRequiredAccess]
 
         # Wait for setup to complete
         await self.hass.async_block_till_done(True)

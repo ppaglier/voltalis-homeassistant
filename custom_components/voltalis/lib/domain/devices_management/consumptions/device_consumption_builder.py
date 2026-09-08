@@ -1,3 +1,4 @@
+from datetime import time
 from typing import Self
 
 from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import DeviceConsumption
@@ -9,6 +10,7 @@ class DeviceConsumptionBuilder(GenericBuilder[DeviceConsumption]):
 
     DEFAULT_VALUES = DeviceConsumption(
         daily_consumption=0.0,
+        daily_consumption_records=[],
     )
 
     def build(self) -> DeviceConsumption:
@@ -17,3 +19,7 @@ class DeviceConsumptionBuilder(GenericBuilder[DeviceConsumption]):
     def with_daily_consumption(self, daily_consumption: float) -> Self:
         """Set the daily consumption of the device."""
         return self._set_value("daily_consumption", daily_consumption)
+
+    def with_consumption_records(self, consumptions: list[tuple[time, float]]) -> Self:
+        """Set the consumption records of the device."""
+        return self._set_value("daily_consumption_records", consumptions)

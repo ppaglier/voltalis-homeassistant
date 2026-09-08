@@ -25,9 +25,17 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_curr
     [
         # Device daily consumption sensors - should exist for all devices
         ("sensor.heater_1_daily_consumption", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.heater_1_daily_consumption_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.heater_1_daily_consumption_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
         ("sensor.heater_2_daily_consumption", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.heater_2_daily_consumption_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.heater_2_daily_consumption_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
         ("sensor.water_heater_1_daily_consumption", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.water_heater_1_daily_consumption_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.water_heater_1_daily_consumption_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
         ("sensor.water_heater_2_daily_consumption", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.water_heater_2_daily_consumption_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.water_heater_2_daily_consumption_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
         # Device connection status sensors - should exist for all devices with health data
         ("sensor.heater_1_connection_status", {"has_options": True}),
         ("sensor.heater_2_connection_status", {"has_options": True}),
@@ -113,6 +121,9 @@ async def test_device_daily_consumption_sensor(
     [
         ("sensor.contract_1_3_kva_peak_offpeak_live_consumption", UnitOfPower.WATT),
         ("sensor.contract_1_3_kva_peak_offpeak_subscribed_power", UnitOfApparentPower.KILO_VOLT_AMPERE),
+        ("sensor.contract_1_3_kva_peak_offpeak_daily_consumption", UnitOfEnergy.WATT_HOUR),
+        ("sensor.contract_1_3_kva_peak_offpeak_daily_consumption_peak", UnitOfEnergy.WATT_HOUR),
+        ("sensor.contract_1_3_kva_peak_offpeak_daily_consumption_off_peak", UnitOfEnergy.WATT_HOUR),
         ("sensor.contract_1_3_kva_peak_offpeak_kwh_current_cost", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
         ("sensor.contract_1_3_kva_peak_offpeak_kwh_peak_cost", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
         ("sensor.contract_1_3_kva_peak_offpeak_kwh_off_peak_cost", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
@@ -161,6 +172,44 @@ async def test_energy_contract_live_consumption_sensor(fixture: HomeAssistantFix
     # Verify it's a valid number
     consumption_value = float(sensor_entity.state)
     assert consumption_value >= 0, f"Live consumption should be non-negative, got {consumption_value}"
+
+
+@pytest.mark.e2e
+@pytest.mark.parametrize(
+    "device_slug",
+    [
+        "heater_1",
+        "heater_2",
+        "water_heater_1",
+        "water_heater_2",
+    ],
+)
+async def test_device_daily_consumption_peak_offpeak_consistency(
+    fixture: HomeAssistantFixture,
+    device_slug: str,
+) -> None:
+    """Test that device daily consumption is split between peak and off-peak sensors."""
+
+    total = float(fixture.get_entity_state(f"sensor.{device_slug}_daily_consumption").state)
+    peak = float(fixture.get_entity_state(f"sensor.{device_slug}_daily_consumption_peak").state)
+    off_peak = float(fixture.get_entity_state(f"sensor.{device_slug}_daily_consumption_off_peak").state)
+
+    assert peak >= 0
+    assert off_peak >= 0
+    assert peak + off_peak == pytest.approx(total)
+
+
+@pytest.mark.e2e
+async def test_energy_contract_daily_consumption_peak_offpeak_consistency(fixture: HomeAssistantFixture) -> None:
+    """Test that contract daily consumption is split between peak and off-peak sensors."""
+
+    total = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_offpeak_daily_consumption").state)
+    peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_offpeak_daily_consumption_peak").state)
+    off_peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_offpeak_daily_consumption_off_peak").state)
+
+    assert peak >= 0
+    assert off_peak >= 0
+    assert peak + off_peak == pytest.approx(total)
 
 
 @pytest.mark.e2e

@@ -9,7 +9,7 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 
 
-class VoltalisEnergyContractKwhOffPeakCostSensor(VoltalisEnergyContractEntity, SensorEntity):
+class VoltalisEnergyContractKwhOffPeakCostSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Sensor entity for Voltalis energy contract kWh off-peak cost."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
