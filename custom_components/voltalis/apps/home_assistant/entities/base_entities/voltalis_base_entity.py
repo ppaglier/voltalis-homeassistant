@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
 from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -66,18 +66,23 @@ class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any
         def handle_update(updated_statistic_id: str, value: Any) -> None:
             if updated_statistic_id != self._statistic_id or getattr(self, "native_value", None) == value:
                 return
+
             self._attr_native_value = value
             self.async_write_ha_state()
 
         self.__remove_statistics_listener = publisher.add_statistic_listener(handle_update)
         latest_value = publisher.get_latest_value(self._statistic_id)
         if latest_value is not None:
-            self._attr_native_value = latest_value
+            # The cast is necessary because we don't want to override the type of _attr_native_value,
+            # which is defined in subclasses.
+            self._attr_native_value = cast(Any, latest_value)
             self.async_write_ha_state()
 
     def _unregister_statistics_updates(self) -> None:
         """Disconnect an entity from a Voltalis external statistic."""
 
-        if self.__remove_statistics_listener is not None:
-            self.__remove_statistics_listener()
-            self.__remove_statistics_listener = None
+        if self.__remove_statistics_listener is None:
+            return
+
+        self.__remove_statistics_listener()
+        self.__remove_statistics_listener = None
