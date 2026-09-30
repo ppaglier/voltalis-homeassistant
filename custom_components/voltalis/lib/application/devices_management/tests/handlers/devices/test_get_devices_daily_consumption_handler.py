@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime
 
 import pytest
 
@@ -35,10 +35,9 @@ async def test_get_devices_daily_consumption_uses_previous_hour(
     # Then
     expected = {
         1: DeviceConsumption(
-            daily_consumption=1.2 + 2.3,
+            daily_consumption=1.2,
             daily_consumption_records=[
-                (time(8, 15, 0), 1.2),
-                (time(9, 45, 0), 2.3),
+                (datetime(2024, 1, 1, 8, 15, 0), 1.2),
             ],
         )
     }

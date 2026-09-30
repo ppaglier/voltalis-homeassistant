@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime
 
 from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
     DeviceConsumption,
@@ -55,11 +55,11 @@ class GetDevicesDailyConsumptionHandler:
         *,
         consumptions: list[tuple[datetime, float]],
         target_datetime: datetime,
-    ) -> list[tuple[time, float]]:
+    ) -> list[tuple[datetime, float]]:
         target_hour = target_datetime.replace(minute=0, second=0, microsecond=0)
 
         return [
-            (date.time(), consumption)
+            (date, consumption)
             for (date, consumption) in consumptions
-            if date.replace(minute=0, second=0, microsecond=0) <= target_hour
+            if date.replace(minute=0, second=0, microsecond=0) < target_hour
         ]

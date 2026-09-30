@@ -1,6 +1,7 @@
 {
   "domain": "voltalis",
   "name": "Voltalis",
+  "after_dependencies": ["recorder"],
   "codeowners": ["@ppaglier"],
   "config_flow": true,
   "documentation": "https://github.com/ppaglier/voltalis-homeassistant",
