@@ -1,9 +1,9 @@
-from datetime import date, datetime, time
+from datetime import date, time
 
 from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
+    ConsumptionRecord,
     DeviceConsumption,
 )
-from custom_components.voltalis.lib.domain.shared.providers.date_provider import DateProvider
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
 
 
@@ -13,10 +13,8 @@ class GetDevicesDailyConsumptionHandler:
     def __init__(
         self,
         *,
-        date_provider: DateProvider,
         voltalis_provider: VoltalisProvider,
     ):
-        self.__date_provider = date_provider
         self.__voltalis_provider = voltalis_provider
 
     async def handle(self, target_date: date, target_time: time | None = None) -> dict[int, DeviceConsumption]:
@@ -35,29 +33,26 @@ class GetDevicesDailyConsumptionHandler:
     def get_device_consumption(
         self,
         *,
-        consumption_records: list[tuple[datetime, float]],
+        consumption_records: list[ConsumptionRecord],
         target_time: time | None,
     ) -> DeviceConsumption:
-        filtered_consumptions = (
-            self.get_consumptions_for_hour(consumptions=consumption_records, target_time=target_time)
+        filtered_records = (
+            self.get_consumptions_for_hour(records=consumption_records, target_time=target_time)
             if target_time is not None
             else consumption_records
         )
-        return DeviceConsumption(
-            daily_consumption=sum([consumption for (_, consumption) in filtered_consumptions], 0.0),
-            daily_consumption_records=filtered_consumptions,
-        )
+        return DeviceConsumption(daily_consumption_records=filtered_records)
 
     def get_consumptions_for_hour(
         self,
         *,
-        consumptions: list[tuple[datetime, float]],
+        records: list[ConsumptionRecord],
         target_time: time,
-    ) -> list[tuple[datetime, float]]:
+    ) -> list[ConsumptionRecord]:
         target_hour = target_time.replace(minute=0, second=0, microsecond=0)
 
         return [
-            (date, consumption)
-            for (date, consumption) in consumptions
-            if date.replace(minute=0, second=0, microsecond=0).time() < target_hour
+            record
+            for record in records
+            if record.timestamp.replace(minute=0, second=0, microsecond=0).time() < target_hour
         ]

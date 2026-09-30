@@ -10,6 +10,7 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting_builder import (
     ManualSettingBuilder,
 )
+from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.devices.device_builder import DeviceBuilder
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import (
@@ -153,13 +154,13 @@ async def test_get_devices_consumptions(fixture: "VoltalisProviderFixture") -> N
     target_datetime = datetime(target_date.year, target_date.month, target_date.day, 12, 0, 0)
     devices_consumptions = {
         1: [
-            (datetime(2024, 11, 24, 11, 0, 0), 100.5),
-            (target_datetime, 150.75),
-            (datetime(2024, 11, 25, 13, 0, 0), 200.0),
+            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total_consumption_in_wh=100.5),
+            ConsumptionRecord(timestamp=target_datetime, total_consumption_in_wh=150.75),
+            ConsumptionRecord(timestamp=datetime(2024, 11, 25, 13, 0, 0), total_consumption_in_wh=200.0),
         ],
         2: [
-            (datetime(2024, 11, 24, 11, 0, 0), 50.25),
-            (target_datetime, 75.5),
+            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total_consumption_in_wh=50.25),
+            ConsumptionRecord(timestamp=target_datetime, total_consumption_in_wh=75.5),
         ],
     }
 
@@ -172,10 +173,13 @@ async def test_get_devices_consumptions(fixture: "VoltalisProviderFixture") -> N
     # Assert
     expected_result = {
         1: [
-            (datetime(2024, 11, 24, 11, 0, 0), 100.5),
-            (target_datetime, 150.75),
+            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total_consumption_in_wh=100.5),
+            ConsumptionRecord(timestamp=target_datetime, total_consumption_in_wh=150.75),
         ],
-        2: [(datetime(2024, 11, 24, 11, 0, 0), 50.25), (target_datetime, 75.5)],
+        2: [
+            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total_consumption_in_wh=50.25),
+            ConsumptionRecord(timestamp=target_datetime, total_consumption_in_wh=75.5),
+        ],
     }
     fixture.compare_data(result, expected_result)
 
@@ -186,7 +190,10 @@ async def test_get_devices_consumptions_no_match(fixture: "VoltalisProviderFixtu
 
     target_date = date(2024, 11, 25)
     devices_consumptions = {
-        1: [(datetime(2024, 11, 24, 13, 0, 0), 100.5), (datetime(2024, 11, 24, 14, 0, 0), 200.0)],
+        1: [
+            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 13, 0, 0), total_consumption_in_wh=100.5),
+            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 14, 0, 0), total_consumption_in_wh=200.0),
+        ],
     }
 
     # Arrange
@@ -598,7 +605,7 @@ class VoltalisProviderFixture(BaseFixture):
 
         raise ValueError("Unknown provider type")
 
-    def given_devices_consumptions(self, devices_consumptions: dict[int, list[tuple[datetime, float]]]) -> None:
+    def given_devices_consumptions(self, devices_consumptions: dict[int, list[ConsumptionRecord]]) -> None:
         """Set existing devices consumptions in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
             self.provider.set_devices_consumptions(devices_consumptions)

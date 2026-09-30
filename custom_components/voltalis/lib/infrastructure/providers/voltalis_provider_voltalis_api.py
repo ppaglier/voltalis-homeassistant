@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import date, datetime
+from datetime import date
 from typing import cast
 
 from pydantic import TypeAdapter, ValidationError
@@ -9,6 +9,7 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
     ManualSetting,
     ManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
@@ -129,7 +130,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         return LiveConsumption(consumption=live_consumption)
 
-    async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[tuple[datetime, float]]]:
+    async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[ConsumptionRecord]]:
         # Fetch the data from the voltalis API
         target_date_str = target_date.isoformat()
 
@@ -151,9 +152,11 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         devices_consumptions = {
             device_id: [
-                (
-                    consumption_record.step_timestamp_on_site,
-                    consumption_record.total_consumption_in_wh,
+                ConsumptionRecord(
+                    timestamp=consumption_record.step_timestamp_on_site,
+                    total_consumption_in_wh=consumption_record.total_consumption_in_wh,
+                    peak_consumption_in_wh=consumption_record.peak_hour_consumption_in_wh,
+                    offpeak_consumption_in_wh=consumption_record.offpeak_hour_consumption_in_wh,
                 )
                 for consumption_record in device_consumptions
                 if consumption_record.step_timestamp_on_site.date() == target_date

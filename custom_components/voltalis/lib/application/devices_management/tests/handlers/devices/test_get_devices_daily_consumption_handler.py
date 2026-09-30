@@ -6,6 +6,7 @@ from custom_components.voltalis.lib.application.devices_management.tests.device_
     DeviceManagementFixture,
 )
 from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
+    ConsumptionRecord,
     DeviceConsumption,
 )
 
@@ -22,9 +23,9 @@ async def test_get_devices_daily_consumption_uses_previous_hour(
     fixture.given_devices_consumptions(
         {
             1: [
-                (datetime(2024, 1, 1, 8, 15, 0), 1.2),
-                (datetime(2024, 1, 1, 9, 45, 0), 2.3),
-                (datetime(2024, 1, 1, 10, 15, 0), 3.0),
+                ConsumptionRecord(timestamp=datetime(2024, 1, 1, 8, 15, 0), total_consumption_in_wh=1.2),
+                ConsumptionRecord(timestamp=datetime(2024, 1, 1, 9, 45, 0), total_consumption_in_wh=2.3),
+                ConsumptionRecord(timestamp=datetime(2024, 1, 1, 10, 15, 0), total_consumption_in_wh=3.0),
             ]
         }
     )
@@ -38,9 +39,8 @@ async def test_get_devices_daily_consumption_uses_previous_hour(
     # Then
     expected = {
         1: DeviceConsumption(
-            daily_consumption=1.2,
             daily_consumption_records=[
-                (datetime(2024, 1, 1, 8, 15, 0), 1.2),
+                ConsumptionRecord(timestamp=datetime(2024, 1, 1, 8, 15, 0), total_consumption_in_wh=1.2),
             ],
         )
     }

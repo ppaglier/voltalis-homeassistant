@@ -52,6 +52,7 @@ from custom_components.voltalis.lib.application.devices_management.handlers.wate
     SetWaterHeaterOperationHandler,
 )
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import ManualSetting
+from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_stub import DateProviderStub
@@ -85,7 +86,6 @@ class DeviceManagementFixture(BaseFixture):
             voltalis_provider=self.voltalis_provider,
         )
         self.get_devices_daily_consumption_handler = GetDevicesDailyConsumptionHandler(
-            date_provider=self.date_provider,
             voltalis_provider=self.voltalis_provider,
         )
         self.get_device_mode_handler = GetDeviceModeHandler()
@@ -177,7 +177,7 @@ class DeviceManagementFixture(BaseFixture):
 
         self.voltalis_provider.set_devices_health(devices_health)
 
-    def given_devices_consumptions(self, devices_consumptions: dict[int, list[tuple[datetime, float]]]) -> None:
+    def given_devices_consumptions(self, devices_consumptions: dict[int, list[ConsumptionRecord]]) -> None:
         """Set the devices consumptions to be returned by the provider."""
 
         self.voltalis_provider.set_devices_consumptions(devices_consumptions)

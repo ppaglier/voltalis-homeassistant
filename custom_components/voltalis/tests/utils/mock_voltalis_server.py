@@ -1,5 +1,5 @@
 import logging
-from datetime import date, datetime
+from datetime import date
 from typing import Any, Callable
 
 from aiohttp import ClientSession
@@ -8,6 +8,7 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
     ManualSetting,
     ManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
@@ -275,7 +276,7 @@ class MockVoltalisServer:
             ),
         )
 
-    def given_devices_consumptions(self, devices_consumptions: dict[int, list[tuple[datetime, float]]]) -> None:
+    def given_devices_consumptions(self, devices_consumptions: dict[int, list[ConsumptionRecord]]) -> None:
         self.__voltalis_provider.set_devices_consumptions(devices_consumptions)
 
         async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
@@ -286,12 +287,14 @@ class MockVoltalisServer:
                 per_appliance={
                     device_id: [
                         VoltalisConsumptionDtoDevice(
-                            step_timestamp_on_site=date,
-                            total_consumption_in_wh=consumption,
+                            step_timestamp_on_site=record.timestamp,
+                            total_consumption_in_wh=record.total_consumption_in_wh,
+                            peak_hour_consumption_in_wh=record.peak_consumption_in_wh,
+                            offpeak_hour_consumption_in_wh=record.offpeak_consumption_in_wh,
                         )
-                        for (date, consumption) in consumptions
+                        for record in records
                     ]
-                    for device_id, consumptions in devices_consumptions.items()
+                    for device_id, records in devices_consumptions.items()
                 }
             )
 

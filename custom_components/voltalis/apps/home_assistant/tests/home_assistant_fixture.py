@@ -15,6 +15,7 @@ from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting_builder import (
     ManualSettingBuilder,
 )
+from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device_builder import DeviceBuilder
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum, DeviceTypeEnum
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealthStatusEnum
@@ -239,9 +240,9 @@ class HomeAssistantFixture(BaseFixture[None]):
 
         devices_consumptions = {
             device_id: [
-                (datetime(2024, 1, 1, 8, 15, 0), 1.2),
-                (datetime(2024, 1, 1, 9, 45, 0), 2.3),
-                (datetime(2024, 1, 1, 10, 15, 0), 3.0),
+                ConsumptionRecord(timestamp=datetime(2024, 1, 1, 8, 15, 0), total_consumption_in_wh=1.2),
+                ConsumptionRecord(timestamp=datetime(2024, 1, 1, 9, 45, 0), total_consumption_in_wh=2.3),
+                ConsumptionRecord(timestamp=datetime(2024, 1, 1, 10, 15, 0), total_consumption_in_wh=3.0),
             ]
             for device_id in range(1, 5)
         }
