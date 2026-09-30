@@ -27,7 +27,6 @@ from custom_components.voltalis.lib.application.devices_management.handlers.devi
 from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import DeviceConsumption
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
-from custom_components.voltalis.lib.domain.helpers.is_in_time_range import is_in_time_range
 
 
 class VoltalisEnergyStatisticsPublisher:
@@ -107,14 +106,13 @@ class VoltalisEnergyStatisticsPublisher:
             for sensor_type in sensor_types:
                 contract_records = self.__get_records(
                     devices_data,
-                    contract,
                     sensor_type,
                 )
                 await self.__publish_records(contract, sensor_type, contract_records)
                 published_series += 1
 
                 for device_id, device_data in devices_data.items():
-                    device_records = self.__get_records({device_id: device_data}, contract, sensor_type)
+                    device_records = self.__get_records({device_id: device_data}, sensor_type)
                     await self.__publish_records(
                         contract,
                         sensor_type,
@@ -131,19 +129,19 @@ class VoltalisEnergyStatisticsPublisher:
     def __get_records(
         self,
         devices_data: dict[int, DeviceConsumption],
-        contract: EnergyContract,
         sensor_type: str | None,
     ) -> list[tuple[datetime, float]]:
         totals: defaultdict[datetime, float] = defaultdict(float)
-        time_ranges = contract.peak_hours if sensor_type == "peak" else contract.offpeak_hours
 
         for device_data in devices_data.values():
-            for record_date, consumption in device_data.daily_consumption_records:
-                start = record_date.replace(minute=0, second=0, microsecond=0)
-                if sensor_type is None or any(
-                    is_in_time_range(time_range, record_date.time()) for time_range in time_ranges
-                ):
-                    totals[start] += consumption
+            for record in device_data.daily_consumption_records:
+                start = record.timestamp.replace(minute=0, second=0, microsecond=0)
+                if sensor_type == "peak":
+                    totals[start] += record.peak_consumption_in_wh or 0.0
+                elif sensor_type == "offpeak":
+                    totals[start] += record.offpeak_consumption_in_wh or 0.0
+                else:
+                    totals[start] += record.total_consumption_in_wh
 
         return sorted(totals.items())
 

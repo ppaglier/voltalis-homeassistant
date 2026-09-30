@@ -114,7 +114,6 @@ class VoltalisModule:
             voltalis_provider=self.__voltalis_provider,
         )
         self.get_devices_daily_consumption_handler = GetDevicesDailyConsumptionHandler(
-            date_provider=self.date_provider,
             voltalis_provider=self.__voltalis_provider,
         )
         self.get_device_mode_handler = GetDeviceModeHandler()

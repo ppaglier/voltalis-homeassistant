@@ -1,9 +1,10 @@
-from datetime import date, datetime
+from datetime import date
 
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting import (
     ManualSetting,
     ManualSettingUpdate,
 )
+from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
@@ -20,7 +21,7 @@ class VoltalisProviderStub(VoltalisProvider):
         self._devices: dict[int, Device] = {}
         self._devices_health: dict[int, DeviceHealth] = {}
         self._live_consumption = LiveConsumption(consumption=0.0)
-        self._devices_consumptions: dict[int, list[tuple[datetime, float]]] = {}
+        self._devices_consumptions: dict[int, list[ConsumptionRecord]] = {}
         self._manual_settings: dict[int, ManualSetting] = {}
         self._energy_contracts: dict[int, EnergyContract] = {}
         self._programs: dict[int, Program] = {}
@@ -34,7 +35,7 @@ class VoltalisProviderStub(VoltalisProvider):
     def set_live_consumption(self, consumption: LiveConsumption) -> None:
         self._live_consumption = consumption
 
-    def set_devices_consumptions(self, devices_consumptions: dict[int, list[tuple[datetime, float]]]) -> None:
+    def set_devices_consumptions(self, devices_consumptions: dict[int, list[ConsumptionRecord]]) -> None:
         self._devices_consumptions = devices_consumptions
 
     def set_manual_settings(self, manual_settings: list[ManualSetting]) -> None:
@@ -59,13 +60,9 @@ class VoltalisProviderStub(VoltalisProvider):
     async def get_live_consumption(self) -> LiveConsumption:
         return self._live_consumption
 
-    async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[tuple[datetime, float]]]:
+    async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[ConsumptionRecord]]:
         devices_consumptions = {
-            device_id: [
-                (consumption_date, consumption_value)
-                for (consumption_date, consumption_value) in consumption_records
-                if consumption_date.date() == target_date
-            ]
+            device_id: [record for record in consumption_records if record.timestamp.date() == target_date]
             for device_id, consumption_records in self._devices_consumptions.items()
         }
         return devices_consumptions
