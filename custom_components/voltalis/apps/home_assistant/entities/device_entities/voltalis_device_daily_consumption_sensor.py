@@ -3,8 +3,10 @@ from typing import Literal
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
+    SensorStateClass,
 )
 from homeassistant.const import UnitOfEnergy
+from homeassistant.core import callback
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (
     VoltalisDeviceEntity,
@@ -17,7 +19,7 @@ class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity): 
     """References the daily consumption of a device."""
 
     _attr_device_class = SensorDeviceClass.ENERGY
-    _attr_state_class = None
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
 
     def __init__(
@@ -29,6 +31,7 @@ class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity): 
         """Initialize the sensor entity."""
 
         suffix = f"_{sensor_type}" if sensor_type else ""
+        self.__sensor_type = sensor_type
         self._attr_translation_key = f"device_daily_consumption{suffix}"
         self._unique_id_suffix = f"device_daily_consumption{suffix}"
         self._statistic_id = f"voltalis:device_{entry.entry_id.lower()}_{device.id}_energy{suffix}"
@@ -37,13 +40,35 @@ class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity): 
             entry, device, entry.runtime_data.voltalis_home_assistant_module.device_daily_consumption_coordinator
         )
 
-    async def async_added_to_hass(self) -> None:
-        await super().async_added_to_hass()
-        self._register_statistics_updates()
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
 
-    async def async_will_remove_from_hass(self) -> None:
-        self._unregister_statistics_updates()
-        await super().async_will_remove_from_hass()
+        data = self._voltalis_module.device_daily_consumption_coordinator.data.get(self._device.id)
+        if data is None:
+            self._voltalis_module.logger.warning(
+                "Daily consumption %s data for device %s is None", self.__sensor_type, self._device.id
+            )
+            return
+
+        new_value = sum(
+            [
+                (
+                    record.total_consumption_in_wh
+                    if self.__sensor_type is None
+                    else (record.peak_consumption_in_wh or 0.0)
+                    if self.__sensor_type == "peak"
+                    else (record.offpeak_consumption_in_wh or 0.0)
+                )
+                for record in data.daily_consumption_records
+            ],
+            0.0,
+        )
+        if self.native_value == new_value:
+            return
+
+        self._attr_native_value = new_value
+        self.async_write_ha_state()
 
     # ------------------------------------------------------------------
     # Availability handling override
