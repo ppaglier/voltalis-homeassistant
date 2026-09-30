@@ -24,6 +24,9 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
     VoltalisConfigEntry,
     VoltalisConfigEntryData,
 )
+from custom_components.voltalis.apps.home_assistant.stats_publishers.energy_statistics import (
+    VoltalisEnergyStatisticsPublisher,
+)
 from custom_components.voltalis.const import (
     CONF_CLIMATE_MAX_TEMP,
     CONF_CLIMATE_MIN_TEMP,
@@ -128,6 +131,7 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         )
 
         await self.__load_coordinators()
+        await self.__load_publishers()
 
         # forward setup to sensor platform
         await self.hass.config_entries.async_forward_entry_setups(self.entry, self.PLATFORMS)
@@ -144,6 +148,7 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         unload_ok = await self.hass.config_entries.async_unload_platforms(self.entry, self.PLATFORMS)
 
         # Then unload coordinators
+        self.__unload_publishers()
         await self.__unload_coordinators()
 
         # Finally, close the client session
@@ -187,6 +192,24 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         # Stop time tracking for consumption coordinators
         self.device_daily_consumption_coordinator.stop_time_tracking()
         self.live_consumption_coordinator.stop_time_tracking()
+
+    async def __load_publishers(self) -> None:
+        """Set up all publishers."""
+
+        self.energy_statistics_publisher = VoltalisEnergyStatisticsPublisher(
+            self.hass,
+            self.entry.entry_id,
+            self.device_daily_consumption_coordinator,
+            self.device_coordinator,
+            self.energy_contract_coordinator,
+        )
+        await self.energy_statistics_publisher.async_publish()
+        self.energy_statistics_publisher.start_time_tracking()
+
+    def __unload_publishers(self) -> None:
+        """Unload all publishers."""
+
+        self.energy_statistics_publisher.stop_time_tracking()
 
     def cleanup_empty_devices(self) -> None:
         """Cleanup devices with no entities to prevent shadow devices"""

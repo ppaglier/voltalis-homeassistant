@@ -1,5 +1,6 @@
-from typing import Any
+from typing import Any, Callable
 
+from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from propcache.api import cached_property
 
@@ -11,6 +12,9 @@ class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any
     """Base class for all Voltalis entities."""
 
     _unique_id_suffix: str = ""
+
+    _statistic_id: str = ""
+    __remove_statistics_listener: Callable[[], None] | None = None
 
     def __init__(
         self,
@@ -49,3 +53,31 @@ class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any
                 self.__dict__.pop(attr_name, None)  # pyright: ignore[reportAttributeAccessIssue]
 
         super()._handle_coordinator_update()
+
+    def _register_statistics_updates(self) -> None:
+        """Register an entity to a Voltalis external statistic."""
+
+        publisher = self._voltalis_module.energy_statistics_publisher
+
+        if self._statistic_id == "":
+            raise ValueError("Statistic ID must be defined in subclass.")
+
+        @callback
+        def handle_update(updated_statistic_id: str, value: Any) -> None:
+            if updated_statistic_id != self._statistic_id or getattr(self, "native_value", None) == value:
+                return
+            self._attr_native_value = value
+            self.async_write_ha_state()
+
+        self.__remove_statistics_listener = publisher.add_statistic_listener(handle_update)
+        latest_value = publisher.get_latest_value(self._statistic_id)
+        if latest_value is not None:
+            self._attr_native_value = latest_value
+            self.async_write_ha_state()
+
+    def _unregister_statistics_updates(self) -> None:
+        """Disconnect an entity from a Voltalis external statistic."""
+
+        if self.__remove_statistics_listener is not None:
+            self.__remove_statistics_listener()
+            self.__remove_statistics_listener = None
