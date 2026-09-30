@@ -132,7 +132,6 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         )
 
         await self.__load_coordinators()
-        await self.__load_publishers()
 
         # forward setup to sensor platform
         await self.hass.config_entries.async_forward_entry_setups(self.entry, self.PLATFORMS)
@@ -140,16 +139,19 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         # Cleanup devices without entities to prevent shadow devices after initial setup
         self.cleanup_empty_devices()
 
+        await self.__load_publishers()
+
         return True
 
     async def async_unload_entry(self) -> bool:
         """Unload the module."""
 
+        self.__unload_publishers()
+
         # Unload platforms FIRST before closing the client session
         unload_ok = await self.hass.config_entries.async_unload_platforms(self.entry, self.PLATFORMS)
 
         # Then unload coordinators
-        self.__unload_publishers()
         await self.__unload_coordinators()
 
         # Finally, close the client session
