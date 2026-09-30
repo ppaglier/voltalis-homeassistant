@@ -202,6 +202,7 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         self.energy_statistics_publisher = VoltalisEnergyStatisticsPublisher(
             self.hass,
             self.entry.entry_id,
+            self.logger,
             self.device_daily_consumption_coordinator,
             self.device_coordinator,
             self.energy_contract_coordinator,
