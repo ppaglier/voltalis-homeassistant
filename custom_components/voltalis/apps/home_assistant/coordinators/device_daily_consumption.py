@@ -59,5 +59,9 @@ class VoltalisDeviceDailyConsumptionCoordinator(BaseVoltalisCoordinator[dict[int
     async def _get_data(self) -> dict[int, DeviceConsumption]:
         """Fetch updated data from the Voltalis API."""
 
-        data = await self._voltalis_module.get_devices_daily_consumption_handler.handle()
+        target_time = self._voltalis_module.date_provider.get_now()
+        data = await self._voltalis_module.get_devices_daily_consumption_handler.handle(
+            target_date=target_time.date(),
+            target_time=target_time.time(),
+        )
         return data

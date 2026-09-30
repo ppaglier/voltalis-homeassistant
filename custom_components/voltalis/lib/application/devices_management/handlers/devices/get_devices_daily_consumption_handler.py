@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime, time
 
 from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import (
     DeviceConsumption,
@@ -19,17 +19,14 @@ class GetDevicesDailyConsumptionHandler:
         self.__date_provider = date_provider
         self.__voltalis_provider = voltalis_provider
 
-    async def handle(self) -> dict[int, DeviceConsumption]:
-        """Handle the request to get the daily consumption for all devices."""
+    async def handle(self, target_date: date, target_time: time | None = None) -> dict[int, DeviceConsumption]:
+        """Get consumption for a date, optionally limited to completed hours."""
 
-        target_datetime = self.__date_provider.get_now()
-
-        devices_daily_consumptions = await self.__voltalis_provider.get_devices_daily_consumptions(
-            target_datetime.date()
-        )
+        devices_daily_consumptions = await self.__voltalis_provider.get_devices_daily_consumptions(target_date)
         devices_consumptions = {
             device_id: self.get_device_consumption(
-                consumption_records=consumption_records, target_datetime=target_datetime
+                consumption_records=consumption_records,
+                target_time=target_time,
             )
             for device_id, consumption_records in devices_daily_consumptions.items()
         }
@@ -39,11 +36,12 @@ class GetDevicesDailyConsumptionHandler:
         self,
         *,
         consumption_records: list[tuple[datetime, float]],
-        target_datetime: datetime,
+        target_time: time | None,
     ) -> DeviceConsumption:
-        filtered_consumptions = self.get_consumptions_for_hour(
-            consumptions=consumption_records,
-            target_datetime=target_datetime,
+        filtered_consumptions = (
+            self.get_consumptions_for_hour(consumptions=consumption_records, target_time=target_time)
+            if target_time is not None
+            else consumption_records
         )
         return DeviceConsumption(
             daily_consumption=sum([consumption for (_, consumption) in filtered_consumptions], 0.0),
@@ -54,12 +52,12 @@ class GetDevicesDailyConsumptionHandler:
         self,
         *,
         consumptions: list[tuple[datetime, float]],
-        target_datetime: datetime,
+        target_time: time,
     ) -> list[tuple[datetime, float]]:
-        target_hour = target_datetime.replace(minute=0, second=0, microsecond=0)
+        target_hour = target_time.replace(minute=0, second=0, microsecond=0)
 
         return [
             (date, consumption)
             for (date, consumption) in consumptions
-            if date.replace(minute=0, second=0, microsecond=0) < target_hour
+            if date.replace(minute=0, second=0, microsecond=0).time() < target_hour
         ]

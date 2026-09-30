@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from datetime import timedelta
 
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -202,6 +203,11 @@ class VoltalisHomeAssistantModule(VoltalisModule):
             self.device_daily_consumption_coordinator,
             self.device_coordinator,
             self.energy_contract_coordinator,
+            self.get_devices_daily_consumption_handler,
+        )
+        current_date = self.date_provider.get_now().date()
+        await self.energy_statistics_publisher.async_backfill(
+            [current_date - timedelta(days=1), current_date],
         )
         await self.energy_statistics_publisher.async_publish()
         self.energy_statistics_publisher.start_time_tracking()
