@@ -30,7 +30,10 @@ async def test_get_devices_daily_consumption_uses_previous_hour(
     )
 
     # When
-    result = await fixture.get_devices_daily_consumption_handler.handle()
+    result = await fixture.get_devices_daily_consumption_handler.handle(
+        target_date=now.date(),
+        target_time=now.time(),
+    )
 
     # Then
     expected = {

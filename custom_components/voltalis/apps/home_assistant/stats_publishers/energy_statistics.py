@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Callable
 
 from homeassistant.components.recorder.models import StatisticData, StatisticMeanType, StatisticMetaData
@@ -21,6 +21,9 @@ from homeassistant.util.unit_conversion import EnergyConverter
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_daily_consumption_handler import (  # noqa: E501
+    GetDevicesDailyConsumptionHandler,
+)
 from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import DeviceConsumption
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
@@ -37,12 +40,14 @@ class VoltalisEnergyStatisticsPublisher:
         device_consumption_coordinator: BaseVoltalisCoordinator[dict[int, DeviceConsumption]],
         device_coordinator: BaseVoltalisCoordinator[dict[int, DeviceDto]],
         energy_contract_coordinator: DataUpdateCoordinator[dict[int, EnergyContract]],
+        daily_consumption_handler: GetDevicesDailyConsumptionHandler,
     ) -> None:
         self.__hass = hass
         self.__entry_id = entry_id.lower()
         self.__device_consumption_coordinator = device_consumption_coordinator
         self.__device_coordinator = device_coordinator
         self.__energy_contract_coordinator = energy_contract_coordinator
+        self.__daily_consumption_handler = daily_consumption_handler
         self.__lock = asyncio.Lock()
         self.__remove_listener: Callable[[], None] | None = None
         self.__statistic_listeners: list[Callable[[str, float], None]] = []
@@ -80,35 +85,48 @@ class VoltalisEnergyStatisticsPublisher:
     async def async_publish(self) -> None:
         """Publish all newly available hourly consumption records."""
         async with self.__lock:
-            published_series = 0
-            for contract in self.__energy_contract_coordinator.data.values():
-                sensor_types: tuple[str | None, ...] = (None,)
-                if contract.type == EnergyContractTypeEnum.PEAK_OFFPEAK:
-                    sensor_types = (None, "peak", "offpeak")
+            await self.__publish_devices_data(self.__device_consumption_coordinator.data)
 
-                for sensor_type in sensor_types:
-                    contract_records = self.__get_records(
-                        self.__device_consumption_coordinator.data,
+    async def async_backfill(self, target_dates: list[date]) -> None:
+        """Load complete consumption records for dates requested during setup."""
+        async with self.__lock:
+            for target_date in target_dates:
+                devices_data = await self.__daily_consumption_handler.handle(
+                    target_date=target_date,
+                    target_time=None,
+                )
+                await self.__publish_devices_data(devices_data)
+
+    async def __publish_devices_data(self, devices_data: dict[int, DeviceConsumption]) -> None:
+        published_series = 0
+        for contract in self.__energy_contract_coordinator.data.values():
+            sensor_types: tuple[str | None, ...] = (None,)
+            if contract.type == EnergyContractTypeEnum.PEAK_OFFPEAK:
+                sensor_types = (None, "peak", "offpeak")
+
+            for sensor_type in sensor_types:
+                contract_records = self.__get_records(
+                    devices_data,
+                    contract,
+                    sensor_type,
+                )
+                await self.__publish_records(contract, sensor_type, contract_records)
+                published_series += 1
+
+                for device_id, device_data in devices_data.items():
+                    device_records = self.__get_records({device_id: device_data}, contract, sensor_type)
+                    await self.__publish_records(
                         contract,
                         sensor_type,
+                        device_records,
+                        device_id=device_id,
                     )
-                    await self.__publish_records(contract, sensor_type, contract_records)
                     published_series += 1
 
-                    for device_id, device_data in self.__device_consumption_coordinator.data.items():
-                        device_records = self.__get_records({device_id: device_data}, contract, sensor_type)
-                        await self.__publish_records(
-                            contract,
-                            sensor_type,
-                            device_records,
-                            device_id=device_id,
-                        )
-                        published_series += 1
-
-            self.__device_consumption_coordinator.logger.info(
-                "Voltalis external energy statistics update completed: %s series considered",
-                published_series,
-            )
+        self.__device_consumption_coordinator.logger.info(
+            "Voltalis external energy statistics update completed: %s series considered",
+            published_series,
+        )
 
     def __get_records(
         self,
@@ -120,9 +138,11 @@ class VoltalisEnergyStatisticsPublisher:
         time_ranges = contract.peak_hours if sensor_type == "peak" else contract.offpeak_hours
 
         for device_data in devices_data.values():
-            for date, consumption in device_data.daily_consumption_records:
-                start = date.replace(minute=0, second=0, microsecond=0)
-                if sensor_type is None or any(is_in_time_range(time_range, date.time()) for time_range in time_ranges):
+            for record_date, consumption in device_data.daily_consumption_records:
+                start = record_date.replace(minute=0, second=0, microsecond=0)
+                if sensor_type is None or any(
+                    is_in_time_range(time_range, record_date.time()) for time_range in time_ranges
+                ):
                     totals[start] += consumption
 
         return sorted(totals.items())
