@@ -1,3 +1,5 @@
+from typing import Literal
+
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -17,12 +19,20 @@ class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity): 
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_state_class = None
     _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
-    _attr_translation_key = "device_daily_consumption"
-    _unique_id_suffix = "device_daily_consumption"
 
-    def __init__(self, entry: VoltalisConfigEntry, device: DeviceDto) -> None:
+    def __init__(
+        self,
+        entry: VoltalisConfigEntry,
+        device: DeviceDto,
+        sensor_type: Literal["peak", "offpeak"] | None,
+    ) -> None:
         """Initialize the sensor entity."""
-        self._statistic_id = f"voltalis:device_{entry.entry_id.lower()}_{device.id}_energy"
+
+        suffix = f"_{sensor_type}" if sensor_type else ""
+        self._attr_translation_key = f"device_daily_consumption{suffix}"
+        self._unique_id_suffix = f"device_daily_consumption{suffix}"
+        self._statistic_id = f"voltalis:device_{entry.entry_id.lower()}_{device.id}_energy{suffix}"
+
         super().__init__(
             entry, device, entry.runtime_data.voltalis_home_assistant_module.device_daily_consumption_coordinator
         )

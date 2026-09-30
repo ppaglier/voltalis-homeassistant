@@ -29,10 +29,10 @@ class VoltalisEnergyContractDailyConsumptionSensor(VoltalisEnergyContractEntity,
     ) -> None:
         """Initialize the sensor entity."""
 
-        self._attr_translation_key = "daily_consumption_" + sensor_type if sensor_type else "daily_consumption"
-        self._unique_id_suffix = "daily_consumption_" + sensor_type if sensor_type else "daily_consumption"
-        statistic_suffix = f"_{sensor_type}" if sensor_type else ""
-        self._statistic_id = f"voltalis:contract_{entry.entry_id.lower()}_{energy_contract.id}_energy{statistic_suffix}"
+        suffix = f"_{sensor_type}" if sensor_type else ""
+        self._attr_translation_key = f"daily_consumption{suffix}"
+        self._unique_id_suffix = f"daily_consumption{suffix}"
+        self._statistic_id = f"voltalis:contract_{entry.entry_id.lower()}_{energy_contract.id}_energy{suffix}"
         super().__init__(
             entry,
             energy_contract,
