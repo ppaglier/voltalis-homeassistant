@@ -22,7 +22,6 @@ class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):  # py
     _attr_options = [option for option in ProgramTypeEnum]
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_entity_registry_enabled_default = False
-    _unique_id_suffix = "device_programming"
 
     def __init__(self, entry: VoltalisConfigEntry, device: DeviceDto) -> None:
         """Initialize the sensor entity."""

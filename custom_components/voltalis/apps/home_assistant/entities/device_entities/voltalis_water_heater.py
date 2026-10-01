@@ -34,7 +34,6 @@ class VoltalisWaterHeater(VoltalisDeviceEntity, WaterHeaterEntity):  # pyright: 
 
     _attr_temperature_unit = CLIMATE_UNIT
     _attr_translation_key = "water_heater"
-    _unique_id_suffix = "water_heater"
 
     def __init__(self, entry: VoltalisConfigEntry, device: DeviceDto) -> None:
         """Initialize the water heater entity."""

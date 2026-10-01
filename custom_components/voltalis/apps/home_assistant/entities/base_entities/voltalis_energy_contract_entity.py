@@ -26,12 +26,11 @@ class VoltalisEnergyContractEntity(VoltalisBaseEntity):
 
         self._energy_contract = energy_contract
 
-        unique_id = f"{entry.entry_id}_{energy_contract.subscriber_id}"
-
         # Unique id for Home Assistant
-        self._attr_unique_id = f"{unique_id}_{self._unique_id_suffix}"
-        contract_model = self.__get_energy_contract_model()
+        unique_id = f"{entry.entry_id}_{energy_contract.subscriber_id}"
+        self._attr_unique_id = f"{unique_id}_{self._attr_translation_key}"
 
+        contract_model = self.__get_energy_contract_model()
         self._attr_device_info: DeviceInfo = DeviceInfo(  # pyright: ignore[reportIncompatibleVariableOverride]
             identifiers={(DOMAIN, unique_id)},
             name=contract_model,

@@ -54,7 +54,7 @@ class VoltalisClimate(VoltalisDeviceEntity, ClimateEntity):  # pyright: ignore[r
     _attr_temperature_unit = CLIMATE_UNIT
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO]
     _attr_target_temperature_step = CLIMATE_TEMP_STEP
-    _unique_id_suffix = "climate"
+    _attr_translation_key = "climate"
 
     def __init__(self, entry: VoltalisConfigEntry, device: DeviceDto) -> None:
         """Initialize the climate entity."""

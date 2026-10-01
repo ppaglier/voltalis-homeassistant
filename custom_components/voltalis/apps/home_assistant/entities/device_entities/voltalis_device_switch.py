@@ -22,7 +22,6 @@ class VoltalisDeviceSwitch(VoltalisDeviceEntity, SwitchEntity):  # pyright: igno
     """Switch entity for Voltalis heating device on/off state."""
 
     _attr_translation_key = "device_switch"
-    _unique_id_suffix = "device_switch"
 
     def __init__(self, entry: VoltalisConfigEntry, device: DeviceDto) -> None:
         """Initialize the program select entity."""

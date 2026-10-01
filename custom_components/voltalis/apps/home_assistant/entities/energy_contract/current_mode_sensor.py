@@ -22,9 +22,8 @@ class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, Sens
     """Sensor entity for Voltalis energy contract current mode."""
 
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_translation_key = "energy_contract_current_mode"
+    _attr_translation_key = "energy_contract_current_tariff"
     _attr_options = [option for option in EnergyContractCurrentModeEnum]
-    _unique_id_suffix = "energy_contract_current_mode"
 
     def __init__(
         self,
