@@ -22,7 +22,7 @@ class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity): 
         self,
         entry: VoltalisConfigEntry,
         device: DeviceDto,
-        sensor_type: Literal["peak", "offpeak"] | None,
+        sensor_type: Literal["peak", "off-peak"] | None,
     ) -> None:
         """Initialize the sensor entity."""
 
@@ -53,7 +53,7 @@ class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity): 
                     if self.__sensor_type is None
                     else (record.peak_consumption_in_wh or 0.0)
                     if self.__sensor_type == "peak"
-                    else (record.offpeak_consumption_in_wh or 0.0)
+                    else (record.off_peak_consumption_in_wh or 0.0)
                 )
                 for record in data.daily_consumption_records
             ],

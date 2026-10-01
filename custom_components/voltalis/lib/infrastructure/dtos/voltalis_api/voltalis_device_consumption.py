@@ -12,7 +12,7 @@ class VoltalisConsumptionDtoDevice(CustomModel):
     step_timestamp_on_site: Annotated[datetime, Field(alias="stepTimestampOnSite")]
     total_consumption_in_wh: Annotated[float, Field(alias="totalConsumptionInWh")]
     peak_hour_consumption_in_wh: Annotated[float | None, Field(alias="peakHourConsumptionInWh")] = None
-    offpeak_hour_consumption_in_wh: Annotated[float | None, Field(alias="offPeakHourConsumptionInWh")] = None
+    off_peak_hour_consumption_in_wh: Annotated[float | None, Field(alias="offPeakHourConsumptionInWh")] = None
 
 
 class VoltalisConsumptionDto(CustomModel):

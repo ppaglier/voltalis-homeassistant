@@ -25,10 +25,10 @@ class EnergyContractBuilder(GenericBuilder[EnergyContract]):
             subscription=10.0,
             kwh_base=0.2,
             kwh_peak=0.3,
-            kwh_offpeak=0.1,
+            kwh_off_peak=0.1,
         ),
         peak_hours=[RangeModel[time](start=time(8, 0), end=time(20, 0))],
-        offpeak_hours=[RangeModel[time](start=time(20, 0), end=time(6, 0))],
+        off_peak_hours=[RangeModel[time](start=time(20, 0), end=time(6, 0))],
     )
 
     def build(self) -> EnergyContract:

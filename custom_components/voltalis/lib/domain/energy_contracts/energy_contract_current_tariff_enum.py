@@ -6,4 +6,4 @@ class EnergyContractCurrentTariffEnum(StrEnum):
 
     BASE = "base"
     PEAK = "peak"
-    OFFPEAK = "offpeak"
+    OFF_PEAK = "off-peak"

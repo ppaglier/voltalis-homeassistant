@@ -46,7 +46,7 @@ class VoltalisEnergyContractCurrentTariffSensor(VoltalisEnergyContractEntity, Se
             return "mdi:sort-calendar-today"
         if self.native_value == EnergyContractCurrentTariffEnum.PEAK:
             return "mdi:sort-calendar-descending"
-        if self.native_value == EnergyContractCurrentTariffEnum.OFFPEAK:
+        if self.native_value == EnergyContractCurrentTariffEnum.OFF_PEAK:
             return "mdi:sort-calendar-ascending"
         return "mdi:calendar-blank-outline"
 
@@ -57,7 +57,9 @@ class VoltalisEnergyContractCurrentTariffSensor(VoltalisEnergyContractEntity, Se
             return
 
         new_value = await self._voltalis_module.get_energy_contract_current_tariff_handler.handle(
-            GetEnergyContractCurrentTariffQuery(type=energy_contract.type, offpeak_hours=energy_contract.offpeak_hours)
+            GetEnergyContractCurrentTariffQuery(
+                type=energy_contract.type, off_peak_hours=energy_contract.off_peak_hours
+            )
         )
 
         if new_value is None or self._attr_native_value == new_value:

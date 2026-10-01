@@ -10,7 +10,7 @@ from custom_components.voltalis.lib.domain.shared.range_model import RangeModel
 
 
 class VoltalisTimeRange(CustomModel):
-    """Class to represent time ranges for peak/offpeak hours"""
+    """Class to represent time ranges for peak/off-peak hours"""
 
     from_time: Annotated[time, Field(alias="from")]
     to_time: Annotated[time, Field(alias="to")]
@@ -33,10 +33,10 @@ class VoltalisSubscriberContractDto(CustomModel):
     )
     kwh_base_price: Annotated[float | None, Field(alias="kwhBasePrice")] = None
     kwh_peak_hour_price: Annotated[float | None, Field(alias="kwhPeakHourPrice")] = None
-    kwh_offpeak_hour_price: Annotated[float | None, Field(alias="kwhOffpeakHourPrice")] = None
+    kwh_off_peak_hour_price: Annotated[float | None, Field(alias="kwhOffpeakHourPrice")] = None
 
     peak_hours: Annotated[list[VoltalisTimeRange], Field(alias="peakHours")]
-    offpeak_hours: Annotated[list[VoltalisTimeRange], Field(alias="offpeakHours")]
+    off_peak_hours: Annotated[list[VoltalisTimeRange], Field(alias="offpeakHours")]
 
     @staticmethod
     def from_energy_contract(energy_contract: EnergyContract) -> "VoltalisSubscriberContractDto":
@@ -46,26 +46,26 @@ class VoltalisSubscriberContractDto(CustomModel):
             company_name=energy_contract.company_name,
             name=energy_contract.name,
             subscribed_power=energy_contract.subscribed_power,
-            is_peak_off_peak_contract=(energy_contract.type == EnergyContractTypeEnum.PEAK_OFFPEAK),
+            is_peak_off_peak_contract=(energy_contract.type == EnergyContractTypeEnum.PEAK_OFF_PEAK),
             end_date=energy_contract.end_date,
             subscription_base_price=(
                 energy_contract.prices.subscription if energy_contract.type == EnergyContractTypeEnum.BASE else None
             ),
             subscription_peak_off_peak_base_price=(
                 energy_contract.prices.subscription
-                if energy_contract.type == EnergyContractTypeEnum.PEAK_OFFPEAK
+                if energy_contract.type == EnergyContractTypeEnum.PEAK_OFF_PEAK
                 else None
             ),
             kwh_base_price=energy_contract.prices.kwh_base,
             kwh_peak_hour_price=energy_contract.prices.kwh_peak,
-            kwh_offpeak_hour_price=energy_contract.prices.kwh_offpeak,
+            kwh_off_peak_hour_price=energy_contract.prices.kwh_off_peak,
             peak_hours=[
                 VoltalisTimeRange(from_time=time_range.start, to_time=time_range.end)
                 for time_range in energy_contract.peak_hours
             ],
-            offpeak_hours=[
+            off_peak_hours=[
                 VoltalisTimeRange(from_time=time_range.start, to_time=time_range.end)
-                for time_range in energy_contract.offpeak_hours
+                for time_range in energy_contract.off_peak_hours
             ],
         )
 
@@ -80,7 +80,7 @@ class VoltalisSubscriberContractDto(CustomModel):
             type=(
                 EnergyContractTypeEnum.BASE
                 if not self.is_peak_off_peak_contract
-                else EnergyContractTypeEnum.PEAK_OFFPEAK
+                else EnergyContractTypeEnum.PEAK_OFF_PEAK
             ),
             prices=EnergyContractPrices(
                 subscription=(
@@ -90,12 +90,12 @@ class VoltalisSubscriberContractDto(CustomModel):
                 ),
                 kwh_base=self.kwh_base_price,
                 kwh_peak=self.kwh_peak_hour_price,
-                kwh_offpeak=self.kwh_offpeak_hour_price,
+                kwh_off_peak=self.kwh_off_peak_hour_price,
             ),
             peak_hours=[
                 RangeModel(start=time_range.from_time, end=time_range.to_time) for time_range in self.peak_hours
             ],
-            offpeak_hours=[
-                RangeModel(start=time_range.from_time, end=time_range.to_time) for time_range in self.offpeak_hours
+            off_peak_hours=[
+                RangeModel(start=time_range.from_time, end=time_range.to_time) for time_range in self.off_peak_hours
             ],
         )

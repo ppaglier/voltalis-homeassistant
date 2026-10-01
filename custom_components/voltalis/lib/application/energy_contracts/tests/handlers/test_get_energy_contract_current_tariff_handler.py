@@ -24,42 +24,42 @@ async def test_get_energy_contract_current_tariff_base(
     fixture.given_now(datetime(2024, 1, 2, 9, 0, 0))
 
     result = await fixture.get_energy_contract_current_tariff_handler.handle(
-        GetEnergyContractCurrentTariffQuery(type=EnergyContractTypeEnum.BASE, offpeak_hours=[])
+        GetEnergyContractCurrentTariffQuery(type=EnergyContractTypeEnum.BASE, off_peak_hours=[])
     )
 
     assert result == EnergyContractCurrentTariffEnum.BASE
 
 
 @pytest.mark.unit
-async def test_get_energy_contract_current_tariff_offpeak(
+async def test_get_energy_contract_current_tariff_off_peak(
     fixture: EnergyContractsFixture,
 ) -> None:
-    """Test peak/offpeak contracts return OFFPEAK during offpeak range."""
+    """Test peak/off-peak contracts return OFF_PEAK during off-peak range."""
 
     fixture.given_now(datetime(2024, 1, 2, 2, 0, 0))
 
     result = await fixture.get_energy_contract_current_tariff_handler.handle(
         GetEnergyContractCurrentTariffQuery(
-            type=EnergyContractTypeEnum.PEAK_OFFPEAK,
-            offpeak_hours=[RangeModel[time](start=time(1, 0), end=time(6, 0))],
+            type=EnergyContractTypeEnum.PEAK_OFF_PEAK,
+            off_peak_hours=[RangeModel[time](start=time(1, 0), end=time(6, 0))],
         )
     )
 
-    assert result == EnergyContractCurrentTariffEnum.OFFPEAK
+    assert result == EnergyContractCurrentTariffEnum.OFF_PEAK
 
 
 @pytest.mark.unit
 async def test_get_energy_contract_current_tariff_peak(
     fixture: EnergyContractsFixture,
 ) -> None:
-    """Test peak/offpeak contracts return PEAK outside offpeak range."""
+    """Test peak/off-peak contracts return PEAK outside off-peak range."""
 
     fixture.given_now(datetime(2024, 1, 2, 12, 0, 0))
 
     result = await fixture.get_energy_contract_current_tariff_handler.handle(
         GetEnergyContractCurrentTariffQuery(
-            type=EnergyContractTypeEnum.PEAK_OFFPEAK,
-            offpeak_hours=[RangeModel[time](start=time(1, 0), end=time(6, 0))],
+            type=EnergyContractTypeEnum.PEAK_OFF_PEAK,
+            off_peak_hours=[RangeModel[time](start=time(1, 0), end=time(6, 0))],
         )
     )
 

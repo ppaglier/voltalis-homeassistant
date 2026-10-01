@@ -13,7 +13,7 @@ class EnergyContractPrices(CustomModel):
     kwh_base: float | None = None
 
     kwh_peak: float | None = None
-    kwh_offpeak: float | None = None
+    kwh_off_peak: float | None = None
 
 
 class EnergyContract(CustomModel):
@@ -30,4 +30,4 @@ class EnergyContract(CustomModel):
     prices: EnergyContractPrices
 
     peak_hours: list[RangeModel[time]]
-    offpeak_hours: list[RangeModel[time]]
+    off_peak_hours: list[RangeModel[time]]

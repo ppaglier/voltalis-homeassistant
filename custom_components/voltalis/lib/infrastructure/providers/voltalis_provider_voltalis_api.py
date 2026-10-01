@@ -156,7 +156,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
                     timestamp=consumption_record.step_timestamp_on_site,
                     total_consumption_in_wh=consumption_record.total_consumption_in_wh,
                     peak_consumption_in_wh=consumption_record.peak_hour_consumption_in_wh,
-                    offpeak_consumption_in_wh=consumption_record.offpeak_hour_consumption_in_wh,
+                    off_peak_consumption_in_wh=consumption_record.off_peak_hour_consumption_in_wh,
                 )
                 for consumption_record in device_consumptions
                 if consumption_record.step_timestamp_on_site.date() == target_date

@@ -86,7 +86,7 @@
       "daily_consumption_peak": {
         "name": "Daily consumption (Peak)"
       },
-      "daily_consumption_offpeak": {
+      "daily_consumption_off-peak": {
         "name": "Daily consumption (Off-Peak)"
       },
       "device_daily_consumption": {
@@ -95,7 +95,7 @@
       "device_daily_consumption_peak": {
         "name": "Daily consumption (Peak)"
       },
-      "device_daily_consumption_offpeak": {
+      "device_daily_consumption_off-peak": {
         "name": "Daily consumption (Off-Peak)"
       },
       "device_programming": {
@@ -124,18 +124,21 @@
       "energy_contract_kwh_current_price": {
         "name": "kWh current price"
       },
-      "energy_contract_kwh_off_peak_cost": {
-        "name": "kWh Off-Peak cost"
+      "energy_contract_kwh_price": {
+        "name": "kWh price"
       },
-      "energy_contract_kwh_peak_cost": {
-        "name": "kWh Peak cost"
+      "energy_contract_kwh_off-peak_price": {
+        "name": "kWh Off-Peak price"
+      },
+      "energy_contract_kwh_peak_price": {
+        "name": "kWh Peak price"
       },
       "energy_contract_current_tariff": {
         "name": "Current tariff",
         "state": {
           "base": "Base",
           "peak": "Peak",
-          "offpeak": "Off-Peak"
+          "off-peak": "Off-Peak"
         }
       }
     },

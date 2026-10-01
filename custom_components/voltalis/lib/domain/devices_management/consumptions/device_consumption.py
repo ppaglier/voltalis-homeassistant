@@ -9,7 +9,7 @@ class ConsumptionRecord(CustomModel):
     timestamp: datetime
     total_consumption_in_wh: float
     peak_consumption_in_wh: float | None = None
-    offpeak_consumption_in_wh: float | None = None
+    off_peak_consumption_in_wh: float | None = None
 
 
 class DeviceConsumption(CustomModel):

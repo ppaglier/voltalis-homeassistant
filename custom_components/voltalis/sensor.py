@@ -32,11 +32,8 @@ from custom_components.voltalis.apps.home_assistant.entities.energy_contract.dai
 from custom_components.voltalis.apps.home_assistant.entities.energy_contract.kwh_current_price_sensor import (
     VoltalisEnergyContractKwhCurrentPriceSensor,
 )
-from custom_components.voltalis.apps.home_assistant.entities.energy_contract.kwh_offpeak_cost_sensor import (
-    VoltalisEnergyContractKwhOffPeakCostSensor,
-)
-from custom_components.voltalis.apps.home_assistant.entities.energy_contract.kwh_peak_cost_sensor import (
-    VoltalisEnergyContractKwhPeakCostSensor,
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.kwh_price_sensor import (
+    VoltalisEnergyContractKwhPriceSensor,
 )
 from custom_components.voltalis.apps.home_assistant.entities.energy_contract.live_consumption_sensor import (
     VoltalisEnergyContractLiveConsumptionSensor,
@@ -67,22 +64,24 @@ async def async_setup_entry(
     if current_contract is not None:
         energy_contract_sensors.append(VoltalisEnergyContractLiveConsumptionSensor(entry, current_contract))
         energy_contract_sensors.append(VoltalisEnergyContractSubscribedPowerSensor(entry, current_contract))
-        energy_contract_sensors.append(VoltalisEnergyContractCurrentTariffSensor(entry, current_contract))
-
-        energy_contract_sensors.append(VoltalisEnergyContractKwhCurrentPriceSensor(entry, current_contract))
 
         energy_contract_sensors.append(VoltalisEnergyContractDailyConsumptionSensor(entry, current_contract, None))
 
         # Create peak/off-peak specific sensors
-        if current_contract.type == EnergyContractTypeEnum.PEAK_OFFPEAK:
-            energy_contract_sensors.append(VoltalisEnergyContractKwhPeakCostSensor(entry, current_contract))
-            energy_contract_sensors.append(VoltalisEnergyContractKwhOffPeakCostSensor(entry, current_contract))
+        if current_contract.type == EnergyContractTypeEnum.BASE:
+            energy_contract_sensors.append(VoltalisEnergyContractKwhPriceSensor(entry, current_contract, None))
+
+        elif current_contract.type == EnergyContractTypeEnum.PEAK_OFF_PEAK:
+            energy_contract_sensors.append(VoltalisEnergyContractCurrentTariffSensor(entry, current_contract))
+            energy_contract_sensors.append(VoltalisEnergyContractKwhCurrentPriceSensor(entry, current_contract))
+            energy_contract_sensors.append(VoltalisEnergyContractKwhPriceSensor(entry, current_contract, "peak"))
+            energy_contract_sensors.append(VoltalisEnergyContractKwhPriceSensor(entry, current_contract, "off-peak"))
 
             energy_contract_sensors.append(
                 VoltalisEnergyContractDailyConsumptionSensor(entry, current_contract, "peak")
             )
             energy_contract_sensors.append(
-                VoltalisEnergyContractDailyConsumptionSensor(entry, current_contract, "offpeak")
+                VoltalisEnergyContractDailyConsumptionSensor(entry, current_contract, "off-peak")
             )
 
     device_sensors: list[VoltalisDeviceEntity] = []
@@ -102,9 +101,9 @@ async def async_setup_entry(
         if device.programming.prog_type is not None:
             device_sensors.append(VoltalisDeviceProgrammingSensor(entry, device))
 
-        if current_contract is not None and (current_contract.type == EnergyContractTypeEnum.PEAK_OFFPEAK):
+        if current_contract is not None and (current_contract.type == EnergyContractTypeEnum.PEAK_OFF_PEAK):
             device_sensors.append(VoltalisDeviceDailyConsumptionSensor(entry, device, "peak"))
-            device_sensors.append(VoltalisDeviceDailyConsumptionSensor(entry, device, "offpeak"))
+            device_sensors.append(VoltalisDeviceDailyConsumptionSensor(entry, device, "off-peak"))
 
     all_entities: dict[str, VoltalisBaseEntity] = {
         sensor.unique_internal_name: sensor for sensor in (energy_contract_sensors + device_sensors)
