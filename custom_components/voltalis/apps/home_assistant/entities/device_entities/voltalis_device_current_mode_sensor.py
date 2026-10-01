@@ -22,7 +22,6 @@ class VoltalisDeviceCurrentModeSensor(VoltalisDeviceEntity, SensorEntity):  # py
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_options = [option for option in DeviceCurrentModeEnum]
     _attr_translation_key = "device_current_mode"
-    _unique_id_suffix = "device_current_mode"
 
     def __init__(self, entry: VoltalisConfigEntry, device: DeviceDto) -> None:
         """Initialize the sensor entity."""

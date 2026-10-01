@@ -30,7 +30,6 @@ class VoltalisEnergyContractDailyConsumptionSensor(VoltalisEnergyContractEntity,
         suffix = f"_{sensor_type}" if sensor_type else ""
         self.__sensor_type = sensor_type
         self._attr_translation_key = f"daily_consumption{suffix}"
-        self._unique_id_suffix = f"daily_consumption{suffix}"
         self._statistic_id = f"voltalis:contract_{entry.entry_id.lower()}_{energy_contract.id}_energy{suffix}"
         super().__init__(
             entry,

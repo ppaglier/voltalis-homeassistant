@@ -21,7 +21,6 @@ class VoltalisEnergyContractLiveConsumptionSensor(VoltalisEnergyContractEntity, 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_translation_key = "live_consumption"
-    _unique_id_suffix = "live_consumption"
 
     def __init__(self, entry: VoltalisConfigEntry, energy_contract: EnergyContract) -> None:
         """Initialize the sensor entity."""

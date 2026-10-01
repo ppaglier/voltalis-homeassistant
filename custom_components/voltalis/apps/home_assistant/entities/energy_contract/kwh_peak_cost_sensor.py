@@ -16,7 +16,6 @@ class VoltalisEnergyContractKwhPeakCostSensor(VoltalisEnergyContractEntity, Sens
     _attr_native_unit_of_measurement = f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"
     _attr_translation_key = "energy_contract_kwh_peak_cost"
     _attr_icon = "mdi:currency-eur"
-    _unique_id_suffix = "energy_contract_kwh_peak_cost"
 
     def __init__(
         self,

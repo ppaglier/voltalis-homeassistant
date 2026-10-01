@@ -21,7 +21,6 @@ class VoltalisDeviceConnectedSensor(VoltalisDeviceEntity, SensorEntity):  # pyri
     _attr_translation_key = "device_connected"
     _attr_options = [option for option in DeviceHealthStatusEnum]
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _unique_id_suffix = "device_connected"
 
     def __init__(self, entry: VoltalisConfigEntry, device: DeviceDto) -> None:
         """Initialize the sensor entity."""

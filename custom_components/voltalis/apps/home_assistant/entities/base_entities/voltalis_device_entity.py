@@ -26,12 +26,11 @@ class VoltalisDeviceEntity(VoltalisBaseEntity):
 
         self._device = device
 
-        unique_id = f"{entry.entry_id}_{device.id}"
-        device_name = self.__get_device_name()
-
         # Unique id for Home Assistant
-        self._attr_unique_id = f"{unique_id}_{self._unique_id_suffix}"
+        unique_id = f"{entry.entry_id}_{device.id}"
+        self._attr_unique_id = f"{unique_id}_{self._attr_translation_key}"
 
+        device_name = self.__get_device_name()
         self._attr_device_info: DeviceInfo = DeviceInfo(  # pyright: ignore[reportIncompatibleVariableOverride]
             identifiers={(DOMAIN, unique_id)},
             name=device_name,

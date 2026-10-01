@@ -139,14 +139,14 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         # Cleanup devices without entities to prevent shadow devices after initial setup
         self.cleanup_empty_devices()
 
-        await self.__load_publishers()
+        # await self.__load_publishers()
 
         return True
 
     async def async_unload_entry(self) -> bool:
         """Unload the module."""
 
-        self.__unload_publishers()
+        # self.__unload_publishers()
 
         # Unload platforms FIRST before closing the client session
         unload_ok = await self.hass.config_entries.async_unload_platforms(self.entry, self.PLATFORMS)

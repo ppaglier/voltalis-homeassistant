@@ -16,7 +16,6 @@ class VoltalisEnergyContractSubscribedPowerSensor(VoltalisEnergyContractEntity, 
     _attr_native_unit_of_measurement = UnitOfApparentPower.KILO_VOLT_AMPERE
     _attr_translation_key = "energy_contract_subscribed_power"
     _attr_icon = "mdi:meter-electric"
-    _unique_id_suffix = "energy_contract_subscribed_power"
 
     def __init__(self, entry: VoltalisConfigEntry, energy_contract: EnergyContract) -> None:
         """Initialize the energy contract subscribed power sensor."""

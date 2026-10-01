@@ -25,7 +25,6 @@ class VoltalisDevicePresetSelect(VoltalisDeviceEntity, SelectEntity):  # pyright
     """Select entity for Voltalis heating device mode."""
 
     _attr_translation_key = "device_preset"
-    _unique_id_suffix = "device_preset"
 
     def __init__(self, entry: VoltalisConfigEntry, device: DeviceDto) -> None:
         """Initialize the program select entity."""

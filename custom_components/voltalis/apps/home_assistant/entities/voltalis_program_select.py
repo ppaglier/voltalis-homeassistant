@@ -14,7 +14,6 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
 
     _attr_translation_key = "program_select"
     _attr_icon = "mdi:calendar-clock"
-    _unique_id_suffix = "program_select"
 
     __none_program_option = "internal_program-none"
 
@@ -24,7 +23,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         super().__init__(entry, entry.runtime_data.voltalis_home_assistant_module.programs_coordinator)
 
         # Unique id for Home Assistant
-        self._attr_unique_id = f"programs_{self._unique_id_suffix}"
+        self._attr_unique_id = f"programs_{self._attr_translation_key}"
         self.unique_id = self._attr_unique_id
 
     @property
