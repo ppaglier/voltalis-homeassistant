@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any
 
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from propcache.api import cached_property
@@ -9,9 +9,6 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 
 class VoltalisBaseEntity(CoordinatorEntity[BaseVoltalisCoordinator[dict[int, Any]]]):
     """Base class for all Voltalis entities."""
-
-    _statistic_id: str = ""
-    __remove_statistics_listener: Callable[[], None] | None = None
 
     def __init__(
         self,
