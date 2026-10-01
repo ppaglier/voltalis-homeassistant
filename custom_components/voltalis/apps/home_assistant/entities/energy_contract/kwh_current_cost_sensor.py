@@ -13,12 +13,12 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_kwh_cost_query import (  # noqa: E501
     GetEnergyContractCurrentKwCostQuery,
 )
-from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_mode_query import (
-    GetEnergyContractCurrentModeQuery,
+from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_tariff_query import (  # noqa: E501
+    GetEnergyContractCurrentTariffQuery,
 )
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_mode_enum import (
-    EnergyContractCurrentModeEnum,
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_tariff_enum import (
+    EnergyContractCurrentTariffEnum,
 )
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 
@@ -41,7 +41,7 @@ class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, S
             entry, energy_contract, entry.runtime_data.voltalis_home_assistant_module.energy_contract_coordinator
         )
         self.__date_provider = self._voltalis_module.date_provider
-        self.__current_mode: EnergyContractCurrentModeEnum | None = None
+        self.__current_mode: EnergyContractCurrentTariffEnum | None = None
         self.__unsub: Callable | None = None
 
     @cached_property
@@ -49,9 +49,9 @@ class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, S
         """Return the icon to use for this entity."""
         if self.__current_mode is None:
             return "mdi:gauge-empty"
-        if self.__current_mode == EnergyContractCurrentModeEnum.PEAK:
+        if self.__current_mode == EnergyContractCurrentTariffEnum.PEAK:
             return "mdi:gauge-full"
-        if self.__current_mode == EnergyContractCurrentModeEnum.OFFPEAK:
+        if self.__current_mode == EnergyContractCurrentTariffEnum.OFFPEAK:
             return "mdi:gauge-low"
         return "mdi:gauge"
 
@@ -61,8 +61,8 @@ class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, S
             self._voltalis_module.logger.warning("Energy contract with id %s is None", self._energy_contract.id)
             return
 
-        current_mode = await self._voltalis_module.get_energy_contract_current_mode_handler.handle(
-            GetEnergyContractCurrentModeQuery(type=energy_contract.type, offpeak_hours=energy_contract.offpeak_hours)
+        current_mode = await self._voltalis_module.get_energy_contract_current_tariff_handler.handle(
+            GetEnergyContractCurrentTariffQuery(type=energy_contract.type, offpeak_hours=energy_contract.offpeak_hours)
         )
 
         new_value = await self._voltalis_module.get_energy_contract_current_kwh_cost_handler.handle(

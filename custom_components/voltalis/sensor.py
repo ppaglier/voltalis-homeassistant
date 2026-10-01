@@ -23,8 +23,8 @@ from custom_components.voltalis.apps.home_assistant.entities.device_entities.vol
 from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_programming_sensor import (
     VoltalisDeviceProgrammingSensor,
 )
-from custom_components.voltalis.apps.home_assistant.entities.energy_contract.current_mode_sensor import (
-    VoltalisEnergyContractCurrentModeSensor,
+from custom_components.voltalis.apps.home_assistant.entities.energy_contract.current_tariff_sensor import (
+    VoltalisEnergyContractCurrentTariffSensor,
 )
 from custom_components.voltalis.apps.home_assistant.entities.energy_contract.daily_consumption_sensor import (
     VoltalisEnergyContractDailyConsumptionSensor,
@@ -67,7 +67,7 @@ async def async_setup_entry(
     if current_contract is not None:
         energy_contract_sensors.append(VoltalisEnergyContractLiveConsumptionSensor(entry, current_contract))
         energy_contract_sensors.append(VoltalisEnergyContractSubscribedPowerSensor(entry, current_contract))
-        energy_contract_sensors.append(VoltalisEnergyContractCurrentModeSensor(entry, current_contract))
+        energy_contract_sensors.append(VoltalisEnergyContractCurrentTariffSensor(entry, current_contract))
 
         energy_contract_sensors.append(VoltalisEnergyContractKwhCurrentCostSensor(entry, current_contract))
 

@@ -297,7 +297,7 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
 <details>
   <summary>Capteur du mode actuel du contrat énergétique</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_current_mode`
+  - **ID d'entité** : `sensor.voltalis_energy_contract_current_tariff`
   - **Type** : Capteur
   - **États** : `Base`, `Heures pleines`, `Heures creuses`
   - **Description** : Indique la période tarifaire actuelle de votre contrat d'énergie

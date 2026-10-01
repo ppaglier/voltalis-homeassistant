@@ -9,21 +9,21 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisEnergyContractEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_mode_query import (
-    GetEnergyContractCurrentModeQuery,
+from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_tariff_query import (  # noqa: E501
+    GetEnergyContractCurrentTariffQuery,
 )
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_mode_enum import (
-    EnergyContractCurrentModeEnum,
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_tariff_enum import (
+    EnergyContractCurrentTariffEnum,
 )
 
 
-class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
+class VoltalisEnergyContractCurrentTariffSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Sensor entity for Voltalis energy contract current mode."""
 
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_translation_key = "energy_contract_current_tariff"
-    _attr_options = [option for option in EnergyContractCurrentModeEnum]
+    _attr_options = [option for option in EnergyContractCurrentTariffEnum]
 
     def __init__(
         self,
@@ -42,11 +42,11 @@ class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, Sens
         """Return the icon to use for this entity."""
         if self.native_value is None:
             return "mdi:calendar-minus"
-        if self.native_value == EnergyContractCurrentModeEnum.BASE:
+        if self.native_value == EnergyContractCurrentTariffEnum.BASE:
             return "mdi:sort-calendar-today"
-        if self.native_value == EnergyContractCurrentModeEnum.PEAK:
+        if self.native_value == EnergyContractCurrentTariffEnum.PEAK:
             return "mdi:sort-calendar-descending"
-        if self.native_value == EnergyContractCurrentModeEnum.OFFPEAK:
+        if self.native_value == EnergyContractCurrentTariffEnum.OFFPEAK:
             return "mdi:sort-calendar-ascending"
         return "mdi:calendar-blank-outline"
 
@@ -56,8 +56,8 @@ class VoltalisEnergyContractCurrentModeSensor(VoltalisEnergyContractEntity, Sens
             self._voltalis_module.logger.warning("Energy contract with id %s is None", self._energy_contract.id)
             return
 
-        new_value = await self._voltalis_module.get_energy_contract_current_mode_handler.handle(
-            GetEnergyContractCurrentModeQuery(type=energy_contract.type, offpeak_hours=energy_contract.offpeak_hours)
+        new_value = await self._voltalis_module.get_energy_contract_current_tariff_handler.handle(
+            GetEnergyContractCurrentTariffQuery(type=energy_contract.type, offpeak_hours=energy_contract.offpeak_hours)
         )
 
         if new_value is None or self._attr_native_value == new_value:

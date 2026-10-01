@@ -7,8 +7,8 @@ from custom_components.voltalis.lib.application.energy_contracts.handlers.get_cu
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_current_kwh_cost_handler import (  # noqa: E501
     GetEnergyContractCurrentKwhCostHandler,
 )
-from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_current_mode_handler import (  # noqa: E501
-    GetEnergyContractCurrentModeHandler,
+from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_current_tariff_handler import (  # noqa: E501
+    GetEnergyContractCurrentTariffHandler,
 )
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_live_consumption_handler import (
     GetLiveConsumptionHandler,
@@ -33,7 +33,7 @@ class EnergyContractsFixture(BaseFixture):
             date_provider=self.date_provider,
             voltalis_provider=self.voltalis_provider,
         )
-        self.get_energy_contract_current_mode_handler = GetEnergyContractCurrentModeHandler(
+        self.get_energy_contract_current_tariff_handler = GetEnergyContractCurrentTariffHandler(
             date_provider=self.date_provider,
         )
         self.get_energy_contract_current_kwh_cost_handler = GetEnergyContractCurrentKwhCostHandler()

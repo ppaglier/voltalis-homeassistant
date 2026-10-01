@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 
-class EnergyContractCurrentModeEnum(StrEnum):
+class EnergyContractCurrentTariffEnum(StrEnum):
     """Voltalis energy contract current mode options."""
 
     BASE = "base"

@@ -1,7 +1,7 @@
 from datetime import time
 
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_mode_enum import (
-    EnergyContractCurrentModeEnum,
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_tariff_enum import (
+    EnergyContractCurrentTariffEnum,
 )
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 from custom_components.voltalis.lib.domain.helpers.is_in_time_range import is_in_time_range
@@ -24,16 +24,16 @@ class EnergyContractService:
         *,
         contract_type: EnergyContractTypeEnum,
         offpeak_hours: list[RangeModel[time]],
-    ) -> EnergyContractCurrentModeEnum:
+    ) -> EnergyContractCurrentTariffEnum:
         """Get the current mode of the energy contract."""
 
         if contract_type == EnergyContractTypeEnum.BASE:
-            return EnergyContractCurrentModeEnum.BASE
+            return EnergyContractCurrentTariffEnum.BASE
 
         now = self.__date_provider.get_now().time()
         in_off_peak = any(is_in_time_range(time_range, now) for time_range in offpeak_hours)
 
         if in_off_peak:
-            return EnergyContractCurrentModeEnum.OFFPEAK
+            return EnergyContractCurrentTariffEnum.OFFPEAK
 
-        return EnergyContractCurrentModeEnum.PEAK
+        return EnergyContractCurrentTariffEnum.PEAK
