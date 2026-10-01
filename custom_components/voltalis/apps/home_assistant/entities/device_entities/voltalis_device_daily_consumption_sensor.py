@@ -29,7 +29,6 @@ class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity): 
         suffix = f"_{sensor_type}" if sensor_type else ""
         self.__sensor_type = sensor_type
         self._attr_translation_key = f"device_daily_consumption{suffix}"
-        self._statistic_id = f"voltalis:device_{entry.entry_id.lower()}_{device.id}_energy{suffix}"
 
         super().__init__(
             entry, device, entry.runtime_data.voltalis_home_assistant_module.device_daily_consumption_coordinator
