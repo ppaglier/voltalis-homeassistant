@@ -24,7 +24,7 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum
 
 
 class VoltalisEnergyContractKwhCurrentPriceSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
-    """Sensor entity for Voltalis energy contract kWh current cost."""
+    """Sensor entity for Voltalis energy contract kWh current price."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"
@@ -36,7 +36,7 @@ class VoltalisEnergyContractKwhCurrentPriceSensor(VoltalisEnergyContractEntity, 
         entry: VoltalisConfigEntry,
         energy_contract: EnergyContract,
     ) -> None:
-        """Initialize the energy contract kWh current cost sensor."""
+        """Initialize the energy contract kWh current price sensor."""
         super().__init__(
             entry, energy_contract, entry.runtime_data.voltalis_home_assistant_module.energy_contract_coordinator
         )
@@ -51,7 +51,7 @@ class VoltalisEnergyContractKwhCurrentPriceSensor(VoltalisEnergyContractEntity, 
             return "mdi:gauge-empty"
         if self.__current_mode == EnergyContractCurrentTariffEnum.PEAK:
             return "mdi:gauge-full"
-        if self.__current_mode == EnergyContractCurrentTariffEnum.OFFPEAK:
+        if self.__current_mode == EnergyContractCurrentTariffEnum.OFF_PEAK:
             return "mdi:gauge-low"
         return "mdi:gauge"
 
@@ -62,7 +62,9 @@ class VoltalisEnergyContractKwhCurrentPriceSensor(VoltalisEnergyContractEntity, 
             return
 
         current_mode = await self._voltalis_module.get_energy_contract_current_tariff_handler.handle(
-            GetEnergyContractCurrentTariffQuery(type=energy_contract.type, offpeak_hours=energy_contract.offpeak_hours)
+            GetEnergyContractCurrentTariffQuery(
+                type=energy_contract.type, off_peak_hours=energy_contract.off_peak_hours
+            )
         )
 
         new_value = await self._voltalis_module.get_energy_contract_kwh_current_price_handler.handle(
@@ -70,7 +72,7 @@ class VoltalisEnergyContractKwhCurrentPriceSensor(VoltalisEnergyContractEntity, 
                 current_mode=current_mode,
                 base_kwh_cost=energy_contract.prices.kwh_base,
                 peak_kwh_cost=energy_contract.prices.kwh_peak,
-                offpeak_kwh_cost=energy_contract.prices.kwh_offpeak,
+                off_peak_kwh_cost=energy_contract.prices.kwh_off_peak,
             )
         )
 
@@ -103,4 +105,4 @@ class VoltalisEnergyContractKwhCurrentPriceSensor(VoltalisEnergyContractEntity, 
     def _is_available_from_data(self, data: EnergyContract) -> bool:
         if data.type == EnergyContractTypeEnum.BASE:
             return data.prices.kwh_base is not None
-        return data.prices.kwh_peak is not None or data.prices.kwh_offpeak is not None
+        return data.prices.kwh_peak is not None or data.prices.kwh_off_peak is not None

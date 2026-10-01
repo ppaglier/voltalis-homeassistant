@@ -22,5 +22,5 @@ class GetEnergyContractCurrentTariffHandler:
         """Handle the request to get the current mode of the energy contract."""
 
         return self.__energy_contract_service.get_current_mode(
-            contract_type=query.type, offpeak_hours=query.offpeak_hours
+            contract_type=query.type, off_peak_hours=query.off_peak_hours
         )

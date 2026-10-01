@@ -14,6 +14,6 @@ class GetEnergyContractKwhCurrentPriceHandler:
 
         if query.current_mode is EnergyContractCurrentTariffEnum.PEAK:
             return query.peak_kwh_cost
-        if query.current_mode is EnergyContractCurrentTariffEnum.OFFPEAK:
-            return query.offpeak_kwh_cost
+        if query.current_mode is EnergyContractCurrentTariffEnum.OFF_PEAK:
+            return query.off_peak_kwh_cost
         return query.base_kwh_cost

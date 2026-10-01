@@ -326,7 +326,7 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
 <details>
   <summary>Capteur du coût du kWh en heures pleines</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_peak_cost`
+  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_peak_price`
   - **Type** : Capteur monétaire
   - **Unité** : € (Euro)
   - **Classe de périphérique** : Monétaire
@@ -339,7 +339,7 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
 <details>
   <summary>Capteur du coût du kWh en heures creuses</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_off_peak_cost`
+  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_off_peak_price`
   - **Type** : Capteur monétaire
   - **Unité** : € (Euro)
   - **Classe de périphérique** : Monétaire

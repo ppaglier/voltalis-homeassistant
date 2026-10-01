@@ -86,7 +86,7 @@
       "daily_consumption_peak": {
         "name": "Consommation journalière (Heures pleines)"
       },
-      "daily_consumption_offpeak": {
+      "daily_consumption_off-peak": {
         "name": "Consommation journalière (Heures creuses)"
       },
       "device_daily_consumption": {
@@ -95,7 +95,7 @@
       "device_daily_consumption_peak": {
         "name": "Consommation journalière (Heures pleines)"
       },
-      "device_daily_consumption_offpeak": {
+      "device_daily_consumption_off-peak": {
         "name": "Consommation journalière (Heures creuses)"
       },
       "device_programming": {
@@ -124,18 +124,21 @@
       "energy_contract_kwh_current_price": {
         "name": "Prix kWh actuel"
       },
-      "energy_contract_kwh_off_peak_cost": {
-        "name": "Coût kWh heures creuses"
+      "energy_contract_kwh_price": {
+        "name": "Prix kWh"
       },
-      "energy_contract_kwh_peak_cost": {
-        "name": "Coût kWh heures pleines"
+      "energy_contract_kwh_off-peak_price": {
+        "name": "Prix kWh heures creuses"
+      },
+      "energy_contract_kwh_peak_price": {
+        "name": "Prix kWh heures pleines"
       },
       "energy_contract_current_tariff": {
         "name": "Tarif actuel",
         "state": {
           "base": "Base",
           "peak": "Heures pleines",
-          "offpeak": "Heures creuses"
+          "off-peak": "Heures creuses"
         }
       }
     },

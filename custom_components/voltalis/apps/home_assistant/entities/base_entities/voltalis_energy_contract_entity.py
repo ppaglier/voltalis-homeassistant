@@ -37,7 +37,7 @@ class VoltalisEnergyContractEntity(VoltalisBaseEntity):
             manufacturer=energy_contract.company_name,
             model=contract_model,
             model_id=str(energy_contract.subscriber_id),
-            configuration_url="https://myvoltalis.com/contract",
+            configuration_url=f"https://myvoltalis.com/contract?mode=edit&contractId={energy_contract.id}",
             entry_type=DeviceEntryType.SERVICE,
         )
 

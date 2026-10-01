@@ -23,7 +23,7 @@ class EnergyContractService:
         self,
         *,
         contract_type: EnergyContractTypeEnum,
-        offpeak_hours: list[RangeModel[time]],
+        off_peak_hours: list[RangeModel[time]],
     ) -> EnergyContractCurrentTariffEnum:
         """Get the current mode of the energy contract."""
 
@@ -31,9 +31,9 @@ class EnergyContractService:
             return EnergyContractCurrentTariffEnum.BASE
 
         now = self.__date_provider.get_now().time()
-        in_off_peak = any(is_in_time_range(time_range, now) for time_range in offpeak_hours)
+        in_off_peak = any(is_in_time_range(time_range, now) for time_range in off_peak_hours)
 
         if in_off_peak:
-            return EnergyContractCurrentTariffEnum.OFFPEAK
+            return EnergyContractCurrentTariffEnum.OFF_PEAK
 
         return EnergyContractCurrentTariffEnum.PEAK

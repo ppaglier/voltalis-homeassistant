@@ -22,7 +22,7 @@ async def test_get_energy_contract_kwh_current_price_base(
             current_mode=EnergyContractCurrentTariffEnum.BASE,
             base_kwh_cost=0.2,
             peak_kwh_cost=0.3,
-            offpeak_kwh_cost=0.1,
+            off_peak_kwh_cost=0.1,
         )
     )
 
@@ -40,7 +40,7 @@ async def test_get_energy_contract_kwh_current_price_peak(
             current_mode=EnergyContractCurrentTariffEnum.PEAK,
             base_kwh_cost=0.2,
             peak_kwh_cost=0.3,
-            offpeak_kwh_cost=0.1,
+            off_peak_kwh_cost=0.1,
         )
     )
 
@@ -48,17 +48,17 @@ async def test_get_energy_contract_kwh_current_price_peak(
 
 
 @pytest.mark.unit
-async def test_get_energy_contract_kwh_current_price_offpeak(
+async def test_get_energy_contract_kwh_current_price_off_peak(
     fixture: EnergyContractsFixture,
 ) -> None:
-    """Test kWh cost handler returns offpeak price."""
+    """Test kWh cost handler returns off-peak price."""
 
     result = await fixture.get_energy_contract_kwh_current_price_handler.handle(
         GetEnergyContractKwhCurrentPriceQuery(
-            current_mode=EnergyContractCurrentTariffEnum.OFFPEAK,
+            current_mode=EnergyContractCurrentTariffEnum.OFF_PEAK,
             base_kwh_cost=0.2,
             peak_kwh_cost=0.3,
-            offpeak_kwh_cost=0.1,
+            off_peak_kwh_cost=0.1,
         )
     )
 

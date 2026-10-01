@@ -105,8 +105,8 @@ class VoltalisEnergyStatisticsPublisher:
         published_series = 0
         for energy_contract in self.__energy_contract_coordinator.data.values():
             sensor_types: tuple[str | None, ...] = (None,)
-            if energy_contract.type == EnergyContractTypeEnum.PEAK_OFFPEAK:
-                sensor_types = (None, "peak", "offpeak")
+            if energy_contract.type == EnergyContractTypeEnum.PEAK_OFF_PEAK:
+                sensor_types = (None, "peak", "off-peak")
 
             for sensor_type in sensor_types:
                 contract_entity_id = self.__get_entity_id(
@@ -149,8 +149,8 @@ class VoltalisEnergyStatisticsPublisher:
                 start = record.timestamp.replace(minute=0, second=0, microsecond=0)
                 if sensor_type == "peak":
                     totals[start] += record.peak_consumption_in_wh or 0.0
-                elif sensor_type == "offpeak":
-                    totals[start] += record.offpeak_consumption_in_wh or 0.0
+                elif sensor_type == "off-peak":
+                    totals[start] += record.off_peak_consumption_in_wh or 0.0
                 else:
                     totals[start] += record.total_consumption_in_wh
 

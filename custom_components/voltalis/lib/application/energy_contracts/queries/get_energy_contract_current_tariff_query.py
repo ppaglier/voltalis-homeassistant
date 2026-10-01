@@ -9,4 +9,4 @@ class GetEnergyContractCurrentTariffQuery(CustomModel):
     """Query to get the current tariff of an energy contract."""
 
     type: EnergyContractTypeEnum
-    offpeak_hours: list[RangeModel[time]]
+    off_peak_hours: list[RangeModel[time]]

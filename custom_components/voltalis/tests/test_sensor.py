@@ -119,14 +119,14 @@ async def test_device_daily_consumption_sensor(
 @pytest.mark.parametrize(
     "entity_id,expected_unit",
     [
-        ("sensor.contract_1_3_kva_peak_offpeak_live_consumption", UnitOfPower.WATT),
-        ("sensor.contract_1_3_kva_peak_offpeak_subscribed_power", UnitOfApparentPower.KILO_VOLT_AMPERE),
-        ("sensor.contract_1_3_kva_peak_offpeak_daily_consumption", UnitOfEnergy.WATT_HOUR),
-        ("sensor.contract_1_3_kva_peak_offpeak_daily_consumption_peak", UnitOfEnergy.WATT_HOUR),
-        ("sensor.contract_1_3_kva_peak_offpeak_daily_consumption_off_peak", UnitOfEnergy.WATT_HOUR),
-        ("sensor.contract_1_3_kva_peak_offpeak_kwh_current_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
-        ("sensor.contract_1_3_kva_peak_offpeak_kwh_peak_cost", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
-        ("sensor.contract_1_3_kva_peak_offpeak_kwh_off_peak_cost", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
+        ("sensor.contract_1_3_kva_peak_off_peak_live_consumption", UnitOfPower.WATT),
+        ("sensor.contract_1_3_kva_peak_off_peak_subscribed_power", UnitOfApparentPower.KILO_VOLT_AMPERE),
+        ("sensor.contract_1_3_kva_peak_off_peak_daily_consumption", UnitOfEnergy.WATT_HOUR),
+        ("sensor.contract_1_3_kva_peak_off_peak_daily_consumption_peak", UnitOfEnergy.WATT_HOUR),
+        ("sensor.contract_1_3_kva_peak_off_peak_daily_consumption_off_peak", UnitOfEnergy.WATT_HOUR),
+        ("sensor.contract_1_3_kva_peak_off_peak_kwh_current_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
+        ("sensor.contract_1_3_kva_peak_off_peak_kwh_peak_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
+        ("sensor.contract_1_3_kva_peak_off_peak_kwh_off_peak_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
     ],
 )
 async def test_energy_contract_sensor_entity_setup(
@@ -147,7 +147,7 @@ async def test_energy_contract_sensor_entity_setup(
 async def test_energy_contract_current_tariff_sensor(fixture: HomeAssistantFixture) -> None:
     """Test that energy contract current mode sensor has correct options."""
 
-    entity_id = "sensor.contract_1_3_kva_peak_offpeak_energy_contract_current_tariff"
+    entity_id = "sensor.contract_1_3_kva_peak_off_peak_energy_contract_current_tariff"
     sensor_entity = fixture.get_entity_state(entity_id)
 
     # Verify that options are available
@@ -164,7 +164,7 @@ async def test_energy_contract_current_tariff_sensor(fixture: HomeAssistantFixtu
 async def test_energy_contract_live_consumption_sensor(fixture: HomeAssistantFixture) -> None:
     """Test that energy contract live consumption sensor reports values."""
 
-    entity_id = "sensor.contract_1_3_kva_peak_offpeak_live_consumption"
+    entity_id = "sensor.contract_1_3_kva_peak_off_peak_live_consumption"
     sensor_entity = fixture.get_entity_state(entity_id)
 
     # Check that the sensor has a numeric state
@@ -184,7 +184,7 @@ async def test_energy_contract_live_consumption_sensor(fixture: HomeAssistantFix
         "water_heater_2",
     ],
 )
-async def test_device_daily_consumption_peak_offpeak_consistency(
+async def test_device_daily_consumption_peak_off_peak_consistency(
     fixture: HomeAssistantFixture,
     device_slug: str,
 ) -> None:
@@ -200,12 +200,12 @@ async def test_device_daily_consumption_peak_offpeak_consistency(
 
 
 @pytest.mark.e2e
-async def test_energy_contract_daily_consumption_peak_offpeak_consistency(fixture: HomeAssistantFixture) -> None:
+async def test_energy_contract_daily_consumption_peak_off_peak_consistency(fixture: HomeAssistantFixture) -> None:
     """Test that contract daily consumption is split between peak and off-peak sensors."""
 
-    total = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_offpeak_daily_consumption").state)
-    peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_offpeak_daily_consumption_peak").state)
-    off_peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_offpeak_daily_consumption_off_peak").state)
+    total = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_daily_consumption").state)
+    peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_daily_consumption_peak").state)
+    off_peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_daily_consumption_off_peak").state)
 
     assert peak >= 0
     assert off_peak >= 0
@@ -254,7 +254,7 @@ async def test_device_health_coordinator_update(fixture: HomeAssistantFixture) -
 async def test_energy_contract_coordinator_update(fixture: HomeAssistantFixture) -> None:
     """Test that energy contract coordinator updates reflect in sensor state."""
 
-    entity_id = "sensor.contract_1_3_kva_peak_offpeak_subscribed_power"
+    entity_id = "sensor.contract_1_3_kva_peak_off_peak_subscribed_power"
 
     # Get initial state
     initial_state = fixture.get_entity_state(entity_id)
@@ -324,7 +324,7 @@ async def test_device_health_sensor_handles_missing_device_data(fixture: HomeAss
 async def test_energy_contract_sensor_handles_missing_contract_data(fixture: HomeAssistantFixture) -> None:
     """Test that energy contract sensor handles missing contract data gracefully."""
 
-    entity_id = "sensor.contract_1_3_kva_peak_offpeak_subscribed_power"
+    entity_id = "sensor.contract_1_3_kva_peak_off_peak_subscribed_power"
 
     # Verify entity is available initially
     initial_state = fixture.get_entity_state(entity_id)

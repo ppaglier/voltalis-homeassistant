@@ -269,7 +269,7 @@ class HomeAssistantFixture(BaseFixture[None]):
             EnergyContractBuilder()
             .with_id(1)
             .with_subscriber_id(1)
-            .with_type(EnergyContractTypeEnum.PEAK_OFFPEAK)
+            .with_type(EnergyContractTypeEnum.PEAK_OFF_PEAK)
             .build()
         )
         self.voltalis_server.given_energy_contracts([energy_contract])

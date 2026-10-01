@@ -38,7 +38,7 @@ def test_energy_contract_builder_with_all_fields() -> None:
         EnergyContractBuilder()
         .with_id(2)
         .with_subscriber_id(200)
-        .with_type(EnergyContractTypeEnum.PEAK_OFFPEAK)
+        .with_type(EnergyContractTypeEnum.PEAK_OFF_PEAK)
         .with_end_date(end_date)
         .build()
     )
@@ -46,4 +46,4 @@ def test_energy_contract_builder_with_all_fields() -> None:
     # Assert
     assert contract.id == 2
     assert contract.end_date == end_date
-    assert contract.type == EnergyContractTypeEnum.PEAK_OFFPEAK
+    assert contract.type == EnergyContractTypeEnum.PEAK_OFF_PEAK

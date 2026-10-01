@@ -330,7 +330,7 @@ The integration also provides sensors related to your energy contract:
 <details>
   <summary>kWh Peak Cost Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_peak_cost`
+  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_peak_price`
   - **Type**: Monetary sensor
   - **Unit**: € (Euro)
   - **Device Class**: Monetary
@@ -343,7 +343,7 @@ The integration also provides sensors related to your energy contract:
 <details>
   <summary>kWh Off-Peak Cost Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_off_peak_cost`
+  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_off_peak_price`
   - **Type**: Monetary sensor
   - **Unit**: € (Euro)
   - **Device Class**: Monetary

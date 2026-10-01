@@ -11,4 +11,4 @@ class GetEnergyContractKwhCurrentPriceQuery(CustomModel):
 
     base_kwh_cost: float | None
     peak_kwh_cost: float | None
-    offpeak_kwh_cost: float | None
+    off_peak_kwh_cost: float | None

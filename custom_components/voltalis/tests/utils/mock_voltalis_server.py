@@ -290,7 +290,7 @@ class MockVoltalisServer:
                             step_timestamp_on_site=record.timestamp,
                             total_consumption_in_wh=record.total_consumption_in_wh,
                             peak_hour_consumption_in_wh=record.peak_consumption_in_wh,
-                            offpeak_hour_consumption_in_wh=record.offpeak_consumption_in_wh,
+                            off_peak_hour_consumption_in_wh=record.off_peak_consumption_in_wh,
                         )
                         for record in records
                     ]
