@@ -1,10 +1,6 @@
 from typing import Literal
 
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntity,
-    SensorStateClass,
-)
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import UnitOfEnergy
 from homeassistant.core import callback
 from propcache.api import cached_property
@@ -20,7 +16,7 @@ class VoltalisEnergyContractDailyConsumptionSensor(VoltalisEnergyContractEntity,
     """Sensor entity to represent near real-time consumption for a Voltalis energy contract."""
 
     _attr_device_class = SensorDeviceClass.ENERGY
-    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_state_class = None
     _attr_native_unit_of_measurement = UnitOfEnergy.WATT_HOUR
 
     def __init__(
