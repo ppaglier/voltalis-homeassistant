@@ -6,10 +6,10 @@ from homeassistant.helpers.event import async_track_time_change
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
+from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
 
 
-class VoltalisLiveConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, LiveConsumption]]):
+class VoltalisLivePowerCoordinator(BaseVoltalisCoordinator[dict[int, LivePower]]):
     """Coordinator to manage real-time consumption data for a Voltalis."""
 
     def __init__(
@@ -50,8 +50,8 @@ class VoltalisLiveConsumptionCoordinator(BaseVoltalisCoordinator[dict[int, LiveC
         # Request a refresh (will call _async_update_data)
         self.hass.async_create_task(self.async_request_refresh())
 
-    async def _get_data(self) -> dict[int, LiveConsumption]:
+    async def _get_data(self) -> dict[int, LivePower]:
         """Fetch updated data from the Voltalis API."""
 
-        data = await self._voltalis_module.get_live_consumption_handler.handle()
+        data = await self._voltalis_module.get_live_power_handler.handle()
         return {0: data}

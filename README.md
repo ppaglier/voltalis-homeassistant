@@ -275,7 +275,7 @@ The integration also provides sensors related to your energy contract:
 <details>
   <summary>Live Consumption Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_live_consumption`
+  - **Entity ID**: `sensor.voltalis_energy_contract_live_power`
   - **Type**: Power sensor
   - **Unit**: W (Watts)
   - **Device Class**: Power

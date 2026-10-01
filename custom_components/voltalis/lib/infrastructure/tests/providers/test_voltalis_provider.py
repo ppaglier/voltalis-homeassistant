@@ -25,7 +25,7 @@ from custom_components.voltalis.lib.domain.devices_management.health.device_heal
 from custom_components.voltalis.lib.domain.devices_management.health.device_health_builder import DeviceHealthBuilder
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_builder import EnergyContractBuilder
-from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
+from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 from custom_components.voltalis.lib.domain.programs_management.programs.program_builder import ProgramBuilder
 from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
@@ -130,19 +130,19 @@ async def test_get_devices_health_empty(fixture: "VoltalisProviderFixture") -> N
 
 
 @pytest.mark.integration
-async def test_get_live_consumption(fixture: "VoltalisProviderFixture") -> None:
-    """Test get_live_consumption method."""
+async def test_get_live_power(fixture: "VoltalisProviderFixture") -> None:
+    """Test get_live_power method."""
 
-    live_consumption = LiveConsumption(consumption=123.45)
+    live_power = LivePower(consumption=123.45)
 
     # Arrange
-    fixture.given_live_consumption(live_consumption)
+    fixture.given_live_power(live_power)
 
     # Act
-    result = await fixture.provider.get_live_consumption()
+    result = await fixture.provider.get_live_power()
 
     # Assert
-    expected_result = live_consumption
+    expected_result = live_power
     fixture.compare_data(result, expected_result)
 
 
@@ -448,7 +448,7 @@ def _require_api_provider(fixture: "VoltalisProviderFixture") -> VoltalisProvide
     [
         ("get_devices", [{}], tuple()),
         ("get_devices_health", [{}], tuple()),
-        ("get_live_consumption", {}, tuple()),
+        ("get_live_power", {}, tuple()),
         ("get_devices_daily_consumptions", {"per_appliance": {"bad": []}}, (date(2024, 11, 24),)),
         ("get_manual_settings", [{}], tuple()),
         ("get_energy_contracts", [{}], tuple()),
@@ -593,14 +593,14 @@ class VoltalisProviderFixture(BaseFixture):
 
         raise ValueError("Unknown provider type")
 
-    def given_live_consumption(self, live_consumption: LiveConsumption) -> None:
+    def given_live_power(self, live_power: LivePower) -> None:
         """Set existing live consumption in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
-            self.provider.set_live_consumption(live_consumption)
+            self.provider.set_live_power(live_power)
             return
 
         if isinstance(self.provider, VoltalisProviderVoltalisApi):
-            self.voltalis_server.given_live_consumption(live_consumption)
+            self.voltalis_server.given_live_power(live_power)
             return
 
         raise ValueError("Unknown provider type")

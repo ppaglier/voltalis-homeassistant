@@ -10,11 +10,11 @@ from custom_components.voltalis.lib.application.energy_contracts.handlers.get_en
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_kwh_current_price_handler import (  # noqa: E501
     GetEnergyContractKwhCurrentPriceHandler,
 )
-from custom_components.voltalis.lib.application.energy_contracts.handlers.get_live_consumption_handler import (
-    GetLiveConsumptionHandler,
+from custom_components.voltalis.lib.application.energy_contracts.handlers.get_live_power_handler import (
+    GetLivePowerHandler,
 )
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
-from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
+from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
 from custom_components.voltalis.lib.infrastructure.providers.date_provider_stub import DateProviderStub
 from custom_components.voltalis.lib.infrastructure.providers.voltalis_provider_stub import VoltalisProviderStub
 from custom_components.voltalis.tests.utils.base_fixture import BaseFixture
@@ -37,7 +37,7 @@ class EnergyContractsFixture(BaseFixture):
             date_provider=self.date_provider,
         )
         self.get_energy_contract_kwh_current_price_handler = GetEnergyContractKwhCurrentPriceHandler()
-        self.get_live_consumption_handler = GetLiveConsumptionHandler(
+        self.get_live_power_handler = GetLivePowerHandler(
             voltalis_provider=self.voltalis_provider,
         )
 
@@ -55,10 +55,10 @@ class EnergyContractsFixture(BaseFixture):
 
         self.voltalis_provider.set_energy_contracts(energy_contracts)
 
-    def given_live_consumption(self, live_consumption: LiveConsumption) -> None:
+    def given_live_power(self, live_power: LivePower) -> None:
         """Set live consumption returned by the provider."""
 
-        self.voltalis_provider.set_live_consumption(live_consumption)
+        self.voltalis_provider.set_live_power(live_power)
 
     # ------------------------------------------------------------
     # Assertions
@@ -69,7 +69,7 @@ class EnergyContractsFixture(BaseFixture):
 
         self.compare_dicts(self.voltalis_provider._energy_contracts, expected_contracts)
 
-    def then_live_consumption_should_be(self, expected: LiveConsumption) -> None:
+    def then_live_power_should_be(self, expected: LivePower) -> None:
         """Assert live consumption returned by the provider is as expected."""
 
-        self.compare_data(self.voltalis_provider._live_consumption, expected)
+        self.compare_data(self.voltalis_provider._live_power, expected)

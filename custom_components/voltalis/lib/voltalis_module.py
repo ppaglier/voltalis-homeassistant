@@ -52,8 +52,8 @@ from custom_components.voltalis.lib.application.energy_contracts.handlers.get_en
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_kwh_current_price_handler import (  # noqa: E501
     GetEnergyContractKwhCurrentPriceHandler,
 )
-from custom_components.voltalis.lib.application.energy_contracts.handlers.get_live_consumption_handler import (
-    GetLiveConsumptionHandler,
+from custom_components.voltalis.lib.application.energy_contracts.handlers.get_live_power_handler import (
+    GetLivePowerHandler,
 )
 from custom_components.voltalis.lib.application.programs_management.handlers.get_programs_handler import (
     GetProgramsHandler,
@@ -195,7 +195,7 @@ class VoltalisModule:
             date_provider=self.date_provider,
         )
         self.get_energy_contract_kwh_current_price_handler = GetEnergyContractKwhCurrentPriceHandler()
-        self.get_live_consumption_handler = GetLiveConsumptionHandler(
+        self.get_live_power_handler = GetLivePowerHandler(
             voltalis_provider=self.__voltalis_provider,
         )
 

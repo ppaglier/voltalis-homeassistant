@@ -8,7 +8,7 @@ from custom_components.voltalis.lib.domain.devices_management.consumptions.devic
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
-from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
+from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.domain.shared.providers.voltalis_provider import VoltalisProvider
@@ -20,7 +20,7 @@ class VoltalisProviderStub(VoltalisProvider):
     def __init__(self) -> None:
         self._devices: dict[int, Device] = {}
         self._devices_health: dict[int, DeviceHealth] = {}
-        self._live_consumption = LiveConsumption(consumption=0.0)
+        self._live_power = LivePower(consumption=0.0)
         self._devices_consumptions: dict[int, list[ConsumptionRecord]] = {}
         self._manual_settings: dict[int, ManualSetting] = {}
         self._energy_contracts: dict[int, EnergyContract] = {}
@@ -32,8 +32,8 @@ class VoltalisProviderStub(VoltalisProvider):
     def set_devices_health(self, devices_health: list[DeviceHealth]) -> None:
         self._devices_health = {device_health.device_id: device_health for device_health in devices_health}
 
-    def set_live_consumption(self, consumption: LiveConsumption) -> None:
-        self._live_consumption = consumption
+    def set_live_power(self, consumption: LivePower) -> None:
+        self._live_power = consumption
 
     def set_devices_consumptions(self, devices_consumptions: dict[int, list[ConsumptionRecord]]) -> None:
         self._devices_consumptions = devices_consumptions
@@ -57,8 +57,8 @@ class VoltalisProviderStub(VoltalisProvider):
     async def get_devices_health(self) -> dict[int, DeviceHealth]:
         return self._devices_health
 
-    async def get_live_consumption(self) -> LiveConsumption:
-        return self._live_consumption
+    async def get_live_power(self) -> LivePower:
+        return self._live_power
 
     async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[ConsumptionRecord]]:
         devices_consumptions = {

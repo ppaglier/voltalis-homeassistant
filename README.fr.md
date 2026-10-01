@@ -271,7 +271,7 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
 <details>
   <summary>Capteur de consommation en temps réel</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_live_consumption`
+  - **ID d'entité** : `sensor.voltalis_energy_contract_live_power`
   - **Type** : Capteur de puissance
   - **Unité** : W (Watts)
   - **Classe de périphérique** : Puissance
