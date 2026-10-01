@@ -124,7 +124,7 @@ async def test_device_daily_consumption_sensor(
         ("sensor.contract_1_3_kva_peak_offpeak_daily_consumption", UnitOfEnergy.WATT_HOUR),
         ("sensor.contract_1_3_kva_peak_offpeak_daily_consumption_peak", UnitOfEnergy.WATT_HOUR),
         ("sensor.contract_1_3_kva_peak_offpeak_daily_consumption_off_peak", UnitOfEnergy.WATT_HOUR),
-        ("sensor.contract_1_3_kva_peak_offpeak_kwh_current_cost", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
+        ("sensor.contract_1_3_kva_peak_offpeak_kwh_current_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
         ("sensor.contract_1_3_kva_peak_offpeak_kwh_peak_cost", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
         ("sensor.contract_1_3_kva_peak_offpeak_kwh_off_peak_cost", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
     ],

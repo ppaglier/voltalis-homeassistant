@@ -4,11 +4,11 @@ from datetime import datetime
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_current_energy_contract_handler import (
     GetCurrentEnergyContractHandler,
 )
-from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_current_kwh_cost_handler import (  # noqa: E501
-    GetEnergyContractCurrentKwhCostHandler,
-)
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_current_tariff_handler import (  # noqa: E501
     GetEnergyContractCurrentTariffHandler,
+)
+from custom_components.voltalis.lib.application.energy_contracts.handlers.get_energy_contract_kwh_current_price_handler import (  # noqa: E501
+    GetEnergyContractKwhCurrentPriceHandler,
 )
 from custom_components.voltalis.lib.application.energy_contracts.handlers.get_live_consumption_handler import (
     GetLiveConsumptionHandler,
@@ -36,7 +36,7 @@ class EnergyContractsFixture(BaseFixture):
         self.get_energy_contract_current_tariff_handler = GetEnergyContractCurrentTariffHandler(
             date_provider=self.date_provider,
         )
-        self.get_energy_contract_current_kwh_cost_handler = GetEnergyContractCurrentKwhCostHandler()
+        self.get_energy_contract_kwh_current_price_handler = GetEnergyContractKwhCurrentPriceHandler()
         self.get_live_consumption_handler = GetLiveConsumptionHandler(
             voltalis_provider=self.voltalis_provider,
         )

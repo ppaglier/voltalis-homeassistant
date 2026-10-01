@@ -1,15 +1,15 @@
-from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_kwh_cost_query import (  # noqa: E501
-    GetEnergyContractCurrentKwCostQuery,
+from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_kwh_current_price_query import (  # noqa: E501
+    GetEnergyContractKwhCurrentPriceQuery,
 )
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_tariff_enum import (
     EnergyContractCurrentTariffEnum,
 )
 
 
-class GetEnergyContractCurrentKwhCostHandler:
+class GetEnergyContractKwhCurrentPriceHandler:
     """Handler to get the current kWh cost of the energy contract."""
 
-    async def handle(self, query: GetEnergyContractCurrentKwCostQuery) -> float | None:
+    async def handle(self, query: GetEnergyContractKwhCurrentPriceQuery) -> float | None:
         """Handle the request to get the current mode of the energy contract."""
 
         if query.current_mode is EnergyContractCurrentTariffEnum.PEAK:
