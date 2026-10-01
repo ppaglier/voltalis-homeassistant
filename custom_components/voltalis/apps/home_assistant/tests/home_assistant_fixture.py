@@ -22,7 +22,7 @@ from custom_components.voltalis.lib.domain.devices_management.health.device_heal
 from custom_components.voltalis.lib.domain.devices_management.health.device_health_builder import DeviceHealthBuilder
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_builder import EnergyContractBuilder
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
-from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
+from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
 from custom_components.voltalis.lib.domain.programs_management.programs.program_builder import ProgramBuilder
 from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.tests.utils.base_fixture import BaseFixture
@@ -101,7 +101,7 @@ class HomeAssistantFixture(BaseFixture[None]):
         await self.async_refresh_coordinator(voltalis_module.device_coordinator)
         await self.async_refresh_coordinator(voltalis_module.device_health_coordinator)
         await self.async_refresh_coordinator(voltalis_module.device_daily_consumption_coordinator)
-        await self.async_refresh_coordinator(voltalis_module.live_consumption_coordinator)
+        await self.async_refresh_coordinator(voltalis_module.live_power_coordinator)
         await self.async_refresh_coordinator(voltalis_module.energy_contract_coordinator)
         await self.async_refresh_coordinator(voltalis_module.programs_coordinator)
 
@@ -173,7 +173,7 @@ class HomeAssistantFixture(BaseFixture[None]):
         self.voltalis_server.given_login_ok()
         self.init_devices()
         self.init_devices_health()
-        self.init_live_consumption()
+        self.init_live_power()
         self.init_devices_consumptions()
         self.init_manual_settings()
         self.init_energy_contracts()
@@ -230,10 +230,10 @@ class HomeAssistantFixture(BaseFixture[None]):
         ]
         self.voltalis_server.given_devices_health(devices_health)
 
-    def init_live_consumption(self) -> None:
+    def init_live_power(self) -> None:
         """Set up live consumption data in the mock server."""
 
-        self.voltalis_server.given_live_consumption(LiveConsumption(consumption=0))
+        self.voltalis_server.given_live_power(LivePower(consumption=0))
 
     def init_devices_consumptions(self) -> None:
         """Set up devices consumption data in the mock server."""

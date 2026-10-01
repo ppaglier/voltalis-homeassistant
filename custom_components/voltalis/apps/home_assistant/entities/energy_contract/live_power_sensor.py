@@ -14,25 +14,25 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 
 
-class VoltalisEnergyContractLiveConsumptionSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
+class VoltalisEnergyContractLivePowerSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Sensor entity to represent near real-time consumption for a Voltalis energy contract."""
 
     _attr_device_class = SensorDeviceClass.POWER
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = UnitOfPower.WATT
-    _attr_translation_key = "live_consumption"
+    _attr_translation_key = "live_power"
 
     def __init__(self, entry: VoltalisConfigEntry, energy_contract: EnergyContract) -> None:
         """Initialize the sensor entity."""
         super().__init__(
-            entry, energy_contract, entry.runtime_data.voltalis_home_assistant_module.live_consumption_coordinator
+            entry, energy_contract, entry.runtime_data.voltalis_home_assistant_module.live_power_coordinator
         )
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        data = self._voltalis_module.live_consumption_coordinator.data.get(0, None)
+        data = self._voltalis_module.live_power_coordinator.data.get(0, None)
         if data is None:
             self._voltalis_module.logger.warning("Live consumption data is None")
             return

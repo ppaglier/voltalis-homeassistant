@@ -77,8 +77,8 @@
           "comm_error": "Communication error"
         }
       },
-      "live_consumption": {
-        "name": "Live consumption"
+      "live_power": {
+        "name": "Live power"
       },
       "daily_consumption": {
         "name": "Daily consumption"

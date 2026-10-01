@@ -13,7 +13,7 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device imp
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
-from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
+from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.domain.shared.providers.http_client import HttpClient
@@ -92,7 +92,7 @@ class MockVoltalisServer:
         return {
             "devices": self.__voltalis_provider._devices,
             "devices_health": self.__voltalis_provider._devices_health,
-            "live_consumption": self.__voltalis_provider._live_consumption,
+            "live_power": self.__voltalis_provider._live_power,
             "devices_consumptions": self.__voltalis_provider._devices_consumptions,
             "manual_settings": self.__voltalis_provider._manual_settings,
             "energy_contracts": self.__voltalis_provider._energy_contracts,
@@ -250,22 +250,22 @@ class MockVoltalisServer:
             ),
         )
 
-    def given_live_consumption(self, consumption: LiveConsumption) -> None:
-        self.__voltalis_provider.set_live_consumption(consumption)
+    def given_live_power(self, consumption: LivePower) -> None:
+        self.__voltalis_provider.set_live_power(consumption)
 
         async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
-            live_consumption = await self.__voltalis_provider.get_live_consumption()
-            voltalis_live_consumption = VoltalisRealtimeConsumptionDto(
+            live_power = await self.__voltalis_provider.get_live_power()
+            voltalis_live_power = VoltalisRealtimeConsumptionDto(
                 consumptions=[
                     VoltalisRealtimeConsumptionDtoConsumption(
-                        total_consumption_in_wh=live_consumption.consumption,
+                        total_consumption_in_wh=live_power.consumption,
                     ),
                 ]
             )
 
             return MockHttpServer.StubResponse(
                 status_code=200,
-                data=voltalis_live_consumption,
+                data=voltalis_live_power,
             )
 
         self.__voltalis_api.set_request_handler(

@@ -15,7 +15,7 @@ from custom_components.voltalis.apps.home_assistant.coordinators.device_daily_co
 )
 from custom_components.voltalis.apps.home_assistant.coordinators.device_health import VoltalisDeviceHealthCoordinator
 from custom_components.voltalis.apps.home_assistant.coordinators.device_realtime_consumption import (
-    VoltalisLiveConsumptionCoordinator,
+    VoltalisLivePowerCoordinator,
 )
 from custom_components.voltalis.apps.home_assistant.coordinators.energy_contract import (
     VoltalisEnergyContractCoordinator,
@@ -169,7 +169,7 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         self.device_coordinator = VoltalisDeviceCoordinator(entry=self.entry)
         self.device_health_coordinator = VoltalisDeviceHealthCoordinator(entry=self.entry)
         self.device_daily_consumption_coordinator = VoltalisDeviceDailyConsumptionCoordinator(entry=self.entry)
-        self.live_consumption_coordinator = VoltalisLiveConsumptionCoordinator(entry=self.entry)
+        self.live_power_coordinator = VoltalisLivePowerCoordinator(entry=self.entry)
         self.energy_contract_coordinator = VoltalisEnergyContractCoordinator(entry=self.entry)
         self.programs_coordinator = VoltalisProgramCoordinator(entry=self.entry)
 
@@ -178,7 +178,7 @@ class VoltalisHomeAssistantModule(VoltalisModule):
             self.device_coordinator,
             self.device_health_coordinator,
             self.device_daily_consumption_coordinator,
-            self.live_consumption_coordinator,
+            self.live_power_coordinator,
             self.energy_contract_coordinator,
             self.programs_coordinator,
         ]
@@ -187,14 +187,14 @@ class VoltalisHomeAssistantModule(VoltalisModule):
 
         # For consumption, start time-based scheduling after initial refresh
         self.device_daily_consumption_coordinator.start_time_tracking()
-        self.live_consumption_coordinator.start_time_tracking()
+        self.live_power_coordinator.start_time_tracking()
 
     async def __unload_coordinators(self) -> None:
         """Unload all coordinators."""
 
         # Stop time tracking for consumption coordinators
         self.device_daily_consumption_coordinator.stop_time_tracking()
-        self.live_consumption_coordinator.stop_time_tracking()
+        self.live_power_coordinator.stop_time_tracking()
 
     async def __load_publishers(self) -> None:
         """Set up all publishers."""

@@ -119,7 +119,7 @@ async def test_device_daily_consumption_sensor(
 @pytest.mark.parametrize(
     "entity_id,expected_unit",
     [
-        ("sensor.contract_1_3_kva_peak_off_peak_live_consumption", UnitOfPower.WATT),
+        ("sensor.contract_1_3_kva_peak_off_peak_live_power", UnitOfPower.WATT),
         ("sensor.contract_1_3_kva_peak_off_peak_subscribed_power", UnitOfApparentPower.KILO_VOLT_AMPERE),
         ("sensor.contract_1_3_kva_peak_off_peak_daily_consumption", UnitOfEnergy.WATT_HOUR),
         ("sensor.contract_1_3_kva_peak_off_peak_daily_consumption_peak", UnitOfEnergy.WATT_HOUR),
@@ -161,10 +161,10 @@ async def test_energy_contract_current_tariff_sensor(fixture: HomeAssistantFixtu
 
 
 @pytest.mark.e2e
-async def test_energy_contract_live_consumption_sensor(fixture: HomeAssistantFixture) -> None:
+async def test_energy_contract_live_power_sensor(fixture: HomeAssistantFixture) -> None:
     """Test that energy contract live consumption sensor reports values."""
 
-    entity_id = "sensor.contract_1_3_kva_peak_off_peak_live_consumption"
+    entity_id = "sensor.contract_1_3_kva_peak_off_peak_live_power"
     sensor_entity = fixture.get_entity_state(entity_id)
 
     # Check that the sensor has a numeric state

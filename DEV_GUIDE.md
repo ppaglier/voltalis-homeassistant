@@ -25,7 +25,7 @@ Pure business logic with no external dependencies. Contains:
 ### 2. Application Layer (`lib/application/`)
 
 Use-case handlers that orchestrate domain logic and coordinate with providers:
-- **Handlers**: GetDevicesHandler, SetDevicePresetHandler, GetLiveConsumptionHandler
+- **Handlers**: GetDevicesHandler, SetDevicePresetHandler, GetLivePowerHandler
 - **Commands**: Action requests (e.g., SetDeviceTemperatureCommand)
 - **Queries**: Data retrieval (e.g., GetDevicesQuery)
 - **DTOs**: Data transfer objects for API responses

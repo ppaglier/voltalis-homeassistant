@@ -14,7 +14,7 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device imp
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
-from custom_components.voltalis.lib.domain.energy_contracts.live_consumption import LiveConsumption
+from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 from custom_components.voltalis.lib.domain.programs_management.programs.program_enum import ProgramTypeEnum
 from custom_components.voltalis.lib.domain.shared.exceptions import (
@@ -105,7 +105,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         return devices_health
 
-    async def get_live_consumption(self) -> LiveConsumption:
+    async def get_live_power(self) -> LivePower:
         response: HttpClientResponse[dict]
         try:
             response = await self._client.send_request(
@@ -123,12 +123,12 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             self.__logger.error("Error parsing realtime consumption: %s", err)
             raise VoltalisValidationException(*err.args) from err
 
-        live_consumption = sum(
+        live_power = sum(
             consumption_record.total_consumption_in_wh
             for consumption_record in parsed_realtime_consumption.consumptions
         )
 
-        return LiveConsumption(consumption=live_consumption)
+        return LivePower(consumption=live_power)
 
     async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[ConsumptionRecord]]:
         # Fetch the data from the voltalis API
