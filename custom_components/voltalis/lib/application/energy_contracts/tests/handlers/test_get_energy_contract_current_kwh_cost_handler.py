@@ -6,8 +6,8 @@ from custom_components.voltalis.lib.application.energy_contracts.queries.get_ene
 from custom_components.voltalis.lib.application.energy_contracts.tests.energy_contracts_fixture import (
     EnergyContractsFixture,
 )
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_mode_enum import (
-    EnergyContractCurrentModeEnum,
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_tariff_enum import (
+    EnergyContractCurrentTariffEnum,
 )
 
 
@@ -19,7 +19,7 @@ async def test_get_energy_contract_current_kwh_cost_base(
 
     result = await fixture.get_energy_contract_current_kwh_cost_handler.handle(
         GetEnergyContractCurrentKwCostQuery(
-            current_mode=EnergyContractCurrentModeEnum.BASE,
+            current_mode=EnergyContractCurrentTariffEnum.BASE,
             base_kwh_cost=0.2,
             peak_kwh_cost=0.3,
             offpeak_kwh_cost=0.1,
@@ -37,7 +37,7 @@ async def test_get_energy_contract_current_kwh_cost_peak(
 
     result = await fixture.get_energy_contract_current_kwh_cost_handler.handle(
         GetEnergyContractCurrentKwCostQuery(
-            current_mode=EnergyContractCurrentModeEnum.PEAK,
+            current_mode=EnergyContractCurrentTariffEnum.PEAK,
             base_kwh_cost=0.2,
             peak_kwh_cost=0.3,
             offpeak_kwh_cost=0.1,
@@ -55,7 +55,7 @@ async def test_get_energy_contract_current_kwh_cost_offpeak(
 
     result = await fixture.get_energy_contract_current_kwh_cost_handler.handle(
         GetEnergyContractCurrentKwCostQuery(
-            current_mode=EnergyContractCurrentModeEnum.OFFPEAK,
+            current_mode=EnergyContractCurrentTariffEnum.OFFPEAK,
             base_kwh_cost=0.2,
             peak_kwh_cost=0.3,
             offpeak_kwh_cost=0.1,

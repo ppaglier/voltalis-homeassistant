@@ -301,7 +301,7 @@ The integration also provides sensors related to your energy contract:
 <details>
   <summary>Energy Contract Current Mode Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_current_mode`
+  - **Entity ID**: `sensor.voltalis_energy_contract_current_tariff`
   - **Type**: Sensor
   - **States**: `Base`, `Peak`, `Off-Peak`
   - **Description**: Indicates the current pricing period of your energy contract

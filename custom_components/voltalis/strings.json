@@ -130,8 +130,8 @@
       "energy_contract_kwh_peak_cost": {
         "name": "kWh Peak Cost"
       },
-      "energy_contract_current_mode": {
-        "name": "Energy Contract Current Mode",
+      "energy_contract_current_tariff": {
+        "name": "Current tariff",
         "state": {
           "base": "Base",
           "peak": "Peak",

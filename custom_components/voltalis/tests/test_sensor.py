@@ -14,8 +14,8 @@ from homeassistant.core import HomeAssistant
 
 from custom_components.voltalis.apps.home_assistant.tests.home_assistant_fixture import HomeAssistantFixture
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealthStatusEnum
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_mode_enum import (
-    EnergyContractCurrentModeEnum,
+from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_tariff_enum import (
+    EnergyContractCurrentTariffEnum,
 )
 
 
@@ -144,15 +144,15 @@ async def test_energy_contract_sensor_entity_setup(
 
 
 @pytest.mark.e2e
-async def test_energy_contract_current_mode_sensor(fixture: HomeAssistantFixture) -> None:
+async def test_energy_contract_current_tariff_sensor(fixture: HomeAssistantFixture) -> None:
     """Test that energy contract current mode sensor has correct options."""
 
-    entity_id = "sensor.contract_1_3_kva_peak_offpeak_energy_contract_current_mode"
+    entity_id = "sensor.contract_1_3_kva_peak_offpeak_energy_contract_current_tariff"
     sensor_entity = fixture.get_entity_state(entity_id)
 
     # Verify that options are available
     assert "options" in sensor_entity.attributes
-    expected_options = [str(mode) for mode in EnergyContractCurrentModeEnum]
+    expected_options = [str(mode) for mode in EnergyContractCurrentTariffEnum]
     actual_options = sensor_entity.attributes["options"]
     assert set(expected_options) == set(actual_options)
 

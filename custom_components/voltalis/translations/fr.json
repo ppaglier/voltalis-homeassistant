@@ -130,8 +130,8 @@
       "energy_contract_kwh_peak_cost": {
         "name": "Coût kWh heures pleines"
       },
-      "energy_contract_current_mode": {
-        "name": "Mode actuel du contrat énergétique",
+      "energy_contract_current_tariff": {
+        "name": "Tarif actuel",
         "state": {
           "base": "Base",
           "peak": "Heures pleines",
