@@ -4,8 +4,8 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_curr
 from custom_components.voltalis.lib.domain.shared.custom_model import CustomModel
 
 
-class GetEnergyContractCurrentKwCostQuery(CustomModel):
-    """Query to get the current kWh cost of the energy contract."""
+class GetEnergyContractKwhCurrentPriceQuery(CustomModel):
+    """Query to get the current kWh price of the energy contract."""
 
     current_mode: EnergyContractCurrentTariffEnum
 

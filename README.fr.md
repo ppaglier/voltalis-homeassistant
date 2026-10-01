@@ -311,7 +311,7 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
 <details>
   <summary>Capteur du coût actuel du kWh</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_current_cost`
+  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_current_price`
   - **Type** : Capteur monétaire
   - **Unité** : € (Euro)
   - **Classe de périphérique** : Monétaire

@@ -10,11 +10,11 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisEnergyContractEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_kwh_cost_query import (  # noqa: E501
-    GetEnergyContractCurrentKwCostQuery,
-)
 from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_current_tariff_query import (  # noqa: E501
     GetEnergyContractCurrentTariffQuery,
+)
+from custom_components.voltalis.lib.application.energy_contracts.queries.get_energy_contract_kwh_current_price_query import (  # noqa: E501
+    GetEnergyContractKwhCurrentPriceQuery,
 )
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_current_tariff_enum import (
@@ -23,12 +23,12 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_curr
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 
 
-class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
+class VoltalisEnergyContractKwhCurrentPriceSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
     """Sensor entity for Voltalis energy contract kWh current cost."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"
-    _attr_translation_key = "energy_contract_kwh_current_cost"
+    _attr_translation_key = "energy_contract_kwh_current_price"
     _attr_icon = "mdi:currency-eur"
 
     def __init__(
@@ -65,8 +65,8 @@ class VoltalisEnergyContractKwhCurrentCostSensor(VoltalisEnergyContractEntity, S
             GetEnergyContractCurrentTariffQuery(type=energy_contract.type, offpeak_hours=energy_contract.offpeak_hours)
         )
 
-        new_value = await self._voltalis_module.get_energy_contract_current_kwh_cost_handler.handle(
-            GetEnergyContractCurrentKwCostQuery(
+        new_value = await self._voltalis_module.get_energy_contract_kwh_current_price_handler.handle(
+            GetEnergyContractKwhCurrentPriceQuery(
                 current_mode=current_mode,
                 base_kwh_cost=energy_contract.prices.kwh_base,
                 peak_kwh_cost=energy_contract.prices.kwh_peak,

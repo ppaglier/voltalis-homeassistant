@@ -315,7 +315,7 @@ The integration also provides sensors related to your energy contract:
 <details>
   <summary>kWh Current Cost Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_current_cost`
+  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_current_price`
   - **Type**: Monetary sensor
   - **Unit**: € (Euro)
   - **Device Class**: Monetary
