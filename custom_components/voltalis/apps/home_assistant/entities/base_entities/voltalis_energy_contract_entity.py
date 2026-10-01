@@ -1,6 +1,6 @@
 from typing import Any
 
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
@@ -36,6 +36,9 @@ class VoltalisEnergyContractEntity(VoltalisBaseEntity):
             name=contract_model,
             manufacturer=energy_contract.company_name,
             model=contract_model,
+            model_id=str(energy_contract.subscriber_id),
+            configuration_url="https://myvoltalis.com/contract",
+            entry_type=DeviceEntryType.SERVICE,
         )
 
     @property
