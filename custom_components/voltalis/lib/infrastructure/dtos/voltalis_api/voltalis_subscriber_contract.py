@@ -69,8 +69,9 @@ class VoltalisSubscriberContractDto(CustomModel):
             ],
         )
 
-    def to_energy_contract(self) -> EnergyContract:
+    def to_energy_contract(self, site_id: int) -> EnergyContract:
         return EnergyContract(
+            site_id=site_id,
             id=self.id,
             subscriber_id=self.subscriber_id,
             company_name=self.company_name,

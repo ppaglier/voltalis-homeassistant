@@ -24,6 +24,7 @@ class DeviceProgramming(CustomModel):
 class Device(CustomModel):
     """Class to represent Voltalis devices"""
 
+    site_id: int
     id: int
     name: str
 
