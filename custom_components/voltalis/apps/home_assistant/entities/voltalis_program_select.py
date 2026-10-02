@@ -23,7 +23,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         super().__init__(entry, entry.runtime_data.voltalis_home_assistant_module.programs_coordinator)
 
         # Unique id for Home Assistant
-        self._attr_unique_id = f"programs_{self._attr_translation_key}"
+        self._attr_unique_id = f"{entry.data['site_id']}_programs_{self._attr_translation_key}"
         self.unique_id = self._attr_unique_id
 
     @property

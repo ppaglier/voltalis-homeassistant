@@ -27,7 +27,7 @@ class VoltalisDeviceEntity(VoltalisBaseEntity):
         self._device = device
 
         # Unique id for Home Assistant
-        unique_id = f"{device.site_id}_{device.id}"
+        unique_id = f"{entry.data['site_id']}_{device.id}"
         self._attr_unique_id = f"{unique_id}_{self._attr_translation_key}"
 
         device_name = self.__get_device_name()

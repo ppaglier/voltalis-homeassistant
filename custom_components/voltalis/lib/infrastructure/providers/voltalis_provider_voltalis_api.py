@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import re
 from datetime import date
 from typing import cast
 
@@ -62,14 +61,6 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
         self._client = http_client
         self.__logger = logging.getLogger(__name__)
 
-    def _get_site_id(self, url: str) -> int:
-
-        # Get site_id from the url, which is in the format /api/site/{site_id}/managed-appliance
-        match = re.search(r"/api/site/([^/]+)/", url)
-        if not match:
-            raise VoltalisValidationException("Could not extract site_id from response URL")
-        return int(match.group(1))
-
     async def get_devices(self) -> dict[int, Device]:
         response: HttpClientResponse[list[dict]]
         try:
@@ -87,8 +78,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             self.__logger.error("Error parsing health: %s", err)
             raise VoltalisValidationException(*err.args) from err
 
-        site_id = self._get_site_id(response.url)
-        devices = {device.id: device.to_device(site_id=site_id) for device in parsed_devices}
+        devices = {device.id: device.to_device() for device in parsed_devices}
 
         return devices
 
@@ -240,8 +230,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             self.__logger.exception("Failed to parse subscriber contracts")
             raise VoltalisValidationException("Failed to parse subscriber contracts") from err
 
-        site_id = self._get_site_id(response.url)
-        contracts = {contract.id: contract.to_energy_contract(site_id=site_id) for contract in parsed_contracts}
+        contracts = {contract.id: contract.to_energy_contract() for contract in parsed_contracts}
         return contracts
 
     async def get_programs(self) -> dict[int, Program]:
