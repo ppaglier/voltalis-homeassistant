@@ -28,7 +28,7 @@ class VoltalisClientAiohttp(HttpClientAiohttp):
         username: str | None
         password: SecretStr | None
         auth_token: SecretStr | None
-        default_site_id: str | None
+        site_id: str | None
 
     def __init__(
         self,
@@ -43,7 +43,7 @@ class VoltalisClientAiohttp(HttpClientAiohttp):
             username=None,
             password=None,
             auth_token=None,
-            default_site_id=None,
+            site_id=None,
         )
 
         # Configure logger
@@ -101,7 +101,7 @@ class VoltalisClientAiohttp(HttpClientAiohttp):
         self.__storage["password"] = password
 
         self.__storage["auth_token"] = token
-        self.__storage["default_site_id"] = await self.__get_me()
+        self.__storage["site_id"] = await self.__get_me()
 
         self.__logger.info("Voltalis login successful")
 
@@ -117,7 +117,7 @@ class VoltalisClientAiohttp(HttpClientAiohttp):
         self.__storage["password"] = None
 
         self.__storage["auth_token"] = None
-        self.__storage["default_site_id"] = None
+        self.__storage["site_id"] = None
 
     async def send_request(
         self,
@@ -150,8 +150,8 @@ class VoltalisClientAiohttp(HttpClientAiohttp):
             headers["Authorization"] = f"Bearer {self.__storage['auth_token'].get_secret_value()}"
 
         _url = url
-        if self.__storage["default_site_id"] is not None:
-            _url = url.format(site_id=self.__storage["default_site_id"])
+        if self.__storage["site_id"] is not None:
+            _url = url.format(site_id=self.__storage["site_id"])
 
         try:
             response: HttpClientResponse[TData] = await super().send_request(

@@ -138,7 +138,7 @@ class VoltalisDeviceDto(CustomModel):
             ),
         )
 
-    def to_device(self, *, site_id: int) -> Device:
+    def to_device(self) -> Device:
         """Convert to domain model"""
 
         actual_mode: DeviceModeEnum | None = None
@@ -155,7 +155,6 @@ class VoltalisDeviceDto(CustomModel):
                 available_modes.append(VOLTALIS_DEVICE_MODE_MAPPING[mode])
 
         return Device(
-            site_id=site_id,
             id=self.id,
             name=self.name,
             type=VOLTALIS_DEVICE_TYPE_MAPPING[self.appliance_type],
