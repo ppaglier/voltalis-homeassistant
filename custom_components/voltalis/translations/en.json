@@ -80,23 +80,23 @@
       "live_power": {
         "name": "Live power"
       },
-      "daily_consumption": {
-        "name": "Daily consumption"
+      "energy_daily": {
+        "name": "Daily energy"
       },
-      "daily_consumption_peak": {
-        "name": "Daily consumption (Peak)"
+      "energy_daily_peak": {
+        "name": "Daily energy (Peak)"
       },
-      "daily_consumption_off-peak": {
-        "name": "Daily consumption (Off-Peak)"
+      "energy_daily_off-peak": {
+        "name": "Daily energy (Off-Peak)"
       },
-      "device_daily_consumption": {
-        "name": "Daily consumption"
+      "device_energy_daily": {
+        "name": "Daily energy"
       },
-      "device_daily_consumption_peak": {
-        "name": "Daily consumption (Peak)"
+      "device_energy_daily_peak": {
+        "name": "Daily energy (Peak)"
       },
-      "device_daily_consumption_off-peak": {
-        "name": "Daily consumption (Off-Peak)"
+      "device_energy_daily_off-peak": {
+        "name": "Daily energy (Off-Peak)"
       },
       "device_programming": {
         "name": "Programming",

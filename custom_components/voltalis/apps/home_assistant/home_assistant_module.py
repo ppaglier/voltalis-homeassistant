@@ -10,16 +10,14 @@ from pydantic import SecretStr
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.coordinators.device import VoltalisDeviceCoordinator
-from custom_components.voltalis.apps.home_assistant.coordinators.device_daily_consumption import (
-    VoltalisDeviceDailyConsumptionCoordinator,
+from custom_components.voltalis.apps.home_assistant.coordinators.device_daily_energy import (
+    VoltalisDeviceEnergyDailyCoordinator,
 )
 from custom_components.voltalis.apps.home_assistant.coordinators.device_health import VoltalisDeviceHealthCoordinator
-from custom_components.voltalis.apps.home_assistant.coordinators.device_realtime_consumption import (
-    VoltalisLivePowerCoordinator,
-)
 from custom_components.voltalis.apps.home_assistant.coordinators.energy_contract import (
     VoltalisEnergyContractCoordinator,
 )
+from custom_components.voltalis.apps.home_assistant.coordinators.live_power import VoltalisLivePowerCoordinator
 from custom_components.voltalis.apps.home_assistant.coordinators.program import VoltalisProgramCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import (
     VoltalisConfigEntry,
@@ -168,7 +166,7 @@ class VoltalisHomeAssistantModule(VoltalisModule):
 
         self.device_coordinator = VoltalisDeviceCoordinator(entry=self.entry)
         self.device_health_coordinator = VoltalisDeviceHealthCoordinator(entry=self.entry)
-        self.device_daily_consumption_coordinator = VoltalisDeviceDailyConsumptionCoordinator(entry=self.entry)
+        self.device_energy_daily_coordinator = VoltalisDeviceEnergyDailyCoordinator(entry=self.entry)
         self.live_power_coordinator = VoltalisLivePowerCoordinator(entry=self.entry)
         self.energy_contract_coordinator = VoltalisEnergyContractCoordinator(entry=self.entry)
         self.programs_coordinator = VoltalisProgramCoordinator(entry=self.entry)
@@ -177,7 +175,7 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         arr: list[BaseVoltalisCoordinator] = [
             self.device_coordinator,
             self.device_health_coordinator,
-            self.device_daily_consumption_coordinator,
+            self.device_energy_daily_coordinator,
             self.live_power_coordinator,
             self.energy_contract_coordinator,
             self.programs_coordinator,
@@ -185,15 +183,15 @@ class VoltalisHomeAssistantModule(VoltalisModule):
 
         await asyncio.gather(*(coordinator.async_config_entry_first_refresh() for coordinator in arr))
 
-        # For consumption, start time-based scheduling after initial refresh
-        self.device_daily_consumption_coordinator.start_time_tracking()
+        # For energy, start time-based scheduling after initial refresh
+        self.device_energy_daily_coordinator.start_time_tracking()
         self.live_power_coordinator.start_time_tracking()
 
     async def __unload_coordinators(self) -> None:
         """Unload all coordinators."""
 
-        # Stop time tracking for consumption coordinators
-        self.device_daily_consumption_coordinator.stop_time_tracking()
+        # Stop time tracking for energy coordinators
+        self.device_energy_daily_coordinator.stop_time_tracking()
         self.live_power_coordinator.stop_time_tracking()
 
     async def __load_publishers(self) -> None:
@@ -203,10 +201,10 @@ class VoltalisHomeAssistantModule(VoltalisModule):
             self.hass,
             self.entry.entry_id,
             self.logger,
-            self.device_daily_consumption_coordinator,
+            self.device_energy_daily_coordinator,
             self.device_coordinator,
             self.energy_contract_coordinator,
-            self.get_devices_daily_consumption_handler,
+            self.get_devices_daily_energy_handler,
         )
         current_date = self.date_provider.get_now().date()
         await self.energy_statistics_publisher.async_backfill(

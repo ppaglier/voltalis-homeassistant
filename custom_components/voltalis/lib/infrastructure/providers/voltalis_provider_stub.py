@@ -4,8 +4,8 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
     ManualSetting,
     ManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
+from custom_components.voltalis.lib.domain.devices_management.energy.device_energy import EnergyRecord
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
@@ -20,8 +20,8 @@ class VoltalisProviderStub(VoltalisProvider):
     def __init__(self) -> None:
         self._devices: dict[int, Device] = {}
         self._devices_health: dict[int, DeviceHealth] = {}
-        self._live_power = LivePower(consumption=0.0)
-        self._devices_consumptions: dict[int, list[ConsumptionRecord]] = {}
+        self._live_power = LivePower(power=0.0)
+        self._devices_energy: dict[int, list[EnergyRecord]] = {}
         self._manual_settings: dict[int, ManualSetting] = {}
         self._energy_contracts: dict[int, EnergyContract] = {}
         self._programs: dict[int, Program] = {}
@@ -32,11 +32,11 @@ class VoltalisProviderStub(VoltalisProvider):
     def set_devices_health(self, devices_health: list[DeviceHealth]) -> None:
         self._devices_health = {device_health.device_id: device_health for device_health in devices_health}
 
-    def set_live_power(self, consumption: LivePower) -> None:
-        self._live_power = consumption
+    def set_live_power(self, power: LivePower) -> None:
+        self._live_power = power
 
-    def set_devices_consumptions(self, devices_consumptions: dict[int, list[ConsumptionRecord]]) -> None:
-        self._devices_consumptions = devices_consumptions
+    def set_devices_energy(self, devices_energy: dict[int, list[EnergyRecord]]) -> None:
+        self._devices_energy = devices_energy
 
     def set_manual_settings(self, manual_settings: list[ManualSetting]) -> None:
         self._manual_settings = {manual_setting.id: manual_setting for manual_setting in manual_settings}
@@ -60,12 +60,12 @@ class VoltalisProviderStub(VoltalisProvider):
     async def get_live_power(self) -> LivePower:
         return self._live_power
 
-    async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[ConsumptionRecord]]:
-        devices_consumptions = {
-            device_id: [record for record in consumption_records if record.timestamp.date() == target_date]
-            for device_id, consumption_records in self._devices_consumptions.items()
+    async def get_devices_daily_energy(self, target_date: date) -> dict[int, list[EnergyRecord]]:
+        devices_energy = {
+            device_id: [record for record in records if record.timestamp.date() == target_date]
+            for device_id, records in self._devices_energy.items()
         }
-        return devices_consumptions
+        return devices_energy
 
     async def get_manual_settings(self) -> dict[int, ManualSetting]:
         return {manual_setting.id_appliance: manual_setting for manual_setting in self._manual_settings.values()}

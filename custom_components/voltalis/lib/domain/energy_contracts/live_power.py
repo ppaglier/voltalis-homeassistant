@@ -4,4 +4,4 @@ from custom_components.voltalis.lib.domain.shared.custom_model import CustomMode
 class LivePower(CustomModel):
     """Class to represent live consumption"""
 
-    consumption: float
+    power: float

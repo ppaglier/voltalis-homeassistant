@@ -8,9 +8,9 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
     ManualSetting,
     ManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
+from custom_components.voltalis.lib.domain.devices_management.energy.device_energy import EnergyRecord
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
@@ -93,7 +93,7 @@ class MockVoltalisServer:
             "devices": self.__voltalis_provider._devices,
             "devices_health": self.__voltalis_provider._devices_health,
             "live_power": self.__voltalis_provider._live_power,
-            "devices_consumptions": self.__voltalis_provider._devices_consumptions,
+            "devices_energy_records": self.__voltalis_provider._devices_energy,
             "manual_settings": self.__voltalis_provider._manual_settings,
             "energy_contracts": self.__voltalis_provider._energy_contracts,
             "programs": self.__voltalis_provider._programs,
@@ -109,8 +109,8 @@ class MockVoltalisServer:
             del self.__voltalis_provider._devices[device_id]
         if device_id in self.__voltalis_provider._devices_health:
             del self.__voltalis_provider._devices_health[device_id]
-        if device_id in self.__voltalis_provider._devices_consumptions:
-            del self.__voltalis_provider._devices_consumptions[device_id]
+        if device_id in self.__voltalis_provider._devices_energy:
+            del self.__voltalis_provider._devices_energy[device_id]
         if device_id in self.__voltalis_provider._manual_settings:
             del self.__voltalis_provider._manual_settings[device_id]
 
@@ -258,7 +258,7 @@ class MockVoltalisServer:
             voltalis_live_power = VoltalisRealtimeConsumptionDto(
                 consumptions=[
                     VoltalisRealtimeConsumptionDtoConsumption(
-                        total_consumption_in_wh=live_power.consumption,
+                        total_consumption_in_wh=live_power.power,
                     ),
                 ]
             )
@@ -276,31 +276,31 @@ class MockVoltalisServer:
             ),
         )
 
-    def given_devices_consumptions(self, devices_consumptions: dict[int, list[ConsumptionRecord]]) -> None:
-        self.__voltalis_provider.set_devices_consumptions(devices_consumptions)
+    def given_devices_energy_records(self, devices_energy_records: dict[int, list[EnergyRecord]]) -> None:
+        self.__voltalis_provider.set_devices_energy(devices_energy_records)
 
         async def request_handler(body: Any, config: dict) -> MockHttpServer.StubResponse:
             target_date_str = date.fromisoformat(config["path_params"]["target_date_str"])
-            devices_consumptions = await self.__voltalis_provider.get_devices_daily_consumptions(target_date_str)
+            devices_energy_records = await self.__voltalis_provider.get_devices_daily_energy(target_date_str)
 
-            voltalis_devices_consumptions = VoltalisConsumptionDto(
+            voltalis_devices_energy_records = VoltalisConsumptionDto(
                 per_appliance={
                     device_id: [
                         VoltalisConsumptionDtoDevice(
                             step_timestamp_on_site=record.timestamp,
-                            total_consumption_in_wh=record.total_consumption_in_wh,
-                            peak_hour_consumption_in_wh=record.peak_consumption_in_wh,
-                            off_peak_hour_consumption_in_wh=record.off_peak_consumption_in_wh,
+                            total_consumption_in_wh=record.total,
+                            peak_hour_consumption_in_wh=record.peak,
+                            off_peak_hour_consumption_in_wh=record.off_peak,
                         )
                         for record in records
                     ]
-                    for device_id, records in devices_consumptions.items()
+                    for device_id, records in devices_energy_records.items()
                 }
             )
 
             return MockHttpServer.StubResponse(
                 status_code=200,
-                data=voltalis_devices_consumptions,
+                data=voltalis_devices_energy_records,
             )
 
         self.__voltalis_api.set_request_handler(

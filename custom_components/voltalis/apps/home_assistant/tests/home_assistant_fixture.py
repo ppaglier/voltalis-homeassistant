@@ -15,9 +15,9 @@ from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting_builder import (
     ManualSettingBuilder,
 )
-from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device_builder import DeviceBuilder
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum, DeviceTypeEnum
+from custom_components.voltalis.lib.domain.devices_management.energy.device_energy import EnergyRecord
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealthStatusEnum
 from custom_components.voltalis.lib.domain.devices_management.health.device_health_builder import DeviceHealthBuilder
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_builder import EnergyContractBuilder
@@ -100,7 +100,7 @@ class HomeAssistantFixture(BaseFixture[None]):
         voltalis_module = self.get_home_assistant_voltalis_module()
         await self.async_refresh_coordinator(voltalis_module.device_coordinator)
         await self.async_refresh_coordinator(voltalis_module.device_health_coordinator)
-        await self.async_refresh_coordinator(voltalis_module.device_daily_consumption_coordinator)
+        await self.async_refresh_coordinator(voltalis_module.device_energy_daily_coordinator)
         await self.async_refresh_coordinator(voltalis_module.live_power_coordinator)
         await self.async_refresh_coordinator(voltalis_module.energy_contract_coordinator)
         await self.async_refresh_coordinator(voltalis_module.programs_coordinator)
@@ -174,7 +174,7 @@ class HomeAssistantFixture(BaseFixture[None]):
         self.init_devices()
         self.init_devices_health()
         self.init_live_power()
-        self.init_devices_consumptions()
+        self.init_devices_energy()
         self.init_manual_settings()
         self.init_energy_contracts()
         self.init_programs()
@@ -231,23 +231,23 @@ class HomeAssistantFixture(BaseFixture[None]):
         self.voltalis_server.given_devices_health(devices_health)
 
     def init_live_power(self) -> None:
-        """Set up live consumption data in the mock server."""
+        """Set up live power data in the mock server."""
 
-        self.voltalis_server.given_live_power(LivePower(consumption=0))
+        self.voltalis_server.given_live_power(LivePower(power=0))
 
-    def init_devices_consumptions(self) -> None:
-        """Set up devices consumption data in the mock server."""
+    def init_devices_energy(self) -> None:
+        """Set up devices energy data in the mock server."""
 
         devices_consumptions = {
             device_id: [
-                ConsumptionRecord(timestamp=datetime(2024, 1, 1, 8, 15, 0), total_consumption_in_wh=1.2),
-                ConsumptionRecord(timestamp=datetime(2024, 1, 1, 9, 45, 0), total_consumption_in_wh=2.3),
-                ConsumptionRecord(timestamp=datetime(2024, 1, 1, 10, 15, 0), total_consumption_in_wh=3.0),
+                EnergyRecord(timestamp=datetime(2024, 1, 1, 8, 15, 0), total=1.2),
+                EnergyRecord(timestamp=datetime(2024, 1, 1, 9, 45, 0), total=2.3),
+                EnergyRecord(timestamp=datetime(2024, 1, 1, 10, 15, 0), total=3.0),
             ]
             for device_id in range(1, 5)
         }
 
-        self.voltalis_server.given_devices_consumptions(devices_consumptions)
+        self.voltalis_server.given_devices_energy_records(devices_consumptions)
 
     def init_manual_settings(self) -> None:
         """Set up manual settings in the mock server."""

@@ -6,11 +6,14 @@ from homeassistant.helpers.event import async_track_time_change
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
+from custom_components.voltalis.lib.domain.devices_management.energy.device_energy import DeviceEnergy
 
 
-class VoltalisLivePowerCoordinator(BaseVoltalisCoordinator[dict[int, LivePower]]):
-    """Coordinator to manage real-time consumption data for a Voltalis."""
+class VoltalisDeviceEnergyDailyCoordinator(BaseVoltalisCoordinator[dict[int, DeviceEnergy]]):
+    """Coordinator to manage the daily energy of devices."""
+
+    # Minutes offset after the hour to launch the update (e.g., 5 = HH:05)
+    MINUTE_OFFSET = 5
 
     def __init__(
         self,
@@ -19,21 +22,22 @@ class VoltalisLivePowerCoordinator(BaseVoltalisCoordinator[dict[int, LivePower]]
     ) -> None:
         # No automatic update_interval - updates only triggered by time tracker
         super().__init__(
-            "Voltalis Live Consumption",
+            "Voltalis Device Daily Energy Coordinator",
             entry=entry,
         )
+
         self.__stop_time_tracking: Callable[[], None] | None = None
 
     def start_time_tracking(self) -> None:
         """Start tracking time to trigger updates at specific minutes."""
         if self.__stop_time_tracking:
             return
-
+        # Schedule updates every hour at MINUTE_OFFSET minutes (e.g., HH:05)
         self.__stop_time_tracking = async_track_time_change(
             self.hass,
             self.__scheduled_update,
-            # Update every 10 minutes (HH:00, HH:10, HH:20, HH:30, HH:40, HH:50)
-            minute=[0, 10, 20, 30, 40, 50],
+            minute=VoltalisDeviceEnergyDailyCoordinator.MINUTE_OFFSET,
+            second=0,
         )
 
     def stop_time_tracking(self) -> None:
@@ -50,8 +54,12 @@ class VoltalisLivePowerCoordinator(BaseVoltalisCoordinator[dict[int, LivePower]]
         # Request a refresh (will call _async_update_data)
         self.hass.async_create_task(self.async_request_refresh())
 
-    async def _get_data(self) -> dict[int, LivePower]:
+    async def _get_data(self) -> dict[int, DeviceEnergy]:
         """Fetch updated data from the Voltalis API."""
 
-        result = await self._voltalis_module.get_live_power_handler.handle()
-        return {0: result}
+        target_time = self._voltalis_module.date_provider.get_now()
+        data = await self._voltalis_module.get_devices_daily_energy_handler.handle(
+            target_date=target_time.date(),
+            target_time=target_time.time(),
+        )
+        return data
