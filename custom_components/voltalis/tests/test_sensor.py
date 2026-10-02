@@ -37,10 +37,10 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_curr
         ("sensor.water_heater_2_daily_consumption_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
         ("sensor.water_heater_2_daily_consumption_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
         # Device connection status sensors - should exist for all devices with health data
-        ("sensor.heater_1_connection_status", {"has_options": True}),
-        ("sensor.heater_2_connection_status", {"has_options": True}),
-        ("sensor.water_heater_1_connection_status", {"has_options": True}),
-        ("sensor.water_heater_2_connection_status", {"has_options": True}),
+        ("sensor.heater_1_health_status", {"has_options": True}),
+        ("sensor.heater_2_health_status", {"has_options": True}),
+        ("sensor.water_heater_1_health_status", {"has_options": True}),
+        ("sensor.water_heater_2_health_status", {"has_options": True}),
         # Device current mode sensors - should exist for devices with mode data
         ("sensor.heater_1_current_mode", {"has_options": True}),
         ("sensor.heater_2_current_mode", {"has_options": True}),
@@ -73,10 +73,10 @@ async def test_device_sensor_entity_setup(
     "entity_id,expected_state",
     [
         # Device connection status sensors have specific states based on health
-        ("sensor.heater_1_connection_status", DeviceHealthStatusEnum.OK),
-        ("sensor.heater_2_connection_status", DeviceHealthStatusEnum.NOT_OK),
-        ("sensor.water_heater_1_connection_status", DeviceHealthStatusEnum.COMM_ERROR),
-        ("sensor.water_heater_2_connection_status", DeviceHealthStatusEnum.NO_CONSUMPTION),
+        ("sensor.heater_1_health_status", DeviceHealthStatusEnum.OK),
+        ("sensor.heater_2_health_status", DeviceHealthStatusEnum.NOT_OK),
+        ("sensor.water_heater_1_health_status", DeviceHealthStatusEnum.COMM_ERROR),
+        ("sensor.water_heater_2_health_status", DeviceHealthStatusEnum.NO_CONSUMPTION),
     ],
 )
 async def test_device_sensor_states(
@@ -236,7 +236,7 @@ async def test_sensor_coordinator_update_reflects_state(fixture: HomeAssistantFi
 async def test_device_health_coordinator_update(fixture: HomeAssistantFixture) -> None:
     """Test that device health coordinator updates reflect in sensor state."""
 
-    entity_id = "sensor.heater_1_connection_status"
+    entity_id = "sensor.heater_1_health_status"
 
     # Get initial state
     initial_state = fixture.get_entity_state(entity_id)
@@ -298,7 +298,7 @@ async def test_device_sensor_handles_missing_device_data(fixture: HomeAssistantF
 async def test_device_health_sensor_handles_missing_device_data(fixture: HomeAssistantFixture) -> None:
     """Test that device health sensor handles missing device data gracefully."""
 
-    entity_id = "sensor.heater_1_connection_status"
+    entity_id = "sensor.heater_1_health_status"
 
     # Verify entity is available initially
     initial_state = fixture.get_entity_state(entity_id)
@@ -354,10 +354,10 @@ async def test_energy_contract_sensor_handles_missing_contract_data(fixture: Hom
         "sensor.heater_2_daily_consumption",
         "sensor.water_heater_1_daily_consumption",
         "sensor.water_heater_2_daily_consumption",
-        "sensor.heater_1_connection_status",
-        "sensor.heater_2_connection_status",
-        "sensor.water_heater_1_connection_status",
-        "sensor.water_heater_2_connection_status",
+        "sensor.heater_1_health_status",
+        "sensor.heater_2_health_status",
+        "sensor.water_heater_1_health_status",
+        "sensor.water_heater_2_health_status",
     ],
 )
 async def test_sensor_entity_has_icon(fixture: HomeAssistantFixture, entity_id: str) -> None:

@@ -67,8 +67,8 @@
   },
   "entity": {
     "sensor": {
-      "device_connected": {
-        "name": "Connection status",
+      "device_health_status": {
+        "name": "Health status",
         "state": {
           "ok": "Connected",
           "nok": "Disconnected",
