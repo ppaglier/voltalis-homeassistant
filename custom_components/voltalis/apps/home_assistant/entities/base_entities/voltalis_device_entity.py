@@ -36,6 +36,8 @@ class VoltalisDeviceEntity(VoltalisBaseEntity):
             name=device_name,
             manufacturer="Voltalis",
             model=self.__get_device_model(),
+            model_id=str(device.id),
+            configuration_url=f"https://myvoltalis.com/heating/{device.id}",
         )
 
     @property
