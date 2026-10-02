@@ -9,9 +9,9 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
     ManualSetting,
     ManualSettingUpdate,
 )
-from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import DeviceModeEnum
+from custom_components.voltalis.lib.domain.devices_management.energy.device_energy import EnergyRecord
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import DeviceHealth
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.live_power import LivePower
@@ -128,9 +128,9 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
             for consumption_record in parsed_realtime_consumption.consumptions
         )
 
-        return LivePower(consumption=live_power)
+        return LivePower(power=live_power)
 
-    async def get_devices_daily_consumptions(self, target_date: date) -> dict[int, list[ConsumptionRecord]]:
+    async def get_devices_daily_energy(self, target_date: date) -> dict[int, list[EnergyRecord]]:
         # Fetch the data from the voltalis API
         target_date_str = target_date.isoformat()
 
@@ -152,11 +152,11 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
 
         devices_consumptions = {
             device_id: [
-                ConsumptionRecord(
+                EnergyRecord(
                     timestamp=consumption_record.step_timestamp_on_site,
-                    total_consumption_in_wh=consumption_record.total_consumption_in_wh,
-                    peak_consumption_in_wh=consumption_record.peak_hour_consumption_in_wh,
-                    off_peak_consumption_in_wh=consumption_record.off_peak_hour_consumption_in_wh,
+                    total=consumption_record.total_consumption_in_wh,
+                    peak=consumption_record.peak_hour_consumption_in_wh,
+                    off_peak=consumption_record.off_peak_hour_consumption_in_wh,
                 )
                 for consumption_record in device_consumptions
                 if consumption_record.step_timestamp_on_site.date() == target_date

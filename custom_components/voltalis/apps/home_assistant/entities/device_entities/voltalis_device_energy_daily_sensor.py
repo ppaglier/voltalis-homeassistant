@@ -11,8 +11,8 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
 
 
-class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
-    """References the daily consumption of a device."""
+class VoltalisDeviceEnergyDailySensor(VoltalisDeviceEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
+    """References the daily energy of a device."""
 
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_state_class = None
@@ -28,33 +28,33 @@ class VoltalisDeviceDailyConsumptionSensor(VoltalisDeviceEntity, SensorEntity): 
 
         suffix = f"_{sensor_type}" if sensor_type else ""
         self.__sensor_type = sensor_type
-        self._attr_translation_key = f"device_daily_consumption{suffix}"
+        self._attr_translation_key = f"device_energy_daily{suffix}"
 
         super().__init__(
-            entry, device, entry.runtime_data.voltalis_home_assistant_module.device_daily_consumption_coordinator
+            entry, device, entry.runtime_data.voltalis_home_assistant_module.device_energy_daily_coordinator
         )
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        data = self._voltalis_module.device_daily_consumption_coordinator.data.get(self._device.id)
+        data = self._voltalis_module.device_energy_daily_coordinator.data.get(self._device.id)
         if data is None:
             self._voltalis_module.logger.warning(
-                "Daily consumption %s data for device %s is None", self.__sensor_type, self._device.id
+                "Daily energy %s data for device %s is None", self.__sensor_type, self._device.id
             )
             return
 
         new_value = sum(
             [
                 (
-                    record.total_consumption_in_wh
+                    record.total
                     if self.__sensor_type is None
-                    else (record.peak_consumption_in_wh or 0.0)
+                    else (record.peak or 0.0)
                     if self.__sensor_type == "peak"
-                    else (record.off_peak_consumption_in_wh or 0.0)
+                    else (record.off_peak or 0.0)
                 )
-                for record in data.daily_consumption_records
+                for record in data.daily_energy_records
             ],
             0.0,
         )

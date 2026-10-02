@@ -13,7 +13,7 @@ async def test_get_live_power_returns_provider_data(
     """Test live consumption handler returns provider data."""
 
     # Given
-    live_power = LivePower(consumption=42.0)
+    live_power = LivePower(power=42.0)
     fixture.given_live_power(live_power)
 
     # When

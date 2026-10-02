@@ -80,23 +80,23 @@
       "live_power": {
         "name": "Puissance actuelle"
       },
-      "daily_consumption": {
-        "name": "Consommation journalière"
+      "energy_daily": {
+        "name": "Énergie journalière"
       },
-      "daily_consumption_peak": {
-        "name": "Consommation journalière (Heures pleines)"
+      "energy_daily_peak": {
+        "name": "Énergie journalière (Heures pleines)"
       },
-      "daily_consumption_off-peak": {
-        "name": "Consommation journalière (Heures creuses)"
+      "energy_daily_off-peak": {
+        "name": "Énergie journalière (Heures creuses)"
       },
-      "device_daily_consumption": {
-        "name": "Consommation journalière"
+      "device_energy_daily": {
+        "name": "Énergie journalière"
       },
-      "device_daily_consumption_peak": {
-        "name": "Consommation journalière (Heures pleines)"
+      "device_energy_daily_peak": {
+        "name": "Énergie journalière (Heures pleines)"
       },
-      "device_daily_consumption_off-peak": {
-        "name": "Consommation journalière (Heures creuses)"
+      "device_energy_daily_off-peak": {
+        "name": "Énergie journalière (Heures creuses)"
       },
       "device_programming": {
         "name": "Programmation",

@@ -223,7 +223,7 @@ The integration creates different entities depending on the device type and capa
 <details>
   <summary>Energy Consumption Sensor</summary>
 
-  - **Entity ID**: `sensor.<device_name>_device_daily_consumption`
+  - **Entity ID**: `sensor.<device_name>_device_energy_daily`
   - **Type**: Energy sensor
   - **Unit**: Wh (Watt-hours)
   - **Device Class**: Energy

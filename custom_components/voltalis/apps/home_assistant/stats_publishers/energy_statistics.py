@@ -23,10 +23,10 @@ from homeassistant.util.unit_conversion import EnergyConverter
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
-from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_daily_consumption_handler import (  # noqa: E501
-    GetDevicesDailyConsumptionHandler,
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_daily_energy_handler import (  # noqa: E501
+    GetDevicesDailyEnergyHandler,
 )
-from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import DeviceConsumption
+from custom_components.voltalis.lib.domain.devices_management.energy.device_energy import DeviceEnergy
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 
@@ -39,10 +39,10 @@ class VoltalisEnergyStatisticsPublisher:
         hass: HomeAssistant,
         entry_id: str,
         logger: Logger,
-        device_consumption_coordinator: BaseVoltalisCoordinator[dict[int, DeviceConsumption]],
+        device_consumption_coordinator: BaseVoltalisCoordinator[dict[int, DeviceEnergy]],
         device_coordinator: BaseVoltalisCoordinator[dict[int, DeviceDto]],
         energy_contract_coordinator: DataUpdateCoordinator[dict[int, EnergyContract]],
-        daily_consumption_handler: GetDevicesDailyConsumptionHandler,
+        daily_consumption_handler: GetDevicesDailyEnergyHandler,
     ) -> None:
         self.__hass = hass
         self.__registry = entity_registry.async_get(self.__hass)
@@ -101,7 +101,7 @@ class VoltalisEnergyStatisticsPublisher:
                 )
                 await self.__publish_devices_data(devices_data)
 
-    async def __publish_devices_data(self, devices_data: dict[int, DeviceConsumption]) -> None:
+    async def __publish_devices_data(self, devices_data: dict[int, DeviceEnergy]) -> None:
         published_series = 0
         for energy_contract in self.__energy_contract_coordinator.data.values():
             sensor_types: tuple[str | None, ...] = (None,)
@@ -123,7 +123,7 @@ class VoltalisEnergyStatisticsPublisher:
                 for device_id, device_data in devices_data.items():
                     device_records = self.__get_records({device_id: device_data}, sensor_type)
                     device_entity_id = self.__get_entity_id(
-                        entity_suffix=f"device_daily_consumption{f'_{sensor_type}' if sensor_type else ''}",
+                        entity_suffix=f"device_energy_daily{f'_{sensor_type}' if sensor_type else ''}",
                         device_id=device_id,
                     )
                     await self.__publish_records(
@@ -139,20 +139,20 @@ class VoltalisEnergyStatisticsPublisher:
 
     def __get_records(
         self,
-        devices_data: dict[int, DeviceConsumption],
+        devices_data: dict[int, DeviceEnergy],
         sensor_type: str | None,
     ) -> list[tuple[datetime, float]]:
         totals: defaultdict[datetime, float] = defaultdict(float)
 
         for device_data in devices_data.values():
-            for record in device_data.daily_consumption_records:
+            for record in device_data.daily_energy_records:
                 start = record.timestamp.replace(minute=0, second=0, microsecond=0)
                 if sensor_type == "peak":
-                    totals[start] += record.peak_consumption_in_wh or 0.0
+                    totals[start] += record.peak or 0.0
                 elif sensor_type == "off-peak":
-                    totals[start] += record.off_peak_consumption_in_wh or 0.0
+                    totals[start] += record.off_peak or 0.0
                 else:
-                    totals[start] += record.total_consumption_in_wh
+                    totals[start] += record.total
 
         return sorted(totals.items())
 

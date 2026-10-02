@@ -10,7 +10,6 @@ from custom_components.voltalis.lib.domain.devices_management.climates.manual_se
 from custom_components.voltalis.lib.domain.devices_management.climates.manual_setting_builder import (
     ManualSettingBuilder,
 )
-from custom_components.voltalis.lib.domain.devices_management.consumptions.device_consumption import ConsumptionRecord
 from custom_components.voltalis.lib.domain.devices_management.devices.device import Device
 from custom_components.voltalis.lib.domain.devices_management.devices.device_builder import DeviceBuilder
 from custom_components.voltalis.lib.domain.devices_management.devices.device_enum import (
@@ -18,6 +17,7 @@ from custom_components.voltalis.lib.domain.devices_management.devices.device_enu
     DeviceModulatorTypeEnum,
     DeviceTypeEnum,
 )
+from custom_components.voltalis.lib.domain.devices_management.energy.device_energy import EnergyRecord
 from custom_components.voltalis.lib.domain.devices_management.health.device_health import (
     DeviceHealth,
     DeviceHealthStatusEnum,
@@ -133,7 +133,7 @@ async def test_get_devices_health_empty(fixture: "VoltalisProviderFixture") -> N
 async def test_get_live_power(fixture: "VoltalisProviderFixture") -> None:
     """Test get_live_power method."""
 
-    live_power = LivePower(consumption=123.45)
+    live_power = LivePower(power=123.45)
 
     # Arrange
     fixture.given_live_power(live_power)
@@ -147,60 +147,60 @@ async def test_get_live_power(fixture: "VoltalisProviderFixture") -> None:
 
 
 @pytest.mark.integration
-async def test_get_devices_consumptions(fixture: "VoltalisProviderFixture") -> None:
-    """Test get_devices_consumptions method."""
+async def test_get_devices_daily_energy(fixture: "VoltalisProviderFixture") -> None:
+    """Test get_devices_daily_energy method."""
 
     target_date = date(2024, 11, 24)
     target_datetime = datetime(target_date.year, target_date.month, target_date.day, 12, 0, 0)
-    devices_consumptions = {
+    devices_energy_records = {
         1: [
-            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total_consumption_in_wh=100.5),
-            ConsumptionRecord(timestamp=target_datetime, total_consumption_in_wh=150.75),
-            ConsumptionRecord(timestamp=datetime(2024, 11, 25, 13, 0, 0), total_consumption_in_wh=200.0),
+            EnergyRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total=100.5),
+            EnergyRecord(timestamp=target_datetime, total=150.75),
+            EnergyRecord(timestamp=datetime(2024, 11, 25, 13, 0, 0), total=200.0),
         ],
         2: [
-            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total_consumption_in_wh=50.25),
-            ConsumptionRecord(timestamp=target_datetime, total_consumption_in_wh=75.5),
+            EnergyRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total=50.25),
+            EnergyRecord(timestamp=target_datetime, total=75.5),
         ],
     }
 
     # Arrange
-    fixture.given_devices_consumptions(devices_consumptions)
+    fixture.given_devices_energy_records(devices_energy_records)
 
     # Act
-    result = await fixture.provider.get_devices_daily_consumptions(target_date)
+    result = await fixture.provider.get_devices_daily_energy(target_date)
 
     # Assert
     expected_result = {
         1: [
-            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total_consumption_in_wh=100.5),
-            ConsumptionRecord(timestamp=target_datetime, total_consumption_in_wh=150.75),
+            EnergyRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total=100.5),
+            EnergyRecord(timestamp=target_datetime, total=150.75),
         ],
         2: [
-            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total_consumption_in_wh=50.25),
-            ConsumptionRecord(timestamp=target_datetime, total_consumption_in_wh=75.5),
+            EnergyRecord(timestamp=datetime(2024, 11, 24, 11, 0, 0), total=50.25),
+            EnergyRecord(timestamp=target_datetime, total=75.5),
         ],
     }
     fixture.compare_data(result, expected_result)
 
 
 @pytest.mark.integration
-async def test_get_devices_consumptions_no_match(fixture: "VoltalisProviderFixture") -> None:
-    """Test get_devices_consumptions method with no matching datetime."""
+async def test_get_devices_daily_energy_no_match(fixture: "VoltalisProviderFixture") -> None:
+    """Test get_devices_daily_energy method with no matching datetime."""
 
     target_date = date(2024, 11, 25)
-    devices_consumptions = {
+    devices_energy_records = {
         1: [
-            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 13, 0, 0), total_consumption_in_wh=100.5),
-            ConsumptionRecord(timestamp=datetime(2024, 11, 24, 14, 0, 0), total_consumption_in_wh=200.0),
+            EnergyRecord(timestamp=datetime(2024, 11, 24, 13, 0, 0), total=100.5),
+            EnergyRecord(timestamp=datetime(2024, 11, 24, 14, 0, 0), total=200.0),
         ],
     }
 
     # Arrange
-    fixture.given_devices_consumptions(devices_consumptions)
+    fixture.given_devices_energy_records(devices_energy_records)
 
     # Act
-    result = await fixture.provider.get_devices_daily_consumptions(target_date)
+    result = await fixture.provider.get_devices_daily_energy(target_date)
 
     # Assert
     assert result == {1: []}
@@ -449,7 +449,7 @@ def _require_api_provider(fixture: "VoltalisProviderFixture") -> VoltalisProvide
         ("get_devices", [{}], tuple()),
         ("get_devices_health", [{}], tuple()),
         ("get_live_power", {}, tuple()),
-        ("get_devices_daily_consumptions", {"per_appliance": {"bad": []}}, (date(2024, 11, 24),)),
+        ("get_devices_daily_energy", {"per_appliance": {"bad": []}}, (date(2024, 11, 24),)),
         ("get_manual_settings", [{}], tuple()),
         ("get_energy_contracts", [{}], tuple()),
         ("get_programs", {"bad": "payload"}, tuple()),
@@ -545,7 +545,7 @@ class VoltalisProviderFixture(BaseFixture):
         if isinstance(self.provider, VoltalisProviderStub):
             self.provider.set_devices([])
             self.provider.set_devices_health([])
-            self.provider.set_devices_consumptions({})
+            self.provider.set_devices_energy({})
             self.provider.set_manual_settings([])
 
         if isinstance(self.provider, VoltalisProviderVoltalisApi):
@@ -594,7 +594,7 @@ class VoltalisProviderFixture(BaseFixture):
         raise ValueError("Unknown provider type")
 
     def given_live_power(self, live_power: LivePower) -> None:
-        """Set existing live consumption in the provider."""
+        """Set existing live power in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
             self.provider.set_live_power(live_power)
             return
@@ -605,14 +605,14 @@ class VoltalisProviderFixture(BaseFixture):
 
         raise ValueError("Unknown provider type")
 
-    def given_devices_consumptions(self, devices_consumptions: dict[int, list[ConsumptionRecord]]) -> None:
-        """Set existing devices consumptions in the provider."""
+    def given_devices_energy_records(self, devices_energy_records: dict[int, list[EnergyRecord]]) -> None:
+        """Set existing devices energy in the provider."""
         if isinstance(self.provider, VoltalisProviderStub):
-            self.provider.set_devices_consumptions(devices_consumptions)
+            self.provider.set_devices_energy(devices_energy_records)
             return
 
         if isinstance(self.provider, VoltalisProviderVoltalisApi):
-            self.voltalis_server.given_devices_consumptions(devices_consumptions)
+            self.voltalis_server.given_devices_energy_records(devices_energy_records)
             return
 
         raise ValueError("Unknown provider type")

@@ -22,8 +22,8 @@ from custom_components.voltalis.lib.application.devices_management.handlers.devi
     GetDeviceModeHandler,
 )
 from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices import GetDevicesHandler
-from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_daily_consumption_handler import (  # noqa: E501
-    GetDevicesDailyConsumptionHandler,
+from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_daily_energy_handler import (  # noqa: E501
+    GetDevicesDailyEnergyHandler,
 )  # noqa: E501
 from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_health_handler import (
     GetDevicesHealthHandler,
@@ -113,7 +113,7 @@ class VoltalisModule:
         self.get_devices_health_handler = GetDevicesHealthHandler(
             voltalis_provider=self.__voltalis_provider,
         )
-        self.get_devices_daily_consumption_handler = GetDevicesDailyConsumptionHandler(
+        self.get_devices_daily_energy_handler = GetDevicesDailyEnergyHandler(
             voltalis_provider=self.__voltalis_provider,
         )
         self.get_device_mode_handler = GetDeviceModeHandler()

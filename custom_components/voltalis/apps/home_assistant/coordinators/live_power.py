@@ -10,7 +10,7 @@ from custom_components.voltalis.lib.domain.energy_contracts.live_power import Li
 
 
 class VoltalisLivePowerCoordinator(BaseVoltalisCoordinator[dict[int, LivePower]]):
-    """Coordinator to manage real-time consumption data for a Voltalis."""
+    """Coordinator to manage real-time power data for a Voltalis."""
 
     def __init__(
         self,
@@ -19,7 +19,7 @@ class VoltalisLivePowerCoordinator(BaseVoltalisCoordinator[dict[int, LivePower]]
     ) -> None:
         # No automatic update_interval - updates only triggered by time tracker
         super().__init__(
-            "Voltalis Live Consumption",
+            "Voltalis Live Power",
             entry=entry,
         )
         self.__stop_time_tracking: Callable[[], None] | None = None
