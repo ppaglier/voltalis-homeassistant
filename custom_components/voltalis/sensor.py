@@ -11,14 +11,14 @@ from custom_components.voltalis.apps.home_assistant.entities.base_entities.volta
     VoltalisEnergyContractEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_connected_sensor import (
-    VoltalisDeviceConnectedSensor,
-)
 from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_current_mode_sensor import (  # noqa: E501
     VoltalisDeviceCurrentModeSensor,
 )
 from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_daily_consumption_sensor import (  # noqa: E501
     VoltalisDeviceDailyConsumptionSensor,
+)
+from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_health_status_sensor import (  # noqa: E501
+    VoltalisDeviceHealthStatusSensor,
 )
 from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_programming_sensor import (
     VoltalisDeviceProgrammingSensor,
@@ -92,7 +92,7 @@ async def async_setup_entry(
 
         # Create the connected sensor for each device (if status is available)
         if health_coordinator.data.get(device.id) is not None:
-            device_sensors.append(VoltalisDeviceConnectedSensor(entry, device))
+            device_sensors.append(VoltalisDeviceHealthStatusSensor(entry, device))
 
         if device.programming.mode is not None:
             device_sensors.append(VoltalisDeviceCurrentModeSensor(entry, device))

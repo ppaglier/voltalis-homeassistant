@@ -231,7 +231,7 @@ L'intégration crée différentes entités selon le type d'appareil et ses capac
 <details>
   <summary>Capteur d'état de connexion</summary>
 
-  - **ID d'entité** : `sensor.<device_name>_device_connected`
+  - **ID d'entité** : `sensor.<device_name>_device_health_status`
   - **Type** : Capteur Enum
   - **Classe de périphérique** : Enum
   - **États** : `Connecté`, `Déconnecté`, `Test en cours`

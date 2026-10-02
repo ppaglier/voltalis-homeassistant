@@ -14,11 +14,11 @@ from custom_components.voltalis.lib.domain.devices_management.health.device_heal
 )
 
 
-class VoltalisDeviceConnectedSensor(VoltalisDeviceEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
-    """References the connected of a device."""
+class VoltalisDeviceHealthStatusSensor(VoltalisDeviceEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
+    """Representation of a Voltalis device health status sensor."""
 
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_translation_key = "device_connected"
+    _attr_translation_key = "device_health_status"
     _attr_options = [option for option in DeviceHealthStatusEnum]
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
@@ -30,12 +30,18 @@ class VoltalisDeviceConnectedSensor(VoltalisDeviceEntity, SensorEntity):  # pyri
     def icon(self) -> str:
         """Return the icon to use for this entity."""
         if self.native_value is None:
-            return "mdi:minus-network-outline"
-        if self.native_value == DeviceHealthStatusEnum.TEST_IN_PROGRESS:
-            return "mdi:help-network-outline"
+            return "mdi:network-outline"
         if self.native_value == DeviceHealthStatusEnum.OK:
             return "mdi:check-network-outline"
-        return "mdi:close-network-outline"
+        if self.native_value == DeviceHealthStatusEnum.TEST_IN_PROGRESS:
+            return "mdi:console-network-outline"
+        if self.native_value == DeviceHealthStatusEnum.NO_CONSUMPTION:
+            return "mdi:minus-network-outline"
+        if self.native_value == DeviceHealthStatusEnum.COMM_ERROR:
+            return "mdi:help-network-outline"
+        if self.native_value == DeviceHealthStatusEnum.NOT_OK:
+            return "mdi:close-network-outline"
+        return "mdi:network-outline"
 
     @callback
     def _handle_coordinator_update(self) -> None:

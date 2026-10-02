@@ -235,7 +235,7 @@ The integration creates different entities depending on the device type and capa
 <details>
   <summary>Connection Status Sensor</summary>Sensor</summary>
 
-  - **Entity ID**: `sensor.<device_name>_device_connected`
+  - **Entity ID**: `sensor.<device_name>_device_health_status`
   - **Type**: Enum sensor
   - **Device Class**: Enum
   - **States**: `Connected`, `Disconnected`, `Test in progress`
