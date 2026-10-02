@@ -27,7 +27,7 @@ class VoltalisEnergyContractEntity(VoltalisBaseEntity):
         self._energy_contract = energy_contract
 
         # Unique id for Home Assistant
-        unique_id = f"{entry.entry_id}_{energy_contract.subscriber_id}"
+        unique_id = f"{energy_contract.site_id}_{energy_contract.subscriber_id}"
         self._attr_unique_id = f"{unique_id}_{self._attr_translation_key}"
 
         contract_model = self.__get_energy_contract_model()

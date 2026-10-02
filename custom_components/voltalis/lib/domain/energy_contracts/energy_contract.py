@@ -19,6 +19,7 @@ class EnergyContractPrices(CustomModel):
 class EnergyContract(CustomModel):
     """Class to represent an energy contract"""
 
+    site_id: int
     id: int
     subscriber_id: int
     company_name: str
