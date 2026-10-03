@@ -148,7 +148,7 @@ Avant d'installer cette intégration, vous avez besoin de :
   ### Étapes de configuration
 
   1. Accédez au thermostat physique de votre radiateur (sur le radiateur lui-même)
-  2. Réglez-le sur la température maximale que vous souhaitez autoriser (par exemple, 25°C ou 30°C)
+  2. Réglez-le sur la température maximale que vous souhaitez autoriser (ex: 25°C ou 30°C)
   3. Utilisez ensuite l'intégration Voltalis ou l'application MyVoltalis pour contrôler la température cible dans cette plage
 
   ### Guide visuel
@@ -178,7 +178,7 @@ L'intégration crée différentes entités selon le type d'appareil et ses capac
 <details>
   <summary>Entité climatique (appareils de chauffage uniquement)</summary>
 
-  - **ID d'entité** : `climate.<device_name>_climate`
+  - **ID d'entité** : `climate.<device_name>` (ex: `climate.chambre` ou `climate.seche_serviette`)
   - **Type** : Climatisation (Thermostat)
   - **Modes HVAC** :
     - `Off` : Éteindre l'appareil
@@ -200,7 +200,7 @@ L'intégration crée différentes entités selon le type d'appareil et ses capac
 <details>
   <summary>Entité de chauffe-eau (appareils de chauffage d'eau uniquement)</summary>
 
-  - **ID d'entité** : `water_heater.<device_name>_water_heater`
+  - **ID d'entité** : `water_heater.<device_name>` (ex: `water_heater.chauffe_eau`)
   - **Type** : Chauffe-eau
   - **Modes de fonctionnement** :
     - `Off` : Le chauffe-eau est éteint (aucun chauffage autorisé)
@@ -217,32 +217,54 @@ L'intégration crée différentes entités selon le type d'appareil et ses capac
 ### Capteurs
 
 <details>
-  <summary>Capteur de consommation énergétique</summary>
+  <summary>Capteur d'énergie journalière</summary>
 
-  - **ID d'entité** : `sensor.<device_name>_device_energy_daily`
+  - **ID d'entité** : `sensor.<device_name>_energie_journaliere` (ex: `sensor.chambre_energie_journaliere`)
   - **Type** : Capteur d'énergie
   - **Unité** : Wh (Watt-heures)
   - **Classe de périphérique** : Énergie
-  - **Classe d'état** : Total croissant
-  - **Description** : Affiche la consommation énergétique cumulée de l'appareil
+  - **Description** : Affiche la consommation énergétique journalière de l'appareil
   - **Fréquence de mise à jour** : Chaque 1 heure
 </details>
 
 <details>
-  <summary>Capteur d'état de connexion</summary>
+  <summary>Capteur d'énergie journalière en heures pleines</summary>
 
-  - **ID d'entité** : `sensor.<device_name>_device_health_status`
-  - **Type** : Capteur Enum
+  - **ID d'entité** : `sensor.<device_name>_energie_journaliere_heures_pleines` (ex: `sensor.chambre_energie_journaliere_heures_pleines`)
+  - **Type** : Capteur d'énergie
+  - **Unité** : Wh (Watt-heures)
+  - **Classe de périphérique** : Énergie
+  - **Description** : Affiche la consommation énergétique journalière de l'appareil pendant les heures pleines
+  - **Disponibilité** : Fourni pour les contrats Heures pleines/Heures creuses
+</details>
+
+<details>
+  <summary>Capteur d'énergie journalière en heures creuses</summary>
+
+  - **ID d'entité** : `sensor.<device_name>_energie_journaliere_heures_creuses` (ex: `sensor.chambre_energie_journaliere_heures_creuses`)
+  - **Type** : Capteur d'énergie
+  - **Unité** : Wh (Watt-heures)
+  - **Classe de périphérique** : Énergie
+  - **Description** : Affiche la consommation énergétique journalière de l'appareil pendant les heures creuses
+  - **Disponibilité** : Fourni pour les contrats Heures pleines/Heures creuses
+</details>
+
+<details>
+  <summary>Capteur d'état de santé</summary>
+
+  - **ID d'entité** : `sensor.<device_name>_etat_de_sante` (ex: `sensor.chambre_etat_de_sante`)
+  - **Type** : Capteur Enum de diagnostic
   - **Classe de périphérique** : Enum
   - **États** : `Connecté`, `Déconnecté`, `Test en cours`
-  - **Description** : Indique l'état de connexion de l'appareil
+  - **Description** : Indique l'état de santé de l'appareil
+  - **Disponibilité** : Créé lorsque les données de santé sont disponibles
   - **Fréquence de mise à jour** : Chaque 1 minute
 </details>
 
 <details>
   <summary>Capteur du mode actuel</summary>
 
-  - **ID d'entité** : `sensor.<device_name>_device_current_mode`
+  - **ID d'entité** : `sensor.<device_name>_mode_actuel` (ex: `sensor.chambre_mode_actuel`)
   - **Type** : Capteur Enum
   - **Classe de périphérique** : Enum
   - **États** : `Confort`, `Économie`, `Protection antigel`, `Température`, `Activé`, `Arrêt`
@@ -252,16 +274,16 @@ L'intégration crée différentes entités selon le type d'appareil et ses capac
 </details>
 
 <details>
-  <summary>Capteur de programmation (désactivé par défaut)</summary>
+  <summary>Capteur de programmation</summary>
 
-  - **ID d'entité** : `sensor.<device_name>_device_programming`
-  - **Type** : Capteur Enum
+  - **ID d'entité** : `sensor.<device_name>_programmation` (ex: `sensor.chambre_programmation`)
+  - **Type** : Capteur Enum de diagnostic
   - **Classe de périphérique** : Enum
   - **États** : `Manuel`, `Par défaut`, `Utilisateur`, `Rapide`
   - **Description** : Indique quel type de programmation est actuellement actif
   - **Icône** : Change dynamiquement en fonction du type de programmation
+  - **Disponibilité** : Créé lorsque le type de programmation de l'appareil est disponible
   - **Fréquence de mise à jour** : Chaque 1 minute
-  - **Remarque** : Ce capteur est désactivé par défaut. Activez-le dans les paramètres de l'entité si nécessaire.
 </details>
 
 ### Capteurs du contrat énergétique
@@ -269,24 +291,54 @@ L'intégration crée différentes entités selon le type d'appareil et ses capac
 L'intégration fournit également des capteurs liés à votre contrat d'énergie :
 
 <details>
-  <summary>Capteur de consommation en temps réel</summary>
+  <summary>Capteur de puissance actuelle</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_live_power`
-  - **Type** : Capteur de puissance
+  - **ID d'entité** : `sensor.<contract_name>_puissance_actuelle` (ex: `sensor.mon_contrat_puissance_actuelle`)
+  - **Type** : Capteur de puissance avec classe d'état mesure
   - **Unité** : W (Watts)
   - **Classe de périphérique** : Puissance
-  - **Classe d'état** : Mesure
   - **Description** : Affiche la consommation totale de puissance en quasi temps réel de tous vos appareils Voltalis
-  - **Icône** : `mdi:flash`
-  - **Fréquence de mise à jour** : Toutes les 10 minutes (à :00, :10, :20, :30, :40, :50 de chaque heure)
-  - **Remarque** : Ce capteur agrège la consommation en temps réel de tous les appareils gérés par Voltalis
+  - **Disponibilité** : Toujours fourni
+</details>
+
+<details>
+  <summary>Capteur d'énergie journalière du contrat</summary>
+
+  - **ID d'entité** : `sensor.<contract_name>_energie_journaliere` (ex: `sensor.mon_contrat_energie_journaliere`)
+  - **Type** : Capteur d'énergie
+  - **Unité** : Wh (Watt-heures)
+  - **Classe de périphérique** : Énergie
+  - **Description** : Affiche la consommation énergétique journalière du contrat
+  - **Disponibilité** : Toujours fourni
+</details>
+
+<details>
+  <summary>Capteur d'énergie journalière du contrat en heures pleines</summary>
+
+  - **ID d'entité** : `sensor.<contract_name>_energie_journaliere_heures_pleines` (ex: `sensor.mon_contrat_energie_journaliere_heures_pleines`)
+  - **Type** : Capteur d'énergie
+  - **Unité** : Wh (Watt-heures)
+  - **Classe de périphérique** : Énergie
+  - **Description** : Affiche la consommation énergétique journalière du contrat pendant les heures pleines
+  - **Disponibilité** : Fourni pour les contrats Heures pleines/Heures creuses
+</details>
+
+<details>
+  <summary>Capteur d'énergie journalière du contrat en heures creuses</summary>
+
+  - **ID d'entité** : `sensor.<contract_name>_energie_journaliere_heures_creuses` (ex: `sensor.mon_contrat_energie_journaliere_heures_creuses`)
+  - **Type** : Capteur d'énergie
+  - **Unité** : Wh (Watt-heures)
+  - **Classe de périphérique** : Énergie
+  - **Description** : Affiche la consommation énergétique journalière du contrat pendant les heures creuses
+  - **Disponibilité** : Fourni pour les contrats Heures pleines/Heures creuses
 </details>
 
 <details>
   <summary>Capteur de puissance souscrite</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_subscribed_power`
-  - **Type** : Capteur
+  - **ID d'entité** : `sensor.<contract_name>_puissance_souscrite` (ex: `sensor.mon_contrat_puissance_souscrite`)
+  - **Type** : Capteur de puissance apparente
   - **Unité** : kVA (Kilovolt-ampère)
   - **Classe de périphérique** : Puissance apparente
   - **Description** : Affiche votre niveau de puissance souscrite depuis votre contrat d'énergie
@@ -295,66 +347,73 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
 </details>
 
 <details>
-  <summary>Capteur du mode actuel du contrat énergétique</summary>
+  <summary>Capteur du tarif actuel</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_current_tariff`
-  - **Type** : Capteur
+  - **ID d'entité** : `sensor.<contract_name>_tarif_actuel` (ex: `sensor.mon_contrat_tarif_actuel`)
+  - **Type** : Capteur Enum
   - **États** : `Base`, `Heures pleines`, `Heures creuses`
   - **Description** : Indique la période tarifaire actuelle de votre contrat d'énergie
   - **Icône** : Change dynamiquement en fonction du mode actuel
     - Base : `mdi:sort-calendar-today`
     - Heures pleines : `mdi:sort-calendar-descending`
     - Heures creuses : `mdi:sort-calendar-ascending`
-  - **Fréquence de mise à jour** : Chaque 1 minute (bascule automatiquement selon les heures pleines/creuses de votre contrat)
+  - **Disponibilité** : Fourni pour les contrats Heures pleines/Heures creuses
+  - **Fréquence de mise à jour** : Chaque 1 minute
 </details>
 
 <details>
-  <summary>Capteur du coût actuel du kWh</summary>
+  <summary>Capteur du prix du kWh en option Base</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_current_price`
-  - **Type** : Capteur monétaire
-  - **Unité** : € (Euro)
-  - **Classe de périphérique** : Monétaire
-  - **Description** : Affiche le coût actuel par kWh selon que vous êtes en heures pleines ou creuses (ou tarif de base)
+  - **ID d'entité** : `sensor.<contract_name>_prix_kwh` (ex: `sensor.mon_contrat_prix_kwh`)
+  - **Type** : Capteur de prix
+  - **Unité** : € (Euro) par kWh
+  - **Description** : Affiche le prix du kWh pour un contrat Base
+  - **Disponibilité** : Fourni pour les contrats Base
+</details>
+
+<details>
+  <summary>Capteur du prix actuel du kWh</summary>
+
+  - **ID d'entité** : `sensor.<contract_name>_prix_kwh_actuel` (ex: `sensor.mon_contrat_prix_kwh_actuel`)
+  - **Type** : Capteur de prix
+  - **Unité** : € (Euro) par kWh
+  - **Description** : Affiche le prix actuel par kWh selon le tarif en cours
   - **Icône** : Change dynamiquement en fonction du mode tarifaire actuel
     - Base : `mdi:gauge`
     - Heures pleines : `mdi:gauge-full`
     - Heures creuses : `mdi:gauge-low`
-  - **Fréquence de mise à jour** : Chaque 1 minute (se met à jour automatiquement lors du passage heures pleines/creuses)
+  - **Fréquence de mise à jour** : Chaque 1 minute
+  - **Disponibilité** : Fourni pour les contrats Heures pleines/Heures creuses
 </details>
 
 <details>
-  <summary>Capteur du coût du kWh en heures pleines</summary>
+  <summary>Capteur du prix du kWh en heures pleines</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_peak_price`
-  - **Type** : Capteur monétaire
-  - **Unité** : € (Euro)
-  - **Classe de périphérique** : Monétaire
-  - **Description** : Affiche le coût par kWh pendant les heures pleines
+  - **ID d'entité** : `sensor.<contract_name>_prix_kwh_heures_pleines` (ex: `sensor.mon_contrat_prix_kwh_heures_pleines`)
+  - **Type** : Capteur de prix
+  - **Unité** : € (Euro) par kWh
+  - **Description** : Affiche le prix par kWh pendant les heures pleines
   - **Icône** : `mdi:currency-eur`
-  - **Fréquence de mise à jour** : Se met à jour lorsque les données du contrat changent
-  - **Remarque** : Uniquement disponible pour les contrats heures pleines/creuses
+  - **Disponibilité** : Fourni pour les contrats Heures pleines/Heures creuses
 </details>
 
 <details>
-  <summary>Capteur du coût du kWh en heures creuses</summary>
+  <summary>Capteur du prix du kWh en heures creuses</summary>
 
-  - **ID d'entité** : `sensor.voltalis_energy_contract_kwh_off_peak_price`
-  - **Type** : Capteur monétaire
-  - **Unité** : € (Euro)
-  - **Classe de périphérique** : Monétaire
-  - **Description** : Affiche le coût par kWh pendant les heures creuses
+  - **ID d'entité** : `sensor.<contract_name>_prix_kwh_heures_creuses` (ex: `sensor.mon_contrat_prix_kwh_heures_creuses`)
+  - **Type** : Capteur de prix
+  - **Unité** : € (Euro) par kWh
+  - **Description** : Affiche le prix par kWh pendant les heures creuses
   - **Icône** : `mdi:currency-eur`
-  - **Fréquence de mise à jour** : Se met à jour lorsque les données du contrat changent
-  - **Remarque** : Uniquement disponible pour les contrats heures pleines/creuses
+  - **Disponibilité** : Fourni pour les contrats Heures pleines/Heures creuses
 </details>
 
 ### Entités de sélection
 
 <details>
-  <summary>Sélecteur de préset d'appareil</summary>
+  <summary>Sélection du préset de l'appareil</summary>
 
-  - **ID d'entité** : `select.<device_name>_device_preset`
+  - **ID d'entité** : `select.<device_name>_prereglage` (ex: `select.chambre_prereglage`)
   - **Type** : Sélection
   - **Options** : Automatique, Activé (si disponible), Confort, Économie, Protection antigel, Température, Arrêt
   - **Description** : Permet de basculer rapidement entre différents modes de fonctionnement pour un appareil individuel
@@ -370,9 +429,9 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
 </details>
 
 <details>
-  <summary>Sélecteur de programme</summary>
+  <summary>Sélection du programme</summary>
 
-  - **ID d'entité** : `select.voltalis_program_select`
+  - **ID d'entité** : `select.voltalis_programme`
   - **Type** : Sélection
   - **Description** : Permet de sélectionner des programmes globaux qui s'appliquent à tous les appareils (Aucun programme, Vacances, Absence courte, Boost, ou autres programmes créés dans l'application Voltalis)
   - **Icône** : `mdi:playlist-edit`
@@ -385,7 +444,7 @@ L'intégration fournit également des capteurs liés à votre contrat d'énergie
 <details>
   <summary>Interrupteur d'appareil</summary>
 
-  - **ID d'entité** : `switch.<device_name>_device_switch`
+  - **ID d'entité** : `switch.<device_name>_interrupteur_de_l_appareil` (ex: `switch.chambre_interrupteur_de_l_appareil`)
   - **Type** : Interrupteur
   - **Description** : Contrôle simple marche/arrêt pour l'appareil
   - **Fonctionnalités** :
@@ -496,7 +555,7 @@ Définissez l'appareil en mode manuel avec un préset spécifique ou une tempér
 # Définir le mode confort pour 3 heures
 service: voltalis.set_manual_mode
 target:
-  entity_id: climate.living_room_heater
+  entity_id: climate.chambre
 data:
   preset_mode: comfort
   duration_hours: 3
@@ -504,14 +563,14 @@ data:
 # Définir à 21°C indéfiniment
 service: voltalis.set_manual_mode
 target:
-  entity_id: climate.bedroom_heater
+  entity_id: climate.chambre
 data:
   temperature: 21
 
 # Définir le mode économie avec température personnalisée pour 5 heures
 service: voltalis.set_manual_mode
 target:
-  entity_id: climate.kitchen_heater
+  entity_id: climate.seche_serviette
 data:
   preset_mode: eco
   temperature: 19.5
@@ -529,7 +588,7 @@ Retournez l'appareil au mode de programmation automatique (programme utilisateur
 ```yaml
 service: voltalis.disable_manual_mode
 target:
-  entity_id: climate.living_room_heater
+  entity_id: climate.chambre
 ```
 
 ### Définir l'accélération rapide
@@ -548,12 +607,12 @@ Accélérez rapidement le chauffage pour une courte période. Utile pour un chau
 # Accélération rapide de 2 heures à température confort
 service: voltalis.set_quick_boost
 target:
-  entity_id: climate.living_room_heater
+  entity_id: climate.chambre
 
 # Accélération à 23°C pour 1 heure
 service: voltalis.set_quick_boost
 target:
-  entity_id: climate.bathroom_heater
+  entity_id: climate.seche_serviette
 data:
   temperature: 23
   duration_hours: 1
@@ -575,7 +634,7 @@ automation:
     action:
       - service: voltalis.set_quick_boost
         target:
-          entity_id: climate.living_room_heater
+          entity_id: climate.chambre
         data:
           duration_hours: 2
 
@@ -588,7 +647,7 @@ automation:
     action:
       - service: voltalis.set_manual_mode
         target:
-          entity_id: climate.bedroom_heater
+          entity_id: climate.chambre
         data:
           preset_mode: eco
           duration_hours: 8
@@ -602,7 +661,7 @@ automation:
     action:
       - service: voltalis.disable_manual_mode
         target:
-          entity_id: climate.bedroom_heater
+          entity_id: climate.chambre
 ```
 
 ## Options de configuration
