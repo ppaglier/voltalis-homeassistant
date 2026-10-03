@@ -20,7 +20,7 @@ from custom_components.voltalis.lib.domain.devices_management.presets.preset_enu
         ("select.heater_2_preset", DeviceCurrentPresetEnum.OFF.value),
         ("select.water_heater_1_preset", "unknown"),
         ("select.water_heater_2_preset", DeviceCurrentPresetEnum.OFF.value),
-        ("select.program", "internal_program-none"),
+        ("select.voltalis_program", "internal_program-none"),
     ],
 )
 async def test_select_entity_setup(
@@ -44,7 +44,7 @@ async def test_select_entity_setup(
         ("select.heater_2_preset", DeviceCurrentPresetEnum.ECO.value),
         ("select.water_heater_1_preset", DeviceCurrentPresetEnum.OFF.value),
         ("select.water_heater_2_preset", DeviceCurrentPresetEnum.ON.value),
-        ("select.program", "Morning Program"),
+        ("select.voltalis_program", "Morning Program"),
     ],
 )
 async def test_select_device_preset_change_option(
@@ -92,7 +92,7 @@ async def test_select_program_option(
 ) -> None:
     """Test selecting a program option."""
 
-    entity_id = "select.program"
+    entity_id = "select.voltalis_program"
 
     # Select the program option
     await fixture.async_call_service(SELECT_DOMAIN, SERVICE_SELECT_OPTION, entity_id, {ATTR_OPTION: program_option})
@@ -110,7 +110,7 @@ async def test_select_program_option(
 async def test_select_program_available_options(fixture: HomeAssistantFixture) -> None:
     """Test that program select has the correct available options."""
 
-    entity_id = "select.program"
+    entity_id = "select.voltalis_program"
     select_entity = fixture.get_entity_state(entity_id)
 
     # Verify that options are available
@@ -177,7 +177,7 @@ async def test_select_device_preset_unavailable_when_device_removed(fixture: Hom
         "select.heater_2_preset",
         "select.water_heater_1_preset",
         "select.water_heater_2_preset",
-        "select.program",
+        "select.voltalis_program",
     ],
 )
 async def test_select_entity_has_icon(fixture: HomeAssistantFixture, entity_id: str) -> None:

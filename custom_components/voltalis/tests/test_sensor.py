@@ -24,18 +24,18 @@ from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_curr
     "entity_id,expected_attributes",
     [
         # Device daily energy sensors - should exist for all devices
-        ("sensor.heater_1_energy_daily", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.heater_1_energy_daily_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.heater_1_energy_daily_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.heater_2_energy_daily", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.heater_2_energy_daily_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.heater_2_energy_daily_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.water_heater_1_energy_daily", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.water_heater_1_energy_daily_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.water_heater_1_energy_daily_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.water_heater_2_energy_daily", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.water_heater_2_energy_daily_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
-        ("sensor.water_heater_2_energy_daily_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.heater_1_daily_energy", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.heater_1_daily_energy_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.heater_1_daily_energy_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.heater_2_daily_energy", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.heater_2_daily_energy_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.heater_2_daily_energy_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.water_heater_1_daily_energy", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.water_heater_1_daily_energy_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.water_heater_1_daily_energy_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.water_heater_2_daily_energy", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.water_heater_2_daily_energy_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
+        ("sensor.water_heater_2_daily_energy_off_peak", {"unit_of_measurement": UnitOfEnergy.WATT_HOUR}),
         # Device connection status sensors - should exist for all devices with health data
         ("sensor.heater_1_health_status", {"has_options": True}),
         ("sensor.heater_2_health_status", {"has_options": True}),
@@ -94,10 +94,10 @@ async def test_device_sensor_states(
 @pytest.mark.parametrize(
     "entity_id",
     [
-        "sensor.heater_1_energy_daily",
-        "sensor.heater_2_energy_daily",
-        "sensor.water_heater_1_energy_daily",
-        "sensor.water_heater_2_energy_daily",
+        "sensor.heater_1_daily_energy",
+        "sensor.heater_2_daily_energy",
+        "sensor.water_heater_1_daily_energy",
+        "sensor.water_heater_2_daily_energy",
     ],
 )
 async def test_device_energy_daily_sensor(
@@ -121,9 +121,9 @@ async def test_device_energy_daily_sensor(
     [
         ("sensor.contract_1_3_kva_peak_off_peak_live_power", UnitOfPower.WATT),
         ("sensor.contract_1_3_kva_peak_off_peak_subscribed_power", UnitOfApparentPower.KILO_VOLT_AMPERE),
-        ("sensor.contract_1_3_kva_peak_off_peak_energy_daily", UnitOfEnergy.WATT_HOUR),
-        ("sensor.contract_1_3_kva_peak_off_peak_energy_daily_peak", UnitOfEnergy.WATT_HOUR),
-        ("sensor.contract_1_3_kva_peak_off_peak_energy_daily_off_peak", UnitOfEnergy.WATT_HOUR),
+        ("sensor.contract_1_3_kva_peak_off_peak_daily_energy", UnitOfEnergy.WATT_HOUR),
+        ("sensor.contract_1_3_kva_peak_off_peak_daily_energy_peak", UnitOfEnergy.WATT_HOUR),
+        ("sensor.contract_1_3_kva_peak_off_peak_daily_energy_off_peak", UnitOfEnergy.WATT_HOUR),
         ("sensor.contract_1_3_kva_peak_off_peak_kwh_current_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
         ("sensor.contract_1_3_kva_peak_off_peak_kwh_peak_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
         ("sensor.contract_1_3_kva_peak_off_peak_kwh_off_peak_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
@@ -147,7 +147,7 @@ async def test_energy_contract_sensor_entity_setup(
 async def test_energy_contract_current_tariff_sensor(fixture: HomeAssistantFixture) -> None:
     """Test that energy contract current mode sensor has correct options."""
 
-    entity_id = "sensor.contract_1_3_kva_peak_off_peak_energy_contract_current_tariff"
+    entity_id = "sensor.contract_1_3_kva_peak_off_peak_current_tariff"
     sensor_entity = fixture.get_entity_state(entity_id)
 
     # Verify that options are available
@@ -190,9 +190,9 @@ async def test_device_energy_daily_peak_off_peak_consistency(
 ) -> None:
     """Test that device daily energy is split between peak and off-peak sensors."""
 
-    total = float(fixture.get_entity_state(f"sensor.{device_slug}_energy_daily").state)
-    peak = float(fixture.get_entity_state(f"sensor.{device_slug}_energy_daily_peak").state)
-    off_peak = float(fixture.get_entity_state(f"sensor.{device_slug}_energy_daily_off_peak").state)
+    total = float(fixture.get_entity_state(f"sensor.{device_slug}_daily_energy").state)
+    peak = float(fixture.get_entity_state(f"sensor.{device_slug}_daily_energy_peak").state)
+    off_peak = float(fixture.get_entity_state(f"sensor.{device_slug}_daily_energy_off_peak").state)
 
     assert peak >= 0
     assert off_peak >= 0
@@ -203,9 +203,9 @@ async def test_device_energy_daily_peak_off_peak_consistency(
 async def test_energy_contract_energy_daily_peak_off_peak_consistency(fixture: HomeAssistantFixture) -> None:
     """Test that contract daily energy is split between peak and off-peak sensors."""
 
-    total = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_energy_daily").state)
-    peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_energy_daily_peak").state)
-    off_peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_energy_daily_off_peak").state)
+    total = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_daily_energy").state)
+    peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_daily_energy_peak").state)
+    off_peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_daily_energy_off_peak").state)
 
     assert peak >= 0
     assert off_peak >= 0
@@ -216,7 +216,7 @@ async def test_energy_contract_energy_daily_peak_off_peak_consistency(fixture: H
 async def test_sensor_coordinator_update_reflects_state(fixture: HomeAssistantFixture) -> None:
     """Test that coordinator updates reflect in sensor state."""
 
-    entity_id = "sensor.heater_1_energy_daily"
+    entity_id = "sensor.heater_1_daily_energy"
 
     # Get initial state
     initial_state = fixture.get_entity_state(entity_id)
@@ -272,7 +272,7 @@ async def test_energy_contract_coordinator_update(fixture: HomeAssistantFixture)
 async def test_device_sensor_handles_missing_device_data(fixture: HomeAssistantFixture) -> None:
     """Test that device sensor handles missing device data gracefully."""
 
-    entity_id = "sensor.heater_1_energy_daily"
+    entity_id = "sensor.heater_1_daily_energy"
 
     # Verify entity is available initially
     initial_state = fixture.get_entity_state(entity_id)
@@ -350,10 +350,10 @@ async def test_energy_contract_sensor_handles_missing_contract_data(fixture: Hom
 @pytest.mark.parametrize(
     "entity_id",
     [
-        "sensor.heater_1_energy_daily",
-        "sensor.heater_2_energy_daily",
-        "sensor.water_heater_1_energy_daily",
-        "sensor.water_heater_2_energy_daily",
+        "sensor.heater_1_daily_energy",
+        "sensor.heater_2_daily_energy",
+        "sensor.water_heater_1_daily_energy",
+        "sensor.water_heater_2_daily_energy",
         "sensor.heater_1_health_status",
         "sensor.heater_2_health_status",
         "sensor.water_heater_1_health_status",
