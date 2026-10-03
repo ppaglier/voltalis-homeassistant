@@ -3,7 +3,7 @@
 from collections.abc import AsyncGenerator
 
 import pytest
-from homeassistant.components.water_heater import (
+from homeassistant.components.water_heater.const import (
     ATTR_AWAY_MODE,
     ATTR_OPERATION_MODE,
     SERVICE_SET_AWAY_MODE,
