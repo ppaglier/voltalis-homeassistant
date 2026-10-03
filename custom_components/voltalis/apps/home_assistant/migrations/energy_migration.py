@@ -1,8 +1,9 @@
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from homeassistant.helpers import device_registry, entity_registry
 
-from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
+if TYPE_CHECKING:
+    from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
 from custom_components.voltalis.const import DOMAIN
 
 # Suffix mapping: {"old_suffix": "new_suffix"}
@@ -30,14 +31,14 @@ SORTED_SUFFIX_MAPPING = sorted(
 )
 
 
-async def migrate(*, home_assistant_module: VoltalisHomeAssistantModule) -> bool:
+async def migrate(*, home_assistant_module: "VoltalisHomeAssistantModule") -> bool:
     """Migrate Voltalis devices and entities unique IDs."""
     hass = home_assistant_module.hass
     dev_reg = device_registry.async_get(hass)
     ent_reg = entity_registry.async_get(hass)
     logger = home_assistant_module.logger
     entry = home_assistant_module.entry
-    site_id = cast(str, entry.data.get("site_id"))
+    site_id = entry.runtime_data.site_id
 
     # 1. Device migration
     devices = home_assistant_module.device_coordinator.data or {}

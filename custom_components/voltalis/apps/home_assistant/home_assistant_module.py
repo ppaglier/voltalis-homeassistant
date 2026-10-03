@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from datetime import timedelta
+from typing import cast
 
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -117,9 +118,6 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         self.hass = hass
         self.entry = entry
 
-        # ✅ store config entry data with reference to the module and coordinators
-        self.entry.runtime_data = VoltalisConfigEntryData(voltalis_home_assistant_module=self)
-
         self.hass.data.setdefault(DOMAIN, {})
 
         username = self.entry.data["username"]
@@ -130,12 +128,16 @@ class VoltalisHomeAssistantModule(VoltalisModule):
             password=password,
         )
 
+        # ✅ store config entry data with reference to the module and coordinators
+        self.entry.runtime_data = VoltalisConfigEntryData(
+            voltalis_home_assistant_module=self,
+            site_id=cast(str, self._voltalis_client.storage["site_id"]),
+        )
+
         await self.__load_coordinators()
 
         # Migrate old devices & entities to new structure if needed
-        await energy_migration.migrate(
-            home_assistant_module=self,
-        )
+        await energy_migration.migrate(home_assistant_module=self)
 
         # forward setup to sensor platform
         await self.hass.config_entries.async_forward_entry_setups(self.entry, self.PLATFORMS)
