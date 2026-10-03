@@ -1,11 +1,13 @@
 from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
     VoltalisBaseEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
+from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 
 
@@ -23,8 +25,16 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
         super().__init__(entry, entry.runtime_data.voltalis_home_assistant_module.programs_coordinator)
 
         # Unique id for Home Assistant
-        self._attr_unique_id = f"{entry.runtime_data.site_id}_programs_{self._attr_translation_key}"
-        self.unique_id = self._attr_unique_id
+        unique_id = f"{entry.runtime_data.site_id}"
+        self._attr_unique_id = f"{unique_id}_programs_{self._attr_translation_key}"
+
+        self._attr_device_info: DeviceInfo = DeviceInfo(  # pyright: ignore[reportIncompatibleVariableOverride]
+            identifiers={(DOMAIN, unique_id)},
+            name="Voltalis",
+            manufacturer="Voltalis",
+            configuration_url="https://myvoltalis.com",
+            entry_type=DeviceEntryType.SERVICE,
+        )
 
     @property
     def unique_internal_name(self) -> str:
