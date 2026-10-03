@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Callable
 
 from homeassistant.core import callback
@@ -57,7 +57,7 @@ class VoltalisDeviceEnergyDailyCoordinator(BaseVoltalisCoordinator[dict[int, Dev
     async def _get_data(self) -> dict[int, DeviceEnergy]:
         """Fetch updated data from the Voltalis API."""
 
-        target_time = self._voltalis_module.date_provider.get_now()
+        target_time = self._voltalis_module.date_provider.get_now() - timedelta(hours=1)
         data = await self._voltalis_module.get_devices_daily_energy_handler.handle(
             target_date=target_time.date(),
             target_time=target_time.time(),
