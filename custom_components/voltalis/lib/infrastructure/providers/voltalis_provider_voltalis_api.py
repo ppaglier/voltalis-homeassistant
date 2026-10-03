@@ -69,7 +69,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
                 method="GET",
             )
         except HttpClientException as err:
-            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+            raise VoltalisConnectionException("Error connecting to Voltalis API to get devices") from err
 
         parsed_devices: list[VoltalisDeviceDto]
         try:
@@ -90,7 +90,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
                 method="GET",
             )
         except HttpClientException as err:
-            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+            raise VoltalisConnectionException("Error connecting to Voltalis API to get devices health") from err
 
         parsed_devices_health: list[VoltalisDeviceHealthDto]
         try:
@@ -114,7 +114,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
                 query_params={"mode": "TEN_MINUTES", "numPoints": "1"},
             )
         except HttpClientException as err:
-            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+            raise VoltalisConnectionException("Error connecting to Voltalis API to get live power") from err
 
         parsed_realtime_consumption: VoltalisRealtimeConsumptionDto
         try:
@@ -141,7 +141,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
                 method="GET",
             )
         except HttpClientException as err:
-            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+            raise VoltalisConnectionException("Error connecting to Voltalis API to get devices daily energy") from err
 
         parsed_consumption: VoltalisConsumptionDto
         try:
@@ -174,7 +174,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
                 method="GET",
             )
         except HttpClientException as err:
-            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+            raise VoltalisConnectionException("Error connecting to Voltalis API to get manual settings") from err
 
         parsed_manual_settings: list[VoltalisManualSettingDto]
         try:
@@ -213,7 +213,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
                 body=payload,
             )
         except HttpClientException as err:
-            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+            raise VoltalisConnectionException("Error connecting to Voltalis API to set manual setting") from err
 
         self.__logger.info("Manual setting %s updated for appliance %s", manual_setting_id, setting.id_appliance)
 
@@ -251,7 +251,7 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
                 ),
             )
         except HttpClientException as err:
-            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+            raise VoltalisConnectionException("Error connecting to Voltalis API to get programs") from err
 
         parsed_quick_programs: list[VoltalisProgramDto]
         parsed_user_programs: list[VoltalisProgramDto]
@@ -291,6 +291,6 @@ class VoltalisProviderVoltalisApi(VoltalisProvider):
                 body=payload,
             )
         except HttpClientException as err:
-            raise VoltalisConnectionException("Error connecting to Voltalis API") from err
+            raise VoltalisConnectionException("Error connecting to Voltalis API to toggle program") from err
 
         self.__logger.info("Program %s updated to %s", program.id, program.enabled)
