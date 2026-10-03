@@ -182,7 +182,7 @@ The integration creates different entities depending on the device type and capa
 <details>
   <summary>Climate Entity (Heating Devices Only)</summary>
 
-  - **Entity ID**: `climate.<device_name>_climate`
+  - **Entity ID**: `climate.<device_name>` (e.g: `climate.bedroom` or `climate.towel_dryer`)
   - **Type**: Climate (Thermostat)
   - **HVAC Modes**:
     - `Off`: Turn off the device
@@ -204,7 +204,7 @@ The integration creates different entities depending on the device type and capa
 <details>
   <summary>Water Heater Entity (Water Heating Devices Only)</summary>
 
-  - **Entity ID**: `water_heater.<device_name>_water_heater`
+  - **Entity ID**: `water_heater.<device_name>` (e.g: `water_heater.water_heater`)
   - **Type**: Water Heater
   - **Operation Modes**:
     - `Off`: The water heater is turned off (no heating allowed)
@@ -221,51 +221,74 @@ The integration creates different entities depending on the device type and capa
 ### Sensors
 
 <details>
-  <summary>Energy Consumption Sensor</summary>
+  <summary>Daily Energy Sensor</summary>
 
-  - **Entity ID**: `sensor.<device_name>_device_energy_daily`
+  - **Entity ID**: `sensor.<device_name>_daily_energy` (e.g: `sensor.bedroom_daily_energy`)
   - **Type**: Energy sensor
   - **Unit**: Wh (Watt-hours)
   - **Device Class**: Energy
-  - **State Class**: Total Increasing
-  - **Description**: Shows the cumulative energy consumption of the device
-  - **Update Frequency**: Every 1 hour
+  - **Description**: Shows the device's daily energy consumption
+  - **Availability**: Always provided
 </details>
 
 <details>
-  <summary>Connection Status Sensor</summary>Sensor</summary>
+  <summary>Peak Daily Energy Sensor</summary>
 
-  - **Entity ID**: `sensor.<device_name>_device_health_status`
-  - **Type**: Enum sensor
+  - **Entity ID**: `sensor.<device_name>_daily_energy_peak` (e.g: `sensor.bedroom_daily_energy_peak`)
+  - **Type**: Energy sensor
+  - **Unit**: Wh (Watt-hours)
+  - **Device Class**: Energy
+  - **Description**: Shows the device's daily energy consumption during peak hours
+  - **Availability**: Provided for Peak/Off-Peak contracts
+</details>
+
+<details>
+  <summary>Off-Peak Daily Energy Sensor</summary>
+
+  - **Entity ID**: `sensor.<device_name>_daily_energy_off_peak` (e.g: `sensor.bedroom_daily_energy_off_peak`)
+  - **Type**: Energy sensor
+  - **Unit**: Wh (Watt-hours)
+  - **Device Class**: Energy
+  - **Description**: Shows the device's daily energy consumption during off-peak hours
+  - **Availability**: Provided for Peak/Off-Peak contracts
+</details>
+
+<details>
+  <summary>Health Status Sensor</summary>
+
+  - **Entity ID**: `sensor.<device_name>_health_status` (e.g: `sensor.bedroom_health_status`)
+  - **Type**: Diagnostic enum sensor
   - **Device Class**: Enum
   - **States**: `Connected`, `Disconnected`, `Test in progress`
-  - **Description**: Indicates the connection status of the device
+  - **Description**: Indicates the device health status
+  - **Availability**: Created when health data is available
   - **Update Frequency**: Every 1 minute
 </details>
 
 <details>
-  <summary>Current Mode Sensor</summary>Sensor</summary>
+  <summary>Current Mode Sensor</summary>
 
-  - **Entity ID**: `sensor.<device_name>_device_current_mode`
+  - **Entity ID**: `sensor.<device_name>_current_mode` (e.g: `sensor.bedroom_current_mode`)
   - **Type**: Enum sensor
   - **Device Class**: Enum
   - **States**: `Comfort`, `Eco`, `Frost Protection`, `Temperature`, `On`, `Off`
   - **Description**: Shows the current operating mode of the device
+  - **Availability**: Created when the device has a current mode
   - **Icon**: Changes dynamically based on the current mode
   - **Update Frequency**: Every 1 minute
 </details>
 
 <details>
-  <summary>Programming Sensor (Disabled by Default)</summary>fault)</summary>
+  <summary>Programming Sensor</summary>
 
-  - **Entity ID**: `sensor.<device_name>_device_programming`
-  - **Type**: Enum sensor
+  - **Entity ID**: `sensor.<device_name>_programming` (e.g: `sensor.bedroom_programming`)
+  - **Type**: Diagnostic enum sensor
   - **Device Class**: Enum
   - **States**: `Manual`, `Default`, `User`, `Quick`
   - **Description**: Indicates which type of programming is currently active
   - **Icon**: Changes dynamically based on the programming type
+  - **Availability**: Created when the device has a programming type
   - **Update Frequency**: Every 1 minute
-  - **Note**: This sensor is disabled by default. Enable it in the entity settings if needed.
 </details>
 
 ### Energy Contract Sensors
@@ -273,10 +296,10 @@ The integration creates different entities depending on the device type and capa
 The integration also provides sensors related to your energy contract:
 
 <details>
-  <summary>Live Consumption Sensor</summary>
+  <summary>Live Power Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_live_power`
-  - **Type**: Power sensor
+  - **Entity ID**: `sensor.<contract_name>_live_power` (e.g: `sensor.my_contract_live_power`)
+  - **Type**: Power sensor with measurement state class
   - **Unit**: W (Watts)
   - **Device Class**: Power
   - **State Class**: Measurement
@@ -287,10 +310,43 @@ The integration also provides sensors related to your energy contract:
 </details>
 
 <details>
+  <summary>Daily Energy Sensor</summary>
+
+  - **Entity ID**: `sensor.<contract_name>_daily_energy` (e.g: `sensor.my_contract_daily_energy`)
+  - **Type**: Energy sensor
+  - **Unit**: Wh (Watt-hours)
+  - **Device Class**: Energy
+  - **Description**: Shows the contract's daily energy consumption
+  - **Availability**: Always provided
+</details>
+
+<details>
+  <summary>Peak Daily Energy Sensor</summary>
+
+  - **Entity ID**: `sensor.<contract_name>_daily_energy_peak` (e.g: `sensor.my_contract_daily_energy_peak`)
+  - **Type**: Energy sensor
+  - **Unit**: Wh (Watt-hours)
+  - **Device Class**: Energy
+  - **Description**: Shows the contract's daily energy consumption during peak hours
+  - **Availability**: Provided for Peak/Off-Peak contracts
+</details>
+
+<details>
+  <summary>Off-Peak Daily Energy Sensor</summary>
+
+  - **Entity ID**: `sensor.<contract_name>_daily_energy_off_peak` (e.g: `sensor.my_contract_daily_energy_off_peak`)
+  - **Type**: Energy sensor
+  - **Unit**: Wh (Watt-hours)
+  - **Device Class**: Energy
+  - **Description**: Shows the contract's daily energy consumption during off-peak hours
+  - **Availability**: Provided for Peak/Off-Peak contracts
+</details>
+
+<details>
   <summary>Subscribed Power Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_subscribed_power`
-  - **Type**: Sensor
+  - **Entity ID**: `sensor.<contract_name>_subscribed_power` (e.g: `sensor.my_contract_subscribed_power`)
+  - **Type**: Apparent power sensor
   - **Unit**: kVA (Kilovolt-ampere)
   - **Device Class**: Apparent Power
   - **Description**: Shows your subscribed power level from your energy contract
@@ -299,66 +355,75 @@ The integration also provides sensors related to your energy contract:
 </details>
 
 <details>
-  <summary>Energy Contract Current Mode Sensor</summary>
+  <summary>Current Tariff Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_current_tariff`
-  - **Type**: Sensor
+  - **Entity ID**: `sensor.<contract_name>_current_tariff` (e.g: `sensor.my_contract_current_tariff`)
+  - **Type**: Enum sensor
   - **States**: `Base`, `Peak`, `Off-Peak`
   - **Description**: Indicates the current pricing period of your energy contract
   - **Icon**: Changes dynamically based on the current mode
     - Base: `mdi:sort-calendar-today`
     - Peak: `mdi:sort-calendar-descending`
     - Off-Peak: `mdi:sort-calendar-ascending`
+  - **Availability**: Provided for Peak/Off-Peak contracts
   - **Update Frequency**: Every 1 minute (automatically switches based on your contract's peak/off-peak hours)
 </details>
 
 <details>
-  <summary>kWh Current Cost Sensor</summary>
+  <summary>Base kWh Price Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_current_price`
-  - **Type**: Monetary sensor
-  - **Unit**: € (Euro)
-  - **Device Class**: Monetary
-  - **Description**: Shows the current cost per kWh based on whether you're in peak or off-peak hours (or base rate)
+  - **Entity ID**: `sensor.<contract_name>_kwh_price` (e.g: `sensor.my_contract_kwh_price`)
+  - **Type**: Price sensor
+  - **Unit**: € (Euro) per kWh
+  - **Description**: Shows the kWh price for a Base contract
+  - **Availability**: Provided for Base contracts
+</details>
+
+<details>
+  <summary>Current kWh Price Sensor</summary>
+
+  - **Entity ID**: `sensor.<contract_name>_kwh_current_price` (e.g: `sensor.my_contract_kwh_current_price`)
+  - **Type**: Price sensor
+  - **Unit**: € (Euro) per kWh
+  - **Description**: Shows the current price per kWh based on the current tariff
   - **Icon**: Changes dynamically based on the current pricing mode
     - Base: `mdi:gauge`
     - Peak: `mdi:gauge-full`
     - Off-Peak: `mdi:gauge-low`
   - **Update Frequency**: Every 1 minute (updates automatically when switching between peak/off-peak)
+  - **Availability**: Provided for Peak/Off-Peak contracts
 </details>
 
 <details>
-  <summary>kWh Peak Cost Sensor</summary>
+  <summary>Peak kWh Price Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_peak_price`
-  - **Type**: Monetary sensor
-  - **Unit**: € (Euro)
-  - **Device Class**: Monetary
-  - **Description**: Shows the cost per kWh during peak hours
+  - **Entity ID**: `sensor.<contract_name>_kwh_peak_price` (e.g: `sensor.my_contract_kwh_peak_price`)
+  - **Type**: Price sensor
+  - **Unit**: € (Euro) per kWh
+  - **Description**: Shows the price per kWh during peak hours
   - **Icon**: `mdi:currency-eur`
   - **Update Frequency**: Updates when contract data changes
-  - **Note**: Only available for peak/off-peak contracts
+  - **Availability**: Provided for Peak/Off-Peak contracts
 </details>
 
 <details>
-  <summary>kWh Off-Peak Cost Sensor</summary>
+  <summary>Off-Peak kWh Price Sensor</summary>
 
-  - **Entity ID**: `sensor.voltalis_energy_contract_kwh_off_peak_price`
-  - **Type**: Monetary sensor
-  - **Unit**: € (Euro)
-  - **Device Class**: Monetary
-  - **Description**: Shows the cost per kWh during off-peak hours
+  - **Entity ID**: `sensor.<contract_name>_kwh_off_peak_price` (e.g: `sensor.my_contract_kwh_off_peak_price`)
+  - **Type**: Price sensor
+  - **Unit**: € (Euro) per kWh
+  - **Description**: Shows the price per kWh during off-peak hours
   - **Icon**: `mdi:currency-eur`
   - **Update Frequency**: Updates when contract data changes
-  - **Note**: Only available for peak/off-peak contracts
+  - **Availability**: Provided for Peak/Off-Peak contracts
 </details>
 
 ### Select Entities
 
 <details>
-  <summary>Device Preset Selector</summary>
+  <summary>Device Preset Select</summary>
 
-  - **Entity ID**: `select.<device_name>_device_preset`
+  - **Entity ID**: `select.<device_name>_preset` (e.g: `select.bedroom_preset`)
   - **Type**: Select
   - **Options**: Auto, On (if available), Comfort, Eco, Frost Protection, Temperature, Off
   - **Description**: Allows quick switching between different operating modes for an individual device
@@ -374,9 +439,9 @@ The integration also provides sensors related to your energy contract:
 </details>
 
 <details>
-  <summary>Program Selector</summary>
+  <summary>Program Select</summary>
 
-  - **Entity ID**: `select.voltalis_program_select`
+  - **Entity ID**: `select.voltalis_program`
   - **Type**: Select
   - **Description**: Allows you to select global programs that apply to all devices (No program, Vacation, Short absence, Boost, or other programs created in the Voltalis application)
   - **Icon**: `mdi:playlist-edit`
@@ -389,7 +454,7 @@ The integration also provides sensors related to your energy contract:
 <details>
   <summary>Device Switch</summary>
 
-  - **Entity ID**: `switch.<device_name>_device_switch`
+  - **Entity ID**: `switch.<device_name>_device_switch` (e.g: `switch.bedroom_device_switch`)
   - **Type**: Switch
   - **Description**: Simple on/off control for the device
   - **Features**:
