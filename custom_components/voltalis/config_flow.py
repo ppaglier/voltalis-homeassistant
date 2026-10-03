@@ -98,7 +98,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             base_url=VOLTALIS_API_BASE_URL,
         )
 
-    async def __validate_input(self, *, username: str | None, password: SecretStr | None) -> str:
+    async def __validate_input(self, *, username: str | None, password: SecretStr | None) -> None:
         """Validate provided user input."""
 
         if not username or not password:
@@ -111,7 +111,6 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 username=username,
                 password=password,
             )
-            return cast(str, client.storage["site_id"])
         except VoltalisAuthenticationException as err:
             raise self.AuthError("invalid_auth") from err
         except (HttpClientException, RuntimeError, TimeoutError, asyncio.TimeoutError) as err:
@@ -127,9 +126,8 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         password = self.__get_password_input(user_input)
 
         if user_input is not None:
-            site_id: str | None = None
             try:
-                site_id = await self.__validate_input(username=username, password=password)
+                await self.__validate_input(username=username, password=password)
             except self.AuthError:
                 errors["base"] = "invalid_auth"
             except self.ConnectionError:
@@ -147,7 +145,6 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data={
                         "username": username,
                         "password": cast(SecretStr, password).get_secret_value(),
-                        "site_id": site_id,
                     },
                 )
 
@@ -164,9 +161,8 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         assert entry is not None
 
         if user_input is not None:
-            site_id: str | None = None
             try:
-                site_id = await self.__validate_input(username=username, password=password)
+                await self.__validate_input(username=username, password=password)
             except self.AuthError:
                 errors["base"] = "invalid_auth"
             except self.ConnectionError:
@@ -183,7 +179,6 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data={
                         "username": username,
                         "password": cast(SecretStr, password).get_secret_value(),
-                        "site_id": site_id,
                     },
                 )
                 await self.hass.config_entries.async_reload(entry.entry_id)
@@ -210,9 +205,8 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         assert entry is not None
 
         if user_input is not None:
-            site_id: str | None = None
             try:
-                site_id = await self.__validate_input(username=username, password=password)
+                await self.__validate_input(username=username, password=password)
             except self.AuthError:
                 errors["base"] = "invalid_auth"
             except self.ConnectionError:
@@ -230,7 +224,6 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data={
                         "username": username,
                         "password": cast(SecretStr, password).get_secret_value(),
-                        "site_id": site_id,
                     },
                 )
                 await self.hass.config_entries.async_reload(entry.entry_id)

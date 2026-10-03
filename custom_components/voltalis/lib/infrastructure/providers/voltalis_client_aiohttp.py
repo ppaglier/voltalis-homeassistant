@@ -128,7 +128,7 @@ class VoltalisClientAiohttp(HttpClientAiohttp):
         query_params: dict[str, str] | None = None,
         headers: dict[str, str] | None = None,
         **kwargs: Any,
-    ) -> HttpClientResponse[TData]:
+    ) -> HttpClientResponse[TData]:  # pyright: ignore[reportInvalidTypeVarUse]
         """Send http requests to Voltalis."""
 
         can_retry = kwargs.pop("can_retry", True)

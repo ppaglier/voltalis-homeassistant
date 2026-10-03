@@ -10,8 +10,14 @@ if TYPE_CHECKING:
 class VoltalisConfigEntryData:
     """Config entry for the Voltalis data"""
 
-    def __init__(self, *, voltalis_home_assistant_module: "VoltalisHomeAssistantModule") -> None:
+    def __init__(
+        self,
+        *,
+        voltalis_home_assistant_module: "VoltalisHomeAssistantModule",
+        site_id: str,
+    ) -> None:
         self.voltalis_home_assistant_module = voltalis_home_assistant_module
+        self.site_id = site_id
 
 
 VoltalisConfigEntry = config_entries.ConfigEntry[VoltalisConfigEntryData]
