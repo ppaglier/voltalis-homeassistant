@@ -1,7 +1,7 @@
 import asyncio
 import inspect
 import json
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from logging import Logger
 from threading import Thread
 from typing import (
@@ -45,7 +45,7 @@ class MockHttpServer:
     def __init__(self, logger: Logger) -> None:
         self.__logger = logger
         self.__request_handlers: dict[str, dict[str, tuple[MockHttpServer.RequestHandler, dict]]] = {}
-        self.__http_server = HTTPServer(("127.0.0.1", 0), self.server_request_handler_factory())
+        self.__http_server = ThreadingHTTPServer(("127.0.0.1", 0), self.server_request_handler_factory())
         self.__thread = Thread(target=self.__http_server.serve_forever, daemon=True)
 
     # --------------------------
