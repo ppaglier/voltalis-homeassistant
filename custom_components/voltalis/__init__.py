@@ -6,7 +6,6 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
     VoltalisConfigEntry,
 )
 from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
-from custom_components.voltalis.apps.home_assistant.migrations import energy_migration
 from custom_components.voltalis.const import CONFIG_SCHEMA
 
 PLATFORMS = VoltalisHomeAssistantModule.PLATFORMS
@@ -27,9 +26,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: VoltalisConfigEntry) -> 
     setup_ok = await home_assistant_module.async_setup_entry(hass=hass, entry=entry)
 
     if setup_ok:
-        await energy_migration.migrate(
-            home_assistant_module=home_assistant_module,
-        )
 
         async def _update_listener(hass: HomeAssistant, entry: VoltalisConfigEntry) -> None:
             """Handle options updates by reloading the config entry."""
