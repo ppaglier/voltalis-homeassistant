@@ -23,6 +23,7 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
     VoltalisConfigEntry,
     VoltalisConfigEntryData,
 )
+from custom_components.voltalis.apps.home_assistant.migrations import energy_migration
 from custom_components.voltalis.apps.home_assistant.stats_publishers.energy_statistics import (
     VoltalisEnergyStatisticsPublisher,
 )
@@ -130,6 +131,11 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         )
 
         await self.__load_coordinators()
+
+        # Migrate old devices & entities to new structure if needed
+        await energy_migration.migrate(
+            home_assistant_module=self,
+        )
 
         # forward setup to sensor platform
         await self.hass.config_entries.async_forward_entry_setups(self.entry, self.PLATFORMS)
