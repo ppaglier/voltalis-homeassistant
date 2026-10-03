@@ -107,7 +107,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         client = await self.__get_client()
 
         try:
-            await client.login(
+            await client.get_access_token(
                 username=username,
                 password=password,
             )
@@ -142,10 +142,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
                     title=cast(str, username),
-                    data={
-                        "username": username,
-                        "password": cast(SecretStr, password).get_secret_value(),
-                    },
+                    data={"username": username, "password": cast(SecretStr, password).get_secret_value()},
                 )
 
         return self.async_show_form(step_id="user", data_schema=self.__get_schema(), errors=errors)
@@ -176,10 +173,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.hass.config_entries.async_update_entry(
                     entry,
                     title=entry.title,
-                    data={
-                        "username": username,
-                        "password": cast(SecretStr, password).get_secret_value(),
-                    },
+                    data={"username": username, "password": cast(SecretStr, password).get_secret_value()},
                 )
                 await self.hass.config_entries.async_reload(entry.entry_id)
                 return self.async_abort(reason="reconfigure_successful")
@@ -221,10 +215,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.hass.config_entries.async_update_entry(
                     entry,
                     title=entry.title,
-                    data={
-                        "username": username,
-                        "password": cast(SecretStr, password).get_secret_value(),
-                    },
+                    data={"username": username, "password": cast(SecretStr, password).get_secret_value()},
                 )
                 await self.hass.config_entries.async_reload(entry.entry_id)
                 return self.async_abort(reason="reauth_successful")
