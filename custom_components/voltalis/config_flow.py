@@ -1,7 +1,7 @@
 import asyncio
 from typing import cast
 
-import voluptuous as vol
+import probatio
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
@@ -77,13 +77,13 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return SecretStr(password)
         return None
 
-    def __get_schema(self, username: str | None = None) -> vol.Schema:
+    def __get_schema(self, username: str | None = None) -> probatio.Schema:
         """Get the schema for the user input form."""
 
-        return vol.Schema(
+        return probatio.Schema(
             {
-                vol.Required("username", default=username or vol.UNDEFINED): str,
-                vol.Required("password"): str,
+                probatio.Required("username", default=username or probatio.UNDEFINED): str,
+                probatio.Required(probatio.Secret("password")): str,
             }
         )
 
@@ -241,43 +241,43 @@ class VoltalisOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title=f"{self.config_entry.title} config", data=user_input)
 
-        data_schema = vol.Schema(
+        data_schema = probatio.Schema(
             {
                 # Log level option
-                vol.Optional(
+                probatio.Optional(
                     CONF_LOG_LEVEL,
                     default=self._config_entry.options.get(CONF_LOG_LEVEL, DEFAULT_LOG_LEVEL),
-                ): vol.In([option.value for option in LogLevelEnum]),
+                ): probatio.In([option.value for option in LogLevelEnum]),
                 # Climate control options
-                vol.Optional(
+                probatio.Optional(
                     CONF_CLIMATE_MIN_TEMP,
                     default=self._config_entry.options.get(CONF_CLIMATE_MIN_TEMP, DEFAULT_CLIMATE_MIN_TEMP),
-                ): vol.Coerce(float),
-                vol.Optional(
+                ): probatio.Coerce(float),
+                probatio.Optional(
                     CONF_CLIMATE_MAX_TEMP,
                     default=self._config_entry.options.get(CONF_CLIMATE_MAX_TEMP, DEFAULT_CLIMATE_MAX_TEMP),
-                ): vol.Coerce(float),
+                ): probatio.Coerce(float),
                 # Default temperature options
-                vol.Optional(
+                probatio.Optional(
                     CONF_DEFAULT_TEMP,
                     default=self._config_entry.options.get(CONF_DEFAULT_TEMP, DEFAULT_TEMP),
-                ): vol.Coerce(float),
-                vol.Optional(
+                ): probatio.Coerce(float),
+                probatio.Optional(
                     CONF_DEFAULT_AWAY_TEMP,
                     default=self._config_entry.options.get(CONF_DEFAULT_AWAY_TEMP, DEFAULT_AWAY_TEMP),
-                ): vol.Coerce(float),
-                vol.Optional(
+                ): probatio.Coerce(float),
+                probatio.Optional(
                     CONF_DEFAULT_ECO_TEMP,
                     default=self._config_entry.options.get(CONF_DEFAULT_ECO_TEMP, DEFAULT_ECO_TEMP),
-                ): vol.Coerce(float),
-                vol.Optional(
+                ): probatio.Coerce(float),
+                probatio.Optional(
                     CONF_DEFAULT_COMFORT_TEMP,
                     default=self._config_entry.options.get(CONF_DEFAULT_COMFORT_TEMP, DEFAULT_COMFORT_TEMP),
-                ): vol.Coerce(float),
-                vol.Optional(
+                ): probatio.Coerce(float),
+                probatio.Optional(
                     CONF_DEFAULT_WATER_HEATER_TEMP,
                     default=self._config_entry.options.get(CONF_DEFAULT_WATER_HEATER_TEMP, DEFAULT_WATER_HEATER_TEMP),
-                ): vol.Coerce(float),
+                ): probatio.Coerce(float),
             }
         )
 

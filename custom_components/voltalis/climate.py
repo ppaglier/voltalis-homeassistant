@@ -1,6 +1,6 @@
 """Platform for Voltalis climate integration."""
 
-import voluptuous as vol
+import probatio
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_platform
@@ -49,10 +49,10 @@ async def async_setup_entry(
     platform.async_register_entity_service(
         "set_manual_mode",
         {
-            vol.Required("entity_id"): cv.entity_ids,
-            vol.Optional("preset_mode"): cv.string,
-            vol.Optional("temperature"): vol.Coerce(float),
-            vol.Optional("duration_hours"): lambda v: None if v is None else cv.positive_int(v),
+            probatio.Required("entity_id"): cv.entity_ids,
+            probatio.Optional("preset_mode"): cv.string,
+            probatio.Optional("temperature"): probatio.Coerce(float),
+            probatio.Optional("duration_hours"): lambda v: None if v is None else cv.positive_int(v),
         },
         "async_service_set_manual_mode",
     )
@@ -60,7 +60,7 @@ async def async_setup_entry(
     platform.async_register_entity_service(
         "disable_manual_mode",
         {
-            vol.Required("entity_id"): cv.entity_ids,
+            probatio.Required("entity_id"): cv.entity_ids,
         },
         "async_service_disable_manual_mode",
     )
@@ -68,9 +68,9 @@ async def async_setup_entry(
     platform.async_register_entity_service(
         "set_quick_boost",
         {
-            vol.Required("entity_id"): cv.entity_ids,
-            vol.Optional("duration_hours", default=2): vol.Coerce(float),
-            vol.Optional("temperature"): vol.Coerce(float),
+            probatio.Required("entity_id"): cv.entity_ids,
+            probatio.Optional("duration_hours", default=2): probatio.Coerce(float),
+            probatio.Optional("temperature"): probatio.Coerce(float),
         },
         "async_service_set_quick_boost",
     )
