@@ -75,7 +75,7 @@ async def migrate(*, home_assistant_module: "VoltalisHomeAssistantModule") -> bo
     energy_contracts = home_assistant_module.energy_contract_coordinator.data or {}
     for energy_contract in energy_contracts.values():
         old_identifier = (DOMAIN, f"{energy_contract.subscriber_id}")
-        new_identifier = (DOMAIN, f"{site_id}_{energy_contract.subscriber_id}")
+        new_identifier = (DOMAIN, f"{site_id}_energy_contract")
 
         energy_contract_internal = dev_reg.async_get_device_by_identifier(
             identifier=old_identifier,
