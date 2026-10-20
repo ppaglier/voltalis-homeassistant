@@ -100,12 +100,12 @@ warn_required_dynamic_aliases = true
 [tool.poetry.dependencies]
 python = ">=3.14.3,<4.0"
 taskipy = "^1.14.1"
-homeassistant = "^2026.9.4"
+homeassistant = "^2026.10.2"
 pydantic = "^2.13.5"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.16.10"
+ruff = "^0.17.1"
 mypy = "^2.4.0"
 
 
