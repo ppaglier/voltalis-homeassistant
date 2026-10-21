@@ -1,10 +1,39 @@
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, override
 
 from homeassistant.helpers import device_registry, entity_registry
+from homeassistant.helpers.recorder import DATA_INSTANCE, get_instance
+
+from custom_components.voltalis.const import DOMAIN
 
 if TYPE_CHECKING:
     from custom_components.voltalis.apps.home_assistant.home_assistant_module import VoltalisHomeAssistantModule
-from custom_components.voltalis.const import DOMAIN
+from homeassistant.components.recorder.core import Recorder
+from homeassistant.components.recorder.db_schema import Statistics
+from homeassistant.components.recorder.tasks import RecorderTask
+from homeassistant.components.recorder.util import session_scope
+
+
+@dataclass(slots=True)
+class ClearLongTermStatisticsTask(RecorderTask):
+    """Clear long-term statistics without removing short-term statistics or metadata."""
+
+    statistic_ids: list[str]
+
+    @override
+    def run(self, instance: Recorder) -> None:
+        """Remove long-term statistics from the recorder database."""
+        with session_scope(session=instance.get_session()) as session:
+            metadata = instance.statistics_meta_manager.get_many(
+                session,
+                statistic_ids=set(self.statistic_ids),
+            )
+            metadata_ids = [metadata_id for metadata_id, _ in metadata.values()]
+            if metadata_ids:
+                session.query(Statistics).filter(Statistics.metadata_id.in_(metadata_ids)).delete(
+                    synchronize_session=False
+                )
+
 
 # Suffix mapping: {"old_suffix": "new_suffix"}
 CUSTOM_SUFFIX_MAPPING: dict[str, str] = {
@@ -22,6 +51,15 @@ CUSTOM_SUFFIX_MAPPING: dict[str, str] = {
     "daily_consumption": "system_energy_daily",
     "live_consumption": "system_live_power",
     "programs_program_select": "system_program",
+}
+
+STATS_TO_DELETE = {
+    CUSTOM_SUFFIX_MAPPING["daily_consumption_offpeak"],
+    CUSTOM_SUFFIX_MAPPING["daily_consumption_peak"],
+    CUSTOM_SUFFIX_MAPPING["daily_consumption"],
+    CUSTOM_SUFFIX_MAPPING["device_daily_consumption_offpeak"],
+    CUSTOM_SUFFIX_MAPPING["device_daily_consumption_peak"],
+    CUSTOM_SUFFIX_MAPPING["device_daily_consumption"],
 }
 
 # Pre-sort by descending length of old suffixes to prevent partial substring matches
@@ -107,6 +145,7 @@ async def migrate(*, home_assistant_module: "VoltalisHomeAssistantModule") -> bo
 
     # 3. Entity migration
     entries = entity_registry.async_entries_for_config_entry(ent_reg, entry.entry_id)
+    statistic_ids_to_delete: list[str] = []
 
     for entity_entry in entries:
         old_unique_id = entity_entry.unique_id
@@ -162,5 +201,13 @@ async def migrate(*, home_assistant_module: "VoltalisHomeAssistantModule") -> bo
                 entity_id=entity_entry.entity_id,
                 new_unique_id=new_unique_id,
             )
+
+            # Delete statistics for entities whose statistic IDs are no longer used.
+            if any(new_unique_id.endswith(stat_suffix) for stat_suffix in STATS_TO_DELETE):
+                statistic_ids_to_delete.append(entity_entry.entity_id)
+
+    if statistic_ids_to_delete and DATA_INSTANCE in hass.data:
+        logger.debug("Deleting statistics for entities: %s", statistic_ids_to_delete)
+        get_instance(hass).async_clear_statistics(statistic_ids_to_delete)
 
     return True
