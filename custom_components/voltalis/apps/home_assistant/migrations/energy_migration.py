@@ -126,19 +126,15 @@ async def migrate(*, home_assistant_module: "VoltalisHomeAssistantModule") -> bo
             # If the target_id contains "energy_contract" or "system" but does not start with the site_id,
             # it means that the entity is related to the old energy contract unique_id format.
             # In this case, we need to remove the subscriber_id from the unique_id
-            old_target_id = target_id
             if "energy_contract" in target_id or "system" in target_id:
                 for subscriber_id in energy_contracts_subscriber_ids:
                     if target_id.startswith(f"{subscriber_id}_"):
                         target_id = target_id[len(subscriber_id) + 1 :]
                         break
-                print(f"Adjusted target_id from {old_target_id} to {target_id}", flush=True)
 
             new_unique_id = f"{site_id}_{target_id}"
         else:
             new_unique_id = target_id
-
-        print(f"Migrating entity (entity_id: {entity_entry.entity_id}) {old_unique_id} -> {new_unique_id}", flush=True)
 
         if new_unique_id != old_unique_id:
             logger.debug(
