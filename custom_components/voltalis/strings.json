@@ -181,6 +181,12 @@
       }
     }
   },
+  "notification": {
+    "statistics_backfill": {
+      "title": "Voltalis statistics synchronization",
+      "message": "Voltalis is retrieving historical statistics in the background, for up to one year. This notification will be removed when synchronization is complete."
+    }
+  },
   "services": {
     "set_manual_mode": {
       "name": "Set manual mode",

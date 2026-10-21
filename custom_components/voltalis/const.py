@@ -7,6 +7,8 @@ from homeassistant.helpers import config_validation as cv
 
 DOMAIN = "voltalis"
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+STATS_BACKFILL_ENTRY_IDS = "stats_backfill_entry_ids"
+STATS_BACKFILL_USERNAMES = "stats_backfill_usernames"
 
 
 VOLTALIS_API_BASE_URL = "https://api.myvoltalis.com"

@@ -26,6 +26,8 @@ from custom_components.voltalis.const import (
     DEFAULT_TEMP,
     DEFAULT_WATER_HEATER_TEMP,
     DOMAIN,
+    STATS_BACKFILL_ENTRY_IDS,
+    STATS_BACKFILL_USERNAMES,
     VOLTALIS_API_BASE_URL,
     LogLevelEnum,
 )
@@ -140,6 +142,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not errors:
                 await self.async_set_unique_id(username)
                 self._abort_if_unique_id_configured()
+                self.hass.data.setdefault(DOMAIN, {}).setdefault(STATS_BACKFILL_USERNAMES, set()).add(username)
                 return self.async_create_entry(
                     title=cast(str, username),
                     data={"username": username, "password": cast(SecretStr, password).get_secret_value()},
@@ -175,6 +178,7 @@ class VoltalisConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     title=entry.title,
                     data={"username": username, "password": cast(SecretStr, password).get_secret_value()},
                 )
+                self.hass.data.setdefault(DOMAIN, {}).setdefault(STATS_BACKFILL_ENTRY_IDS, set()).add(entry.entry_id)
                 await self.hass.config_entries.async_reload(entry.entry_id)
                 return self.async_abort(reason="reconfigure_successful")
 

@@ -3,10 +3,13 @@ import logging
 from datetime import timedelta
 from typing import cast
 
+from homeassistant.components import persistent_notification
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry, entity_registry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.recorder import DATA_INSTANCE
+from homeassistant.helpers.translation import async_get_translations
 from pydantic import SecretStr
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
@@ -73,9 +76,17 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         We can't do anything in the constructor,
         as we need to initialize the module asynchronously in async_setup_entry.
         """
-        pass
+        self.energy_statistics_publisher: VoltalisEnergyStatisticsPublisher | None = None
+        self.__backfill_task: asyncio.Task[None] | None = None
+        self.__backfill_notification_id = "voltalis_statistics_backfill"
 
-    async def async_setup_entry(self, *, hass: HomeAssistant, entry: VoltalisConfigEntry) -> bool:
+    async def async_setup_entry(
+        self,
+        *,
+        hass: HomeAssistant,
+        entry: VoltalisConfigEntry,
+        backfill_statistics: bool = False,
+    ) -> bool:
         """Initialize the module. used in async_setup_entry"""
 
         # Initialize the module
@@ -145,14 +156,15 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         # Cleanup devices without entities to prevent shadow devices after initial setup
         self.cleanup_empty_devices()
 
-        # await self.__load_publishers()
+        await self.__load_publishers(backfill_statistics=backfill_statistics)
 
         return True
 
     async def async_unload_entry(self) -> bool:
         """Unload the module."""
 
-        # self.__unload_publishers()
+        await self.__cancel_backfill_task()
+        self.__unload_publishers()
 
         # Unload platforms FIRST before closing the client session
         unload_ok = await self.hass.config_entries.async_unload_platforms(self.entry, self.PLATFORMS)
@@ -202,29 +214,88 @@ class VoltalisHomeAssistantModule(VoltalisModule):
         self.device_energy_daily_coordinator.stop_time_tracking()
         self.live_power_coordinator.stop_time_tracking()
 
-    async def __load_publishers(self) -> None:
+    async def __load_publishers(self, *, backfill_statistics: bool) -> None:
         """Set up all publishers."""
 
+        if DATA_INSTANCE not in self.hass.data:
+            return
+
         self.energy_statistics_publisher = VoltalisEnergyStatisticsPublisher(
-            self.hass,
-            self.entry.entry_id,
-            self.logger,
-            self.device_energy_daily_coordinator,
-            self.device_coordinator,
-            self.energy_contract_coordinator,
-            self.get_devices_daily_energy_handler,
-        )
-        current_date = self.date_provider.get_now().date()
-        await self.energy_statistics_publisher.async_backfill(
-            [current_date - timedelta(days=1), current_date],
+            hass=self.hass,
+            entry_id=self.entry.entry_id,
+            site_id=self.entry.runtime_data.site_id,
+            logger=self.logger,
+            device_consumption_coordinator=self.device_energy_daily_coordinator,
+            energy_contract_coordinator=self.energy_contract_coordinator,
+            daily_consumption_handler=self.get_devices_daily_energy_handler,
         )
         await self.energy_statistics_publisher.async_publish()
         self.energy_statistics_publisher.start_time_tracking()
+        if backfill_statistics:
+            notification_title, notification_message = await self.__get_backfill_notification_text()
+            persistent_notification.async_create(
+                self.hass,
+                notification_message,
+                title=notification_title,
+                notification_id=self.__backfill_notification_id,
+            )
+            self.__backfill_task = self.hass.async_create_task(self.__async_backfill_statistics())
+
+    async def __get_backfill_notification_text(self) -> tuple[str, str]:
+        """Return the localized backfill notification text."""
+        translations = await async_get_translations(
+            self.hass,
+            self.hass.config.language,
+            "notification",
+            integrations=[DOMAIN],
+        )
+        return (
+            translations.get(
+                f"component.{DOMAIN}.notification.statistics_backfill.title",
+                "Voltalis statistics synchronization",
+            ),
+            translations.get(
+                f"component.{DOMAIN}.notification.statistics_backfill.message",
+                "Voltalis is retrieving historical statistics in the background, for up to one year. "
+                "This notification will be removed when synchronization is complete.",
+            ),
+        )
+
+    async def __async_backfill_statistics(self) -> None:
+        """Backfill a year of statistics without delaying integration setup."""
+        try:
+            if self.energy_statistics_publisher is None:
+                return
+
+            current_date = self.date_provider.get_now().date()
+            await self.energy_statistics_publisher.async_backfill(
+                [current_date - timedelta(days=days_ago) for days_ago in range(365, 0, -1)],
+            )
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            self.logger.exception("Voltalis statistics backfill failed")
+        finally:
+            persistent_notification.async_dismiss(self.hass, self.__backfill_notification_id)
+
+    async def __cancel_backfill_task(self) -> None:
+        """Cancel and await a running statistics backfill."""
+        if self.__backfill_task is None:
+            return
+
+        self.__backfill_task.cancel()
+        try:
+            await self.__backfill_task
+        except asyncio.CancelledError:
+            pass
+        self.__backfill_task = None
 
     def __unload_publishers(self) -> None:
         """Unload all publishers."""
 
-        self.energy_statistics_publisher.stop_time_tracking()
+        if self.energy_statistics_publisher is not None:
+            self.energy_statistics_publisher.stop_time_tracking()
+            self.energy_statistics_publisher = None
 
     def cleanup_empty_devices(self) -> None:
         """Cleanup devices with no entities to prevent shadow devices"""

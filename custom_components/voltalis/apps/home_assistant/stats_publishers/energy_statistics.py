@@ -2,31 +2,31 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from logging import Logger
 from typing import Callable
 
 from homeassistant.components.recorder.models import StatisticData, StatisticMeanType, StatisticMetaData
 from homeassistant.components.recorder.statistics import (
-    async_import_statistics,
+    async_add_external_statistics,
     get_last_statistics,
     statistics_during_period,
 )
-from homeassistant.const import Platform, UnitOfEnergy
+from homeassistant.const import UnitOfEnergy
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import entity_registry
+from homeassistant.helpers import device_registry
 from homeassistant.helpers.recorder import get_instance
+from homeassistant.helpers.translation import async_get_translations
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 from homeassistant.util.unit_conversion import EnergyConverter
 
 from custom_components.voltalis.apps.home_assistant.coordinators.base import BaseVoltalisCoordinator
 from custom_components.voltalis.const import DOMAIN
-from custom_components.voltalis.lib.application.devices_management.dtos.device_dto import DeviceDto
 from custom_components.voltalis.lib.application.devices_management.handlers.devices.get_devices_daily_energy_handler import (  # noqa: E501
     GetDevicesDailyEnergyHandler,
 )
-from custom_components.voltalis.lib.domain.devices_management.energy.device_energy import DeviceEnergy
+from custom_components.voltalis.lib.domain.devices_management.energy.device_energy import DeviceEnergy, EnergyRecord
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 from custom_components.voltalis.lib.domain.energy_contracts.energy_contract_enum import EnergyContractTypeEnum
 
@@ -36,20 +36,23 @@ class VoltalisEnergyStatisticsPublisher:
 
     def __init__(
         self,
+        *,
         hass: HomeAssistant,
         entry_id: str,
+        site_id: str,
         logger: Logger,
         device_consumption_coordinator: BaseVoltalisCoordinator[dict[int, DeviceEnergy]],
-        device_coordinator: BaseVoltalisCoordinator[dict[int, DeviceDto]],
         energy_contract_coordinator: DataUpdateCoordinator[dict[int, EnergyContract]],
         daily_consumption_handler: GetDevicesDailyEnergyHandler,
     ) -> None:
         self.__hass = hass
-        self.__registry = entity_registry.async_get(self.__hass)
         self.__entry_id = entry_id
+        self.__site_id = site_id
+        self.__device_registry = device_registry.async_get(hass)
+        self.__translations: dict[str, str] | None = None
+        self.__translation_language: str | None = None
         self.__logger = logger
         self.__device_consumption_coordinator = device_consumption_coordinator
-        self.__device_coordinator = device_coordinator
         self.__energy_contract_coordinator = energy_contract_coordinator
         self.__daily_consumption_handler = daily_consumption_handler
         self.__lock = asyncio.Lock()
@@ -94,14 +97,26 @@ class VoltalisEnergyStatisticsPublisher:
     async def async_backfill(self, target_dates: list[date]) -> None:
         """Load complete consumption records for dates requested during setup."""
         async with self.__lock:
+            devices_data: dict[int, list[EnergyRecord]] = defaultdict(list)
             for target_date in target_dates:
-                devices_data = await self.__daily_consumption_handler.handle(
+                daily_devices_data = await self.__daily_consumption_handler.handle(
                     target_date=target_date,
                     target_time=None,
                 )
-                await self.__publish_devices_data(devices_data)
+                for device_id, device_data in daily_devices_data.items():
+                    devices_data[device_id].extend(device_data.daily_energy_records)
 
-    async def __publish_devices_data(self, devices_data: dict[int, DeviceEnergy]) -> None:
+            await self.__publish_devices_data(
+                {device_id: DeviceEnergy(daily_energy_records=records) for device_id, records in devices_data.items()},
+                replace_existing=True,
+            )
+
+    async def __publish_devices_data(
+        self,
+        devices_data: dict[int, DeviceEnergy],
+        *,
+        replace_existing: bool = False,
+    ) -> None:
         published_series = 0
         for energy_contract in self.__energy_contract_coordinator.data.values():
             sensor_types: tuple[str | None, ...] = (None,)
@@ -109,26 +124,39 @@ class VoltalisEnergyStatisticsPublisher:
                 sensor_types = (None, "peak", "off-peak")
 
             for sensor_type in sensor_types:
-                contract_entity_id = self.__get_entity_id(
-                    entity_suffix=f"daily_consumption{f'_{sensor_type}' if sensor_type else ''}",
-                    energy_contract=energy_contract,
+                contract_entity_id = self.__get_statistic_id(
+                    stat_suffix=f"system_energy_daily{f'_{sensor_type}' if sensor_type else ''}",
+                )
+                contract_statistic_name = await self.__get_statistic_name(
+                    stat_suffix=f"system_energy_daily{f'_{sensor_type}' if sensor_type else ''}",
                 )
                 records = self.__get_records(
                     devices_data,
                     sensor_type,
                 )
-                await self.__publish_records(statistic_id=contract_entity_id, records=records)
+                await self.__publish_records(
+                    statistic_id=contract_entity_id,
+                    statistic_name=contract_statistic_name,
+                    records=records,
+                    replace_existing=replace_existing,
+                )
                 published_series += 1
 
                 for device_id, device_data in devices_data.items():
                     device_records = self.__get_records({device_id: device_data}, sensor_type)
-                    device_entity_id = self.__get_entity_id(
-                        entity_suffix=f"device_energy_daily{f'_{sensor_type}' if sensor_type else ''}",
+                    device_entity_id = self.__get_statistic_id(
+                        stat_suffix=f"device_energy_daily{f'_{sensor_type}' if sensor_type else ''}",
+                        device_id=device_id,
+                    )
+                    device_statistic_name = await self.__get_statistic_name(
+                        stat_suffix=f"device_energy_daily{f'_{sensor_type}' if sensor_type else ''}",
                         device_id=device_id,
                     )
                     await self.__publish_records(
                         statistic_id=device_entity_id,
+                        statistic_name=device_statistic_name,
                         records=device_records,
+                        replace_existing=replace_existing,
                     )
                     published_series += 1
 
@@ -160,31 +188,36 @@ class VoltalisEnergyStatisticsPublisher:
         self,
         *,
         statistic_id: str,
+        statistic_name: str,
         records: list[tuple[datetime, float]],
+        replace_existing: bool = False,
     ) -> None:
-        last_statistics = await get_instance(self.__hass).async_add_executor_job(
-            get_last_statistics, self.__hass, 1, statistic_id, False, {"sum"}
-        )
-        last_record = last_statistics.get(statistic_id, [])
-        last_start = last_record[0].get("start") if last_record else None
-        cumulative_sum = float(last_record[0].get("sum") or 0.0) if last_record else 0.0
+        if replace_existing:
+            statistics = await self.__build_replacement_statistics(statistic_id=statistic_id, records=records)
+        else:
+            last_statistics = await get_instance(self.__hass).async_add_executor_job(
+                get_last_statistics, self.__hass, 1, statistic_id, False, {"sum"}
+            )
+            last_record = last_statistics.get(statistic_id, [])
+            last_start = last_record[0].get("start") if last_record else None
+            cumulative_sum = float(last_record[0].get("sum") or 0.0) if last_record else 0.0
 
-        statistics: list[StatisticData] = []
-        for start, consumption in records:
-            start = self.__as_local(start)
-            if last_start is not None and start.timestamp() <= last_start:
-                continue
-            cumulative_sum += consumption
-            statistics.append(StatisticData(start=start, state=consumption, sum=cumulative_sum))
+            statistics = []
+            for start, consumption in records:
+                start = self.__as_local(start)
+                if last_start is not None and start.timestamp() <= last_start:
+                    continue
+                cumulative_sum += consumption
+                statistics.append(StatisticData(start=start, state=consumption, sum=cumulative_sum))
 
         if statistics:
-            async_import_statistics(
+            async_add_external_statistics(
                 self.__hass,
                 StatisticMetaData(
                     mean_type=StatisticMeanType.NONE,
                     has_sum=True,
-                    name=None,
-                    source="recorder",
+                    name=statistic_name,
+                    source=DOMAIN,
                     statistic_id=statistic_id,
                     unit_class=EnergyConverter.UNIT_CLASS,
                     unit_of_measurement=UnitOfEnergy.WATT_HOUR,
@@ -198,6 +231,57 @@ class VoltalisEnergyStatisticsPublisher:
             )
 
         await self.__update_daily_value(statistic_id, statistics)
+
+    async def __build_replacement_statistics(
+        self,
+        *,
+        statistic_id: str,
+        records: list[tuple[datetime, float]],
+    ) -> list[StatisticData]:
+        """Merge API records with Recorder rows before recalculating cumulative sums."""
+        if not records:
+            return []
+
+        api_values = {self.__as_local(start).timestamp(): consumption for start, consumption in records}
+        start = datetime.fromtimestamp(min(api_values), tz=timezone.utc) - timedelta(hours=1)
+        end = datetime.fromtimestamp(max(api_values), tz=timezone.utc) + timedelta(hours=1)
+        rows = await get_instance(self.__hass).async_add_executor_job(
+            statistics_during_period,
+            self.__hass,
+            start,
+            end,
+            {statistic_id},
+            "hour",
+            None,
+            {"state", "sum"},
+        )
+
+        values: dict[float, float] = {}
+        baseline = 0.0
+        first_api_timestamp = min(api_values)
+        for row in rows.get(statistic_id, []):
+            row_start = float(row.get("start") or 0.0)
+            row_state = row.get("state")
+            row_sum = row.get("sum")
+            if row_state is not None:
+                values[row_start] = float(row_state)
+            if row_start < first_api_timestamp and row_sum is not None:
+                baseline = float(row_sum) - float(row_state or 0.0)
+
+        values.update(api_values)
+        cumulative_sum = baseline
+        statistics: list[StatisticData] = []
+        for timestamp in sorted(values):
+            consumption = values[timestamp]
+            cumulative_sum += consumption
+            statistics.append(
+                StatisticData(
+                    start=datetime.fromtimestamp(timestamp, tz=timezone.utc),
+                    state=consumption,
+                    sum=cumulative_sum,
+                )
+            )
+        return statistics
 
     async def __update_daily_value(self, statistic_id: str, new_statistics: list[StatisticData]) -> None:
         """Expose today's consumption while keeping Recorder's sum cumulative."""
@@ -242,25 +326,38 @@ class VoltalisEnergyStatisticsPublisher:
             return value.replace(tzinfo=dt_util.get_default_time_zone())
         return dt_util.as_local(value)
 
-    def __get_entity_id(
-        self,
-        *,
-        entity_suffix: str,
-        energy_contract: EnergyContract | None = None,
-        device_id: int | None = None,
-    ) -> str:
-        if energy_contract is not None:
-            unique_id = f"{self.__entry_id}_{energy_contract.subscriber_id}_{entity_suffix}"
-            entity_id = self.__registry.async_get_entity_id(Platform.SENSOR, DOMAIN, unique_id)
-            if entity_id is None:
-                raise ValueError(f"Entity not found for the unique ID: {unique_id}")
-            return entity_id
+    def __get_statistic_id(self, *, stat_suffix: str, device_id: int | None = None) -> str:
+        """Build a readable and stable Recorder statistic ID."""
+        normalized_suffix = stat_suffix.replace("-", "_")
+        if device_id is None:
+            return f"{DOMAIN}:{self.__site_id}_{normalized_suffix}"
 
-        if device_id is not None:
-            unique_id = f"{self.__entry_id}_{device_id}_{entity_suffix}"
-            entity_id = self.__registry.async_get_entity_id(Platform.SENSOR, DOMAIN, unique_id)
-            if entity_id is None:
-                raise ValueError(f"Entity not found for the unique ID: {unique_id}")
-            return entity_id
+        return f"{DOMAIN}:{self.__site_id}_{device_id}_{normalized_suffix}"
 
-        raise ValueError("Either energy_contract or device_id must be provided to get the entity ID.")
+    async def __get_statistic_name(self, *, stat_suffix: str, device_id: int | None = None) -> str:
+        """Build the display name stored with an external statistic."""
+
+        # Get translation for the current language
+        translations = await async_get_translations(
+            self.__hass,
+            self.__hass.config.language,
+            "entity",
+            integrations=[DOMAIN],
+        )
+
+        # Get Statistic name
+        translation_key = f"component.{DOMAIN}.entity.sensor.{stat_suffix}.name"
+        label = translations.get(translation_key)
+        if label is None:
+            label = stat_suffix.removeprefix("system_").removeprefix("device_").replace("_", " ")
+
+        # Get Device name
+        device = self.__device_registry.async_get_device_by_identifier(
+            identifier=(DOMAIN, f"{self.__site_id}_{device_id or 'system'}"),
+            config_entry_id=self.__entry_id,
+        )
+        device_name = "Voltalis"
+        if device is not None:
+            device_name = device.name_by_user or device.name or device_name
+
+        return f"{device_name} {label}".capitalize()

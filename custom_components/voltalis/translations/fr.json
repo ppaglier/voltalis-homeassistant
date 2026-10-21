@@ -181,6 +181,12 @@
       }
     }
   },
+  "notification": {
+    "statistics_backfill": {
+      "title": "Synchronisation des statistiques Voltalis",
+      "message": "Voltalis récupère les statistiques historiques en arrière-plan, sur une période pouvant aller jusqu'à un an. Cette notification sera supprimée à la fin de la synchronisation."
+    }
+  },
   "services": {
     "set_manual_mode": {
       "name": "Définir le mode manuel",
