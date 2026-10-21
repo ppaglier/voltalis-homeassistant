@@ -119,22 +119,22 @@ async def test_device_energy_daily_sensor(
 @pytest.mark.parametrize(
     "entity_id,expected_unit",
     [
-        ("sensor.contract_1_3_kva_peak_off_peak_live_power", UnitOfPower.WATT),
+        ("sensor.voltalis_live_power", UnitOfPower.WATT),
         ("sensor.contract_1_3_kva_peak_off_peak_subscribed_power", UnitOfApparentPower.KILO_VOLT_AMPERE),
-        ("sensor.contract_1_3_kva_peak_off_peak_daily_energy", UnitOfEnergy.WATT_HOUR),
-        ("sensor.contract_1_3_kva_peak_off_peak_daily_energy_peak", UnitOfEnergy.WATT_HOUR),
-        ("sensor.contract_1_3_kva_peak_off_peak_daily_energy_off_peak", UnitOfEnergy.WATT_HOUR),
+        ("sensor.voltalis_daily_energy", UnitOfEnergy.WATT_HOUR),
+        ("sensor.voltalis_daily_energy_peak", UnitOfEnergy.WATT_HOUR),
+        ("sensor.voltalis_daily_energy_off_peak", UnitOfEnergy.WATT_HOUR),
         ("sensor.contract_1_3_kva_peak_off_peak_kwh_current_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
         ("sensor.contract_1_3_kva_peak_off_peak_kwh_peak_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
         ("sensor.contract_1_3_kva_peak_off_peak_kwh_off_peak_price", f"{CURRENCY_EURO}/{UnitOfEnergy.KILO_WATT_HOUR}"),
     ],
 )
-async def test_energy_contract_sensor_entity_setup(
+async def test_energy_and_system_sensor_entity_setup(
     fixture: HomeAssistantFixture,
     entity_id: str,
     expected_unit: str,
 ) -> None:
-    """Test that energy contract sensor entities are created with correct units."""
+    """Test that energy contract and system sensor entities have correct units."""
 
     sensor_entity = fixture.get_entity_state(entity_id)
 
@@ -161,10 +161,10 @@ async def test_energy_contract_current_tariff_sensor(fixture: HomeAssistantFixtu
 
 
 @pytest.mark.e2e
-async def test_energy_contract_live_power_sensor(fixture: HomeAssistantFixture) -> None:
-    """Test that energy contract live power sensor reports values."""
+async def test_system_live_power_sensor(fixture: HomeAssistantFixture) -> None:
+    """Test that the system live power sensor reports values."""
 
-    entity_id = "sensor.contract_1_3_kva_peak_off_peak_live_power"
+    entity_id = "sensor.voltalis_live_power"
     sensor_entity = fixture.get_entity_state(entity_id)
 
     # Check that the sensor has a numeric state
@@ -200,12 +200,12 @@ async def test_device_energy_daily_peak_off_peak_consistency(
 
 
 @pytest.mark.e2e
-async def test_energy_contract_energy_daily_peak_off_peak_consistency(fixture: HomeAssistantFixture) -> None:
-    """Test that contract daily energy is split between peak and off-peak sensors."""
+async def test_system_energy_daily_peak_off_peak_consistency(fixture: HomeAssistantFixture) -> None:
+    """Test that system daily energy is split between peak and off-peak sensors."""
 
-    total = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_daily_energy").state)
-    peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_daily_energy_peak").state)
-    off_peak = float(fixture.get_entity_state("sensor.contract_1_3_kva_peak_off_peak_daily_energy_off_peak").state)
+    total = float(fixture.get_entity_state("sensor.voltalis_daily_energy").state)
+    peak = float(fixture.get_entity_state("sensor.voltalis_daily_energy_peak").state)
+    off_peak = float(fixture.get_entity_state("sensor.voltalis_daily_energy_off_peak").state)
 
     assert peak >= 0
     assert off_peak >= 0
