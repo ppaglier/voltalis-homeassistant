@@ -7,25 +7,24 @@ from homeassistant.const import UnitOfPower
 from homeassistant.core import callback
 from propcache.api import cached_property
 
-from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_energy_contract_entity import (
-    VoltalisEnergyContractEntity,
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_system_entity import (
+    VoltalisSystemEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 
 
-class VoltalisEnergyContractLivePowerSensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
-    """Sensor entity to represent near real-time consumption for a Voltalis energy contract."""
+class VoltalisSystemLivePowerSensor(VoltalisSystemEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
+    """Sensor entity to represent near real-time consumption for a Voltalis system."""
 
     _attr_device_class = SensorDeviceClass.POWER
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = UnitOfPower.WATT
-    _attr_translation_key = "live_power"
+    _attr_translation_key = "system_live_power"
 
-    def __init__(self, entry: VoltalisConfigEntry, energy_contract: EnergyContract) -> None:
+    def __init__(self, entry: VoltalisConfigEntry) -> None:
         """Initialize the sensor entity."""
         super().__init__(
-            entry, energy_contract, entry.runtime_data.voltalis_home_assistant_module.live_power_coordinator
+            entry, "energy_contract", entry.runtime_data.voltalis_home_assistant_module.live_power_coordinator
         )
 
     @callback

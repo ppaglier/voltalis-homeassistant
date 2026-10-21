@@ -77,16 +77,16 @@
           "comm_error": "Erreur de communication"
         }
       },
-      "live_power": {
+      "system_live_power": {
         "name": "Puissance actuelle"
       },
-      "energy_daily": {
+      "system_energy_daily": {
         "name": "Énergie journalière"
       },
-      "energy_daily_peak": {
+      "system_energy_daily_peak": {
         "name": "Énergie journalière (Heures pleines)"
       },
-      "energy_daily_off-peak": {
+      "system_energy_daily_off-peak": {
         "name": "Énergie journalière (Heures creuses)"
       },
       "device_energy_daily": {
@@ -155,7 +155,7 @@
           "auto": "Auto"
         }
       },
-      "program_select": {
+      "system_program": {
         "name": "Programme",
         "state": {
           "internal_program-none": "Aucun programme",

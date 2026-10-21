@@ -8,7 +8,9 @@ from custom_components.voltalis.apps.home_assistant.entities.config_entry_data i
 from custom_components.voltalis.apps.home_assistant.entities.device_entities.voltalis_device_preset_select import (
     VoltalisDevicePresetSelect,
 )
-from custom_components.voltalis.apps.home_assistant.entities.voltalis_program_select import VoltalisProgramSelect
+from custom_components.voltalis.apps.home_assistant.entities.system_entities.program_select import (
+    VoltalisSystemProgramSelect,
+)
 
 # Limit parallel updates (the DataUpdateCoordinator already centralizes calls)
 PARALLEL_UPDATES = 1
@@ -30,7 +32,7 @@ async def async_setup_entry(
         # Create the program select entity
         select_entities.append(VoltalisDevicePresetSelect(entry, device))
 
-    select_entities.append(VoltalisProgramSelect(entry))
+    select_entities.append(VoltalisSystemProgramSelect(entry))
 
     all_entities: dict[str, VoltalisBaseEntity] = {sensor.unique_internal_name: sensor for sensor in select_entities}
     async_add_entities(all_entities.values(), update_before_add=True)

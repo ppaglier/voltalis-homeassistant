@@ -1,6 +1,7 @@
 from typing import Any
 
-from homeassistant.components.water_heater import WaterHeaterEntity, WaterHeaterEntityFeature
+from homeassistant.components.water_heater import WaterHeaterEntity
+from homeassistant.components.water_heater.const import WaterHeaterEntityFeature
 from propcache.api import cached_property
 
 from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_device_entity import (

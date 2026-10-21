@@ -40,15 +40,16 @@ class VoltalisEnergyContractCurrentTariffSensor(VoltalisEnergyContractEntity, Se
     @cached_property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
-        if self.native_value is None:
-            return "mdi:calendar-minus"
-        if self.native_value == EnergyContractCurrentTariffEnum.BASE:
-            return "mdi:sort-calendar-today"
-        if self.native_value == EnergyContractCurrentTariffEnum.PEAK:
-            return "mdi:sort-calendar-descending"
-        if self.native_value == EnergyContractCurrentTariffEnum.OFF_PEAK:
-            return "mdi:sort-calendar-ascending"
-        return "mdi:calendar-blank-outline"
+        current = self.native_value
+        if current is not None:
+            if current == EnergyContractCurrentTariffEnum.BASE:
+                return "mdi:sort-calendar-today"
+            if current == EnergyContractCurrentTariffEnum.PEAK:
+                return "mdi:sort-calendar-descending"
+            if current == EnergyContractCurrentTariffEnum.OFF_PEAK:
+                return "mdi:sort-calendar-ascending"
+            return "mdi:calendar-blank-outline"
+        return "mdi:calendar-minus"
 
     async def __update(self, _: datetime) -> None:
         energy_contract = self._voltalis_module.energy_contract_coordinator.data.get(self._energy_contract.id)

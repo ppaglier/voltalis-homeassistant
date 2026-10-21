@@ -30,15 +30,16 @@ class VoltalisDeviceProgrammingSensor(VoltalisDeviceEntity, SensorEntity):  # py
     @cached_property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
-        if self.native_value is None:
-            return "mdi:calendar-minus"
-        if self.native_value == ProgramTypeEnum.USER:
-            return "mdi:calendar-account-outline"
-        if self.native_value == ProgramTypeEnum.MANUAL:
-            return "mdi:calendar-edit-outline"
-        if self.native_value == ProgramTypeEnum.QUICK:
-            return "mdi:calendar-clock-outline"
-        return "mdi:calendar-blank-outline"
+        current = self.native_value
+        if current is not None:
+            if current == ProgramTypeEnum.USER:
+                return "mdi:calendar-account-outline"
+            if current == ProgramTypeEnum.MANUAL:
+                return "mdi:calendar-edit-outline"
+            if current == ProgramTypeEnum.QUICK:
+                return "mdi:calendar-clock-outline"
+            return "mdi:calendar-blank-outline"
+        return "mdi:calendar-minus"
 
     @callback
     def _handle_coordinator_update(self) -> None:

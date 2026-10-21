@@ -1,20 +1,18 @@
 from homeassistant.components.select import SelectEntity
 from homeassistant.core import callback
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from propcache.api import cached_property
 
-from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_base_entity import (
-    VoltalisBaseEntity,
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_system_entity import (
+    VoltalisSystemEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.const import DOMAIN
 from custom_components.voltalis.lib.domain.programs_management.programs.program import Program
 
 
-class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
-    """Select entity for Voltalis program."""
+class VoltalisSystemProgramSelect(VoltalisSystemEntity, SelectEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
+    """Select entity for Voltalis system programs."""
 
-    _attr_translation_key = "program_select"
+    _attr_translation_key = "system_program"
     _attr_icon = "mdi:calendar-clock"
 
     __none_program_option = "internal_program-none"
@@ -22,28 +20,7 @@ class VoltalisProgramSelect(VoltalisBaseEntity, SelectEntity):
     def __init__(self, entry: VoltalisConfigEntry) -> None:
         """Initialize the program select entity."""
 
-        super().__init__(entry, entry.runtime_data.voltalis_home_assistant_module.programs_coordinator)
-
-        # Unique id for Home Assistant
-        unique_id = f"{entry.runtime_data.site_id}"
-        self._attr_unique_id = f"{unique_id}_programs_{self._attr_translation_key}"
-
-        self._attr_device_info: DeviceInfo = DeviceInfo(  # pyright: ignore[reportIncompatibleVariableOverride]
-            identifiers={(DOMAIN, unique_id)},
-            name="Voltalis",
-            manufacturer="Voltalis",
-            configuration_url="https://myvoltalis.com",
-            entry_type=DeviceEntryType.SERVICE,
-        )
-
-    @property
-    def unique_internal_name(self) -> str:
-        """Return a unique internal name for the entity."""
-        return f"programs_{self._attr_unique_id}"
-
-    @cached_property
-    def has_entity_name(self) -> bool:
-        return True
+        super().__init__(entry, "programs", entry.runtime_data.voltalis_home_assistant_module.programs_coordinator)
 
     # ------------------------------------------------------------------
     # Availability handling

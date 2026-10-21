@@ -5,15 +5,14 @@ from homeassistant.const import UnitOfEnergy
 from homeassistant.core import callback
 from propcache.api import cached_property
 
-from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_energy_contract_entity import (
-    VoltalisEnergyContractEntity,
+from custom_components.voltalis.apps.home_assistant.entities.base_entities.voltalis_system_entity import (
+    VoltalisSystemEntity,
 )
 from custom_components.voltalis.apps.home_assistant.entities.config_entry_data import VoltalisConfigEntry
-from custom_components.voltalis.lib.domain.energy_contracts.energy_contract import EnergyContract
 
 
-class VoltalisEnergyContractEnergyDailySensor(VoltalisEnergyContractEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
-    """References the daily energy of an energy contract."""
+class VoltalisSystemEnergyDailySensor(VoltalisSystemEntity, SensorEntity):  # pyright: ignore[reportIncompatibleVariableOverride]
+    """References the daily energy of the voltalis system."""
 
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_state_class = None
@@ -22,17 +21,16 @@ class VoltalisEnergyContractEnergyDailySensor(VoltalisEnergyContractEntity, Sens
     def __init__(
         self,
         entry: VoltalisConfigEntry,
-        energy_contract: EnergyContract,
         sensor_type: Literal["peak", "off-peak"] | None,
     ) -> None:
         """Initialize the sensor entity."""
 
         suffix = f"_{sensor_type}" if sensor_type else ""
         self.__sensor_type = sensor_type
-        self._attr_translation_key = f"energy_daily{suffix}"
+        self._attr_translation_key = f"system_energy_daily{suffix}"
         super().__init__(
             entry,
-            energy_contract,
+            "energy_contract",
             entry.runtime_data.voltalis_home_assistant_module.device_energy_daily_coordinator,
         )
 

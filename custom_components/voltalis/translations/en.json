@@ -77,16 +77,16 @@
           "comm_error": "Communication error"
         }
       },
-      "live_power": {
+      "system_live_power": {
         "name": "Live power"
       },
-      "energy_daily": {
+      "system_energy_daily": {
         "name": "Daily energy"
       },
-      "energy_daily_peak": {
+      "system_energy_daily_peak": {
         "name": "Daily energy (Peak)"
       },
-      "energy_daily_off-peak": {
+      "system_energy_daily_off-peak": {
         "name": "Daily energy (Off-Peak)"
       },
       "device_energy_daily": {
@@ -155,7 +155,7 @@
           "auto": "Auto"
         }
       },
-      "program_select": {
+      "system_program": {
         "name": "Program",
         "state": {
           "internal_program-none": "No Program",

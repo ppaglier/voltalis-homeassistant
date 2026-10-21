@@ -12,14 +12,16 @@ CUSTOM_SUFFIX_MAPPING: dict[str, str] = {
     "device_daily_consumption_peak": "device_energy_daily_peak",
     "device_daily_consumption": "device_energy_daily",
     "device_connected": "device_health_status",
+    "energy_contract_subscribed_power": "energy_contract_subscribed_power",
     "energy_contract_current_mode": "energy_contract_current_tariff",
     "energy_contract_kwh_off_peak_cost": "energy_contract_kwh_off-peak_price",
     "energy_contract_kwh_peak_cost": "energy_contract_kwh_peak_price",
     "energy_contract_kwh_current_cost": "energy_contract_kwh_current_price",
-    "daily_consumption_offpeak": "energy_daily_off-peak",
-    "daily_consumption_peak": "energy_daily_peak",
-    "daily_consumption": "energy_daily",
-    "live_consumption": "live_power",
+    "daily_consumption_offpeak": "system_energy_daily_off-peak",
+    "daily_consumption_peak": "system_energy_daily_peak",
+    "daily_consumption": "system_energy_daily",
+    "live_consumption": "system_live_power",
+    "programs_program_select": "system_program",
 }
 
 # Pre-sort by descending length of old suffixes to prevent partial substring matches
@@ -52,9 +54,9 @@ async def migrate(*, home_assistant_module: "VoltalisHomeAssistantModule") -> bo
         )
         if device_internal:
             logger.debug(
-                "Migrating device %s (internal ID: %s) -> %s",
-                device.name,
+                "Migrating device (internal ID: %s) %s -> %s",
                 device_internal.id,
+                old_identifier[1],
                 new_identifier[1],
             )
 
@@ -73,6 +75,7 @@ async def migrate(*, home_assistant_module: "VoltalisHomeAssistantModule") -> bo
 
     # 2. Energy contracts migration
     energy_contracts = home_assistant_module.energy_contract_coordinator.data or {}
+    energy_contracts_subscriber_ids = {f"{ec.subscriber_id}" for ec in energy_contracts.values()}
     for energy_contract in energy_contracts.values():
         old_identifier = (DOMAIN, f"{energy_contract.subscriber_id}")
         new_identifier = (DOMAIN, f"{site_id}_energy_contract")
@@ -83,9 +86,9 @@ async def migrate(*, home_assistant_module: "VoltalisHomeAssistantModule") -> bo
         )
         if energy_contract_internal:
             logger.debug(
-                "Migrating energy contract %s (internal ID: %s) -> %s",
-                energy_contract.name,
+                "Migrating energy contract device (internal ID: %s) %s -> %s",
                 energy_contract_internal.id,
+                old_identifier[1],
                 new_identifier[1],
             )
 
@@ -120,13 +123,27 @@ async def migrate(*, home_assistant_module: "VoltalisHomeAssistantModule") -> bo
 
         # Prepend site_id if not already present
         if not target_id.startswith(f"{site_id}_"):
+            # If the target_id contains "energy_contract" or "system" but does not start with the site_id,
+            # it means that the entity is related to the old energy contract unique_id format.
+            # In this case, we need to remove the subscriber_id from the unique_id
+            old_target_id = target_id
+            if "energy_contract" in target_id or "system" in target_id:
+                for subscriber_id in energy_contracts_subscriber_ids:
+                    if target_id.startswith(f"{subscriber_id}_"):
+                        target_id = target_id[len(subscriber_id) + 1 :]
+                        break
+                print(f"Adjusted target_id from {old_target_id} to {target_id}", flush=True)
+
             new_unique_id = f"{site_id}_{target_id}"
         else:
             new_unique_id = target_id
 
+        print(f"Migrating entity (entity_id: {entity_entry.entity_id}) {old_unique_id} -> {new_unique_id}", flush=True)
+
         if new_unique_id != old_unique_id:
             logger.debug(
-                "Migrating entity %s -> %s",
+                "Migrating entity (entity_id: %s) %s -> %s",
+                entity_entry.entity_id,
                 old_unique_id,
                 new_unique_id,
             )
@@ -138,6 +155,11 @@ async def migrate(*, home_assistant_module: "VoltalisHomeAssistantModule") -> bo
                 unique_id=new_unique_id,
             )
             if existing_entity_id and existing_entity_id != entity_entry.entity_id:
+                logger.debug(
+                    "Removing existing entity %s due to unique_id collision with %s",
+                    existing_entity_id,
+                    new_unique_id,
+                )
                 ent_reg.async_remove(existing_entity_id)
 
             ent_reg.async_update_entity(

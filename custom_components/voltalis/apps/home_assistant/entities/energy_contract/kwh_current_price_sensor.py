@@ -47,13 +47,14 @@ class VoltalisEnergyContractKwhCurrentPriceSensor(VoltalisEnergyContractEntity, 
     @cached_property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
-        if self.__current_mode is None:
-            return "mdi:gauge-empty"
-        if self.__current_mode == EnergyContractCurrentTariffEnum.PEAK:
-            return "mdi:gauge-full"
-        if self.__current_mode == EnergyContractCurrentTariffEnum.OFF_PEAK:
-            return "mdi:gauge-low"
-        return "mdi:gauge"
+        current = self.__current_mode
+        if current is not None:
+            if current == EnergyContractCurrentTariffEnum.PEAK:
+                return "mdi:gauge-full"
+            if current == EnergyContractCurrentTariffEnum.OFF_PEAK:
+                return "mdi:gauge-low"
+            return "mdi:gauge"
+        return "mdi:gauge-empty"
 
     async def __update(self, _: datetime) -> None:
         energy_contract = self._voltalis_module.energy_contract_coordinator.data.get(self._energy_contract.id)

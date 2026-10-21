@@ -29,18 +29,18 @@ class VoltalisDeviceHealthStatusSensor(VoltalisDeviceEntity, SensorEntity):  # p
     @cached_property
     def icon(self) -> str:
         """Return the icon to use for this entity."""
-        if self.native_value is None:
-            return "mdi:network-outline"
-        if self.native_value == DeviceHealthStatusEnum.OK:
-            return "mdi:check-network-outline"
-        if self.native_value == DeviceHealthStatusEnum.TEST_IN_PROGRESS:
-            return "mdi:console-network-outline"
-        if self.native_value == DeviceHealthStatusEnum.NO_CONSUMPTION:
-            return "mdi:minus-network-outline"
-        if self.native_value == DeviceHealthStatusEnum.COMM_ERROR:
-            return "mdi:help-network-outline"
-        if self.native_value == DeviceHealthStatusEnum.NOT_OK:
-            return "mdi:close-network-outline"
+        current = self.native_value
+        if current is not None:
+            if current == DeviceHealthStatusEnum.OK:
+                return "mdi:check-network-outline"
+            if current == DeviceHealthStatusEnum.TEST_IN_PROGRESS:
+                return "mdi:console-network-outline"
+            if current == DeviceHealthStatusEnum.NO_CONSUMPTION:
+                return "mdi:minus-network-outline"
+            if current == DeviceHealthStatusEnum.COMM_ERROR:
+                return "mdi:help-network-outline"
+            if current == DeviceHealthStatusEnum.NOT_OK:
+                return "mdi:close-network-outline"
         return "mdi:network-outline"
 
     @callback
