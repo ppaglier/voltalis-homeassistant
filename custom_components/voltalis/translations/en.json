@@ -89,6 +89,15 @@
       "system_energy_daily_off-peak": {
         "name": "Daily energy (Off-Peak)"
       },
+      "system_energy_cost": {
+        "name": "Energy cost"
+      },
+      "system_energy_cost_peak": {
+        "name": "Energy cost (Peak)"
+      },
+      "system_energy_cost_off-peak": {
+        "name": "Energy cost (Off-Peak)"
+      },
       "device_energy_daily": {
         "name": "Daily energy"
       },

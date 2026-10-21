@@ -89,6 +89,15 @@
       "system_energy_daily_off-peak": {
         "name": "Énergie journalière (Heures creuses)"
       },
+      "system_energy_cost": {
+        "name": "Coût de l'énergie"
+      },
+      "system_energy_cost_peak": {
+        "name": "Coût de l'énergie (Heures pleines)"
+      },
+      "system_energy_cost_off-peak": {
+        "name": "Coût de l'énergie (Heures creuses)"
+      },
       "device_energy_daily": {
         "name": "Énergie journalière"
       },

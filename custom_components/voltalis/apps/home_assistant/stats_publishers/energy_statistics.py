@@ -142,6 +142,23 @@ class VoltalisEnergyStatisticsPublisher:
                 )
                 published_series += 1
 
+                cost_statistic_id = self.__get_statistic_id(
+                    stat_suffix=f"system_energy_cost{f'_{sensor_type}' if sensor_type else ''}",
+                )
+                cost_statistic_name = await self.__get_statistic_name(
+                    stat_suffix=f"system_energy_cost{f'_{sensor_type}' if sensor_type else ''}",
+                )
+                await self.__publish_records(
+                    statistic_id=cost_statistic_id,
+                    statistic_name=cost_statistic_name,
+                    records=self.__get_cost_records(devices_data, sensor_type, energy_contract),
+                    replace_existing=replace_existing,
+                    unit_of_measurement="EUR",
+                    unit_class=None,
+                    update_daily_value=False,
+                )
+                published_series += 1
+
                 for device_id, device_data in devices_data.items():
                     device_records = self.__get_records({device_id: device_data}, sensor_type)
                     device_entity_id = self.__get_statistic_id(
@@ -184,6 +201,38 @@ class VoltalisEnergyStatisticsPublisher:
 
         return sorted(totals.items())
 
+    def __get_cost_records(
+        self,
+        devices_data: dict[int, DeviceEnergy],
+        sensor_type: str | None,
+        energy_contract: EnergyContract,
+    ) -> list[tuple[datetime, float]]:
+        """Calculate hourly system cost in EUR for the selected tariff."""
+        totals: defaultdict[datetime, float] = defaultdict(float)
+        prices = energy_contract.prices
+
+        for device_data in devices_data.values():
+            for record in device_data.daily_energy_records:
+                start = record.timestamp.replace(minute=0, second=0, microsecond=0)
+                if sensor_type == "peak":
+                    consumption = record.peak or 0.0
+                    price = prices.kwh_peak or 0.0
+                elif sensor_type == "off-peak":
+                    consumption = record.off_peak or 0.0
+                    price = prices.kwh_off_peak or 0.0
+                elif energy_contract.type == EnergyContractTypeEnum.PEAK_OFF_PEAK:
+                    consumption = (record.peak or 0.0) * (prices.kwh_peak or 0.0)
+                    consumption += (record.off_peak or 0.0) * (prices.kwh_off_peak or 0.0)
+                    totals[start] += consumption / 1000
+                    continue
+                else:
+                    consumption = record.total
+                    price = prices.kwh_base or 0.0
+
+                totals[start] += consumption * price / 1000
+
+        return sorted(totals.items())
+
     async def __publish_records(
         self,
         *,
@@ -191,6 +240,9 @@ class VoltalisEnergyStatisticsPublisher:
         statistic_name: str,
         records: list[tuple[datetime, float]],
         replace_existing: bool = False,
+        unit_of_measurement: str = UnitOfEnergy.WATT_HOUR,
+        unit_class: str | None = EnergyConverter.UNIT_CLASS,
+        update_daily_value: bool = True,
     ) -> None:
         if replace_existing:
             statistics = await self.__build_replacement_statistics(statistic_id=statistic_id, records=records)
@@ -219,8 +271,8 @@ class VoltalisEnergyStatisticsPublisher:
                     name=statistic_name,
                     source=DOMAIN,
                     statistic_id=statistic_id,
-                    unit_class=EnergyConverter.UNIT_CLASS,
-                    unit_of_measurement=UnitOfEnergy.WATT_HOUR,
+                    unit_class=unit_class,
+                    unit_of_measurement=unit_of_measurement,
                 ),
                 statistics,
             )
@@ -230,7 +282,8 @@ class VoltalisEnergyStatisticsPublisher:
                 statistic_id,
             )
 
-        await self.__update_daily_value(statistic_id, statistics)
+        if update_daily_value:
+            await self.__update_daily_value(statistic_id, statistics)
 
     async def __build_replacement_statistics(
         self,
